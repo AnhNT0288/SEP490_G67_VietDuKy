@@ -1,3 +1,5 @@
+import Footer from "../components/Footer/Footer.jsx";
+import Header from "../components/Header/Header.jsx";
 
 export default function DealsPage() {
 
@@ -47,21 +49,9 @@ export default function DealsPage() {
     ];
 
     return (
-        <div className="bg-white" style={{ backgroundImage: "url('/Image/Background.png')" }}>
-
+        <div className="bg-white" style={{backgroundImage: "url('/Image/Background.png')", backgroundSize: "cover", backgroundPosition: "center", width: "100%", minHeight: "100vh",}}>
             {/* Header */}
-            <header className="bg-red-700 text-white py-4 px-6 flex items-center justify-between">
-                <img src="/Image/Logo.png" alt="Viet Du Ky" width={150} height={100}  />
-                <div className="flex items-center space-x-6">
-                    <nav className="flex space-x-16">
-                        <a href="#" className="hover:underline">Trang Chủ</a>
-                        <a href="#" className="hover:underline">Du lịch trọn gói</a>
-                        <a href="#" className="hover:underline">Hợp tác với chúng tôi</a>
-                        <a href="#" className="hover:underline">Hỗ Trợ</a>
-                    </nav>
-                    <img src="/Image/avatar.png" alt="Avatar" width={50} height={50} className="rounded-full" />
-                </div>
-            </header>
+            <Header/>
 
             {/* Banner */}
             <div style={{ position: "relative", width: "100%", height: "300px", overflow: "hidden",}}>
@@ -118,33 +108,7 @@ export default function DealsPage() {
             </div>
 
             {/* Footer */}
-            <footer className="bg-red-700 text-white py-8 mt-16">
-                <div className="max-w-6xl mx-auto px-4 grid grid-cols-3 gap-4">
-                    <div>
-                        <h3 className="text-lg font-semibold">Về Việt Du Ký</h3>
-                        <p className="text-sm mt-2">
-                            Việt Du Ký là nền tảng trực tuyến tiên phong trong việc sử dụng trí tuệ nhân tạo (AI) để tạo ra lịch trình du lịch cá nhân hóa.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold">Liên hệ</h3>
-                        <p className="text-sm">📍 Hòa Lạc, Hà Nội</p>
-                        <p className="text-sm">📞 +84 963 858 005</p>
-                        <p className="text-sm">✉ vietduky.tour@gmail.com</p>
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold">Mạng xã hội</h3>
-                        <div className="flex space-x-4 mt-2">
-                            <span>📘</span>
-                            <span>🎵</span>
-                        </div>
-                        <div className="mt-4">
-                            <input type="text" placeholder="Email" className="w-full p-2 rounded-lg text-gray-700" />
-                            <button className="w-full mt-2 p-2 border rounded-lg text-white">Đăng ký</button>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <Footer/>
         </div >
     );
 }

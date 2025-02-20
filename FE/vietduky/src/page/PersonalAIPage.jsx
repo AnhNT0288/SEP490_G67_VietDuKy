@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import Header from "../components/Header/Header.jsx";
+import Footer from "../components/Footer/Footer.jsx";
 
 export default function PersonalAIPage() {
     const [search, setSearch] = useState('');
@@ -46,43 +48,15 @@ export default function PersonalAIPage() {
     };
 
     return (
-        <div className="bg-white" style={{ backgroundImage: "url('/Image/Background.png')" }}>
+        <div className="bg-white" style={{backgroundImage: "url('/Image/Background.png')", backgroundSize: "cover", backgroundPosition: "center", width: "100%", minHeight: "100vh",}}>
+
             {/* Header */}
-            <header className="bg-red-700 text-white py-4 px-6 flex items-center justify-between">
-                <img src="/Image/Logo.png" alt="Viet Du Ky" width={150} height={100}  />
-                <div className="flex items-center space-x-6">
-                    <nav className="flex space-x-6">
-                        <a href="#" className="hover:underline">Trang Chủ</a>
-                        <a href="#" className="hover:underline">Du lịch trọn gói</a>
-                        <a href="#" className="hover:underline">Hợp tác với chúng tôi</a>
-                        <a href="#" className="hover:underline">Hỗ Trợ</a>
-                    </nav>
-                    <img src="/Image/avatar.png" alt="Avatar" width={50} height={50} className="rounded-full" />
-                </div>
-            </header>
+            <Header/>
 
             <div className="relative">
                 {/* Background Image */}
-                <div
-                    style={{
-                        position: "relative",
-                        width: "100%",
-                        height: "300px",
-                        overflow: "hidden",
-                        borderBottomLeftRadius: "24px",
-                        borderBottomRightRadius: "24px",
-                    }}
-                >
-                    <img
-                        src="/Image/Div.png"
-                        alt="Background"
-                        style={{
-                            width: "100%", // Ảnh rộng bằng div
-                            height: "100%", // Ảnh cao bằng div
-                            objectFit: "cover", // Cắt ảnh để phù hợp div mà không méo
-                            filter: "brightness(75%)", // Làm tối ảnh 75%
-                        }}
-                    />
+                <div style={{position: "relative", width: "100%", height: "300px", overflow: "hidden", borderBottomLeftRadius: "24px", borderBottomRightRadius: "24px",}}>
+                    <img src="/Image/Div.png" alt="Background" style={{width: "100%", height: "100%", objectFit: "cover", filter: "brightness(75%)",}}/>
                     {/* Hashtag */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
                         <h2 className="text-2xl md:text-3xl font-semibold -mt-40">
@@ -93,8 +67,6 @@ export default function PersonalAIPage() {
 
                 {/* Search Box */}
                 <div className="relative w-full bg-white shadow-lg rounded-lg p-6 max-w-6xl mx-auto -mt-40">
-
-
 
                     {/* Buttons */}
                     <div className="flex space-x-4 mt-4">
@@ -130,7 +102,7 @@ export default function PersonalAIPage() {
                             placeholder="Bạn muốn đi đâu"
                             className="w-full px-4 py-3 outline-none text-gray-700"
                         />
-                        <button className="bg-red-700 text-white px-6 py-3 flex items-center rounded-md whitespace-nowrap">
+                        <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 flex items-center rounded-md whitespace-nowrap">
                             <span className="mr-2">🔍</span> <span>Tạo tour</span>
                         </button>
                     </div>
@@ -265,33 +237,8 @@ export default function PersonalAIPage() {
                 </div>
             </div>
 
-            <footer className="bg-red-700 text-white py-8 mt-16">
-                <div className="max-w-6xl mx-auto px-4 grid grid-cols-3 gap-4">
-                    <div>
-                        <h3 className="text-lg font-semibold">Về Việt Du Ký</h3>
-                        <p className="text-sm mt-2">
-                            Việt Du Ký là nền tảng trực tuyến tiên phong trong việc sử dụng trí tuệ nhân tạo (AI) để tạo ra lịch trình du lịch cá nhân hóa.
-                        </p>
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold">Liên hệ</h3>
-                        <p className="text-sm">📍 Hòa Lạc, Hà Nội</p>
-                        <p className="text-sm">📞 +84 963 858 005</p>
-                        <p className="text-sm">✉ vietduky.tour@gmail.com</p>
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold">Mạng xã hội</h3>
-                        <div className="flex space-x-4 mt-2">
-                            <span>📘</span>
-                            <span>🎵</span>
-                        </div>
-                        <div className="mt-4">
-                            <input type="text" placeholder="Email" className="w-full p-2 rounded-lg text-gray-700" />
-                            <button className="w-full mt-2 p-2 border rounded-lg text-white">Đăng ký</button>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            {/* Footer */}
+            <Footer/>
         </div >
     );
 }
