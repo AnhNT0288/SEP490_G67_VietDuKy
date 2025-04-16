@@ -209,7 +209,7 @@ exports.rejectGuideTour = async (req, res) => {
 };
 exports.getGuideTourByUserId = async (req, res) => {
   try {
-    const travel_guide_id = req.params.id;
+    const userId = req.params.id;
     const { 
       page = 1, 
       limit = 10,
@@ -220,6 +220,16 @@ exports.getGuideTourByUserId = async (req, res) => {
       status,
       upcoming
     } = req.query;
+    const travelGuide = await TravelGuide.findOne({
+      where: {
+        user_id: userId
+      }
+    });
+    if (!travelGuide) {
+      return res
+        .status(200)
+        .json({ message: "Không tìm thấy hướng dẫn viên!" });
+    }
 
     // Tạo điều kiện where cho Tour
     const tourWhereCondition = {};
@@ -233,12 +243,6 @@ exports.getGuideTourByUserId = async (req, res) => {
       tourWhereCondition.name_tour = {
         [Op.like]: `%${name_tour}%`
       };
-    }
-    const travelGuide = await TravelGuide.findByPk(travel_guide_id);
-    if (!travelGuide) {
-      return res
-        .status(200)
-        .json({ message: "Không tìm thấy hướng dẫn viên!" });
     }
 
     // Tạo điều kiện where cho TravelTour
@@ -268,7 +272,7 @@ exports.getGuideTourByUserId = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: guideTours } = await GuideTour.findAndCountAll({  
-      where: { travel_guide_id: travelGuide.user_id },
+      where: { travel_guide_id: travelGuide.id },
       include: [
         {
           model: TravelTour,
