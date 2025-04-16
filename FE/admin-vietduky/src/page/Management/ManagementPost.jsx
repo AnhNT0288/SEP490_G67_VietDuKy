@@ -1,34 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LuSearch } from "react-icons/lu";
 import Layout from "../../layouts/LayoutManagement.jsx";
-import { BsPencil, BsTrash } from "react-icons/bs";
-import ModalAddPost from "../../components/ModalManage/ModalNews/ModalAddPost.jsx";
+import { getAllArticles } from "../../services/API/article.service.js";
+import DropdownMenuTopic from "../../components/Dropdown/DropdowArticle.jsx";
+import ModalAddArticle from "../../components/ModalManage/ModalAdd/ModalAddArticle.jsx";
 
 export default function ManagementPost() {
     const [searchTerm, setSearchTerm] = useState("");
-    const [posts, setPosts] = useState([
-        {
-            id: 1,
-            category: "Sự kiện",
-            title: "Chấm thi trắc nghiệm tự động",
-            slug: "cham-thi-trac-nghiem",
-            featured: true,
-            status: "Hoạt động",
-        },
-        {
-            id: 2,
-            category: "Công nghệ",
-            title: "Giải pháp chấm thi cho giáo dục",
-            slug: "giai-phap-cham-thi",
-            featured: true,
-            status: "Khóa",
-        },
-    ]);
+    const [posts, setPosts] = useState([]);
     const [selectedPosts, setSelectedPosts] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const POSTS_PER_PAGE = 12;
+    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
 
-    // Toggle select all
+    const indexOfLastPost = currentPage * POSTS_PER_PAGE;
+    const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
+    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+
+    // 🔁 Đưa fetchPosts ra ngoài để tái sử dụng
+    const fetchPosts = async () => {
+        try {
+            const res = await getAllArticles();
+            if (res?.data) {
+                const mappedPosts = res.data.map((item) => ({
+                    id: item.id,
+                    category: item.directory?.name_directory || "Không rõ",
+                    title: item.alias,
+                    slug: item.alias,
+                    featured: item.true_featured === 1,
+                    status: item.true_active === 1 ? "Hoạt động" : "Khóa",
+                }));
+                setPosts(mappedPosts);
+            }
+        } catch (err) {
+            console.error("❌ Lỗi lấy danh sách bài viết:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
+    }, []);
+
     const handleSelectAll = () => {
         if (selectAll) {
             setSelectedPosts([]);
@@ -38,7 +53,6 @@ export default function ManagementPost() {
         setSelectAll(!selectAll);
     };
 
-    // Toggle select individual post
     const handleSelectPost = (postId) => {
         const updatedSelectedPosts = selectedPosts.includes(postId)
             ? selectedPosts.filter((id) => id !== postId)
@@ -48,7 +62,6 @@ export default function ManagementPost() {
         setSelectAll(updatedSelectedPosts.length === posts.length);
     };
 
-    // Delete selected posts
     const handleDeletePosts = () => {
         if (selectedPosts.length === 0) return;
         setPosts(posts.filter((post) => !selectedPosts.includes(post.id)));
@@ -72,7 +85,6 @@ export default function ManagementPost() {
                         />
                     </div>
 
-                    {/* Chỉ hiển thị nút Xóa bài viết khi có bài viết được chọn */}
                     {selectedPosts.length > 0 && (
                         <button
                             className="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 transition"
@@ -112,7 +124,7 @@ export default function ManagementPost() {
                     </tr>
                     </thead>
                     <tbody>
-                    {posts.map((post, index) => (
+                    {currentPosts.map((post, index) => (
                         <tr key={post.id} className="border-t">
                             <td className="p-2">
                                 <input
@@ -122,36 +134,59 @@ export default function ManagementPost() {
                                     className="accent-red-700"
                                 />
                             </td>
-                            <td className="p-2">{index + 1}</td>
+                            <td className="p-2">{indexOfFirstPost + index + 1}</td>
                             <td className="p-2">{post.category}</td>
                             <td className="p-2">{post.title}</td>
                             <td className="p-2 truncate max-w-xs">{post.slug}</td>
                             <td className="p-2 text-center">
                                 <input
                                     type="checkbox"
-                                    defaultChecked={post.featured}
+                                    checked={post.featured}
+                                    readOnly
                                     className="accent-red-700"
                                 />
                             </td>
                             <td className={`p-2 ${post.status === "Hoạt động" ? "text-green-600" : "text-red-600"}`}>
                                 {post.status}
                             </td>
-                            <td className="p-2 text-right flex gap-2 justify-end">
-                                <button className="text-gray-600 hover:text-blue-600">
-                                    <BsPencil />
-                                </button>
-                                <button className="text-gray-600 hover:text-red-600">
-                                    <BsTrash />
-                                </button>
+                            <td className="p-2 text-right">
+                                <DropdownMenuTopic
+                                    postId={post.id}
+                                    isOpen={openDropdown === post.id}
+                                    setOpenDropdown={(id) => setOpenDropdown(id)}
+                                    onDeleteArticle={() => console.log("Xoá bài viết:", post.id)}
+                                    onEditArticle={() => console.log("Sửa bài viết:", post.id)}
+                                />
                             </td>
                         </tr>
                     ))}
                     </tbody>
                 </table>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-4">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                                key={page}
+                                className={`px-3 py-1 border rounded ${
+                                    page === currentPage ? "bg-red-600 text-white" : "bg-white text-gray-700"
+                                }`}
+                                onClick={() => setCurrentPage(page)}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
             </div>
 
-            {/* Modal for Adding Post */}
-            {showModal && <ModalAddPost onClose={() => setShowModal(false)} />}
+            {showModal && (
+                <ModalAddArticle
+                    onClose={() => setShowModal(false)}
+                    onCreated={fetchPosts}
+                />
+            )}
         </Layout>
     );
 }

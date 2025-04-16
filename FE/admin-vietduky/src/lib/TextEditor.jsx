@@ -52,7 +52,7 @@ const TextEditor = ({ value, onChange }) => {
       </div>
 
       {/* Quill Editor */}
-      <ReactQuill className="h-[100px] rounded-xl"
+      <ReactQuill className="h-[370px] rounded-xl"
         ref={quillRef}
         value={value}
         onChange={onChange}
@@ -61,7 +61,7 @@ const TextEditor = ({ value, onChange }) => {
             container: "#custom-toolbar",
           },
         }}
-        placeholder="Nhập chính sách và điều khoản"
+        placeholder="Nhập nội dung"
       />
     </div>
   );

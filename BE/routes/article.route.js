@@ -15,18 +15,21 @@ router.get("/detail/:article_id", ArticleController.getArticleById);
 router.get("/user/:user_id", ArticleController.getArticlesByUserId);
 router.post(
   "/create",
-  checkRoles(["admin", "staff"]),
-  uploadAlbumPost.array("album_post", 10),
+    authenticateUser,
+    checkRoles(["admin", "staff"]),
+    uploadAlbumPost.array("album_post", 10),
   ArticleController.createArticle
 );
 router.put(
   "/update/:article_id",
-  authenticateAdmin,
+    authenticateUser,
+    authenticateAdmin,
   uploadAlbumPost.array("album_post", 10),
   ArticleController.updateArticle
 );
 router.delete(
   "/delete/:article_id",
+    authenticateUser,
   authenticateAdmin,
   ArticleController.deleteArticle
 );

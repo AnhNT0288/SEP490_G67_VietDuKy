@@ -6,7 +6,6 @@ function getAuthHeaders() {
   const token = StorageService.getToken(); // Giả sử bạn có hàm này
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
-
 // Lấy danh sách tour (có xác thực)
 export function getTours(page = 1, limit = 10) {
   return restClient({
@@ -43,7 +42,6 @@ export function createTour(data) {
       throw error;
     });
 }
-
 // Xóa tour (có xác thực)
 export function deleteTour(id) {
   return restClient({
@@ -70,7 +68,6 @@ export function getTourById(id) {
         throw err;
       });
 }
-
 // Cập nhật tour
 export function updateTour(id, data) {
   return restClient({
@@ -88,4 +85,27 @@ export function updateTour(id, data) {
         throw err;
       });
 }
+// Lấy danh sách tour theo location ID
+export function getToursByLocation(locationId) {
+    return restClient({
+        url: `tour/get-by-location-id/${locationId}`,
+        method: "GET",
+    })
+        .then((res) => res.data?.data?.tours || [])
+        .catch((err) => {
+            console.error("Lỗi khi lấy tour theo location:", err);
+            return [];
+        });
+}
 
+export function getToursByTopic(topicId) {
+    return restClient({
+        url: `tour/get-by-topic-id/${topicId}`,
+        method: "GET",
+    })
+        .then(res => res.data?.data?.tours || [])
+        .catch(err => {
+            console.error("Lỗi khi lấy tour theo topic:", err);
+            return [];
+        });
+}
