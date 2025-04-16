@@ -148,44 +148,71 @@ exports.createTravelGuide = async (req, res) => {
 //Cập nhật thông tin TravelGuide
 exports.updateTravelGuide = async (req, res) => {
   try {
-    const travelGuideId = req.params.id;
-    const {
-      first_name,
-      last_name,
-      gender_guide,
-      email,
-      number_phone,
-      birth_date,
-    } = req.body;
+    const userId = req.params.userId;
+    const { locations, role_id } = req.body;
 
-    const travelGuide = await TravelGuide.findByPk(travelGuideId);
-    if (!travelGuide) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy hướng dẫn viên du lịch!" });
+    // Tìm User bằng userId
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng!" });
     }
 
-    if (first_name != undefined)
-      travelGuide.first_name = first_name || travelGuide.first_name;
-    if (last_name != undefined)
-      travelGuide.last_name = last_name || travelGuide.last_name;
-    if (gender_guide != undefined)
-      travelGuide.gender_guide = gender_guide || travelGuide.gender_guide;
-    if (email != undefined) travelGuide.email = email || travelGuide.email;
-    if (number_phone != undefined)
-      travelGuide.number_phone = number_phone || travelGuide.number_phone;
-    if (birth_date != undefined)
-      travelGuide.birth_date = birth_date || travelGuide.birth_date;
+    // Kiểm tra xem User đã là TravelGuide chưa
+    let travelGuide = await TravelGuide.findOne({ where: { user_id: userId } });
 
-    await travelGuide.save();
+    // Nếu chưa, tạo mới TravelGuide
+    if (!travelGuide) {
+      const [first_name, ...last_name_parts] = (user.displayName || "").split(
+        " "
+      );
+      const last_name = last_name_parts.join(" ") || "N/A";
+
+      travelGuide = await TravelGuide.create({
+        user_id: userId,
+        first_name: first_name || "N/A",
+        last_name: last_name || "N/A",
+        email: user.email,
+      });
+    } else {
+      // Cập nhật thông tin TravelGuide từ displayName
+      const [first_name, ...last_name_parts] = (user.displayName || "").split(
+        " "
+      );
+      travelGuide.first_name = first_name || "N/A";
+      travelGuide.last_name = last_name_parts.join(" ") || "N/A";
+      await travelGuide.save();
+    }
+
+    // Cập nhật role_id cho User
+    user.role_id = role_id || 4; // Mặc định role_id là 4 (Travel Guide)
+    await user.save();
+
+    // Cập nhật danh sách địa điểm phụ trách
+    if (locations && locations.length > 0) {
+      // Xóa các địa điểm hiện tại
+      await TravelGuideLocation.destroy({
+        where: { travel_guide_id: travelGuide.id },
+      });
+
+      // Gán các địa điểm mới
+      for (let locationId of locations) {
+        await TravelGuideLocation.create({
+          travel_guide_id: travelGuide.id,
+          location_id: locationId,
+        });
+      }
+    }
 
     res.status(200).json({
-      message: "Cập nhật thông tin hướng dẫn viên du lịch thành công!",
-      data: travelGuide,
+      message: "Cập nhật thông tin hướng dẫn viên thành công!",
+      data: {
+        user,
+        travelGuide,
+      },
     });
   } catch (error) {
     res.status(500).json({
-      message: "Lỗi khi cập nhật thông tin hướng dẫn viên du lịch!",
+      message: "Lỗi khi cập nhật thông tin hướng dẫn viên!",
       error: error.message,
     });
   }
