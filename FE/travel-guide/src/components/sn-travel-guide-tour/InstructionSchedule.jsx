@@ -9,6 +9,7 @@ import TravelTourDetailsModal from "./TravelTourDetailsModal";
 import TabsTour from "./TabsTour";
 import InstructionScheduleTable from "./InstructionScheduleTable";
 import CalendarTravelTour from "./CalendarTravelTour";
+import { TravelGuideService } from "../../services/API/travel_guide.service";
 
 const InstructionSchedule = () => {
   const [viewType, setViewType] = useState("table");
@@ -26,12 +27,39 @@ const InstructionSchedule = () => {
     page: 1,
     limit: 10,
   });
+  const [travelGuides, setTravelGuides] = useState([]);
+  const [travelGuideId, setTravelGuideId] = useState(null);
+
+  useEffect(() => {
+    const fetchTravelGuides = async () => {
+      try {
+        const response = await TravelGuideService.getAllTravelGuide();
+        if (response.status === 200) {
+          setTravelGuides(response.data.data);
+        } else {
+          console.error("Error fetching travel guides:", response.message);
+        }
+      } catch (error) {
+        console.error("Error fetching travel guides:", error);
+      }
+    };
+    fetchTravelGuides();
+  }, []);
+
+  const userId = JSON.parse(localStorage.getItem("user"))?.id;
+
+  useEffect(() => {
+    const matchedGuide = travelGuides.find((guide) => guide.user_id === userId);
+    if (matchedGuide) {
+      setTravelGuideId(matchedGuide.id);
+    }
+  }, [travelGuides, userId]);
 
   useEffect(() => {
     const fetchTours = async () => {
       setLoading(true);
       try {
-        const response = await getGuideTourByUserId(1, {
+        const response = await getGuideTourByUserId(travelGuideId, {
           ...pagination,
           name_tour: search,
           start_location_id: startLocation,
