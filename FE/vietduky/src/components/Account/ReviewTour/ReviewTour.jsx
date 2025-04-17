@@ -48,7 +48,7 @@ export default function ReviewTour() {
     fetchReviews();
   }, [user?.id]);
 
-  // console.log("Shared Posts:", sharedPosts);  
+  // console.log("Shared Posts:", sharedPosts);
 
   const getRecommendationText = (rating) => {
     switch (rating) {
@@ -177,7 +177,7 @@ export default function ReviewTour() {
                 {[...Array(5)].map((_, i) => (
                   <FaStar
                     key={i}
-                    className={`text-yellow-400 mr-1 ${
+                    className={`mr-1 ${
                       i < review.rating ? "text-yellow-400" : "text-gray-300"
                     }`}
                   />
@@ -222,7 +222,7 @@ export default function ReviewTour() {
         sharedPosts.map((post) => {
           const postExAlbum = JSON.parse(post.postEx_album);
           const firstImage = postExAlbum[0];
-          
+
           return (
             <div
               key={post.id}

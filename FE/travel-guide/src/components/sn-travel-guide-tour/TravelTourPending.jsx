@@ -53,8 +53,11 @@ const TravelTourPending = () => {
     }
   }, [travelGuides, userId]);
 
+  // Fetch tours khi travelGuideId thay đổi
   useEffect(() => {
     const fetchTours = async () => {
+      if (!travelGuideId) return; // Dừng nếu travelGuideId chưa có
+
       try {
         const response = await getGuideTourByUserId(travelGuideId, {
           ...pagination,
@@ -75,8 +78,9 @@ const TravelTourPending = () => {
         setLoading(false);
       }
     };
+
     fetchTours();
-  }, [search, startLocation, endLocation, startDate, pagination]);
+  }, [travelGuideId, search, startLocation, endLocation, startDate, pagination]);
 
   useEffect(() => {
     const fetchLocations = async () => {
