@@ -57,7 +57,8 @@ const Dashboard = () => {
 
     const fetchTravelTours = async () => {
       try {
-        const response = await getGuideTourByUserId(1);
+        const userId = JSON.parse(localStorage.getItem("user")).id;
+        const response = await getGuideTourByUserId(userId);
 
         if (response.data) {
           setTravelTours(response.data.items);

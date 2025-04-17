@@ -26,7 +26,8 @@ router.post(
 );
 router.put(
   "/update/:userId",
-  // authenticateAdmin,
+    authenticateUser,
+    authenticateAdmin,
   travelGuideController.updateTravelGuide
 );
 router.delete(

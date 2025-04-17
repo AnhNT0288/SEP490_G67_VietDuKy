@@ -5,7 +5,16 @@ import {FaRegMap} from "react-icons/fa";
 
 export default function DropdownMenuTravelTour({ onDelete, onEdit, onLock, onAssignGuide  }) {
     return (
-        <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-md z-10">
+        <div style={{
+            position: "absolute",
+            right: 0,
+            marginTop: "8px",
+            width: "12rem",
+            backgroundColor: "white",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            borderRadius: "0.375rem",
+            zIndex: 9999,
+        }}>
             <button
                 onClick={onEdit}
                 className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left whitespace-nowrap"

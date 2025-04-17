@@ -85,6 +85,8 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
 
   const handleAssignGuide = (tour) => {
     if (tour && tour.Tour && tour.Tour.endLocation) {
+      setOpenDropdown(null); // 👉 Tắt dropdown ngay lập tức
+
       setLocationId(tour.Tour.endLocation.id);
       setSelectedTravelTourId(tour.id);
       setIsAssignGuideModalOpen(true);
@@ -234,7 +236,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                       </button>
                     </div>
                 ) : (
-                    <div className="overflow-auto">
+                    <div className="relative overflow-visible">
                       <table className="w-full rounded-lg shadow-md bg-white">
                         <thead>
                         <tr className="text-SmokyGray">

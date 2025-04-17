@@ -3,7 +3,8 @@ import { formatDate } from "../../utils/dateUtil";
 import { Loader } from "lucide-react";
 
 const InstructionScheduleTable = ({ tours, loading, setTourSelected }) => {
-  return (
+
+    return (
     <table className="w-full border-collapse">
       <thead>
         <tr className="text-SmokyGray text-left bg-gray-100">

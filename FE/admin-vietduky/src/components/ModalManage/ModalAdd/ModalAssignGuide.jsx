@@ -25,7 +25,6 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
         }
     }, [locationId]);
 
-    // Fetch danh sách hướng dẫn viên đã phân công khi có travel_tour_id
     useEffect(() => {
         const fetchAssignedGuides = async () => {
             try {
@@ -70,28 +69,38 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
             return;
         }
 
+        let hasSuccessfulAssignment = false; // Flag to track successful assignments
+
         try {
             for (const guideId of selectedGuides) {
-                console.log("➡️ travel_tour_id:", travel_tour_id, typeof travel_tour_id);
-                console.log("➡️ travel_guide_id:", guideId, typeof guideId);
+                console.log("travel_tour_id:", travel_tour_id, typeof travel_tour_id);
+                console.log("travel_guide_id:", guideId, typeof guideId);
                 const data = {
                     travel_tour_id: travel_tour_id,
                     travel_guide_id: guideId,
                 };
                 console.log("Dữ liệu gửi đến API phân công:", data);
                 const response = await assignGuideToTour(data);
+
+                if (response.message === "Hướng dẫn viên đã được gán cho tour này!") {
+                    alert(`Hướng dẫn viên ID ${guideId} đã được gán trước đó.`);
+                    continue;
+                }
+
                 console.log("Phản hồi từ API phân công:", response);
+                hasSuccessfulAssignment = true;
             }
 
-            alert("Phân công hướng dẫn viên thành công!");
-            onAssignSuccess?.();
-            onClose?.();
+            if (hasSuccessfulAssignment) {
+                alert("Phân công hướng dẫn viên thành công!");
+                onAssignSuccess?.();
+            }
+            // onClose?.();
         } catch (error) {
             console.error("Lỗi phân công:", error);
             alert("Đã xảy ra lỗi khi phân công hướng dẫn viên. Vui lòng thử lại.");
         }
     };
-
     const filteredGuides = guides.filter((guide) =>
         `${guide.first_name} ${guide.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
