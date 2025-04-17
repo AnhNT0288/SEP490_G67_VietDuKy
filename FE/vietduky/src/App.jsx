@@ -28,6 +28,7 @@ import { DirectoryService } from "./services/API/directory.service";
 import DynamicArticlePage from "./page/ArticlePage/PostDynamicArticle/DynamicArticlePage";
 import PostExperiencePage from "./page/ArticlePage/PostExperience/PostExperiencePage";
 import DetailPostExperience from "./page/ArticlePage/PostExperience/DetailPostExperience";
+import PhoneAuthen from "./components/AuthProviders/PhoneAuthen";
 
 function App() {
   const [directory, setDirectory] = useState([]);
@@ -90,6 +91,8 @@ function App() {
         <Route path={"/credit"} element={<PaymentForm />} />
 
         <Route path={"/calendar"} element={<Calendar />} />
+
+        <Route path={"/phoneauth"} element={<PhoneAuthen />} />
       </Routes>
     </BrowserRouter>
   );
