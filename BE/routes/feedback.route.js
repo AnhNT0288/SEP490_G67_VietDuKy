@@ -41,4 +41,10 @@ router.get(
   feedbackController.getFeedbackByTourId
 );
 
+router.get(
+  "/travel-guide/:travelGuideId",
+  // authenticateUser,
+  feedbackController.getFeedbackByTravelGuideId
+);
+
 module.exports = router;

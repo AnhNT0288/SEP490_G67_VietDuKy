@@ -203,11 +203,24 @@ exports.updateTravelGuide = async (req, res) => {
       }
     }
 
+    // Lấy danh sách địa điểm phụ trách
+    const assignedLocations = await TravelGuideLocation.findAll({
+      where: { travel_guide_id: travelGuide.id },
+      include: [
+        {
+          model: Location,
+          as: "location",
+          attributes: ["id", "name_location"],
+        },
+      ],
+    });
+
     res.status(200).json({
       message: "Cập nhật thông tin hướng dẫn viên thành công!",
       data: {
         user,
         travelGuide,
+        locations: assignedLocations.map((loc) => loc.location),
       },
     });
   } catch (error) {

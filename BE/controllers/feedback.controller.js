@@ -71,6 +71,16 @@ exports.createFeedbackForTour = async (req, res) => {
       return res.status(404).json({ message: "Tour không tồn tại!" });
     }
 
+    // Kiểm tra xem người dùng đã đặt tour này chưa
+    const booking = await db.Booking.findOne({
+      where: { user_id, travel_tour_id: tour_id },
+    });
+
+    if (!booking) {
+      return res
+        .status(403)
+        .json({ message: "Bạn chưa đặt tour này, không thể feedback!" });
+    }
     // Kiểm tra nếu không có rating, mặc định cho rating = 5
     const feedbackRating = rating || 5;
 
@@ -118,6 +128,26 @@ exports.createFeedbackForTravelGuide = async (req, res) => {
     const travelGuide = await TravelGuide.findByPk(travel_guide_id);
     if (!travelGuide) {
       return res.status(404).json({ message: "Hướng dẫn viên không tồn tại!" });
+    }
+
+    // Kiểm tra xem người dùng đã đặt tour có liên quan đến hướng dẫn viên này chưa
+    const booking = await db.Booking.findOne({
+      where: { user_id },
+      include: [
+        {
+          model: db.TravelTour,
+          where: { id: travelGuide.travel_tour_id },
+        },
+      ],
+    });
+
+    if (!booking) {
+      return res
+        .status(403)
+        .json({
+          message:
+            "Bạn chưa đặt tour có liên quan đến hướng dẫn viên này, không thể feedback!",
+        });
     }
 
     // Kiểm tra nếu không có rating, mặc định cho rating = 5
@@ -233,6 +263,49 @@ exports.getFeedbackByTourId = async (req, res) => {
     if (feedbacks.length === 0) {
       return res.status(404).json({
         message: "Không tìm thấy feedback nào cho tour này",
+      });
+    }
+
+    res.status(200).json({
+      message: "Lấy feedback thành công",
+      data: feedbacks,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy feedback",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy tất cả Feedback theo travel_guide_id
+exports.getFeedbackByTravelGuideId = async (req, res) => {
+  try {
+    const travelGuideId = req.params.travelGuideId;
+
+    // Tìm Travel Guide dựa trên travel_guide_id
+    const travelGuide = await TravelGuide.findByPk(travelGuideId);
+
+    if (!travelGuide) {
+      return res.status(404).json({ message: "Hướng dẫn viên không tồn tại!" });
+    }
+
+    // Lấy tất cả feedback của travel guide dựa trên travel_guide_id
+    const feedbacks = await Feedback.findAll({
+      where: { travel_guide_id: travelGuideId },
+      include: [
+        { model: User, as: "user" },
+        {
+          model: Tour,
+          as: "tour",
+          attributes: ["name_tour"],
+        },
+      ],
+    });
+
+    if (feedbacks.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy feedback nào cho hướng dẫn viên này",
       });
     }
 
