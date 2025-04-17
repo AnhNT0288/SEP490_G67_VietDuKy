@@ -17,8 +17,7 @@ export default function DetailTourPage() {
   const { id } = useParams();
   const location = useLocation();
   const initialSelectedDate = location.state?.selectedDate; // Giá trị mặc định nếu không có
-  const [selectedDate, setSelectedDate] = useState(initialSelectedDate);  
-  
+
   return (
     <div className="bg-white">
       <Header />

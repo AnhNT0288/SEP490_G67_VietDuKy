@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createTopic } from "../../../services/API/topic.service";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddTopic({ onClose, onCreateSuccess  }) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");

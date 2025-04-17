@@ -43,7 +43,7 @@ exports.createTopic = async (req, res) => {
 exports.getAllTopics = async (req, res) => {
   try {
     const topics = await Topic.findAll({
-      where: { active: true },
+      // where: { active: true },
     });
 
     res.json({

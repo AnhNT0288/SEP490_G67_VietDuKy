@@ -2,6 +2,7 @@ import { TravelTourService } from "@/services/API/travel_tour.service";
 import { formatDayDMY } from "@/utils/dateUtil";
 import { useEffect, useState } from "react";
 
+// eslint-disable-next-line react/prop-types
 export default function DepartureSchedule({ id }) {
   const [tourSchedules, setTourSchedules] = useState([]);
   const [selectedDate, setSelectedDate] = useState("2025-02-28");
@@ -9,14 +10,14 @@ export default function DepartureSchedule({ id }) {
   useEffect(() => {
     TravelTourService.getTravelTourByTourId(id)
       .then((response) => {
-        const travelTourData = response.data;
+        const travelTourData = response.data.data;
         setTourSchedules(travelTourData);
       })
       .catch((error) =>
         console.error("Error fetching travel tour data:", error)
       );
   }, [id]);
-
+    console.log("Tour schedules:", tourSchedules);
   return (
     <div className="col-span-2 bg-white shadow-lg bg-opacity-20 p-4 rounded-lg mt-4 border border-gray-300">
       {/* Header */}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getTravelGuideByLocation } from "../../../services/API/guide_tour.services.js"; // Đảm bảo đã import đúng hàm này
 import { assignGuideToTour } from "../../../services/API/guide_tour.services.js"; // API để phân công hướng dẫn viên cho tour
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, onAssignSuccess }) {
     const [guides, setGuides] = useState([]);
     const [selectedGuides, setSelectedGuides] = useState([]);
@@ -122,7 +123,7 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Tìm kiếm bằng tên hướng dẫn viên"
-                        className="p-2 w-full border rounded-md"
+                        className="p-2 w-1/3 border rounded-md"
                     />
                 </div>
 

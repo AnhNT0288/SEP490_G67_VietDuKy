@@ -41,3 +41,17 @@ export function assignGuideToTour(data) {
             throw err;
         });
 }
+export function getGuidesByTravelTourId(travel_tour_id) {
+    return restClient({
+        url: `guide-tour/travel-tour/${travel_tour_id}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then(res => res.data.data?.guides || [])
+        .catch(err => {
+            console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên đã gán:", err.response?.data || err);
+            throw err;
+        });
+}

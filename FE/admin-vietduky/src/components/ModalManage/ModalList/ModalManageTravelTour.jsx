@@ -12,6 +12,7 @@ import { FiCalendar, FiList } from "react-icons/fi";
 import CalendarTravelTour from "../ModalCalendar/CalendarTravelTour.jsx";
 import DropdownMenuTravelTour from "../../Dropdown/DropdowMenuTravelTour.jsx";
 import ModalAssignGuide from "../ModalAdd/ModalAssignGuide.jsx";
+import ModalManageGuideforTravelTour from "./ModalManageGuideforTravelTour.jsx";
 
 export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -23,6 +24,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
   const dropdownRef = useRef(null);
   const [selectedTravelTourId, setSelectedTravelTourId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [isListGuideModalOpen, setIsListGuideModalOpen] = useState(false);
 
   const handleAddTravelTour = () => {
     setIsAddTravelTourModalOpen(true);
@@ -83,14 +85,26 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     }
   };
 
+  // const handleAssignGuide = (tour) => {
+  //   if (tour && tour.Tour && tour.Tour.endLocation) {
+  //     setOpenDropdown(null); // 👉 Tắt dropdown ngay lập tức
+  //
+  //     setLocationId(tour.Tour.endLocation.id);
+  //     setSelectedTravelTourId(tour.id);
+  //     setIsAssignGuideModalOpen(true);
+  //     console.log("Travel Tour ID passed to ModalAssignGuide:", tour.id);
+  //   } else {
+  //     console.error("Không tìm thấy thông tin endLocation trong tour", tour);
+  //   }
+  // };
+
   const handleAssignGuide = (tour) => {
     if (tour && tour.Tour && tour.Tour.endLocation) {
-      setOpenDropdown(null); // 👉 Tắt dropdown ngay lập tức
-
+      setOpenDropdown(null); // Đóng dropdown
       setLocationId(tour.Tour.endLocation.id);
       setSelectedTravelTourId(tour.id);
-      setIsAssignGuideModalOpen(true);
-      console.log("Travel Tour ID passed to ModalAssignGuide:", tour.id);
+      setIsListGuideModalOpen(true); // 👉 mở modal danh sách hướng dẫn viên
+      console.log("Mở danh sách hướng dẫn viên của travel_tour:", tour.id);
     } else {
       console.error("Không tìm thấy thông tin endLocation trong tour", tour);
     }
@@ -286,9 +300,9 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                                       {`${travelTour.current_people ?? 0}/${travelTour.max_people}`}
                                     </td>
                                     <td className="p-2 font-semibold">
-          <span className={travelTour.active ? "text-green-600" : "text-red-600"}>
-            {travelTour.active ? "Đang mở" : "Đã đóng"}
-          </span>
+                                     <span className={travelTour.active ? "text-green-600" : "text-red-600"}>
+                                        {travelTour.active ? "Đang mở" : "Đã đóng"}
+                                     </span>
                                     </td>
                                     <td className="flex justify-end p-2 relative">
                                       <button
@@ -313,18 +327,24 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                             })}
                         </tbody>
                       </table>
-                      {isAssignGuideModalOpen && (
-                          <ModalAssignGuide
+                      {/*{isAssignGuideModalOpen && (*/}
+                      {/*    <ModalAssignGuide*/}
+                      {/*        travel_tour_id={selectedTravelTourId}*/}
+                      {/*        locationId={locationId}*/}
+                      {/*        onClose={() => setIsAssignGuideModalOpen(false)}*/}
+                      {/*        onAssignSuccess={(selectedGuides) => {*/}
+                      {/*          console.log("Các hướng dẫn viên đã chọn:", selectedGuides);*/}
+                      {/*          setIsAssignGuideModalOpen(false);*/}
+                      {/*        }}*/}
+                      {/*    />*/}
+                      {/*)}*/}
+                      {isListGuideModalOpen && (
+                          <ModalManageGuideforTravelTour
                               travel_tour_id={selectedTravelTourId}
                               locationId={locationId}
-                              onClose={() => setIsAssignGuideModalOpen(false)}
-                              onAssignSuccess={(selectedGuides) => {
-                                console.log("Các hướng dẫn viên đã chọn:", selectedGuides);
-                                setIsAssignGuideModalOpen(false);
-                              }}
+                              onClose={() => setIsListGuideModalOpen(false)}
                           />
                       )}
-
                     </div>
                 )
             ) : (

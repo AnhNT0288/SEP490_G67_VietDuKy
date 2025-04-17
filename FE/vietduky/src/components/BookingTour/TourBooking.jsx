@@ -77,8 +77,7 @@ const TourBooking = ({
       formData?.number_children +
       formData?.number_toddler || 0) *
       travelTourData?.price_tour +
-      roomCost) /
-    1000;
+      roomCost) ;
 
   // const calculateTotalPrice = (formData, roomCost, travelTourData) => {
   //   const numberAdult = formData?.number_adult || 0;
@@ -170,7 +169,7 @@ const TourBooking = ({
           </div>
           <div className="flex items-center gap-1">
             <span className="text-gray-700">Thời gian:</span>
-            <span className="text-red-800 font-semibold ml-1">2N1Đ</span>
+            <span className="text-red-800 font-semibold ml-1">{tours.day_number}N{tours.day_number-1}Đ</span>
           </div>
         </div>
 

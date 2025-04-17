@@ -55,6 +55,8 @@ const TravelTourPending = () => {
 
   useEffect(() => {
     const fetchTours = async () => {
+      if (!travelGuideId) return;
+
       try {
         const response = await getGuideTourByUserId(travelGuideId, {
           ...pagination,
@@ -75,8 +77,9 @@ const TravelTourPending = () => {
         setLoading(false);
       }
     };
+
     fetchTours();
-  }, [search, startLocation, endLocation, startDate, pagination]);
+  }, [travelGuideId, search, startLocation, endLocation, startDate, pagination]);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -95,6 +98,8 @@ const TravelTourPending = () => {
       setEndLocation("");
     };
   }, []);
+
+  // console.log("tours", tours);
 
   return (
     <div className="bg-white p-4 rounded flex flex-col flex-1">
