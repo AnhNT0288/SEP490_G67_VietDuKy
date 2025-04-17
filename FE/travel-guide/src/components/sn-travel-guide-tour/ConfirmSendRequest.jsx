@@ -1,13 +1,45 @@
+import { useEffect, useState } from "react";
 import { sendRequestTour } from "../../services/API/guide-tour.service";
+import { TravelGuideService } from "../../services/API/travel_guide.service";
 
 const ConfirmSendRequest = ({ tourId, open, onClose }) => {
+  const [travelGuides, setTravelGuides] = useState([]);
+  const [travelGuideId, setTravelGuideId] = useState(null); 
+
+  useEffect(() => {
+    const fetchTravelGuides = async () => {
+      try {
+        const response = await TravelGuideService.getAllTravelGuide();
+        if (response.status === 200) {
+          setTravelGuides(response.data.data);
+        } else {
+          console.error("Error fetching travel guides:", response.message);
+        }
+      } catch (error) {
+        console.error("Error fetching travel guides:", error);
+      }
+    };
+    fetchTravelGuides();
+  }, []);
+
+  // Lấy userId từ localStorage
+  const userId = JSON.parse(localStorage.getItem("user"))?.id;
+
+  useEffect(() => {
+    // Lọc danh sách để tìm travelGuideId có userId tương ứng
+    const matchedGuide = travelGuides.find(guide => guide.user_id === userId);
+    if (matchedGuide) {
+      setTravelGuideId(matchedGuide.id);
+    }
+  }, [travelGuides, userId]);
+
   const handleSendRequest = async (tourId) => {
     try {
       const response = await sendRequestTour({
         travel_tour_id: tourId,
-        guide_tour_id: 1,
+        travel_guide_id: travelGuideId,
       });
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert("Gửi yêu cầu thành công");
       } else {
         console.log(response.data);
@@ -16,6 +48,8 @@ const ConfirmSendRequest = ({ tourId, open, onClose }) => {
     } catch (error) {
       console.error("Error sending request:", error);
       alert(error.message);
+    } finally {
+      onClose();
     }
   };
 

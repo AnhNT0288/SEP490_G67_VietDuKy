@@ -8,6 +8,7 @@ import { getStatusPendingTour } from "../../utils";
 import { STATUS_PENDING_TOUR } from "../../constants/app.constant";
 import { formatDate } from "../../utils/dateUtil";
 import { getLocations } from "../../services/API/location.service";
+import { TravelGuideService } from "../../services/API/travel_guide.service";
 
 const TravelTourPending = () => {
   const [tours, setTours] = useState([]);
@@ -22,11 +23,40 @@ const TravelTourPending = () => {
     page: 1,
     limit: 10,
   });
+  const [travelGuides, setTravelGuides] = useState([]);
+  const [travelGuideId, setTravelGuideId] = useState(null);
+
+  useEffect(() => {
+    const fetchTravelGuides = async () => {
+      try {
+        const response = await TravelGuideService.getAllTravelGuide();
+        if (response.status === 200) {
+          setTravelGuides(response.data.data);
+        } else {
+          console.error("Error fetching travel guides:", response.message);
+        }
+      } catch (error) {
+        console.error("Error fetching travel guides:", error);
+      }
+    };
+    fetchTravelGuides();
+  }, []);
+
+  // Lấy userId từ localStorage
+  const userId = JSON.parse(localStorage.getItem("user"))?.id;
+
+  useEffect(() => {
+    // Lọc danh sách để tìm travelGuideId có userId tương ứng
+    const matchedGuide = travelGuides.find((guide) => guide.user_id === userId);
+    if (matchedGuide) {
+      setTravelGuideId(matchedGuide.id);
+    }
+  }, [travelGuides, userId]);
 
   useEffect(() => {
     const fetchTours = async () => {
       try {
-        const response = await getGuideTourByUserId(1, {
+        const response = await getGuideTourByUserId(travelGuideId, {
           ...pagination,
           name_tour: search,
           start_location_id: startLocation,
