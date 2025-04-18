@@ -581,6 +581,24 @@ exports.updateTourById = async (req, res) => {
     const tourId = req.params.id;
     const tour = await db.Tour.findByPk(tourId);
 
+    if (req.body.removed_urls) {
+      try {
+        const removedUrls = JSON.parse(req.body.removed_urls);
+        if (Array.isArray(removedUrls)) {
+          const currentAlbum = JSON.parse(tour.album || "[]");
+
+          // Lọc ra ảnh còn lại
+          const updatedAlbum = currentAlbum.filter(
+              (url) => !removedUrls.includes(url)
+          );
+
+          tour.album = JSON.stringify(updatedAlbum);
+        }
+      } catch (err) {
+        console.error("Lỗi parse removed_urls:", err);
+      }
+    }
+
     if (!tour) {
       return res.status(404).json({ message: "Tour không tồn tại!" });
     }
@@ -608,8 +626,9 @@ exports.updateTourById = async (req, res) => {
       tour.end_location = req.body.end_location;
     if (req.body.available_month !== undefined)
       tour.available_month = req.body.available_month;
-    if (req.file) tour.album = album;
-
+    if (req.files && req.files.length > 0) {
+      tour.album = album;
+    }
     if (req.body.service_ids !== undefined && req.body.service_ids.length > 0) {
       const serviceIds = req.body.service_ids; // Lấy danh sách service_id từ request
 

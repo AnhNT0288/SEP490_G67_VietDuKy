@@ -100,6 +100,8 @@ const TravelTourPending = () => {
     };
   }, []);
 
+  // console.log("tours", tours);
+
   return (
     <div className="bg-white p-4 rounded flex flex-col flex-1">
       <div className="grid grid-cols-12 gap-4 items-center justify-start mb-5">

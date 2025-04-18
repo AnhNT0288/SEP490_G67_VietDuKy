@@ -3,6 +3,7 @@ import { MdDelete, MdEdit } from "react-icons/md";
 import { IoIosLock } from "react-icons/io";
 import {FaRegMap} from "react-icons/fa";
 
+// eslint-disable-next-line react/prop-types
 export default function DropdownMenuTravelTour({ onDelete, onEdit, onLock, onAssignGuide  }) {
     return (
         <div style={{

@@ -28,7 +28,7 @@ const Calendar = ({ id, initialSelectedDate }) => {
     const fetchTravelTours = async () => {
       try {
         const response = await TravelTourService.getTravelTourByTourId(id);
-        setTravelTourData(response.data);
+        setTravelTourData(response.data.data);
       } catch (error) {
         console.error("Error fetching travel tours:", error);
       }
@@ -40,11 +40,12 @@ const Calendar = ({ id, initialSelectedDate }) => {
   useEffect(() => {
     const fetchTourDates = async () => {
       const response = await TravelTourService.getTravelTourByTourId(id);
-      const tour = response.data;
+      const tour = response.data.data;
+
+      console.log(tour)
 
       try {
         if (!Array.isArray(tour)) {
-          console.error("Dữ liệu tour không hợp lệ:", tour);
           setTourDates({});
           return;
         }
@@ -153,7 +154,8 @@ const Calendar = ({ id, initialSelectedDate }) => {
   };
 
   // console.log("travel Tour", travelTourData);
-  
+  console.log("tour date", tourDates)
+
 
   return (
     <div className="">

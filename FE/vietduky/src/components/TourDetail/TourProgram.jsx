@@ -36,8 +36,8 @@ export default function TourProgram({ id }) {
                 className="w-40 h-24 object-cover"
               />
               <div className="flex-1 p-3 gap-2 flex flex-col">
-                <p className="text-gray-500 text-sm">Ngày {item.day}</p>
-                <p className="font-semibold text-gray-800">{item.title}</p>
+                <p className="text-gray-500 text-sm">{item.title}</p>
+                <p className="font-semibold text-gray-800">{item.description}</p>
                 {openIndex === index && (
                   <p className="text-sm text-gray-600">{item.detail}</p>
                 )}
