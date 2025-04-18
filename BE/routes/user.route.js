@@ -8,8 +8,18 @@ const {
   authenticateStaff,
 } = require("../middleware/authMiddleware");
 
-router.get("/", authenticateUser, authenticateAdmin, userController.getAllUsers);
-router.get("/:id", authenticateUser, authenticateAdmin, userController.getUserById);
+router.get(
+  "/",
+  authenticateUser,
+  authenticateAdmin,
+  userController.getAllUsers
+);
+router.get(
+  "/:id",
+  authenticateUser,
+  authenticateAdmin,
+  userController.getUserById
+);
 router.post(
   "/create",
   authenticateUser,
@@ -29,13 +39,30 @@ router.put(
   authenticateUser,
   userController.changePassword
 );
-router.put("/status/:id", authenticateUser, authenticateAdmin, userController.changeStatus);
+router.put(
+  "/status/:id",
+  authenticateUser,
+  authenticateAdmin,
+  userController.changeStatus
+);
 router.get(
   "/status-filter/:status",
   authenticateUser,
   authenticateAdmin,
   userController.filterByStatus
 );
-router.post("/assign-role", authenticateUser, authenticateAdmin, userController.assignRole);
+router.post(
+  "/assign-role",
+  authenticateUser,
+  authenticateAdmin,
+  userController.assignRole
+);
 
+router.get(
+  "/role/:role_id",
+  // authenticateUser,
+  // authenticateStaff,
+  // authenticateAdmin,
+  userController.getUsersByRoleId
+);
 module.exports = router;
