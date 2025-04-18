@@ -13,6 +13,7 @@ import {
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { EllipsisVertical } from "lucide-react";
 import TravelTourDetailsModal from "./TravelTourDetailsModal";
+import {vi} from "date-fns/locale/vi";
 
 export default function CalendarTravelTour({ travelTours = [] }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -61,7 +62,7 @@ export default function CalendarTravelTour({ travelTours = [] }) {
               <FiChevronLeft />
             </button>
             <span className="font-semibold text-sm">
-              {format(currentMonth, "MMMM, yyyy")}
+            {format(currentMonth, "MMMM, yyyy", { locale: vi })}
             </span>
             <button
               className="text-xl px-2"
@@ -72,7 +73,6 @@ export default function CalendarTravelTour({ travelTours = [] }) {
               <FiChevronRight />
             </button>
           </div>
-
           {/* Legend */}
           <div className="flex gap-4 text-xs items-center">
             <div className="flex items-center gap-1">
@@ -103,6 +103,7 @@ export default function CalendarTravelTour({ travelTours = [] }) {
         <div className="grid grid-cols-7 text-xs relative z-0">
           {days.map((day, idx) => {
             const isCurrentMonth = isSameMonth(day, currentMonth);
+            const isToday = format(day, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
 
             const toursInDay = travelTours.filter((tour) => {
               const start = parseISO(tour.travelTour.start_day);
@@ -115,21 +116,21 @@ export default function CalendarTravelTour({ travelTours = [] }) {
                 key={idx}
                 className={`border border-gray-200 pb-1 pt-1 relative flex flex-col justify-start ${
                   !isCurrentMonth ? "bg-gray-50 text-gray-400" : ""
-                }`}
+                } border border-gray-200 ${isToday ? "text-red-500 font-bold" : ""}`}
               >
                 <div className="absolute top-1 left-1 text-[11px]">
                   {format(day, "dd")}
                 </div>
 
                 {/* Hiển thị tour tại các dòng cố định */}
-                <div className="flex flex-col mt-5 gap-[1px] h-8">
+                <div className="flex flex-col mt-5 gap-[1px]">
                   {Array.from({ length: nextLineIndex }).map((_, lineIdx) => {
                     const tourAtLine = toursInDay.find(
                       (tour) => tourLineIndexMap[tour.id] === lineIdx
                     );
 
                     if (!tourAtLine) {
-                      return <div key={lineIdx} className="h-[20px] w-full" />; // giữ chỗ
+                      return <div key={lineIdx} className="h-[20px] w-full" />;
                     }
 
                     const start = parseISO(tourAtLine.travelTour.start_day);

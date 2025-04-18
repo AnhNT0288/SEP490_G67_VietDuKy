@@ -26,7 +26,7 @@ exports.checkPayment = async (req, res) => {
                 const matches = value[1].toLowerCase().match(/start(.*?)end/i);
                 if (matches && paymentKey.toLowerCase() === matches[1].trim()) {
                     message = true;
-                    amount = parseInt(value[2]) * 1000;
+                    amount = parseInt(value[2], 10) * 1000000;
                 }
             });
 
@@ -45,18 +45,13 @@ exports.checkPayment = async (req, res) => {
                         id: bookingId,
                     },
                 });
-                const existingPayment = await Payment.findOne({
-                    where: {
-                        booking_id: bookingId,
-                    },
-                });
-                if (existingPayment) {
-                    totalPayment = existingPayment.amount + amount;
-                }
-                if (totalPayment === booking.total_price) {
+                console.log(amount, booking.total_cost);
+                if (amount === booking.total_cost) {
                     booking.status = 2;
+                    console.log("Thanh toán thành công");
                 } else {
                     booking.status = 1;
+                    console.log("Thanh toán thất bại");
                 }
                 await booking.save();
                 const payment = await Payment.create({

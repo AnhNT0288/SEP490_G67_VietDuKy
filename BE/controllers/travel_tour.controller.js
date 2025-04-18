@@ -55,23 +55,24 @@ exports.getTravelTourById = async (req, res) => {
   try {
     const travelTourId = req.params.id;
     const travelTour = await TravelTour.findByPk(travelTourId, {
-
-      include: [{
-        model: Tour,
-        as: 'Tour',
-        include: [
-          {
-            model: Location,
-            as: 'startLocation',
-            attributes: ['id', 'name_location']
-          },
-          {
-            model: Location,
-            as: 'endLocation',
-            attributes: ['id', 'name_location']
-          }
-        ]
-      }]
+      include: [
+        {
+          model: Tour,
+          as: "Tour",
+          include: [
+            {
+              model: Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+            {
+              model: Location,
+              as: "endLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
     });
 
     if (!travelTour) {
@@ -104,7 +105,27 @@ exports.getTravelTourById = async (req, res) => {
 exports.getTravelTourByTourId = async (req, res) => {
   try {
     const tourId = req.params.id;
-    const travelTour = await TravelTour.findAll({ where: { tour_id: tourId } });
+    const travelTour = await TravelTour.findAll({
+      where: { tour_id: tourId },
+      include: [
+        {
+          model: Tour,
+          as: "Tour",
+          include: [
+            {
+              model: Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+            {
+              model: Location,
+              as: "endLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
 
     if (!travelTour || travelTour.length === 0) {
       return res.status(404).json({
@@ -112,7 +133,23 @@ exports.getTravelTourByTourId = async (req, res) => {
       });
     }
 
-    res.json(travelTour);
+    // Format lại dữ liệu trả về
+    const formattedTravelTours = travelTour.map((item) => {
+      const travelTourData = item.get({ plain: true });
+      return {
+        ...travelTourData,
+        tour: {
+          ...travelTourData.Tour,
+          start_location: travelTourData.Tour?.startLocation || null,
+          end_location: travelTourData.Tour?.endLocation || null,
+        },
+      };
+    });
+
+    res.json({
+      message: "Lấy thông tin tour du lịch thành công!",
+      data: formattedTravelTours,
+    });
   } catch (error) {
     res.status(500).json({
       message:

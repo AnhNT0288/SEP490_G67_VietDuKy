@@ -19,7 +19,7 @@ import ManagementSaleProgram from "./page/Management/ManagementSaleProgram.jsx";
 import ManagementUserRole from "./page/Management/ManagementUser/ManagementUserRole.jsx";
 import ManagementPost from "./page/Management/ManagementPost.jsx";
 import ManagementTourGuide from "./page/Management/ManagementUser/ManagementTourGuide.jsx";
-import ManagementCategory from "./page/Management/ManagementCategory.jsx";
+import ManagementDirectory from "./page/Management/ManagementDirectory.jsx";
 import GoogleAuthCallback from "./components/GoogleAuthCallBack.jsx";
 
 function App() {
@@ -49,7 +49,7 @@ function App() {
         <Route path={"/managementUserRole"} element={<ManagementUserRole />} />
         <Route path={"/managementTourGuide"} element={<ManagementTourGuide />}/>
         <Route path={"/managementPost"} element={<ManagementPost />} />
-        <Route path={"/managementCategory"} element={<ManagementCategory />} />
+        <Route path={"/managementCategory"} element={<ManagementDirectory />} />
 
         <Route path={"/modalL"} element={<ModalManageTravelTour />} />
       </Routes>

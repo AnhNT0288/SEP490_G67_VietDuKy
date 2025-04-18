@@ -8,16 +8,18 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.get("/", DirectoryController.getAllDirectories);
-router.post("/create", authenticateAdmin, DirectoryController.createDirectory);
+router.post("/create",authenticateUser, authenticateAdmin,  DirectoryController.createDirectory);
 router.put(
   "/update/:id",
+    authenticateUser,
   authenticateAdmin,
-  DirectoryController.updateDirectory
+    DirectoryController.updateDirectory
 );
 router.delete(
   "/delete/:id",
+    authenticateUser,
   authenticateAdmin,
-  DirectoryController.deleteDirectory
+    DirectoryController.deleteDirectory
 );
 
 module.exports = router;

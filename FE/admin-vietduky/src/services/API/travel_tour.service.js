@@ -65,3 +65,17 @@ export function deleteTravelTour(id) {
       throw error;
     });
 }
+export function closeTravelTour(id) {
+  return restClient({
+    url: `travel-tour/close/${id}`,
+    method: "POST",
+  })
+      .then(response => {
+        console.log("✅ Đóng lịch khởi hành thành công:", response.data);
+        return response.data;
+      })
+      .catch(error => {
+        console.error("❌ Lỗi khi đóng lịch khởi hành:", error.response?.data || error);
+        throw error;
+      });
+}

@@ -38,6 +38,7 @@ router.get(
 
 router.post(
   "/close/:id",
+  authenticateUser,
   authenticateAdmin,
   travelTourController.closeTourWhenFull
 );

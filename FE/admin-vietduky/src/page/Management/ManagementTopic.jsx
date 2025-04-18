@@ -1,30 +1,42 @@
 import { useEffect, useState } from "react";
 import Layout from "../../layouts/LayoutManagement";
 import { LuSearch } from "react-icons/lu";
-import ModalAddTheme from "../../components/ModalManage/ModalAdd/ModalAddTheme.jsx";
-import { getTopics, updateTopic } from "../../services/API/topic.service.js"; // ✅ THÊM updateTopic
+import ModalAddTopic from "../../components/ModalManage/ModalAdd/ModalAddTopic.jsx";
+import { getTopics, updateTopic, deleteTopic } from "../../services/API/topic.service.js";
+import DropdownMenuTopic from "../../components/Dropdown/DropdowMenuTopic.jsx";
+import ModalUpdateTopic from "../../components/ModalManage/ModalUpdate/ModalUpdateTopic.jsx";
+import ModalAddTourToTopic from "../../components/ModalManage/ModalAdd/ModalAddTourToTopic.jsx";
+import {getToursByTopic} from "../../services/API/tour.service.js";
+import ModalViewToursOfTopic from "../../components/ModalManage/ModalList/ModalManageTourbyTopic.jsx";
 
 export default function ManagementTour() {
     const [isAddTourModalOpen, setIsAddTourModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [topics, setTopics] = useState([]);
+    const [toursOfTopic, setToursOfTopic] = useState([]);
+    const [showTourListModal, setShowTourListModal] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const [editingTopic, setEditingTopic] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showModalAddTourToTopic, setShowModalAddTourToTopic] = useState(false);
+
+    useEffect(() => {
+        const fetchTopics = async () => {
+            const data = await getTopics();
+            setTopics(
+                data.map((item) => ({
+                    ...item,
+                    checked: item.active,
+                }))
+            );
+        };
+        fetchTopics();
+    }, []);
 
     const toggleAddTourModal = () => {
         setIsAddTourModalOpen(!isAddTourModalOpen);
     };
 
-    useEffect(() => {
-        const fetchTopics = async () => {
-            const data = await getTopics();
-            setTopics(data.map(item => ({
-                ...item,
-                checked: item.active,
-            })));
-        };
-        fetchTopics();
-    }, []);
-
-    // ✅ HÀM ĐỔI TRẠNG THÁI ACTIVE
     const handleToggleActive = async (topic) => {
         const updatedData = {
             name: topic.name,
@@ -34,11 +46,9 @@ export default function ManagementTour() {
 
         try {
             await updateTopic(topic.id, updatedData);
-            setTopics(prev =>
-                prev.map(t =>
-                    t.id === topic.id
-                        ? { ...t, active: !t.active, checked: !t.active }
-                        : t
+            setTopics((prev) =>
+                prev.map((t) =>
+                    t.id === topic.id ? { ...t, active: !t.active, checked: !t.active } : t
                 )
             );
         } catch (error) {
@@ -47,6 +57,31 @@ export default function ManagementTour() {
         }
     };
 
+    const handleDeleteTopic = async (id) => {
+        try {
+            await deleteTopic(id);
+            setTopics((prev) => prev.filter((t) => t.id !== id));
+            alert("Xóa chủ đề thành công!");
+        } catch (error) {
+            alert("Xóa thất bại!");
+            console.error(error);
+        }
+    };
+
+    const handleEditTopic = (topic) => {
+        setEditingTopic(topic);
+        setShowEditModal(true);
+    };
+
+    const handleViewToursOfTopic = async (topic) => {
+        try {
+            const tours = await getToursByTopic(topic.id);
+            setToursOfTopic(tours);
+            setShowTourListModal(true);
+        } catch (error) {
+            console.error("Lỗi khi lấy danh sách tour của chủ đề:", error);
+        }
+    };
     return (
         <Layout title="Quản lý Tour">
             <div className="bg-white p-6 rounded-lg">
@@ -86,9 +121,10 @@ export default function ManagementTour() {
                     </thead>
                     <tbody>
                     {topics
-                        .filter(topic =>
-                            topic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            topic.description.toLowerCase().includes(searchTerm.toLowerCase())
+                        .filter(
+                            (topic) =>
+                                topic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                topic.description.toLowerCase().includes(searchTerm.toLowerCase())
                         )
                         .map((topic) => (
                             <tr key={topic.id} className="border-t text-gray-900">
@@ -103,13 +139,61 @@ export default function ManagementTour() {
                                 </td>
                                 <td className="p-2">{topic.description}</td>
                                 <td className="p-2 text-right">
-                                    <button className="text-gray-600">⋯</button>
+                                    <div className="text-gray-600">
+                                        <DropdownMenuTopic
+                                            topic={topic}
+                                            isOpen={openDropdown === topic.id}
+                                            setOpenDropdown={setOpenDropdown}
+                                            onAddTourToTopic={(t) => {
+                                                setEditingTopic(t);
+                                                setShowModalAddTourToTopic(true);
+                                            }}
+                                            onViewTours={handleViewToursOfTopic}
+                                            onDeleteTopic={(id) => handleDeleteTopic(id)}
+                                            onEditTopic={(t) => handleEditTopic(t)}
+                                        />
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-                {isAddTourModalOpen && <ModalAddTheme onClose={toggleAddTourModal} />}
+
+                {isAddTourModalOpen && (
+                    <ModalAddTopic
+                        onClose={toggleAddTourModal}
+                        onCreateSuccess={(newTopic) => {
+                            setTopics((prev) => [...prev, newTopic]);
+                            toggleAddTourModal();
+                        }}
+                    />
+                )}
+                {/* Modal chỉnh sửa chủ đề */}
+                {showEditModal && editingTopic && (
+                    <ModalUpdateTopic
+                        topic={editingTopic}
+                        onClose={() => setShowEditModal(false)}
+                        onUpdate={(updatedTopic) => {
+                            setTopics(prev =>
+                                prev.map(t => (t.id === updatedTopic.id ? updatedTopic : t))
+                            );
+                        }}
+                    />
+                )}
+
+                {/* Modal thêm tour vào chủ đề */}
+                {showModalAddTourToTopic && editingTopic && (
+                    <ModalAddTourToTopic
+                        topic={editingTopic}
+                        onClose={() => setShowModalAddTourToTopic(false)}
+                    />
+                )}
+                {showTourListModal && (
+                    <ModalViewToursOfTopic
+                        tours={toursOfTopic}
+                        onClose={() => setShowTourListModal(false)}
+                    />
+                )}
             </div>
         </Layout>
     );

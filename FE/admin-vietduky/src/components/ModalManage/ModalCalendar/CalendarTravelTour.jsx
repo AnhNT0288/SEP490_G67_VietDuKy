@@ -105,7 +105,7 @@ export default function CalendarTravelTour({ travelTours = [], tourId, tours = [
                     key={idx}
                     className={`border pb-1 pt-1 relative flex flex-col justify-start ${
                         !isCurrentMonth ? "bg-gray-50 text-gray-400" : ""
-                    } ${isToday ? "border-2 border-red-400" : "border-gray-200"}`}
+                    } border border-gray-200 ${isToday ? "text-red-500 font-bold" : ""}`}
                 >
                   <div className="absolute top-1 left-1 text-[11px]">
                     {format(day, "dd")}

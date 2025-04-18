@@ -47,7 +47,7 @@ export function updateTopic(id, data) {
 
 export function deleteTopic(id) {
     return restClient({
-        url: `topic/delete/${id}`,
+        url: `topic/${id}`,
         method: "DELETE",
     })
         .then((response) => response.data)
@@ -56,3 +56,23 @@ export function deleteTopic(id) {
             throw error;
         });
 }
+export function getAllTours() {
+    return restClient({
+        url: "tour",
+        method: "GET",
+    }).then((res) => res.data.data);
+}
+export function getAllLocations() {
+    return restClient({
+        url: "location",
+        method: "GET",
+    }).then((res) => res.data.data);
+}
+export function addTourToTopic(data) {
+    return restClient({
+        url: "topic/add-tour",
+        method: "POST",
+        data,
+    }).then((res) => res.data);
+}
+

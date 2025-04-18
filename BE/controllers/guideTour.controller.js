@@ -57,6 +57,7 @@ exports.addGuideToTour = async (req, res) => {
   try {
     const { travel_tour_id, travel_guide_id } = req.body;
 
+    // Kiểm tra tour du lịch tồn tại
     const travelTour = await TravelTour.findByPk(travel_tour_id);
     if (!travelTour) {
       return res
@@ -64,6 +65,7 @@ exports.addGuideToTour = async (req, res) => {
         .json({ message: "Không tìm thấy lịch khởi hành!" });
     }
 
+    // Kiểm tra hướng dẫn viên tồn tại
     const travelGuide = await TravelGuide.findByPk(travel_guide_id);
     if (!travelGuide) {
       return res
@@ -71,6 +73,21 @@ exports.addGuideToTour = async (req, res) => {
         .json({ message: "Không tìm thấy hướng dẫn viên!" });
     }
 
+    // Kiểm tra hướng dẫn viên đã được gán cho tour này chưa
+    const existingGuideTour = await GuideTour.findOne({
+      where: {
+        travel_tour_id: travel_tour_id,
+        travel_guide_id: travel_guide_id
+      }
+    });
+
+    if (existingGuideTour) {
+      return res
+        .status(200)
+        .json({ message: "Hướng dẫn viên đã được gán cho tour này!" });
+    }
+
+    // Tạo mới gán hướng dẫn viên cho tour
     const newGuideTour = await GuideTour.create({
       travel_tour_id,
       travel_guide_id,
@@ -203,6 +220,16 @@ exports.getGuideTourByUserId = async (req, res) => {
       status,
       upcoming
     } = req.query;
+    const travelGuide = await TravelGuide.findOne({
+      where: {
+        user_id: userId
+      }
+    });
+    if (!travelGuide) {
+      return res
+        .status(200)
+        .json({ message: "Không tìm thấy hướng dẫn viên!" });
+    }
 
     // Tạo điều kiện where cho Tour
     const tourWhereCondition = {};
@@ -245,7 +272,7 @@ exports.getGuideTourByUserId = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const { count, rows: guideTours } = await GuideTour.findAndCountAll({  
-      where: { travel_guide_id: userId },
+      where: { travel_guide_id: travelGuide.id },
       include: [
         {
           model: TravelTour,
