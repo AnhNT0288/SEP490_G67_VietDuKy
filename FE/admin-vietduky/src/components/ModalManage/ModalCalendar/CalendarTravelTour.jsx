@@ -13,6 +13,7 @@ import {
 import { vi } from "date-fns/locale";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
+// eslint-disable-next-line react/prop-types
 export default function CalendarTravelTour({ travelTours = [], tourId, tours = [] }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const today = new Date();
@@ -38,7 +39,7 @@ export default function CalendarTravelTour({ travelTours = [], tourId, tours = [
   });
 
   return (
-      <div className="h-[500px] border rounded-md p-4 overflow-auto relative">
+      <div className="bg-white border rounded-2xl p-4 overflow-auto relative">
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
           <div className="flex items-center gap-2">
@@ -121,6 +122,7 @@ export default function CalendarTravelTour({ travelTours = [], tourId, tours = [
 
                       const start = parseISO(tourAtLine.start_day);
                       const end = parseISO(tourAtLine.end_day);
+
                       const tourInfo = tours.find((t) => t.id === tourAtLine.tour_id);
                       const tourName = tourInfo?.name_tour || `#${tourAtLine.id}`;
                       const isStart = format(day, "yyyy-MM-dd") === format(start, "yyyy-MM-dd");
