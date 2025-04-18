@@ -10,6 +10,7 @@ const TourService = db.TourService;
 const Topic = db.Topic;
 const Feedback = db.Feedback;
 const User = db.User;
+const TourInfo = db.TourInfo;
 
 // Lấy danh sách tất cả Tour
 // exports.getAllTours = async (req, res) => {
@@ -109,6 +110,7 @@ exports.getTourById = async (req, res) => {
                 message: "Không tìm thấy tour!",
             });
         }
+        const tourInfo = await TourInfo.findAll({ where: { tour_id: tour.id } });   
         const {rows: tours} = await Tour.findAndCountAll({
             where: {
                 [Op.or]: [
@@ -142,6 +144,7 @@ exports.getTourById = async (req, res) => {
             activities: tourData.TourActivities || [],
             feedbacks: tourData.Feedbacks || [],
             discount_services: tourData.DiscountServices || [],
+            tourInfo: tourInfo || [],
         };
         delete formattedTour.Services;
         delete formattedTour.TourActivities;

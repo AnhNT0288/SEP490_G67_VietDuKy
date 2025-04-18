@@ -69,6 +69,7 @@ const GuideTour = require("./guideTour.model.js")(sequelize, Sequelize);
 const TravelGuide = require("./travelGuide.model.js")(sequelize, Sequelize);
 const Location = require("./location.model.js")(sequelize, Sequelize);
 const Service = require("./service.model")(sequelize, Sequelize);
+const TourInfo = require("./tour_info.model.js")(sequelize, Sequelize);
 const DiscountService = require("./discountService.model.js")(
   sequelize,
   Sequelize
@@ -341,6 +342,9 @@ TravelGuide.hasMany(Passenger, {
   as: "passengers",
 });
 
+Tour.hasMany(TourInfo, { foreignKey: "tour_id", as: "tourInfo" });
+TourInfo.belongsTo(Tour, { foreignKey: "tour_id", as: "tour" });
+
 // Đối tượng `db` để chứa Sequelize và Models
 const db = {};
 db.sequelize = sequelize;
@@ -389,5 +393,5 @@ db.Directory = Directory;
 db.TravelGuideLocation = TravelGuideLocation;
 db.FavoriteTour = FavoriteTour;
 db.Like = Like;
-
+db.TourInfo = TourInfo;
 module.exports = db;
