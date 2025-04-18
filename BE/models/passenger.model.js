@@ -30,6 +30,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      travel_guide_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
     },
     {
       tableName: "passenger",
