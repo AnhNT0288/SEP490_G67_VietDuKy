@@ -16,6 +16,7 @@ import { useLocation } from "react-router-dom";
 export default function ListTour() {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user ? user.id : null;
   const [tours, setTours] = useState([]);
   const [travelTours, setTravelTours] = useState([]);
   const [filteredTours, setFilteredTours] = useState([]);
@@ -88,7 +89,7 @@ export default function ListTour() {
     fetchTourTypes();
     fetchTopics();
     fetchFavoriteTours();
-  }, [user.id]);
+  }, [userId]);
 
   const handleFilter = async (filterParams) => {
     // Kiểm tra xem có bộ lọc nào hợp lệ không
@@ -107,10 +108,10 @@ export default function ListTour() {
       const res = await TourService.searchTour(filterParams);
       const toursData = res.data.data.tours;
       setFilteredTours(toursData);
-      setMessage(toursData.length === 0 ? "Không tìm thấy tour nào." : ""); // Cập nhật thông báo
+      setMessage(toursData.length === 0 ? "Chúng tôi không tìm thấy tour nào cho bạn !" : ""); // Cập nhật thông báo
     } catch (err) {
       console.error("Lỗi khi tìm kiếm tour:", err);
-      setMessage("Không tìm thấy tour nào !"); // Hiển thị thông báo nếu có lỗi
+      setMessage("Chúng tôi không tìm thấy tour nào cho bạn !"); // Hiển thị thông báo nếu có lỗi
     }
   };
 
@@ -122,7 +123,7 @@ export default function ListTour() {
   // console.log("locations", locations);
   // console.log("tourTypes", tourTypes);
   // console.log("topics", topics);
-  console.log("favoriteTours", favoriteTours);
+  // console.log("favoriteTours", favoriteTours);
 
   return (
     <div className="bg-white">

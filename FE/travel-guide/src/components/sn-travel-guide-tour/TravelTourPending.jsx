@@ -56,7 +56,7 @@ const TravelTourPending = () => {
   // Fetch tours khi travelGuideId thay đổi
   useEffect(() => {
     const fetchTours = async () => {
-      if (!travelGuideId) return; // Dừng nếu travelGuideId chưa có
+      if (!travelGuideId) return;
 
       try {
         const response = await getGuideTourByUserId(travelGuideId, {
