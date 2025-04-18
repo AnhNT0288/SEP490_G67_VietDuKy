@@ -331,6 +331,16 @@ Like.belongsTo(Article, {
   as: "article",
 });
 
+//Passenger/TravelGuide
+Passenger.belongsTo(TravelGuide, {
+  foreignKey: "travel_guide_id",
+  as: "travelGuide",
+});
+TravelGuide.hasMany(Passenger, {
+  foreignKey: "travel_guide_id",
+  as: "passengers",
+});
+
 // Đối tượng `db` để chứa Sequelize và Models
 const db = {};
 db.sequelize = sequelize;
