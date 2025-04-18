@@ -7,13 +7,14 @@ import ModalAddActivity from "../ModalAdd/ModalAddActivity.jsx";
 import { createTour, updateTour, getTourById } from "../../../services/API/tour.service.js";
 import Select from "react-select";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalUpdateTour({ mode = "update", tourId = null, onClose, onCreateSuccess }) {
     const [locations, setLocations] = useState([]);
     const [services, setServices] = useState([]);
     const [typeTours, setTypeTours] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [previewImages, setPreviewImages] = useState([]);
-    const [removedImageIndexes, setRemovedImageIndexes] = useState([]);
+    const [removedImageUrls, setRemovedImageUrls] = useState([]);
     const [tourData, setTourData] = useState({
         code_tour: "",
         name_tour: "",
@@ -91,12 +92,11 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
         const isOldImage = imageToRemove.startsWith("http");
 
         if (isOldImage) {
-            // Xoá ảnh cũ → thêm vào danh sách cần xoá
-            setRemovedImageIndexes((prev) => [...prev, index]);
+            setRemovedImageUrls((prev) => [...prev, imageToRemove]);
         } else {
-            // Xoá ảnh mới → tìm đúng vị trí trong tourData.album (tương ứng với newImages)
-            const newImages = previewImages.filter((img) => !img.startsWith("http"));
-            const fileIndex = newImages.findIndex((url) => url === imageToRemove);
+            const fileIndex = tourData.album.findIndex(
+                (file) => URL.createObjectURL(file) === imageToRemove
+            );
 
             if (fileIndex !== -1) {
                 setTourData((prev) => ({
@@ -106,7 +106,6 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
             }
         }
 
-        // Cập nhật preview hiển thị
         setPreviewImages((prev) => prev.filter((_, i) => i !== index));
     };
 
@@ -158,34 +157,36 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
         try {
             const formData = new FormData();
 
-            Object.keys(tourData).forEach((key) => {
+            // Add normal fields
+            Object.entries(tourData).forEach(([key, value]) => {
                 if (key === "activities") {
-                    formData.append(key, JSON.stringify(tourData[key]));
+                    formData.append("activities", JSON.stringify(value));
                 } else if (key === "album") {
-                    // Chỉ thêm ảnh mới (dạng File)
-                    tourData.album.forEach((file) => {
-                        formData.append("album", file);
+                    // Chỉ thêm file
+                    value.forEach((file) => {
+                        if (file instanceof File) {
+                            formData.append("album", file);
+                        }
                     });
-
                 } else if (key === "service_id") {
-                    tourData.service_id.forEach((id) => {
+                    // Gửi nhiều field `service_ids`
+                    value.forEach((id) => {
                         formData.append("service_ids", id);
                     });
-                    if (tourData.service_id.length > 0) {
-                        formData.append("service_id", tourData.service_id[0]);
+                } else {
+                    // Gửi bình thường
+                    if (value !== null && value !== undefined) {
+                        formData.append(key, value);
                     }
-
-                } else if (tourData[key] !== null && tourData[key] !== undefined) {
-                    formData.append(key, tourData[key]);
                 }
             });
 
-            // 👉 Thêm danh sách ảnh cũ cần xoá nếu có
-            if (removedImageIndexes.length > 0) {
-                const removedUrls = removedImageIndexes.map(i => previewImages[i]);
-                formData.append("removed_urls", JSON.stringify(removedUrls));
+            // Thêm các URL ảnh cũ bị xoá
+            if (removedImageUrls.length > 0) {
+                formData.append("removed_urls", JSON.stringify(removedImageUrls));
             }
 
+            // Gửi dữ liệu
             const response = mode === "update"
                 ? await updateTour(tourId, formData)
                 : await createTour(formData);
@@ -199,10 +200,15 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
                 alert(`${mode === "update" ? "Cập nhật" : "Tạo"} Tour thất bại!`);
             }
         } catch (error) {
-            alert(`Lỗi: ${JSON.stringify(error.response?.data || error.message)}`);
+            console.error("Lỗi cập nhật tour:", error);
+            if (error.response) {
+                console.error("Server response:", error.response.data);
+                alert(`Lỗi từ server: ${error.response.data.message || "Không xác định"}`);
+            } else {
+                alert(`Lỗi: ${error.message}`);
+            }
         }
     };
-
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
