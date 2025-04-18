@@ -3,7 +3,7 @@ const TravelTour = db.TravelTour;
 const Tour = db.Tour;
 const Location = db.Location;
 const Booking = db.Booking;
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 //Lấy tất cả dữ liệu trong bảng travel tour
 exports.getAllTravelTours = async (req, res) => {
@@ -508,6 +508,66 @@ exports.getListTravelTourForGuide = async (req, res) => {
     console.error("Error:", error);
     res.status(500).json({
       message: "Lỗi khi lấy tour du lịch",
+      error: error.message,
+    });
+  }
+};
+
+exports.getFullTravelTours = async (req, res) => {
+  try {
+    const travelTours = await TravelTour.findAll({
+      where: {
+        current_people: {
+          [Op.gte]: Sequelize.col("max_people"), // current_people >= max_people
+        },
+      },
+      include: [
+        {
+          model: Tour,
+          as: "Tour",
+          include: [
+            {
+              model: Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+            {
+              model: Location,
+              as: "endLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!travelTours || travelTours.length === 0) {
+      return res.status(404).json({
+        message: "Không có travelTour nào đã đủ số lượng người!",
+      });
+    }
+
+    // Format lại dữ liệu trả về
+    const formattedTravelTours = travelTours.map((travelTour) => {
+      const travelTourData = travelTour.get({ plain: true });
+      return {
+        ...travelTourData,
+        tour: {
+          ...travelTourData.Tour,
+          start_location: travelTourData.Tour?.startLocation || null,
+          end_location: travelTourData.Tour?.endLocation || null,
+        },
+      };
+    });
+
+    res.json({
+      message: "Lấy danh sách travelTour đã đủ số lượng người thành công!",
+      data: formattedTravelTours,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách travelTour đã đủ số lượng người!",
       error: error.message,
     });
   }

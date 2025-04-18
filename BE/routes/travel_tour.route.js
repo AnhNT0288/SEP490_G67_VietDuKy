@@ -31,8 +31,8 @@ router.delete(
 );
 router.get(
   "/tour/:id",
-  // authenticateAdmin,
-  // authenticateUser,
+  authenticateAdmin,
+  authenticateUser,
   travelTourController.getTravelTourByTourId
 );
 
@@ -41,6 +41,14 @@ router.post(
   authenticateUser,
   authenticateAdmin,
   travelTourController.closeTourWhenFull
+);
+
+//Lấy danh sách travelTour đã đủ số lượng người
+router.get(
+  "/max-people/full",
+  authenticateUser,
+  authenticateAdmin,
+  travelTourController.getFullTravelTours
 );
 
 module.exports = router;
