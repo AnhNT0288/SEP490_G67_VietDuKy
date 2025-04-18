@@ -53,6 +53,7 @@ const TravelTourPending = () => {
     }
   }, [travelGuides, userId]);
 
+  // Fetch tours khi travelGuideId thay đổi
   useEffect(() => {
     const fetchTours = async () => {
       if (!travelGuideId) return;

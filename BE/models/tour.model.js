@@ -42,6 +42,14 @@ module.exports = (sequelize, Sequelize) => {
       album: {
         type: Sequelize.TEXT,
         allowNull: false,
+        get() {
+          const rawValue = this.getDataValue('album');
+          try {
+            return JSON.parse(rawValue);
+          } catch (e) {
+            return [];
+          }
+        }
       },
       start_location: {
         type: Sequelize.INTEGER.UNSIGNED,

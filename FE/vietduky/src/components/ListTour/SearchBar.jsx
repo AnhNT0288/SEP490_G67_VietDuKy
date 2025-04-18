@@ -11,7 +11,10 @@ export default function SearchBar({ tours, travelTours, filteredTours }) {
         <div className="mt-4 space-y-4">
           <div className="text-lg font-medium text-gray-800">
             Chúng tôi tìm thấy{" "}
-            <span className="font-bold text-red-600">{tours.length}</span>{" "}
+            <span className="font-bold text-red-600">
+              {" "}
+              {filteredTours.length > 0 ? filteredTours.length : tours.length}
+            </span>{" "}
             chương trình tour cho quý khách
           </div>
         </div>
