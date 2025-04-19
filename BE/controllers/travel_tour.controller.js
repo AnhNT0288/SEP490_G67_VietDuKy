@@ -3,6 +3,9 @@ const TravelTour = db.TravelTour;
 const Tour = db.Tour;
 const Location = db.Location;
 const Booking = db.Booking;
+const User = db.User;
+const TravelGuide = db.TravelGuide;
+const GuideTour = db.GuideTour;
 const { Op, Sequelize } = require("sequelize");
 
 //Lấy tất cả dữ liệu trong bảng travel tour
@@ -568,6 +571,72 @@ exports.getFullTravelTours = async (req, res) => {
     console.error("Error:", error);
     res.status(500).json({
       message: "Lỗi khi lấy danh sách travelTour đã đủ số lượng người!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách TravelTour mà Staff phụ trách và trạng thái gán hướng dẫn viên
+exports.getTravelToursByStaffWithGuideStatus = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const { filter } = req.query; // Bộ lọc: chưa gán, gán thiếu, gán đủ
+
+    // Kiểm tra user_id có phải role Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Lấy danh sách TravelTour mà Staff phụ trách
+    const travelTours = await TravelTour.findAll({
+      include: [
+        {
+          model: GuideTour,
+          as: "GuideTours",
+          attributes: ["id", "travel_guide_id"],
+        },
+      ],
+    });
+
+    // Tính toán số lượng đã gán và trạng thái
+    const formattedTravelTours = travelTours.map((tour) => {
+      const assignedGuides = tour.GuideTours.length;
+      const status =
+        assignedGuides === 0
+          ? "chưa gán"
+          : assignedGuides < tour.required_guides
+          ? "gán thiếu"
+          : "gán đủ";
+
+      return {
+        id: tour.id,
+        name: tour.name,
+        start_day: tour.start_day,
+        end_day: tour.end_day,
+        max_people: tour.max_people,
+        assigned_guides: assignedGuides,
+        required_guides: tour.required_guides,
+        status,
+      };
+    });
+
+    // Lọc theo trạng thái nếu có
+    let filteredTravelTours = formattedTravelTours;
+    if (filter) {
+      filteredTravelTours = formattedTravelTours.filter(
+        (tour) => tour.status === filter
+      );
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách TravelTour thành công!",
+      data: filteredTravelTours,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách TravelTour:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách TravelTour!",
       error: error.message,
     });
   }

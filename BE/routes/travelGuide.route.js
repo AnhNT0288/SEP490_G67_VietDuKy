@@ -22,6 +22,7 @@ router.get(
 );
 router.post(
   "/create",
+
   authenticateUser,
   checkRoles("admin", "staff"),
   travelGuideController.createTravelGuide
@@ -40,6 +41,7 @@ router.delete(
 );
 router.get(
   "/location/:locationId",
+
   authenticateUser,
   checkRoles("admin", "staff"),
   travelGuideController.getTravelGuidesByLocation
@@ -52,10 +54,32 @@ router.post(
   travelGuideController.assignTravelGuideToStaff
 );
 
+router.delete(
+  "/unassign",
+  authenticateAdmin,
+  travelGuideController.unassignTravelGuidesFromStaff
+);
+
 router.get(
   "/staff/:staff_id",
     authenticateUser,
     checkRoles(["staff", "admin"]),
   travelGuideController.getTravelGuidesByStaff
 );
+
+router.put(
+  "/update-personal-info/:id",
+  authenticateUser,
+  authenticateStaff,
+  authenticateAdmin,
+  travelGuideController.updatePersonalInfo
+);
+
+router.get(
+  "/filter/travel-guides",
+  // authenticateStaff,
+  // authenticateAdmin,
+  travelGuideController.getAllTravelGuides
+);
+
 module.exports = router;
