@@ -42,7 +42,7 @@ const Calendar = ({ id, initialSelectedDate }) => {
       const response = await TravelTourService.getTravelTourByTourId(id);
       const tour = response.data.data;
 
-      console.log(tour)
+      // console.log(tour)
 
       try {
         if (!Array.isArray(tour)) {
@@ -154,7 +154,7 @@ const Calendar = ({ id, initialSelectedDate }) => {
   };
 
   // console.log("travel Tour", travelTourData);
-  console.log("tour date", tourDates)
+  // console.log("tour date", tourDates)
 
 
   return (

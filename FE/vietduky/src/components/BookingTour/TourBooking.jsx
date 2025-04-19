@@ -2,6 +2,7 @@ import TermsAndConditions from "./TermsAndConditions";
 import Icons from "@/components/Icons/Icon";
 import { BookingService } from "@/services/API/booking.service";
 import { TourService } from "@/services/API/tour.service";
+import { formatTime } from "@/utils/dateUtil";
 import React, { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -51,6 +52,26 @@ const TourBooking = ({
       return;
     }
 
+    if (!formData.name) {
+      toast.error("Vui lòng nhập tên khách hàng!");
+      return;
+    }
+
+    if (!formData.phone) {
+      toast.error("Vui lòng nhập số điện thoại!");
+      return;
+    }
+
+    if (!formData.email) {
+      toast.error("Vui lòng nhập email!");
+      return;
+    }
+
+    if (!formData.passengers.adult && !formData.passengers.children && !formData.passengers.toddler && !formData.passengers.infant) {
+      toast.error("Vui lòng chọn ít nhất một hành khách!");
+      return;
+    }
+
     if (!Array.isArray(formData.passengers)) {
       toast.error("Danh sách hành khách không hợp lệ!");
       return;
@@ -73,54 +94,7 @@ const TourBooking = ({
   };
 
   const totalPrice =
-    ((formData?.number_adult +
-      formData?.number_children +
-      formData?.number_toddler || 0) *
-      travelTourData?.price_tour +
-      roomCost) ;
-
-  // const calculateTotalPrice = (formData, roomCost, travelTourData) => {
-  //   const numberAdult = formData?.number_adult || 0;
-  //   const numberToddler = formData?.number_toddler || 0;
-  //   const numberChildren = formData?.number_children || 0;
-  //   const numberNewborn = formData?.number_newborn || 0;
-
-  //   let totalPrice = 0;
-
-  //   // Tính phí cho người lớn
-  //   totalPrice += numberAdult * travelTourData?.price_tour;
-
-  //   // Tính phí cho trẻ em dưới 2 tuổi
-  //   if (numberNewborn > 0) {
-  //     // Chỉ tính phí cho trẻ em thứ 2 trở đi
-  //     const extraNewborns = numberNewborn - 1 > 0 ? numberNewborn - 1 : 0;
-  //     if (numberAdult > 1) {
-  //       totalPrice += extraNewborns * (travelTourData?.price_tour * 0); // 75% giá tour cho trẻ em thứ 2 trở đi
-  //     }
-  //   }
-
-  //   // Tính phí cho trẻ em dưới 5 tuổi
-  //   if (numberToddler > 0) {
-  //     totalPrice += numberToddler * (travelTourData?.price_tour * 0.5); // 50% giá tour
-  //   }
-
-  //   // Tính phí cho trẻ em từ 5 đến dưới 12 tuổi
-  //   if (numberChildren > 0) {
-  //     totalPrice += numberChildren * (travelTourData?.price_tour * 0.75); // 75% giá tour
-  //   }
-
-  //   // Tính phí cho trẻ em 12 tuổi trở lên
-  //   const numberOlderChildren = formData?.number_children || 0; // Số trẻ em trên 12 tuổi
-  //   totalPrice += numberOlderChildren * travelTourData?.price_tour; // Tính phí như người lớn
-
-  //   // Cộng thêm chi phí phòng
-  //   totalPrice += roomCost;
-
-  //   return totalPrice;
-  // };
-
-  // // Sử dụng hàm calculateTotalPrice trong nơi thích hợp
-  // const totalPrice = calculateTotalPrice(formData, roomCost, travelTourData);
+    (formData?.number_adult * travelTourData?.price_tour + formData?.number_children * travelTourData?.children_price + formData?.number_toddler * travelTourData?.toddler_price || 0  + roomCost) ;
 
   console.log("Tổng tiền:", totalPrice);
 
@@ -141,9 +115,9 @@ const TourBooking = ({
         {/* Ảnh và tiêu đề */}
         <div className="flex gap-4">
           <img
-            src={tours.image || "/placeholder.jpg"}
+            src={tours.album[0] || "/placeholder.jpg"}
             alt="tour"
-            className="w-24 h-24 object-cover rounded-lg"
+            className="w-26 h-24 object-cover rounded-lg"
           />
           <div className="flex-1">
             <h2 className="text-neutral-900 text-base font-bold">
@@ -174,7 +148,7 @@ const TourBooking = ({
         </div>
 
         <div className="py-3 border-b border-gray-200 text-sm">
-          <div className="text-sm mb-4">
+          <div className="text-sm mb-4 flex items-center gap-1">
             <img src={Icons.Coupon} className="mr-1" />
             <span className="font-bold">Mã tour: </span>
             {tours?.code_tour || "Chưa có mã tour"}
@@ -193,8 +167,8 @@ const TourBooking = ({
                 Ngày đi - {travelTourData?.start_day}
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
-                <span>06:30</span>
-                <span>00:00</span>
+                <span>{formatTime(travelTourData?.start_time_depart)}</span>
+                <span>{formatTime(travelTourData?.start_time_close)}</span>
               </div>
               <div className="relative mb-2">
                 <div className="absolute -top-0.8 transforms -translate-y-1/3 w-2 h-2 bg-[#B1B1B1]" />
@@ -215,8 +189,8 @@ const TourBooking = ({
                 Ngày về - {travelTourData?.end_day}
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
-                <span>00:00</span>
-                <span>06:30</span>
+                <span>{formatTime(travelTourData?.end_time_depart)}</span>
+                <span>{formatTime(travelTourData?.end_time_close)}</span>
               </div>
               <div className="relative mb-2">
                 <div className="absolute -top-0.8 transforms -translate-y-1/3 w-2 h-2 bg-[#B1B1B1]" />
@@ -268,7 +242,20 @@ const TourBooking = ({
                   <span>Trẻ em</span>
                   <span>
                     {formData.number_children} x{" "}
-                    {travelTourData?.price_tour?.toLocaleString("vi-VN", {
+                    {travelTourData?.children_price?.toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }) || "0 ₫"}
+                  </span>
+                </div>
+              )}
+
+              {formData.number_toddler > 0 && (
+                <div className="flex justify-between">
+                  <span>Trẻ nhỏ</span>
+                  <span>
+                    {formData.number_toddler} x{" "}
+                    {travelTourData?.toddler_price?.toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }) || "0 ₫"}
@@ -306,7 +293,7 @@ const TourBooking = ({
         </div>
 
         {/* Mã giảm giá */}
-        <div className="mt-6 border-t border-gray-200 pt-4">
+        {/* <div className="mt-6 border-t border-gray-200 pt-4">
           <div className="flex justify-between items-center gap-2 text-sm font-semibold cursor-pointer">
             <span className="text-lg font-bold flex items-center gap-2">
               <img src={Icons.Voucher} alt="Voucher" className="w-6 h-6" />
@@ -317,7 +304,7 @@ const TourBooking = ({
               <span>Thêm mã giảm giá</span>
             </span>
           </div>
-        </div>
+        </div> */}
 
         {/* Tổng tiền sau cùng */}
         <div className="mt-4 border-t border-gray-300 pt-4 flex justify-between items-center text-lg font-bold ">

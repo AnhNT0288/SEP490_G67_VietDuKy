@@ -17,7 +17,7 @@ export default function BookingTour() {
     id: null,
   };
   const [passengers, setPassengers] = useState({
-    adult: 0,
+    adult: 1,
     children: 0,
     toddler: 0,
     infant: 0,
