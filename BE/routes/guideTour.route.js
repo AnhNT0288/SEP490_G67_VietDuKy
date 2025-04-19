@@ -5,6 +5,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/:id", GuideTourController.getGuideTours);
@@ -15,7 +16,7 @@ router.post("/create",
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   GuideTourController.removeGuideFromTour
 );
 router.put("/approve/:id", 

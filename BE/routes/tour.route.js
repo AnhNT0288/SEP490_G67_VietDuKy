@@ -6,6 +6,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/search", tourController.searchTour);
@@ -21,8 +22,8 @@ router.get("/:id", tourController.getTourById);
 
 router.post(
   "/create",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   uploadTourImage.array("album"),
   tourController.createTour
 );
@@ -30,15 +31,15 @@ router.post(
 router.put(
   "/update/:id",
   uploadTourImage.array("album"),
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   tourController.updateTourById
 );
 
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   tourController.deleteTourById
 );
 router.get("/get-by-topic-id/:topicId", tourController.getToursByTopicId);

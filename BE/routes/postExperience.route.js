@@ -6,6 +6,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", postExperienceController.getAllPostExperiences);
@@ -16,32 +17,32 @@ router.get(
 );
 router.post(
   "/create",
-  // authenticateUser,
+  authenticateUser,
   uploadPostExperience.array("postEx_album", 10),
   postExperienceController.createPostExperience
 );
 router.put(
   "/update/:id",
-  // authenticateUser,
+  authenticateUser,
   uploadPostExperience.array("postEx_album", 10),
   postExperienceController.updatePostExperience
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   postExperienceController.deletePostExperience
 );
 router.put(
   "/approve/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   postExperienceController.approvePostExperience
 );
 router.put(
   "/reject/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   postExperienceController.rejectPostExperience
 );
 //Tăng lượt xem bài viết

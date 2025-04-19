@@ -6,26 +6,27 @@ const {
     authenticateUser,
     authenticateAdmin,
     authenticateStaff,
+    checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.post(
     "/create",
-    // authenticateUser,
-    // authenticateAdmin,
+    authenticateUser,
+    checkRoles("admin", "staff"),
     uploadTourActivities.single("image"),
     tourActivitiesController.createTourActivities
 );
 router.put(
     "/update/:id",
-    // authenticateUser,
-    // authenticateAdmin,
+    authenticateUser,
+    checkRoles("admin", "staff"),
     uploadTourActivities.single("image"),
     tourActivitiesController.updateTourActivities
 );  
 router.delete(
     "/delete/:id",
-    // authenticateUser,
-    // authenticateAdmin,
+    authenticateUser,
+    checkRoles("admin", "staff"),
     tourActivitiesController.deleteTourActivities
 );
 

@@ -5,12 +5,13 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 // Route để tạo tour service mới
 router.post(
   "/create",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   tourServiceController.createTourService
 );
 

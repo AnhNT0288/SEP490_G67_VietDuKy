@@ -10,40 +10,45 @@ const {
 router.get("/", travelGuideController.getAllTravelGuides);
 router.get(
   "/feedback/:travelGuideId",
-  authenticateStaff,
-  authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   travelGuideController.getFeedbackByTravelGuide
 );
 router.get(
   "/:user_id",
-  authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   travelGuideController.getTravelGuidesByUser
 );
 router.post(
   "/create",
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   travelGuideController.createTravelGuide
 );
 router.put(
   "/update/:userId",
     authenticateUser,
-    authenticateAdmin,
+    checkRoles("admin", "staff"),
   travelGuideController.updateTravelGuide
 );
 router.delete(
   "/delete/:id",
-  authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   travelGuideController.deleteTravelGuide
 );
 router.get(
   "/location/:locationId",
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   travelGuideController.getTravelGuidesByLocation
 );
 
 router.post(
   "/assign",
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   travelGuideController.assignTravelGuideToStaff
 );
 

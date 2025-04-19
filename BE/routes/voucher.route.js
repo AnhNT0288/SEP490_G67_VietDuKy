@@ -6,6 +6,7 @@ const {
     authenticateUser,
     authenticateAdmin,
     authenticateStaff,
+    checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", voucherController.getAllVouchers);
@@ -13,22 +14,22 @@ router.get("/:id", voucherController.getVoucherById);
 router.get("/code/:voucher_code", voucherController.getVoucherByCode);
 router.post(
     "/create",
-    // authenticateUser,
-    // authenticateAdmin,
+    authenticateUser,
+    checkRoles("admin", "staff"),
     uploadVoucher.single("image"),
     voucherController.createVoucher
 );
 router.put(
     "/update/:id",
     authenticateUser,
-    authenticateAdmin,
+    checkRoles("admin", "staff"),
     uploadVoucher.single("image"),
     voucherController.updateVoucher
 );
 router.delete(
     "/delete/:id",
     authenticateUser,
-    authenticateAdmin,
+    checkRoles("admin", "staff"),
     voucherController.deleteVoucher
 );
 

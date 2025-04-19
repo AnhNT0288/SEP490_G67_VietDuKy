@@ -5,9 +5,10 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
-router.get("/", authenticateUser, authenticateAdmin, customerController.getAllCustomers);
+router.get("/", authenticateUser, checkRoles("admin"), customerController.getAllCustomers);
 router.get("/profile", authenticateUser, customerController.getCustomerProfile);
 router.put("/update-profile", authenticateUser, customerController.updateCustomerProfile);
 router.post("/create", authenticateUser, customerController.createCustomer);

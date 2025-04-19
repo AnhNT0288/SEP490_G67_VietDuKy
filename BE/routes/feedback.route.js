@@ -6,6 +6,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/:userId", authenticateUser, feedbackController.getFeedbackByUser);
@@ -24,14 +25,13 @@ router.post(
 router.put(
   "/update/:id",
   authenticateUser,
-  authenticateAdmin,
   uploadAlbumFeedback.array("feedback_album", 10),
   feedbackController.updateFeedback
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff", "customer"),
   feedbackController.deleteFeedback
 );
 

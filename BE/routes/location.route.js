@@ -6,28 +6,29 @@ const {
     authenticateUser,
     authenticateAdmin,
     authenticateStaff,
+    checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", locationController.getAllLocations);
 router.get("/:id", locationController.getLocationById);
 router.post(
     "/create",
-    // authenticateUser,
-    // authenticateAdmin,
+    authenticateUser,
+    checkRoles("admin", "staff"),
     uploadLocation.single("image"),
     locationController.createLocation
 );
 router.put(
     "/update/:id",
     authenticateUser,
-    authenticateAdmin,
+    checkRoles("admin", "staff"),
     uploadLocation.single("image"),
     locationController.updateLocation
 );
 router.delete(
     "/delete/:id",
     authenticateUser,
-    authenticateAdmin,
+    checkRoles("admin", "staff"),
     locationController.deleteLocation
 );
 

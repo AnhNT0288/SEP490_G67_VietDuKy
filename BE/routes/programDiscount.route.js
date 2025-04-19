@@ -5,6 +5,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", programDiscountController.getAllProgramDiscounts);
@@ -12,19 +13,19 @@ router.get("/:id", programDiscountController.getProgramDiscountById);
 router.post(
   "/create",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   programDiscountController.createProgramDiscount
 );
 router.put(
   "/update/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   programDiscountController.updateProgramDiscount
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   programDiscountController.deleteProgramDiscount
 );
 
