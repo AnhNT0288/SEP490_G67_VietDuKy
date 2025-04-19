@@ -4,7 +4,8 @@ const travelGuideController = require("../controllers/travelGuide.controller");
 const {
   authenticateUser,
   authenticateAdmin,
-  authenticateStaff, checkRoles,
+  authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", travelGuideController.getAllTravelGuides);
@@ -29,8 +30,8 @@ router.post(
 );
 router.put(
   "/update/:userId",
-    authenticateUser,
-    checkRoles("admin", "staff"),
+  authenticateUser,
+  checkRoles("admin", "staff"),
   travelGuideController.updateTravelGuide
 );
 router.delete(
@@ -39,46 +40,74 @@ router.delete(
   checkRoles("admin", "staff"),
   travelGuideController.deleteTravelGuide
 );
+
 router.get(
   "/location/:locationId",
-
-  authenticateUser,
-  checkRoles("admin", "staff"),
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
   travelGuideController.getTravelGuidesByLocation
+);
+
+router.get(
+  "/locations-travel-guide/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  travelGuideController.getLocationsByTravelGuide
+);
+
+router.post(
+  "/add-locations-travel-guide",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  travelGuideController.addLocationsToTravelGuide
+);
+
+router.delete(
+  "/delete-location",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  travelGuideController.deleteLocationFromTravelGuide
 );
 
 router.post(
   "/assign",
-  authenticateUser,
-  checkRoles("admin", "staff"),
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
   travelGuideController.assignTravelGuideToStaff
 );
 
 router.delete(
   "/unassign",
-  authenticateAdmin,
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
   travelGuideController.unassignTravelGuidesFromStaff
 );
 
 router.get(
   "/staff/:staff_id",
-    authenticateUser,
-    checkRoles(["staff", "admin"]),
+  // authenticateUser,
+  // checkRoles(["staff", "admin"]),
   travelGuideController.getTravelGuidesByStaff
+);
+
+router.post(
+  // authenticateUser,
+  // checkRoles(["staff", "admin"]),
+  "/add-travel-guide-to-group",
+  travelGuideController.addTravelGuideToStaffGroup
 );
 
 router.put(
   "/update-personal-info/:id",
   authenticateUser,
-  authenticateStaff,
-  authenticateAdmin,
+  checkRoles(["staff", "admin"]),
   travelGuideController.updatePersonalInfo
 );
 
 router.get(
   "/filter/travel-guides",
-  // authenticateStaff,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles(["staff", "admin"]),
   travelGuideController.getAllTravelGuides
 );
 

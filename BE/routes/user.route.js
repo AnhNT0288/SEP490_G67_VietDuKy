@@ -62,33 +62,43 @@ router.post(
 router.get(
   "/role/:role_id",
   authenticateUser,
-  authenticateStaff,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   userController.getUsersByRoleId
 );
 
 router.put(
   "/staff-profile/:user_id",
   authenticateUser,
-  authenticateStaff,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   userController.updateStaffProfile
 );
 
-router.put(
+router.post(
   "/assign-locations/:user_id",
-  // authenticateUser,
-  // authenticateStaff,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   userController.assignLocationsToStaff
 );
 
 router.get(
   "/travel-tours/:user_id",
-  // authenticateUser,
-  // authenticateStaff,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   userController.getTravelToursByStaffLocations
+);
+
+router.get(
+  "/staff/locations/:user_id",
+  authenticateUser,
+  checkRoles("admin", "staff"),
+  userController.getLocationsByStaff
+);
+
+router.delete(
+  "/delete-location-from-staff",
+  authenticateUser,
+  checkRoles("admin", "staff"),
+  userController.deleteLocationFromStaff
 );
 
 module.exports = router;

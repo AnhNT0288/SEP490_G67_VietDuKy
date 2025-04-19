@@ -240,7 +240,7 @@ exports.getUsersByRoleId = async (req, res) => {
     // Tìm danh sách người dùng theo role_id
     const users = await User.findAll({
       where: { role_id },
-      attributes: ["id", "avatar", "status", "email","displayName"],
+      attributes: ["id", "avatar", "status", "email", "displayName"],
       include: [
         {
           model: Role,
@@ -323,12 +323,28 @@ exports.assignLocationsToStaff = async (req, res) => {
       });
     }
 
-    // Xóa các location hiện tại của Staff
-    await StaffLocation.destroy({ where: { user_id } });
+    // Lấy danh sách các địa điểm đã được gán cho Staff
+    const existingAssignments = await StaffLocation.findAll({
+      where: { user_id },
+    });
+    const existingLocationIds = existingAssignments.map(
+      (assignment) => assignment.location_id
+    );
 
-    // Gán các location mới
-    const assignments = location_ids.map((location_id) => ({
-      user_id, // Đảm bảo sử dụng đúng tên cột
+    // Lọc ra các địa điểm chưa được gán
+    const newLocationIds = location_ids.filter(
+      (id) => !existingLocationIds.includes(id)
+    );
+
+    if (newLocationIds.length === 0) {
+      return res.status(400).json({
+        message: "Tất cả các địa điểm đã được gán cho Staff!",
+      });
+    }
+
+    // Gán các địa điểm mới
+    const assignments = newLocationIds.map((location_id) => ({
+      user_id,
       location_id,
     }));
     await StaffLocation.bulkCreate(assignments);
@@ -406,6 +422,91 @@ exports.getTravelToursByStaffLocations = async (req, res) => {
     console.error("Lỗi khi lấy danh sách TravelTour:", error);
     res.status(500).json({
       message: "Lỗi khi lấy danh sách TravelTour!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách các địa điểm được gán cho Staff
+exports.getLocationsByStaff = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Kiểm tra user_id có phải role Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Lấy danh sách các địa điểm được gán cho Staff
+    const staffLocations = await StaffLocation.findAll({
+      where: { user_id },
+      include: [
+        {
+          model: Location,
+          as: "location",
+          attributes: ["id", "name_location"],
+        },
+      ],
+    });
+
+    if (staffLocations.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy địa điểm nào được gán cho Staff này!",
+      });
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách địa điểm thành công!",
+      data: staffLocations.map((sl) => sl.location),
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách địa điểm của Staff:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách địa điểm của Staff!",
+      error: error.message,
+    });
+  }
+};
+
+// Xóa địa điểm khỏi Staff
+exports.deleteLocationFromStaff = async (req, res) => {
+  try {
+    const { user_id, location_id } = req.body;
+
+    // Kiểm tra user_id có phải role Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Kiểm tra Location có tồn tại không
+    const location = await Location.findByPk(location_id);
+    if (!location) {
+      return res.status(404).json({ message: "Không tìm thấy Location!" });
+    }
+
+    // Kiểm tra xem địa điểm đã được gán cho Staff chưa
+    const staffLocation = await StaffLocation.findOne({
+      where: { user_id, location_id },
+    });
+
+    if (!staffLocation) {
+      return res.status(404).json({
+        message: "Địa điểm này chưa được gán cho Staff!",
+      });
+    }
+
+    // Xóa địa điểm khỏi Staff
+    await staffLocation.destroy();
+
+    res.status(200).json({
+      message: "Xóa địa điểm khỏi Staff thành công!",
+    });
+  } catch (error) {
+    console.error("Lỗi khi xóa địa điểm khỏi Staff:", error);
+    res.status(500).json({
+      message: "Lỗi khi xóa địa điểm khỏi Staff!",
       error: error.message,
     });
   }

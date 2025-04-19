@@ -352,6 +352,153 @@ exports.getTravelGuidesByLocation = async (req, res) => {
   }
 };
 
+// Lấy danh sách các địa điểm được gán cho TravelGuide
+exports.getLocationsByTravelGuide = async (req, res) => {
+  try {
+    const { travel_guide_id } = req.params;
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res.status(404).json({ message: "Không tìm thấy TravelGuide!" });
+    }
+
+    // Lấy danh sách các địa điểm được gán cho TravelGuide
+    const locations = await TravelGuideLocation.findAll({
+      where: { travel_guide_id },
+      include: [
+        {
+          model: Location,
+          as: "location",
+          attributes: ["id", "name_location"],
+        },
+      ],
+    });
+
+    if (locations.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy địa điểm nào được gán cho TravelGuide này!",
+      });
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách địa điểm thành công!",
+      data: locations.map((loc) => loc.location),
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách địa điểm:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách địa điểm!",
+      error: error.message,
+    });
+  }
+};
+
+// Gán thêm địa điểm cho TravelGuide
+exports.addLocationsToTravelGuide = async (req, res) => {
+  try {
+    const { travel_guide_id, location_ids } = req.body;
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res.status(404).json({ message: "Không tìm thấy TravelGuide!" });
+    }
+
+    // Kiểm tra danh sách location_ids
+    if (!Array.isArray(location_ids) || location_ids.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Danh sách location_ids không hợp lệ!" });
+    }
+
+    const addedLocations = [];
+    const existingLocations = [];
+
+    // Gán từng Location cho TravelGuide
+    for (const location_id of location_ids) {
+      // Kiểm tra Location có tồn tại không
+      const location = await Location.findByPk(location_id);
+      if (!location) {
+        return res
+          .status(404)
+          .json({ message: `Không tìm thấy Location với ID ${location_id}!` });
+      }
+
+      // Kiểm tra xem Location đã được gán cho TravelGuide chưa
+      const existingAssignment = await TravelGuideLocation.findOne({
+        where: { travel_guide_id, location_id },
+      });
+
+      if (existingAssignment) {
+        existingLocations.push(location_id);
+        continue;
+      }
+
+      // Gán Location mới
+      await TravelGuideLocation.create({ travel_guide_id, location_id });
+      addedLocations.push(location_id);
+    }
+
+    res.status(200).json({
+      message: "Gán địa điểm mới cho TravelGuide thành công!",
+      data: {
+        addedLocations,
+        existingLocations,
+      },
+    });
+  } catch (error) {
+    console.error("Lỗi khi gán địa điểm mới cho TravelGuide:", error);
+    res.status(500).json({
+      message: "Lỗi khi gán địa điểm mới cho TravelGuide!",
+      error: error.message,
+    });
+  }
+};
+
+//Xóa địa điểm khỏi TravelGuide
+exports.deleteLocationFromTravelGuide = async (req, res) => {
+  try {
+    const { travel_guide_id, location_id } = req.body;
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res.status(404).json({ message: "Không tìm thấy TravelGuide!" });
+    }
+
+    // Kiểm tra Location có tồn tại không
+    const location = await Location.findByPk(location_id);
+    if (!location) {
+      return res.status(404).json({ message: "Không tìm thấy Location!" });
+    }
+
+    // Kiểm tra xem TravelGuide có được gán với Location này không
+    const travelGuideLocation = await TravelGuideLocation.findOne({
+      where: { travel_guide_id, location_id },
+    });
+
+    if (!travelGuideLocation) {
+      return res.status(404).json({
+        message: "TravelGuide không được gán với Location này!",
+      });
+    }
+
+    // Xóa gán kết nối giữa TravelGuide và Location
+    await travelGuideLocation.destroy();
+
+    res.status(200).json({
+      message: "Xóa địa điểm khỏi TravelGuide thành công!",
+    });
+  } catch (error) {
+    console.error("Lỗi khi xóa địa điểm khỏi TravelGuide:", error);
+    res.status(500).json({
+      message: "Lỗi khi xóa địa điểm khỏi TravelGuide!",
+      error: error.message,
+    });
+  }
+};
+
 // Gán TravelGuide cho Staff
 exports.assignTravelGuideToStaff = async (req, res) => {
   try {
@@ -434,21 +581,70 @@ exports.unassignTravelGuidesFromStaff = async (req, res) => {
       });
     }
 
+    // Lấy tên nhóm trước khi xóa
+    const groupName = travelGuides[0]?.group_name || null;
+
     // Xóa Staff khỏi các TravelGuide và cập nhật trạng thái
     await Promise.all(
       travelGuides.map((guide) => {
         guide.staff_id = null;
-        guide.status = 0; // Đặt lại trạng thái chưa được gán
+        guide.status = 0;
+        guide.group_name = null;
         return guide.save();
       })
     );
 
-    res
-      .status(200)
-      .json({ message: "Xóa hướng dẫn viên khỏi Staff thành công!" });
+    res.status(200).json({
+      message: "Xóa hướng dẫn viên khỏi Staff thành công!",
+      group: groupName,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Lỗi khi xóa TravelGuide khỏi Staff!",
+      error: error.message,
+    });
+  }
+};
+
+// Thêm TravelGuide vào nhóm của Staff
+exports.addTravelGuideToStaffGroup = async (req, res) => {
+  try {
+    const { user_id, travel_guide_id, group_name } = req.body;
+
+    // Kiểm tra user_id có phải role Staff không
+    const staff = await User.findByPk(user_id);
+    if (!staff || staff.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res.status(404).json({ message: "Không tìm thấy TravelGuide!" });
+    }
+
+    // Kiểm tra xem TravelGuide đã được gán cho Staff khác chưa
+    if (travelGuide.staff_id) {
+      return res.status(400).json({
+        message: "TravelGuide đã được gán cho Staff khác!",
+        data: { staff_id: travelGuide.staff_id },
+      });
+    }
+
+    // Gán TravelGuide vào nhóm của Staff
+    travelGuide.staff_id = user_id;
+    travelGuide.group_name = group_name || travelGuide.group_name; // Cập nhật tên nhóm nếu có
+    travelGuide.status = 1; // Đánh dấu là đã được gán
+    await travelGuide.save();
+
+    res.status(200).json({
+      message: "Thêm TravelGuide vào nhóm thành công!",
+      data: travelGuide,
+    });
+  } catch (error) {
+    console.error("Lỗi khi thêm TravelGuide vào nhóm:", error);
+    res.status(500).json({
+      message: "Lỗi khi thêm TravelGuide vào nhóm!",
       error: error.message,
     });
   }
