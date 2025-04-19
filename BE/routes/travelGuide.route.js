@@ -21,13 +21,13 @@ router.get(
 );
 router.post(
   "/create",
-  // authenticateAdmin,
+  authenticateAdmin,
   travelGuideController.createTravelGuide
 );
 router.put(
   "/update/:userId",
-    authenticateUser,
-    authenticateAdmin,
+  authenticateUser,
+  authenticateAdmin,
   travelGuideController.updateTravelGuide
 );
 router.delete(
@@ -37,19 +37,41 @@ router.delete(
 );
 router.get(
   "/location/:locationId",
-  // authenticateAdmin,
+  authenticateAdmin,
   travelGuideController.getTravelGuidesByLocation
 );
 
 router.post(
   "/assign",
-  // authenticateAdmin,
+  authenticateAdmin,
   travelGuideController.assignTravelGuideToStaff
+);
+
+router.delete(
+  "/unassign",
+  authenticateAdmin,
+  travelGuideController.unassignTravelGuidesFromStaff
 );
 
 router.get(
   "/staff/:staff_id",
-  // authenticateAdmin,
+  authenticateAdmin,
   travelGuideController.getTravelGuidesByStaff
 );
+
+router.put(
+  "/update-personal-info/:id",
+  authenticateUser,
+  authenticateStaff,
+  authenticateAdmin,
+  travelGuideController.updatePersonalInfo
+);
+
+router.get(
+  "/filter/travel-guides",
+  // authenticateStaff,
+  // authenticateAdmin,
+  travelGuideController.getAllTravelGuides
+);
+
 module.exports = router;

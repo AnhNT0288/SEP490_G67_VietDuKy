@@ -60,9 +60,34 @@ router.post(
 
 router.get(
   "/role/:role_id",
+  authenticateUser,
+  authenticateStaff,
+  authenticateAdmin,
+  userController.getUsersByRoleId
+);
+
+router.put(
+  "/staff-profile/:user_id",
+  authenticateUser,
+  authenticateStaff,
+  authenticateAdmin,
+  userController.updateStaffProfile
+);
+
+router.put(
+  "/assign-locations/:user_id",
   // authenticateUser,
   // authenticateStaff,
   // authenticateAdmin,
-  userController.getUsersByRoleId
+  userController.assignLocationsToStaff
 );
+
+router.get(
+  "/travel-tours/:user_id",
+  // authenticateUser,
+  // authenticateStaff,
+  // authenticateAdmin,
+  userController.getTravelToursByStaffLocations
+);
+
 module.exports = router;

@@ -51,4 +51,12 @@ router.get(
   travelTourController.getFullTravelTours
 );
 
+router.get(
+  "/by-staff/:user_id",
+  // authenticateUser,
+  // authenticateStaff,
+  // authenticateAdmin,
+  travelTourController.getTravelToursByStaffWithGuideStatus
+);
+
 module.exports = router;

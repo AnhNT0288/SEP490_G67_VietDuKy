@@ -87,6 +87,8 @@ const TravelGuideLocation = require("./travelGuideLocation.model.js")(
 );
 const FavoriteTour = require("./favoriteTour.model.js")(sequelize, Sequelize);
 const Like = require("./like.model.js")(sequelize, Sequelize);
+const StaffProfile = require("./staffProfile.model.js")(sequelize, Sequelize);
+const StaffLocation = require("./staffLocation.model.js")(sequelize, Sequelize);
 
 // Mối quan hệ (Associations)
 //Payment/Booking
@@ -342,8 +344,24 @@ TravelGuide.hasMany(Passenger, {
   as: "passengers",
 });
 
+//Tour/TourInfo
 Tour.hasMany(TourInfo, { foreignKey: "tour_id", as: "tourInfo" });
 TourInfo.belongsTo(Tour, { foreignKey: "tour_id", as: "tour" });
+
+//User/StaffProfile
+User.hasOne(StaffProfile, { foreignKey: "user_id" });
+StaffProfile.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+//User/StaffLocation
+User.hasMany(StaffLocation, { foreignKey: "user_id" });
+StaffLocation.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+//Location/StaffLocation
+Location.hasMany(StaffLocation, { foreignKey: "location_id" });
+StaffLocation.belongsTo(Location, {
+  foreignKey: "location_id",
+  as: "location",
+});
 
 // Đối tượng `db` để chứa Sequelize và Models
 const db = {};
@@ -394,4 +412,6 @@ db.TravelGuideLocation = TravelGuideLocation;
 db.FavoriteTour = FavoriteTour;
 db.Like = Like;
 db.TourInfo = TourInfo;
+db.StaffProfile = StaffProfile;
+db.StaffLocation = StaffLocation;
 module.exports = db;

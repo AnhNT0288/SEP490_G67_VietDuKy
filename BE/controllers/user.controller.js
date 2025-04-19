@@ -2,6 +2,12 @@ const db = require("../models");
 const User = db.User;
 const Role = db.Role;
 const bcrypt = require("bcryptjs");
+const StaffProfile = db.StaffProfile;
+const StaffLocation = db.StaffLocation;
+const TravelTour = db.TravelTour;
+const Location = db.Location;
+const Tour = db.Tour;
+const { Op, Sequelize } = require("sequelize");
 
 // Lấy danh sách tất cả User
 exports.getAllUsers = async (req, res) => {
@@ -251,6 +257,155 @@ exports.getUsersByRoleId = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Lỗi khi lấy danh sách người dùng theo vai trò!",
+      error: error.message,
+    });
+  }
+};
+
+//Cập nhật thông tin StaffProfile
+exports.updateStaffProfile = async (req, res) => {
+  try {
+    const { user_id } = req.params; // ID của user
+    const { phone, date_of_birth, gender } = req.body;
+
+    // Kiểm tra xem user có phải là Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Tìm hoặc tạo StaffProfile
+    const [profile, created] = await StaffProfile.findOrCreate({
+      where: { user_id },
+      defaults: { phone, date_of_birth, gender },
+    });
+
+    // Nếu profile đã tồn tại, cập nhật thông tin
+    if (!created) {
+      if (phone !== undefined) profile.phone = phone;
+      if (date_of_birth !== undefined) profile.date_of_birth = date_of_birth;
+      if (gender !== undefined) profile.gender = gender;
+      await profile.save();
+    }
+
+    res.status(200).json({
+      message: "Cập nhật thông tin cá nhân thành công!",
+      data: profile,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi cập nhật thông tin cá nhân!",
+      error: error.message,
+    });
+  }
+};
+
+//Gán địa điểm cho Staff
+exports.assignLocationsToStaff = async (req, res) => {
+  try {
+    const { location_ids } = req.body;
+    const { user_id } = req.params;
+
+    // Kiểm tra user_id có phải role Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Kiểm tra xem các địa điểm có tồn tại không
+    const existingLocations = await Location.findAll({
+      where: { id: location_ids },
+    });
+
+    if (existingLocations.length !== location_ids.length) {
+      return res.status(400).json({
+        message: "Một hoặc nhiều địa điểm không tồn tại!",
+      });
+    }
+
+    // Xóa các location hiện tại của Staff
+    await StaffLocation.destroy({ where: { user_id } });
+
+    // Gán các location mới
+    const assignments = location_ids.map((location_id) => ({
+      user_id, // Đảm bảo sử dụng đúng tên cột
+      location_id,
+    }));
+    await StaffLocation.bulkCreate(assignments);
+
+    res.status(200).json({
+      message: "Gán địa điểm cho Staff thành công!",
+      data: assignments,
+    });
+  } catch (error) {
+    console.error("Lỗi khi gán địa điểm cho Staff:", error);
+    res.status(500).json({
+      message: "Lỗi khi gán địa điểm cho Staff!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách TravelTour theo các địa điểm mà Staff phụ trách
+exports.getTravelToursByStaffLocations = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Kiểm tra user_id có phải role Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Lấy danh sách location mà Staff phụ trách
+    const staffLocations = await StaffLocation.findAll({
+      where: { user_id },
+      include: [{ model: Location, as: "location" }],
+    });
+
+    if (staffLocations.length === 0 || !staffLocations || !staffLocations[0]) {
+      return res
+        .status(404)
+        .json({ message: "Staff không phụ trách địa điểm nào!" });
+    }
+
+    // Lấy danh sách location_id mà Staff phụ trách
+    const locationIds = staffLocations.map((sl) => sl.location_id);
+
+    // Lấy danh sách TravelTour theo location
+    const travelTours = await TravelTour.findAll({
+      include: [
+        {
+          model: Tour,
+          as: "Tour",
+          where: {
+            [Op.or]: [
+              { start_location: { [Op.in]: locationIds } },
+              { end_location: { [Op.in]: locationIds } },
+            ],
+          },
+          include: [
+            { model: Location, as: "startLocation" },
+            { model: Location, as: "endLocation" },
+          ],
+        },
+      ],
+    });
+
+    if (!travelTours || travelTours.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy TravelTour nào!" });
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách TravelTour thành công!",
+      data: travelTours,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách TravelTour:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách TravelTour!",
       error: error.message,
     });
   }

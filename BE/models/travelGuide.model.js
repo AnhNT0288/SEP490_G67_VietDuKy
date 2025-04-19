@@ -39,6 +39,15 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      status: {
+        type: Sequelize.INTEGER, // 0: Chưa được gán, 1: Đã được gán
+        allowNull: false,
+        defaultValue: 0,
+      },
+      group_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "travel_guide",
