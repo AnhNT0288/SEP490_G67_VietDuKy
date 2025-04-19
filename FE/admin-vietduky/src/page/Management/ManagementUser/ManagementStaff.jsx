@@ -21,7 +21,7 @@ export default function ManagementStaff() {
         const fetchStaff = async () => {
             try {
                 const data = await getStaffList();
-                console.log("✅ Staff list:", data); // kiểm tra tại đây
+                console.log("✅ Staff list:", data);
 
                 setUsers(data);
             } catch (error) {

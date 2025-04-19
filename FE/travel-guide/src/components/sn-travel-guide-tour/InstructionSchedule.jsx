@@ -25,7 +25,7 @@ const InstructionSchedule = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 10,
+    limit: 14,
   });
   const [travelGuides, setTravelGuides] = useState([]);
   const [travelGuideId, setTravelGuideId] = useState(null);
@@ -57,6 +57,11 @@ const InstructionSchedule = () => {
 
   useEffect(() => {
     const fetchTours = async () => {
+      if (!travelGuideId) {
+        console.warn("⛔ travelGuideId is null or undefined. Không gọi API.");
+        return;
+      }
+
       setLoading(true);
       try {
         const response = await getGuideTourByUserId(travelGuideId, {
@@ -64,28 +69,37 @@ const InstructionSchedule = () => {
           name_tour: search,
           start_location_id: startLocation,
           end_location_id: endLocation,
+          start_day: startDate, // ✅ Thêm lọc ngày khởi hành
           status: tab !== "all" && tab !== 1 ? tab : null,
           upcoming: tab === 1 ? true : false,
         });
-        if (response.data.items) {
+
+        if (response?.data?.items) {
           setTours(response.data.items);
-          setTotalPages(response.data.totalPages);
+          setTotalPages(response.data.totalPages || 1);
         } else {
-          console.log(response.message);
+          console.warn("⚠️ Unexpected API response:", response);
+          setTours([]);
+          setTotalPages(1);
         }
       } catch (error) {
-        console.error("Error fetching tours:", error);
+        console.error("❌ Error fetching tours:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchTours();
-  }, [search, startLocation, endLocation, pagination, tab]);
+  }, [search, startLocation, endLocation, pagination, tab, travelGuideId, startDate]); // ✅ Đảm bảo thêm `startDate`
+
+  // Reset về trang 1 mỗi khi filter thay đổi
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, page: 1 }));
+  }, [search, startLocation, endLocation, startDate, tab]);
 
   useEffect(() => {
     const fetchLocations = async () => {
       const response = await getLocations(null, null);
-
       if (response) {
         setLocationsList(response);
       }
@@ -102,86 +116,89 @@ const InstructionSchedule = () => {
   }, []);
 
   return (
-    <div className="bg-white p-4 rounded flex-1 flex flex-col">
-      <TabsTour tabs={tabs} value={tab} onChange={setTab} />
-      <div className="grid grid-cols-10 gap-4 items-center justify-start my-4">
-        <div className="col-span-3 relative w-full">
-          <LuSearch className="absolute left-3 top-3 text-gray-500" />
-          <SearchDebounceInput
-            onChange={setSearch}
-            value={search}
-            placeholder="Tên tour ..."
-          />
+      <div className="bg-white p-4 rounded flex-1 flex flex-col">
+        <TabsTour tabs={tabs} value={tab} onChange={setTab} />
+        <div className="grid grid-cols-10 gap-4 items-center justify-start my-4">
+          <div className="col-span-3 relative w-full">
+            <LuSearch className="absolute left-3 top-3 text-gray-500" />
+            <SearchDebounceInput
+                onChange={setSearch}
+                value={search}
+                placeholder="Tên tour ..."
+            />
+          </div>
+          <div className="col-span-2 w-full">
+            <select
+                className="px-4 py-2 border rounded-md w-full"
+                value={startLocation}
+                onChange={(e) => setStartLocation(e.target.value)}
+            >
+              <option value="">Địa điểm khởi hành</option>
+              {locationsList.map((loc) => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name_location}
+                  </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-span-2 w-full">
+            <select
+                className="px-4 py-2 border rounded-md w-full"
+                value={endLocation}
+                onChange={(e) => setEndLocation(e.target.value)}
+            >
+              <option value="">Địa điểm kết thúc</option>
+              {locationsList.map((loc) => (
+                  <option key={loc.id} value={loc.id}>
+                    {loc.name_location}
+                  </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-span-2 w-full">
+            <input
+                className="px-4 py-2 border rounded-md w-full"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                type="date"
+            />
+          </div>
+          <div className="col-span-1 flex justify-end">
+            <button
+                className="border rounded-md bg-primary p-2"
+                onClick={() =>
+                    setViewType(viewType === "calendar" ? "table" : "calendar")
+                }
+            >
+              {viewType === "calendar" ? <Calendar /> : <Table />}
+            </button>
+          </div>
         </div>
-        <div className="col-span-2 w-full">
-          <select
-            className="px-4 py-2 border rounded-md w-full"
-            value={startLocation}
-            onChange={(e) => setStartLocation(e.target.value)}
-          >
-            <option value="">Địa điểm khởi hành</option>
-            {locationsList.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.name_location}
-              </option>
-            ))}
-          </select>
+
+        <div className="flex-1">
+          {viewType === "calendar" ? (
+              <CalendarTravelTour travelTours={tours} />
+          ) : (
+              <InstructionScheduleTable
+                  loading={loading}
+                  tours={tours}
+                  setTourSelected={setTourSelected}
+              />
+          )}
         </div>
-        <div className="col-span-2 w-full">
-          <select
-            className="px-4 py-2 border rounded-md w-full"
-            value={endLocation}
-            onChange={(e) => setEndLocation(e.target.value)}
-          >
-            <option value="">Địa điểm kết thúc</option>
-            {locationsList.map((loc) => (
-              <option key={loc.id} value={loc.id}>
-                {loc.name_location}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-span-2 w-full">
-          <input
-            className="px-4 py-2 border rounded-md w-full"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            type="date"
-          />
-        </div>
-        <div className="col-span-1 flex justify-end">
-          <button
-            className="border rounded-md bg-primary p-2"
-            onClick={() =>
-              setViewType(viewType === "calendar" ? "table" : "calendar")
-            }
-          >
-            {viewType === "calendar" ? <Calendar /> : <Table />}
-          </button>
-        </div>
+
+        <Pagination
+            pagination={pagination}
+            onPageChange={setPagination}
+            totalPages={totalPages}
+        />
+
+        <TravelTourDetailsModal
+            tourSelected={tourSelected}
+            open={!!tourSelected}
+            onClose={() => setTourSelected(null)}
+        />
       </div>
-      <div className="flex-1">
-        {viewType === "calendar" ? (
-          <CalendarTravelTour travelTours={tours} />
-        ) : (
-          <InstructionScheduleTable
-            loading={loading}
-            tours={tours}
-            setTourSelected={setTourSelected}
-          />
-        )}
-      </div>
-      <Pagination
-        pagination={pagination}
-        onPageChange={setPagination}
-        totalPages={totalPages}
-      />
-      <TravelTourDetailsModal
-        tourSelected={tourSelected}
-        open={!!tourSelected}
-        onClose={() => setTourSelected(null)}
-      />
-    </div>
   );
 };
 
