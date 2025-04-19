@@ -78,14 +78,14 @@ const Calendar = ({ id, initialSelectedDate }) => {
         setTourEndDates(formattedTourEndDates);
         setTourDates(formattedTourDates);
 
-        if (initialSelectedDate) {
-          setSelectedDate(formatYMD(initialSelectedDate));
-        } else {
-          const firstTourDate = Object.keys(formattedTourDates)[0];
-          if (firstTourDate) {
-            setSelectedDate(firstTourDate);
+          if (initialSelectedDate) {
+            setSelectedDate(formatYMD(initialSelectedDate));
+          } else {
+            const firstTourDate = Object.keys(formattedTourDates)[0];
+            if (firstTourDate) {
+              setSelectedDate(firstTourDate);
+            }
           }
-        }
       } catch (error) {
         console.error("Error fetching travel tour data:", error);
       }
@@ -104,9 +104,7 @@ const Calendar = ({ id, initialSelectedDate }) => {
 
   const startYear = Math.floor(currentDate.year() / 16) * 16;
   const years = Array.from({ length: 16 }, (_, i) => startYear + i);
-  const months = Array.from({ length: 12 }, (_, i) =>
-    `Thg${i + 1}`
-  );
+  const months = Array.from({ length: 12 }, (_, i) => `Thg${i + 1}`);
 
   const canGoBack = !currentDate.isSame(dayjs(), "month");
 
@@ -155,7 +153,6 @@ const Calendar = ({ id, initialSelectedDate }) => {
 
   // console.log("travel Tour", travelTourData);
   // console.log("tour date", tourDates)
-
 
   return (
     <div className="">
@@ -236,7 +233,9 @@ const Calendar = ({ id, initialSelectedDate }) => {
                       className={`h-16 w-16 flex flex-col items-center justify-center rounded-md transition duration-300 
                         ${
                           isTourDate
-                            ? "border border-[#A80F21] text-red-600 cursor-pointer hover:bg-[#A80F21] hover:text-white"
+                            ? isPastDate
+                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                              : "border border-[#A80F21] text-red-600 cursor-pointer hover:bg-[#A80F21] hover:text-white"
                             : "cursor-default"
                         }
                         ${isSelected ? "bg-[#A80F21] text-white" : "bg-white"}
@@ -258,8 +257,18 @@ const Calendar = ({ id, initialSelectedDate }) => {
                       {hoveredDate === dateStr && isTourDate && (
                         <div className="absolute bg-red-500 text-sm text-white border border-gray-300 p-2 rounded shadow-lg mt-36">
                           <p>Ngày đi: {date.format("DD/MM/YYYY")}</p>
-                          <p>Ngày về: {tourEndDates[dateStr] || date.add(1, "day").format("DD/MM/YYYY")}</p>
-                          <p>Giá: {(parseFloat(tourDates[dateStr]) * 1000000).toLocaleString('vi-VN')} VNĐ</p>                        
+                          <p>
+                            Ngày về:{" "}
+                            {tourEndDates[dateStr] ||
+                              date.add(1, "day").format("DD/MM/YYYY")}
+                          </p>
+                          <p>
+                            Giá:{" "}
+                            {(
+                              parseFloat(tourDates[dateStr]) * 1000000
+                            ).toLocaleString("vi-VN")}{" "}
+                            VNĐ
+                          </p>
                         </div>
                       )}
                     </div>
@@ -268,8 +277,12 @@ const Calendar = ({ id, initialSelectedDate }) => {
               </div>
 
               <div className="flex flex-col gap-1 items-end mt-2 border-t pt-4 text-xs italic">
-                <p className="text-[#9FC43A]">* Màu xanh lá: ngày khởi hành giá tốt nhất</p>
-                <p className="text-red-500">* Màu đỏ: ngày khởi hành giá cao điểm</p>
+                <p className="text-[#9FC43A]">
+                  * Màu xanh lá: ngày khởi hành giá tốt nhất
+                </p>
+                <p className="text-red-500">
+                  * Màu đỏ: ngày khởi hành giá cao điểm
+                </p>
                 <p className="text-zinc-400">* Giá hiển thị trên 1 khách</p>
               </div>
             </div>

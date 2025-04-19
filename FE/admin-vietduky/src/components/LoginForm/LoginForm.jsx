@@ -24,13 +24,14 @@ export default function LoginForm() {
         // Lưu thông tin người dùng vào localStorage hoặc sessionStorage nếu cần
         localStorage.setItem("user", JSON.stringify(response.data));
         localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
         // Chuyển hướng đến trang quản lý tour
         window.location.href = "/managementTour";
       } else {
         alert("Đăng nhập thất bại: " + response.data.message);
       }
     } catch (error) {
-      alert("Đăng nhập thất bại: " + (error.response ? error.response.data.message : error.message));
+      alert("Đăng nhập thất bại!");
     }
   };
   return (
