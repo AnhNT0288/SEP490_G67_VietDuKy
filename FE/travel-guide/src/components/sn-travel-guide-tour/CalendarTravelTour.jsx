@@ -112,10 +112,11 @@ export default function CalendarTravelTour({ travelTours = [] }) {
               return (
                   <div
                       key={idx}
-                      className={`border border-gray-200 relative flex flex-col justify-start ${
+                      className={`border border-gray-200 relative flex flex-col justify-start min-h-[80px] ${
                           !isCurrentMonth ? "bg-gray-50 text-gray-400" : ""
-                      } border border-gray-200 ${isToday ? "text-red-500 font-bold" : ""}`}
+                      } ${isToday ? "text-red-500 font-bold" : ""}`}
                   >
+
                     <div className="absolute top-1 left-1 text-[11px]">
                       {format(day, "dd")}
                     </div>

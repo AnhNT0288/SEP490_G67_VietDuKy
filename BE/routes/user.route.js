@@ -62,7 +62,7 @@ router.post(
 router.get(
   "/role/:role_id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+    checkRoles("admin"),
   userController.getUsersByRoleId
 );
 

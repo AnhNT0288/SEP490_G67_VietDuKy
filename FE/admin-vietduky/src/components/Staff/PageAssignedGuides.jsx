@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { LuSearch } from "react-icons/lu";
 import { getTravelGuidesByStaffId } from "../../services/API/staff.service.js";
-import {getUserById} from "../../services/API/user.service.jsx";
+import {getUserById} from "../../services/API/user.service.js";
 
 export default function PageAssignedGuides() {
     const user = JSON.parse(localStorage.getItem("user"));

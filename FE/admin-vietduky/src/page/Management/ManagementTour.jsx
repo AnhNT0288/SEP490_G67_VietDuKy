@@ -1,5 +1,4 @@
   import { useEffect, useState } from "react";
-  import Layout from "../../layouts/LayoutManagement";
   import ModalAddTour from "../../components/ModalManage/ModalAdd/ModalAddTour.jsx";
   import { LuSearch } from "react-icons/lu";
   import DropdownMenu from "../../components/Dropdown/DropdownMenuTour";
@@ -20,7 +19,6 @@
     const [locationsList, setLocationsList] = useState([]);
     const [isUpdateTourModalOpen, setIsUpdateTourModalOpen] = useState(false);
     const [editingTour, setEditingTour] = useState(null);
-    const [newCreatedTourId, setNewCreatedTourId] = useState(null);
     const [isManagementProgramModalOpen, setIsManagementProgramModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const toursPerPage = 12;
@@ -114,23 +112,23 @@
     return (
         <div title="Quản lý Tour">
           <div>
-            <div className="bg-white p-4 rounded-md flex gap-4 items-center">
-              <div className="relative flex-1 ">
+            <div className="bg-white p-4 rounded-md flex flex-wrap gap-4 items-center justify-between">
+              <div className="relative flex-1 w-full sm:w-auto">
                 <LuSearch className="absolute left-3 top-3 text-gray-500" />
                 <input
                     type="text"
                     placeholder="Tìm kiếm bằng từ khóa"
-                    className="pl-10 pr-4 py-2 border rounded-md w-1/3"
+                    className="pl-10 pr-4 py-2 border rounded-md w-full"
                 />
               </div>
-              <div className="flex gap-3">
-                <button className="border border-red-700 text-red-700 hover:bg-red-300 px-4 py-2 rounded-md">
+              <div className="flex gap-3 w-full sm:w-auto justify-center">
+                <button className="border border-red-700 text-red-700 hover:bg-red-300 px-4 py-2 rounded-md w-full sm:w-auto">
                   Nhập danh sách chủ đề
                 </button>
               </div>
-              <div>
+              <div className="w-full sm:w-auto">
                 <select
-                    className="px-4 py-2 border border-red-600 text-red-700 rounded-md"
+                    className="px-4 py-2 border border-red-600 text-red-700 rounded-md w-full"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                 >
@@ -140,26 +138,25 @@
                   ))}
                 </select>
               </div>
-              <div>
+              <div className="w-full sm:w-auto">
                 <select
-                    className="px-4 py-2 border border-red-600 text-red-700 rounded-md"
+                    className="px-4 py-2 border border-red-600 text-red-700 rounded-md w-full"
                     value={priceFilter}
                     onChange={(e) => setPriceFilter(e.target.value)}
                 >
-                  <option value="">Tất cả </option>
+                  <option value="">Tất cả</option>
                   <option value="low">Dưới 5 triệu</option>
                   <option value="medium">5 - 10 triệu</option>
                   <option value="high">Trên 10 triệu</option>
                 </select>
               </div>
               <button
-                  className="bg-red-700 text-white px-4 py-2 rounded-md shadow-md"
+                  className="bg-red-700 text-white px-4 py-2 rounded-md shadow-md w-full sm:w-auto"
                   onClick={toggleAddTourModal}
               >
                 Thêm Tour mới
               </button>
             </div>
-
             <div className="relative">
               {openDropdown !== null && (
                   <div className="fixed inset-0 bg-transparent" onClick={() => setOpenDropdown(null)}></div>

@@ -94,7 +94,9 @@ const login = async (req, res) => {
       return res.status(200).json({
         id: existingUser.id,
         email: existingUser.email,
-        role_id: existingUser.role_id,
+        name: existingUser.displayName,
+        role_name: user.role?.role_name,
+        avatar: existingUser.avatar,
         access_token: accessToken,
         refresh_token: refreshToken,
       });

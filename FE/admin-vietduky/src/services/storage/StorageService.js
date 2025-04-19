@@ -1,5 +1,7 @@
 export const StorageService = {
   getToken: () => localStorage.getItem("access_token"),
+  getRefreshToken: () => localStorage.getItem("refresh_token"),
+  setRefreshToken: (token) => localStorage.setItem("refresh_token", token),
   setToken: (token) => localStorage.setItem("access_token", token),
   removeToken: () => localStorage.removeItem("access_token"),
 
@@ -22,10 +24,15 @@ export const StorageService = {
     }
   },
 
+  clearAll: () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user");
+  },
+
   signout: (navigate) => {
-    StorageService.removeToken();
-    StorageService.removeUser();
+    StorageService.clearAll();
     navigate("/");
     window.location.reload();
-  },
+  }
 };

@@ -9,7 +9,7 @@ import { StorageService } from "../../services/storage/StorageService";
 export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [isOpenMenu, setIsOpenMenu] = useState(false); // Kiểm soát dropdown
+  const [isOpenMenu, setIsOpenMenu] = useState(false);
 
   // Lấy thông tin user khi component mount
   useEffect(() => {
