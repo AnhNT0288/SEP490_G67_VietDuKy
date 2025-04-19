@@ -55,3 +55,18 @@ export function getGuidesByTravelTourId(travel_tour_id) {
             throw err;
         });
 }
+// Lấy tất cả hướng dẫn viên
+export function getAllTravelGuides() {
+    return restClient({
+        url: `travel-guide/`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data.data || [])
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy danh sách tất cả hướng dẫn viên:", err.response?.data || err);
+            throw err;
+        });
+}

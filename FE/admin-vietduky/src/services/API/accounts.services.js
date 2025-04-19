@@ -21,6 +21,16 @@ export function getAllAccounts() {
             throw err;
         });
 }
+export function getStaffById(staffId) {
+    return restClient({
+        url: `user/${staffId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    }).then(res => res.data.data);
+}
+
 
 // Create a new user account
 export function createAccount(data) {

@@ -20,7 +20,7 @@ export default function LayoutArticle({ children, sidebar }) {
         {/* Main content (left) */}
         <div className="w-full lg:w-3/4">{children}</div>
 
-        {/* Sidebar (right) */}
+        {/* SidebarAdmin (right) */}
         <aside className="w-full lg:w-1/4">{sidebar}</aside>
       </main>
 

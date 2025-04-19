@@ -4,7 +4,7 @@ const travelGuideController = require("../controllers/travelGuide.controller");
 const {
   authenticateUser,
   authenticateAdmin,
-  authenticateStaff,
+  authenticateStaff, checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", travelGuideController.getAllTravelGuides);
@@ -49,7 +49,8 @@ router.post(
 
 router.get(
   "/staff/:staff_id",
-  // authenticateAdmin,
+    authenticateUser,
+    checkRoles(["staff", "admin"]),
   travelGuideController.getTravelGuidesByStaff
 );
 module.exports = router;

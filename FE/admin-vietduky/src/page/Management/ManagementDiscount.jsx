@@ -37,7 +37,7 @@ export default function ManagementDiscount() {
     }, []);
 
     return (
-        <Layout title="Quản lý Mã Giảm Giá">
+        <div title="Quản lý Mã Giảm Giá">
             <div className="p-4 bg-white rounded-md">
                 {/* Thanh tìm kiếm và nút hành động */}
                 <div className="flex items-center gap-4 mb-4">
@@ -93,6 +93,6 @@ export default function ManagementDiscount() {
 
                 {isAddVoucherModalOpen && <ModalAddVoucher onClose={toggleAddVoucherModal} />}
             </div>
-        </Layout>
+        </div>
     );
 }

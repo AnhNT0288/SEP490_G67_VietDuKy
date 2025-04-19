@@ -13,6 +13,10 @@ export default function ManagementUserRole() {
     const [isAddTourModalOpen, setIsAddTourModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const usersPerPage = 12;
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -33,6 +37,11 @@ export default function ManagementUserRole() {
         )
         : [];
 
+    const indexOfLastUser = currentPage * usersPerPage;
+    const indexOfFirstUser = indexOfLastUser - usersPerPage;
+    const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
     const toggleAddTourModal = () => {
         setIsAddTourModalOpen(!isAddTourModalOpen);
     };
@@ -46,11 +55,12 @@ export default function ManagementUserRole() {
     };
 
     const handleUpdatePermissions = (user) => {
-        setSelectedUser(user); // Set the selected user
-        setIsUpdateModalOpen(true); // Open the modal
+        setSelectedUser(user);
+        setIsUpdateModalOpen(true);
     };
+
     return (
-        <Layout title="Quản lý Tài Khoản">
+        <div title="Quản lý Tài Khoản">
             <div className="p-4 bg-white rounded-md">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="relative flex-1">
@@ -60,7 +70,10 @@ export default function ManagementUserRole() {
                             placeholder="Tìm kiếm bằng từ khóa"
                             className="pl-10 pr-4 py-2 border rounded-md w-lg"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1);
+                            }}
                         />
                     </div>
                     <button className="bg-red-700 text-white px-4 py-2 rounded-md" onClick={toggleAddTourModal}>
@@ -70,55 +83,79 @@ export default function ManagementUserRole() {
 
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="text-left text-gray-700 border-b">
-                            <th className="p-2">Tài khoản</th>
-                            <th className="p-2">Họ tên</th>
-                            <th className="p-2">Quyền</th>
-                            <th className="p-2">Trạng thái</th>
-                            <th className="p-2 text-right">Thao tác</th>
-                        </tr>
+                    <tr className="text-left text-gray-700 border-b">
+                        <th className="p-2 text-center w-12">#</th>
+                        <th className="p-2">Tài khoản</th>
+                        <th className="p-2">Họ tên</th>
+                        <th className="p-2">Quyền</th>
+                        <th className="p-2">Trạng thái</th>
+                        <th className="p-2 text-right">Thao tác</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {filteredUsers.length > 0 ? (
-                            filteredUsers.map((user) => (
-                                <tr key={user.id} className="border-t">
-                                    <td className="p-2 truncate max-w-xs">{user.email || "N/A"}</td>
-                                    <td className="p-2">{user.displayName || "N/A"}</td>
-                                    <td className="p-2">
-                                        {user.role_id === 1
-                                            ? "Customer"
-                                            : user.role_id === 2
+                    {currentUsers.length > 0 ? (
+                        currentUsers.map((user, index) => (
+                            <tr key={user.id} className="border-t">
+                                <td className="p-2 text-center">
+                                    {(currentPage - 1) * usersPerPage + index + 1}
+                                </td>
+                                <td className="p-2 truncate max-w-xs">{user.email || "N/A"}</td>
+                                <td className="p-2">{user.displayName || "N/A"}</td>
+                                <td className="p-2">
+                                    {user.role_id === 1
+                                        ? "Khách hàng"
+                                        : user.role_id === 2
                                             ? "Staff"
                                             : user.role_id === 3
-                                            ? "Admin"
-                                            : user.role_id === 4
-                                            ? "Tour Guide"
-                                            : "Unknown"}
-                                    </td>
-                                    <td className={`p-2 ${user.status ? "text-green-600" : "text-red-600"}`}>
-                                        {user.status ? "Hoạt động" : "Chặn truy cập"}
-                                    </td>
-                                    <td className="p-2 text-right">
-                                        <DropdownMenuUser
-                                            user={user}
-                                            isOpen={openDropdown === user.id}
-                                            setOpenDropdown={setOpenDropdown}
-                                            onLockAccount={handleLockAccount}
-                                            onUpdatePermissions={handleUpdatePermissions}
-                                            onEditUser={handleEditUser}
-                                        />
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="5" className="p-2 text-center">
-                                    No users found.
+                                                ? "Admin"
+                                                : user.role_id === 4
+                                                    ? "Hướng dẫn viên"
+                                                    : "Unknown"}
+                                </td>
+                                <td className={`p-2 ${user.status ? "text-green-600" : "text-red-600"}`}>
+                                    {user.status ? "Hoạt động" : "Chặn truy cập"}
+                                </td>
+                                <td className="p-2 text-right">
+                                    <DropdownMenuUser
+                                        user={user}
+                                        isOpen={openDropdown === user.id}
+                                        setOpenDropdown={setOpenDropdown}
+                                        onLockAccount={handleLockAccount}
+                                        onUpdatePermissions={handleUpdatePermissions}
+                                        onEditUser={handleEditUser}
+                                    />
                                 </td>
                             </tr>
-                        )}
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="6" className="p-2 text-center">
+                                Không tìm thấy người dùng.
+                            </td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center mt-4 space-x-2">
+                        {Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setCurrentPage(i + 1)}
+                                className={`px-3 py-1 rounded ${currentPage === i + 1
+                                    ? "bg-red-700 text-white"
+                                    : "bg-gray-200 text-gray-800"
+                                }`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Modals */}
                 {isAddTourModalOpen && <ModalAddUser onClose={toggleAddTourModal} />}
                 {isUpdateModalOpen && (
                     <ModalUpdateGuide
@@ -127,6 +164,6 @@ export default function ManagementUserRole() {
                     />
                 )}
             </div>
-        </Layout>
+        </div>
     );
 }

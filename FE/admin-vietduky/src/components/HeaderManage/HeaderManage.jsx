@@ -5,7 +5,8 @@ import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { StorageService } from "../../services/storage/StorageService";
 
-export default function HeaderManage({ toggleSidebar, selectedMenu }) {
+// eslint-disable-next-line react/prop-types
+export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isOpenMenu, setIsOpenMenu] = useState(false); // Kiểm soát dropdown
@@ -37,7 +38,14 @@ export default function HeaderManage({ toggleSidebar, selectedMenu }) {
         <span className="text-GrayishBlue font-medium">Quản lý</span>
         <span className="text-black font-medium flex items-center gap-1">
           <IoIosArrowForward className="text-[12px] text-GrayishBlue opacity-70" />
-          {selectedMenu}
+            {breadcrumb.map((item, index) => (
+                <span key={index} className="flex items-center gap-1">
+                {index !== 0 && (
+                    <IoIosArrowForward className="text-[12px] text-GrayishBlue opacity-70" />
+                )}
+                    {item}
+                </span>
+            ))}
         </span>
       </div>
 

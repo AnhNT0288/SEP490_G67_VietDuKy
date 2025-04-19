@@ -83,7 +83,7 @@ export default function ManagementTour() {
         }
     };
     return (
-        <Layout title="Quản lý Tour">
+        <div title="Quản lý Tour">
             <div className="bg-white p-6 rounded-lg">
                 <div className="flex items-center justify-between mb-4">
                     <div className="relative flex-1 max-w-xs">
@@ -195,6 +195,6 @@ export default function ManagementTour() {
                     />
                 )}
             </div>
-        </Layout>
+        </div>
     );
 }

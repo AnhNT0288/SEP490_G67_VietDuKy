@@ -50,7 +50,7 @@ export default function ManagementVehicle() {
 //   }, []);
 
   return (
-    <Layout title="Quản lý Phương tiện">
+    <div title="Quản lý Phương tiện">
       <div>
         {/* Search and Filters */}
         <div className="bg-white p-4 rounded-md flex gap-4 items-center">
@@ -104,6 +104,6 @@ export default function ManagementVehicle() {
         {/* Modal thêm tour */}
         {isModalOpen && <ModalAddVehicle onClose={toggleModal} />}
       </div>
-    </Layout>
+    </div>
   );
 }

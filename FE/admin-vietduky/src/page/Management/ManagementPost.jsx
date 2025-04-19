@@ -70,7 +70,7 @@ export default function ManagementPost() {
     };
 
     return (
-        <Layout title="Quản lý Bài Viết">
+        <div title="Quản lý Bài Viết">
             <div className="p-4 bg-white rounded-md">
                 {/* Search & Action Buttons */}
                 <div className="flex items-center gap-4 mb-4">
@@ -187,6 +187,6 @@ export default function ManagementPost() {
                     onCreated={fetchPosts}
                 />
             )}
-        </Layout>
+        </div>
     );
 }

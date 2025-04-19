@@ -87,7 +87,7 @@ export default function ManagementLocation() {
   }, []);
 
   return (
-      <Layout title="Quản lý vị trí">
+      <div title="Quản lý vị trí">
         <div className="overflow-visible">
           <div className="bg-white p-4 mb-4 rounded-md flex gap-4 items-center">
             <div className="relative flex-1">
@@ -193,6 +193,6 @@ export default function ManagementLocation() {
               locationName={locationToDelete?.name_location}
           />
         </div>
-      </Layout>
+      </div>
   );
 }

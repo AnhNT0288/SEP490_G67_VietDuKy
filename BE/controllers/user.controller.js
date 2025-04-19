@@ -1,7 +1,6 @@
 const db = require("../models");
 const User = db.User;
 const Role = db.Role;
-const RoleService = db.RoleService;
 const bcrypt = require("bcryptjs");
 
 // Lấy danh sách tất cả User
@@ -102,12 +101,10 @@ exports.updateUser = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Lỗi khi cập nhật thông tin người dùng",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Lỗi khi cập nhật thông tin người dùng",
+      error: error.message,
+    });
   }
 };
 
@@ -218,6 +215,42 @@ exports.assignRole = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Lỗi khi phân quyền",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách người dùng theo role_id
+exports.getUsersByRoleId = async (req, res) => {
+  try {
+    const { role_id } = req.params;
+
+    // Kiểm tra xem role có tồn tại không
+    const role = await Role.findByPk(role_id);
+    if (!role) {
+      return res.status(404).json({ message: "Không tìm thấy vai trò!" });
+    }
+
+    // Tìm danh sách người dùng theo role_id
+    const users = await User.findAll({
+      where: { role_id },
+      attributes: ["id", "avatar", "status", "email","displayName"],
+      include: [
+        {
+          model: Role,
+          as: "role",
+          attributes: ["id", "role_name"],
+        },
+      ],
+    });
+
+    res.json({
+      message: "Lấy danh sách người dùng theo vai trò thành công!",
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách người dùng theo vai trò!",
       error: error.message,
     });
   }

@@ -18,42 +18,54 @@ import ManagementService from "./page/Management/ManagementService.jsx";
 import ManagementSaleProgram from "./page/Management/ManagementSaleProgram.jsx";
 import ManagementUserRole from "./page/Management/ManagementUser/ManagementUserRole.jsx";
 import ManagementPost from "./page/Management/ManagementPost.jsx";
-import ManagementTourGuide from "./page/Management/ManagementUser/ManagementTourGuide.jsx";
+import ManagementStaff from "./page/Management/ManagementUser/ManagementStaff.jsx";
 import ManagementDirectory from "./page/Management/ManagementDirectory.jsx";
 import GoogleAuthCallback from "./components/GoogleAuthCallBack.jsx";
+import SidebarStaff from "./components/Sidebar/SidebarStaff.jsx";
+import RoleBasedRoute from "./components/RoleBasedRoute.jsx";
+import PageAssignedGuides from "./components/Staff/PageAssignedGuides.jsx";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path={"/"} element={<LoginPage />} />
-        <Route path={"/register"} element={<RegisterPage />} />
-        <Route path="/auth/callback" element={<GoogleAuthCallback />} />
-        <Route path={"/account"} element={<PrivateRoute />}>
-          <Route path="profile" element={<Profile />} />
-        </Route>
+      <BrowserRouter>
+        <Routes>
+          <Route path={"/"} element={<LoginPage />} />
+          <Route path={"/register"} element={<RegisterPage />} />
+          <Route path="/auth/callback" element={<GoogleAuthCallback />} />
+          <Route path={"/account"} element={<PrivateRoute />}>
+            <Route path="profile" element={<Profile />} />
+          </Route>
 
-        <Route path={"/calendar"} element={<Calendar />} />
-        {/*<Route path={'/forgot-password'}/>*/}
+          <Route path={"/calendar"} element={<Calendar />} />
+          {/*<Route path={'/forgot-password'}/>*/}
 
-        <Route path={"/managementLocation"} element={<ManagementLocation />} />
-        <Route path={"/managementTour"} element={<ManagementTour />} />
-        <Route path={"/managementTravelTour"} element={<ManagementTravelTour />}/>
-        <Route path={"/managementHotel"} element={<ManagementHotel />} />
-        <Route path={"/managementRestaurant"} element={<ManagementRestaurant />}/>
-        <Route path={"/managementVehicle"} element={<ManagementVehicle />} />
-        <Route path={"/managementTheme"} element={<ManagementTheme />} />
-        <Route path={"/managementDiscount"} element={<ManagementDiscount />} />
-        <Route path={"/managementSaleProgram"} element={<ManagementSaleProgram />}/>
-        <Route path={"/managementService"} element={<ManagementService />} />
-        <Route path={"/managementUserRole"} element={<ManagementUserRole />} />
-        <Route path={"/managementTourGuide"} element={<ManagementTourGuide />}/>
-        <Route path={"/managementPost"} element={<ManagementPost />} />
-        <Route path={"/managementCategory"} element={<ManagementDirectory />} />
+          <Route element={<RoleBasedRoute allowedRoles={["admin", "staff"]} />}>
+            <Route path="/managementLocation" element={<ManagementLocation />} />
+            <Route path="/managementTour" element={<ManagementTour />} />
+            <Route path="/managementDiscount" element={<ManagementDiscount />} />
+            <Route path="/managementService" element={<ManagementService />} />
+            <Route path="/managementStaff" element={<ManagementStaff />} />
+            <Route path="/managementPost" element={<ManagementPost />} />
+            <Route path="/managementCategory" element={<ManagementDirectory />} />
+            <Route path="/managementTheme" element={<ManagementTheme />} />
+            <Route path="/managementSaleProgram" element={<ManagementSaleProgram />} />
+            <Route path="/staff/:id/assigned-guides" element={<PageAssignedGuides />} />
+          </Route>
 
-        <Route path={"/modalL"} element={<ModalManageTravelTour />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Admin-only routes */}
+          <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
+            <Route path="/managementTravelTour" element={<ManagementTravelTour />} />
+            <Route path="/managementHotel" element={<ManagementHotel />} />
+            <Route path="/managementRestaurant" element={<ManagementRestaurant />} />
+            <Route path="/managementVehicle" element={<ManagementVehicle />} />
+            <Route path="/managementUserRole" element={<ManagementUserRole />} />
+          </Route>
+
+          <Route path={"/modalL"} element={<ModalManageTravelTour />} />
+
+          <Route path={"/sidebar_staff"} element={<SidebarStaff/>} />
+        </Routes>
+      </BrowserRouter>
   );
 }
 export default App;

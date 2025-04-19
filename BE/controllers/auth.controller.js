@@ -82,6 +82,11 @@ const login = async (req, res) => {
 
     const passwordMatch = await bcrypt.compare(password, existingUser.password);
 
+    const user = await User.findOne({
+      where: { id: existingUser.id },
+      include: { model: Role, as: "role", attributes: ["id", "role_name"] },
+    });
+
     if (passwordMatch) {
       const accessToken = generateAccessToken(existingUser.id);
       const refreshToken = generateRefreshToken(existingUser.id);
