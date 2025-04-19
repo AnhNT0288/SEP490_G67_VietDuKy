@@ -35,6 +35,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      address: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     },
     {
       tableName: "customer",

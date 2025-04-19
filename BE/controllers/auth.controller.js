@@ -11,6 +11,25 @@ const generateAccessToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "24h" });
 };
 
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+};
+
+const refreshToken = (req, res) => {
+  const { token } = req.body;
+
+  if (!token) return res.status(401).json({ message: "Thiếu refresh token" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const accessToken = generateAccessToken(decoded.id);
+
+    res.status(200).json({ access_token: accessToken });
+  } catch (error) {
+    res.status(403).json({ message: "Refresh token không hợp lệ", error: error.message });
+  }
+};
+
 const register = async (req, res) => {
   const { email, password } = req.body;
 
@@ -64,11 +83,15 @@ const login = async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, existingUser.password);
 
     if (passwordMatch) {
+      const accessToken = generateAccessToken(existingUser.id);
+      const refreshToken = generateRefreshToken(existingUser.id);
+
       return res.status(200).json({
         id: existingUser.id,
         email: existingUser.email,
         role_id: existingUser.role_id,
-        access_token: generateAccessToken(existingUser.id),
+        access_token: accessToken,
+        refresh_token: refreshToken,
       });
     } else {
       return res
@@ -148,15 +171,11 @@ const googleLogin = async (req, res) => {
       });
     }
 
-    const token = generateAccessToken(user.id);
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
     return res.redirect(
-      `${process.env.CLIENT_URL}/auth/callback?token=${token}&id=${user.id
-      }&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(
-        user.avatar || ""
-      )}&name=${encodeURIComponent(
-        user.displayName
-      )}&role_name=${encodeURIComponent(user.role.role_name)}`
+      `${process.env.CLIENT_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${user.id}&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(user.avatar || "")}&name=${encodeURIComponent(user.displayName)}&role_name=${encodeURIComponent(user.role.role_name)}`
     );
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -231,15 +250,11 @@ const facebookLogin = async (req, res) => {
       });
     }
 
-    const token = generateAccessToken(user.id);
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
     return res.redirect(
-      `${process.env.CLIENT_URL}/auth/callback?token=${token}&id=${user.id
-        }&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(
-          user.avatar || ""
-        )}&name=${encodeURIComponent(
-          user.displayName
-        )}&role_name=${encodeURIComponent(user.role.role_name)}`
+      `${process.env.CLIENT_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${user.id}&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(user.avatar || "")}&name=${encodeURIComponent(user.displayName)}&role_name=${encodeURIComponent(user.role.role_name)}`
     );
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -539,4 +554,5 @@ module.exports = {
   sendResetCode,
   resetPassword,
   resendResetCode,
+  refreshToken
 };

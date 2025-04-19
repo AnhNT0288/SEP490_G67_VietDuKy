@@ -7,7 +7,8 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+    const accessToken = params.get("accessToken");
+    const refreshToken = params.get("refreshToken");
     const user = {
       id: params.get("id"),
       email: params.get("email"),
@@ -16,8 +17,9 @@ const AuthCallback = () => {
       role_name: params.get("role_name"),
     };
 
-    if (token) {
-      StorageService.setToken(token);
+    if (accessToken && refreshToken) {
+      localStorage.setItem("access_token", accessToken);
+      localStorage.setItem("refresh_token", refreshToken);
       StorageService.setUser(user);
       setTimeout(() => {
         navigate("/");

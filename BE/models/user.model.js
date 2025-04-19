@@ -57,10 +57,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      address: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
       status: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
