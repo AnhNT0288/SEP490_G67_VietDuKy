@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { MdEdit, MdDelete } from "react-icons/md";
-import {GrView} from "react-icons/gr";
+import { FaUserPlus, FaUsers } from "react-icons/fa";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArticle, isOpen, setOpenDropdown }) {
+export default function DropdownMenuStaff({ staff, onAddGuide, onViewGuides, isOpen, setOpenDropdown }) {
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
@@ -24,10 +23,10 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-
-            <button onClick={(e) => {
+            <button
+                onClick={(e) => {
                     e.stopPropagation();
-                    setOpenDropdown(prev => (prev === postId ? null : postId));
+                    setOpenDropdown(prev => (prev === staff.id ? null : staff.id));
                 }}
                 className="p-2"
             >
@@ -35,42 +34,28 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-md z-10">
-                    {/* Xem danh sách tour của chủ đề */}
+                <div className="absolute right-0 mt-2 w-56 bg-white shadow-md rounded-md z-10">
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
+                            onAddGuide(staff);
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
-                        <GrView className="mr-2 text-gray-700" />
-                        Xem bài viết
+                        <FaUserPlus className="mr-2" /> Thêm hướng dẫn viên
                     </button>
-
-                    {/* Cập nhật Chủ đề */}
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
+                            onViewGuides(staff);
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
-                        <MdEdit className="mr-2 text-gray-700" />
-                        Cập nhật bài viết
-                    </button>
-
-                    {/* Xóa Chủ đề */}
-                    <button
-                        onClick={() => {
-                            setOpenDropdown(null);
-                        }}
-                        className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left text-red-600"
-                    >
-                        <MdDelete className="mr-2" />
-                        Xóa bài viết
+                        <FaUsers className="mr-2" />
+                        Xem danh sách hướng dẫn viên
                     </button>
                 </div>
             )}
-
         </div>
     );
 }

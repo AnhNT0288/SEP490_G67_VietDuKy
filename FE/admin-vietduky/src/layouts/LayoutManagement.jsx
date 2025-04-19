@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Sidebar from "../components/Sidebar/Sidebar";
+import SidebarAdmin from "../components/Sidebar/SidebarAdmin.jsx";
 import HeaderManage from "../components/HeaderManage/HeaderManage";
 
 export default function LayoutManagement({ children, title }) {
@@ -12,7 +12,7 @@ export default function LayoutManagement({ children, title }) {
 
   return (
     <div className="flex h-screen">
-      <Sidebar setSelectedMenu={setSelectedMenu} isCollapsed={isCollapsed} />
+      <SidebarAdmin setSelectedMenu={setSelectedMenu} isCollapsed={isCollapsed} />
 
       {/* Main Content */}
       <main className="flex-1">

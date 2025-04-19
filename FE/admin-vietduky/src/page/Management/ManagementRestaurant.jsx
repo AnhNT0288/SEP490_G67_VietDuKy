@@ -53,7 +53,7 @@ export default function ManagementRestaurant() {
 //   }, []);
 
   return (
-    <Layout title="Quản lý Nhà hàng">
+    <div title="Quản lý Nhà hàng">
       <div>
         {/* Search and Filters */}
         <div className="bg-white p-4 rounded-md flex gap-4 items-center">
@@ -109,6 +109,6 @@ export default function ManagementRestaurant() {
         {/* Modal thêm tour */}
         {isModalOpen && <ModalAddRestaurant onClose={toggleModal} />}
       </div>
-    </Layout>
+    </div>
   );
 }

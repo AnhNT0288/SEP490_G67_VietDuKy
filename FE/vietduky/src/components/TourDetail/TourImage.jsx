@@ -9,13 +9,13 @@ export default function TourImage({ id }) {
     TourService.getTour(id)
       .then((response) => {
         const tourData = response.data.data;
-        setTourImage(tourData.album[0]?.image || null); // Lấy ảnh đầu tiên trong album
+        setTourImage(tourData.album[0] || null); // Lấy ảnh đầu tiên trong album
       })
       .catch((error) => console.error("Error fetching tour data:", error));
   }, [id]);
 
   console.log("Ảnh", tourImage);
-  
+
 
   return (
     <div>

@@ -59,7 +59,7 @@ export default function ManagementDirectory() {
     };
 
     return (
-        <Layout title="Quản lý Danh Mục">
+        <div title="Quản lý Danh Mục">
             <div className="p-4 bg-white rounded-md">
                 {/* Search + Actions */}
                 <div className="flex items-center gap-4 mb-4">
@@ -165,6 +165,6 @@ export default function ManagementDirectory() {
                     onCreated={fetchDirectories}
                 />
             )}
-        </Layout>
+        </div>
     );
 }

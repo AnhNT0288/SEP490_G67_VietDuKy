@@ -17,7 +17,7 @@ router.get(
 router.get(
   "/:id",
   authenticateUser,
-  authenticateAdmin,
+  // authenticateAdmin,
   userController.getUserById
 );
 router.post(

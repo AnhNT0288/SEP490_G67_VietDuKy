@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Layout from "../../layouts/LayoutManagement";
 import { LuSearch } from "react-icons/lu";
 import ModalAddService from "../../components/ModalManage/ModalAdd/ModalAddService.jsx";
 
@@ -47,7 +46,7 @@ export default function ManagementService() {
     );
 
     return (
-        <Layout title="Quản lý Dịch vụ">
+        <div title="Quản lý Dịch vụ">
             <div className="p-4 bg-white rounded-md">
                 {/* Thanh tìm kiếm & Nút hành động */}
                 <div className="flex items-center gap-4 mb-4">
@@ -109,6 +108,6 @@ export default function ManagementService() {
                     <ModalAddService onClose={toggleModal} onSuccess={handleSuccess} />
                 )}
             </div>
-        </Layout>
+        </div>
     );
 }

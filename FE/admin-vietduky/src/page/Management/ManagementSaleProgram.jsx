@@ -49,7 +49,7 @@ export default function ManagementSaleProgram() {
     );
 
     return (
-        <Layout title="Quản lý Chương trình Chiết khấu">
+        <div title="Quản lý Chương trình Chiết khấu">
             <div className="p-4 bg-white rounded-md">
                 {/* Search Bar & Actions */}
                 <div className="flex items-center gap-4 mb-4">
@@ -120,6 +120,6 @@ export default function ManagementSaleProgram() {
                 {/* Modal */}
                 {isAddSaleProgramModalOpen && <ModalAddSaleProgram onClose={() => setIsAddSaleProgramModalOpen(false)} />}
             </div>
-        </Layout>
+        </div>
     );
 }

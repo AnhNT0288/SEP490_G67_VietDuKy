@@ -20,7 +20,7 @@ export default function LoginForm() {
     try {
       const response = await login(username, password); // Gọi API đăng nhập
       if (response.status === 200) { // Kiểm tra nếu đăng nhập thành công
-        alert("Đăng nhập thành công!" + response.data);
+        alert("Đăng nhập thành công!");
         // Lưu thông tin người dùng vào localStorage hoặc sessionStorage nếu cần
         localStorage.setItem("user", JSON.stringify(response.data));
         localStorage.setItem("access_token", response.data.access_token);
