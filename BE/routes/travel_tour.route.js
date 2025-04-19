@@ -31,8 +31,6 @@ router.delete(
 );
 router.get(
   "/tour/:id",
-  authenticateAdmin,
-  authenticateUser,
   travelTourController.getTravelTourByTourId
 );
 

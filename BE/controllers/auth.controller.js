@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
+const { where } = require("sequelize");
 dotenv.config();
 
 const generateAccessToken = (id) => {
@@ -150,13 +151,95 @@ const googleLogin = async (req, res) => {
     const token = generateAccessToken(user.id);
 
     return res.redirect(
-      `http://localhost:5173/auth/callback?token=${token}&id=${
-        user.id
+      `${process.env.CLIENT_URL}/auth/callback?token=${token}&id=${user.id
       }&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(
         user.avatar || ""
       )}&name=${encodeURIComponent(
         user.displayName
       )}&role_name=${encodeURIComponent(user.role.role_name)}`
+    );
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const facebookAuth = async (accessToken, refreshToken, profile, done) => {
+  try {
+    let user = await User.findOne({ where: { facebookId: profile.id } });
+
+    if (!user) {
+      user = await User.create({
+        email: profile.emails[0].value,
+        facebookId: profile.id,
+        avatar: profile.photos?.[0]?.value || "",
+        displayName: profile.displayName,
+        givenName: profile.name?.givenName || "",
+        familyName: profile.name?.familyName || "",
+        role_id: 1, // Mặc định là khách hàng
+
+      });
+
+      // Kiểm tra xem Customer đã tồn tại chưa
+      let customer = await Customer.findOne({ where: { user_id: user.id } });
+
+      if (!customer) {
+        await Customer.create({
+          user_id: user.id,
+          first_name: profile.name?.givenName || "",
+          last_name: profile.name?.familyName || "",
+          number_phone: profile?.phoneNumber || "",
+        });
+      } else {
+        // Cập nhật lại thông tin Customer nếu có thay đổi
+        await customer.update({
+          first_name: profile.name?.givenName || customer.first_name,
+          last_name: profile.name?.familyName || customer.last_name,
+        });
+      }
+    }
+
+    return done(null, user);
+  } catch (error) {
+    console.error("Lỗi trong facebookAuth:", error);
+    return done(error, null);
+  }
+};
+
+const facebookLogin = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Xác thực thất bại" });
+    }
+
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      include: { model: Role, as: "role", attributes: ["id", "role_name"] },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    let customer = await Customer.findOne({ where: { user_id: user.id } });
+
+    if (!customer) {
+      customer = await Customer.create({
+        user_id: user.id,
+        first_name: req.user.displayName || "",
+        last_name: req.user.family_name || "",
+        number_phone: "",
+      });
+    }
+
+    const token = generateAccessToken(user.id);
+
+    return res.redirect(
+      `${process.env.CLIENT_URL}/auth/callback?token=${token}&id=${user.id
+        }&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(
+          user.avatar || ""
+        )}&name=${encodeURIComponent(
+          user.displayName
+        )}&role_name=${encodeURIComponent(user.role.role_name)}`
     );
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -450,6 +533,8 @@ module.exports = {
   login,
   googleAuth,
   googleLogin,
+  facebookAuth,
+  facebookLogin,
   getProfile,
   sendResetCode,
   resetPassword,

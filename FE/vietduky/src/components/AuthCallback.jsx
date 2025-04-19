@@ -2,7 +2,7 @@ import { StorageService } from "@/services/storage/StorageService";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const GoogleAuthCallback = () => {
+const AuthCallback = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,4 +30,4 @@ const GoogleAuthCallback = () => {
   return <div>Đang xử lý đăng nhập...</div>;
 };
 
-export default GoogleAuthCallback;
+export default AuthCallback;
