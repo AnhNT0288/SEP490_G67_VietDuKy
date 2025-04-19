@@ -7,7 +7,8 @@ const GoogleAuthCallback = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+    const access_token = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
     const user = {
       id: params.get("id"),
       email: params.get("email"),
@@ -16,8 +17,9 @@ const GoogleAuthCallback = () => {
       role_name: params.get("role_name"),
     };
 
-    if (token) {
-      StorageService.setToken(token);
+    if (access_token) {
+      StorageService.setAccessToken(access_token);
+      StorageService.setRefreshToken(refreshToken);
       StorageService.setUser(user);
       setTimeout(() => {
         navigate("/managementTour");

@@ -52,7 +52,7 @@ export default function LayoutLandingPage() {
       <SearchTour />
 
       {/* Image Slider */}
-      <div className="p-6 relative w-4/5 mx-auto">
+      <div className="p-6 relative w-4/5 mx-auto sm:w-full">
         <Slider {...settings}>
           <div>
             <img
