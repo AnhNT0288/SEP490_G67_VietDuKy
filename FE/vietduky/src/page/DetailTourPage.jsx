@@ -1,22 +1,39 @@
+import { TourService } from "@/services/API/tour.service.js";
 import Footer from "../components/Footer/Footer.jsx";
 import Header from "../components/Header/Header.jsx";
 import DepartureSchedule from "../components/TourDetail/DepartureSchedule.jsx";
 import ExperienceOnTour from "../components/TourDetail/ExperienceOnTour.jsx";
 import Feedback from "../components/TourDetail/Feedback.jsx";
 import Note from "../components/TourDetail/Note.jsx";
-import RelatedTours from "../components/TourDetail/RelatedTours.jsx";
+import RelatedTours from "../components/TourDetail/RelatedTour/RelatedTours.jsx";
 import TourDescription from "../components/TourDetail/TourDescription.jsx";
 import TourImage from "../components/TourDetail/TourImage.jsx";
 import TourInformation from "../components/TourDetail/TourInformation.jsx";
 import TourProgram from "../components/TourDetail/TourProgram.jsx";
 import Calendar from "@/components/Calendar/Calendar.jsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
 export default function DetailTourPage() {
   const { id } = useParams();
   const location = useLocation();
-  const initialSelectedDate = location.state?.selectedDate; // Giá trị mặc định nếu không có
+  const initialSelectedDate = location.state?.selectedDate;
+  const [tours, setTours] = useState([]);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const response = await TourService.getTour(id);
+        setTours(response.data.data);
+      } catch (error) {
+        console.error("Error fetching tours data:", error);
+      }
+    };
+
+    fetchTours();
+  }, [id]);
+
+  // console.log("Tours", tours);
 
   return (
     <div className="bg-white">
@@ -39,7 +56,10 @@ export default function DetailTourPage() {
             <TourProgram id={id} />
 
             {/* lịch khởi hành và giá */}
-            <DepartureSchedule id={id} />
+            <DepartureSchedule
+              id={id}
+              initialSelectedDate={initialSelectedDate}
+            />
 
             {/*Những thông tin cần lưu ý*/}
             <Note id={id} />
@@ -47,14 +67,14 @@ export default function DetailTourPage() {
 
           {/* Bảng giá và Lịch trình */}
           <div className="col-span-4">
-            <Calendar id={id} initialSelectedDate={initialSelectedDate}/>
+            <Calendar id={id} initialSelectedDate={initialSelectedDate} />
           </div>
         </div>
 
         {/*Feedback*/}
         <Feedback id={id} />
         {/*Tour liên quan */}
-        <RelatedTours id={id} />
+        <RelatedTours relatedTours={tours.related_tours} id={id} />
       </div>
       <Footer />
     </div>

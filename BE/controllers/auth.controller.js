@@ -4,10 +4,30 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
+const { where } = require("sequelize");
 dotenv.config();
 
 const generateAccessToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+};
+
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+};
+
+const refreshToken = (req, res) => {
+  const { token } = req.body;
+
+  if (!token) return res.status(401).json({ message: "Thiếu refresh token" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const accessToken = generateAccessToken(decoded.id);
+
+    res.status(200).json({ access_token: accessToken });
+  } catch (error) {
+    res.status(403).json({ message: "Refresh token không hợp lệ", error: error.message });
+  }
 };
 
 const register = async (req, res) => {
@@ -62,12 +82,21 @@ const login = async (req, res) => {
 
     const passwordMatch = await bcrypt.compare(password, existingUser.password);
 
+    const user = await User.findOne({
+      where: { id: existingUser.id },
+      include: { model: Role, as: "role", attributes: ["id", "role_name"] },
+    });
+
     if (passwordMatch) {
+      const accessToken = generateAccessToken(existingUser.id);
+      const refreshToken = generateRefreshToken(existingUser.id);
+
       return res.status(200).json({
         id: existingUser.id,
         email: existingUser.email,
         role_id: existingUser.role_id,
-        access_token: generateAccessToken(existingUser.id),
+        access_token: accessToken,
+        refresh_token: refreshToken,
       });
     } else {
       return res
@@ -147,16 +176,90 @@ const googleLogin = async (req, res) => {
       });
     }
 
-    const token = generateAccessToken(user.id);
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
 
     return res.redirect(
-      `http://localhost:5173/auth/callback?token=${token}&id=${
-        user.id
-      }&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(
-        user.avatar || ""
-      )}&name=${encodeURIComponent(
-        user.displayName
-      )}&role_name=${encodeURIComponent(user.role.role_name)}`
+      `${process.env.CLIENT_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${user.id}&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(user.avatar || "")}&name=${encodeURIComponent(user.displayName)}&role_name=${encodeURIComponent(user.role.role_name)}`
+    );
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const facebookAuth = async (accessToken, refreshToken, profile, done) => {
+  try {
+    let user = await User.findOne({ where: { facebookId: profile.id } });
+
+    if (!user) {
+      user = await User.create({
+        email: profile.emails[0].value,
+        facebookId: profile.id,
+        avatar: profile.photos?.[0]?.value || "",
+        displayName: profile.displayName,
+        givenName: profile.name?.givenName || "",
+        familyName: profile.name?.familyName || "",
+        role_id: 1, // Mặc định là khách hàng
+
+      });
+
+      // Kiểm tra xem Customer đã tồn tại chưa
+      let customer = await Customer.findOne({ where: { user_id: user.id } });
+
+      if (!customer) {
+        await Customer.create({
+          user_id: user.id,
+          first_name: profile.name?.givenName || "",
+          last_name: profile.name?.familyName || "",
+          number_phone: profile?.phoneNumber || "",
+        });
+      } else {
+        // Cập nhật lại thông tin Customer nếu có thay đổi
+        await customer.update({
+          first_name: profile.name?.givenName || customer.first_name,
+          last_name: profile.name?.familyName || customer.last_name,
+        });
+      }
+    }
+
+    return done(null, user);
+  } catch (error) {
+    console.error("Lỗi trong facebookAuth:", error);
+    return done(error, null);
+  }
+};
+
+const facebookLogin = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Xác thực thất bại" });
+    }
+
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      include: { model: Role, as: "role", attributes: ["id", "role_name"] },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    let customer = await Customer.findOne({ where: { user_id: user.id } });
+
+    if (!customer) {
+      customer = await Customer.create({
+        user_id: user.id,
+        first_name: req.user.displayName || "",
+        last_name: req.user.family_name || "",
+        number_phone: "",
+      });
+    }
+
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
+
+    return res.redirect(
+      `${process.env.CLIENT_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${user.id}&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(user.avatar || "")}&name=${encodeURIComponent(user.displayName)}&role_name=${encodeURIComponent(user.role.role_name)}`
     );
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -450,8 +553,11 @@ module.exports = {
   login,
   googleAuth,
   googleLogin,
+  facebookAuth,
+  facebookLogin,
   getProfile,
   sendResetCode,
   resetPassword,
   resendResetCode,
+  refreshToken
 };

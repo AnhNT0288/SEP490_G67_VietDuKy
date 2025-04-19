@@ -3,11 +3,20 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const { User } = require("../models");
 
+const isDev = process.env.NODE_ENV !== "production";
+const googleCallbackURL = isDev
+  ? `http://${process.env.HOST}:${process.env.PORT}/api/auth/google/callback`
+  : `https://${process.env.SERVER_DOMAIN}/auth/google/callback`;
+
+const facebookCallbackURL = isDev
+  ? `http://${process.env.HOST}:${process.env.PORT}/api/auth/facebook/callback`
+  : `https://${process.env.SERVER_DOMAIN}/auth/facebook/callback`;
+
 passport.use(new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/api/auth/google/callback"
+    callbackURL: googleCallbackURL
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -42,22 +51,30 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "http://localhost:3000/auth/facebook/callback",
+      callbackURL: facebookCallbackURL,
       profileFields: ["id", "emails", "name", "picture.type(large)"],
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
+        // console.log("🔍 Facebook profile:", profile);
+
         const email = profile.emails?.[0]?.value;
+        const displayName = `${profile.name.givenName || ""} ${profile.name.middleName || ""} ${profile.name.familyName || ""}`.trim();
+
         let user = await User.findOne({ where: { email } });
 
         if (!user) {
           user = await User.create({
             email,
-            full_name: `${profile.name.givenName} ${profile.name.familyName}`,
+            displayName: displayName,
             facebook_id: profile.id,
             avatar: profile.photos?.[0]?.value || null,
             role_id: 1,
           });
+        } else {
+          user.displayName = displayName;
+          user.facebookId = profile.id;
+          await user.save();
         }
 
         return done(null, user);
@@ -76,7 +93,7 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (userData, done) => {
   try {
     const user = await User.findByPk(userData.id);
-    user.token = userData.token; // Gán lại token từ session
+    user.token = userData.token;
     done(null, user);
   } catch (error) {
     done(error, null);

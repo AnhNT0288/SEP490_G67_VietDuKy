@@ -5,6 +5,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", discountServiceController.getAllDiscountServices);
@@ -16,19 +17,19 @@ router.get(
 router.post(
   "/create",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   discountServiceController.createDiscountService
 );
 router.put(
   "/update/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   discountServiceController.updateDiscountService
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   discountServiceController.deleteDiscountService
 );
 

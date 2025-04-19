@@ -13,6 +13,12 @@ export const FeedbackService = {
             method: "GET",
         });
     },
+    getFeedbackByTourId: (tourId) => {
+        return restClient({
+            url: `feedback/tour/${tourId}`,
+            method: "GET",
+        });
+    },
     createFeedbackTour: (data) => {
         return restClient({
             url: "feedback/create/tour",

@@ -4,13 +4,14 @@ const topicController = require("../controllers/topic.controller");
 const {
   authenticateUser,
   authenticateAdmin,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 // Tạo topic mới
 router.post(
   "/create",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   topicController.createTopic
 );
 
@@ -23,16 +24,16 @@ router.get("/:id", topicController.getTopicById);
 // Cập nhật thông tin topic
 router.put(
   "/:id",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   topicController.updateTopic
 );
 
 // Xóa topic
 router.delete(
   "/:id",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   topicController.deleteTopic
 );
 

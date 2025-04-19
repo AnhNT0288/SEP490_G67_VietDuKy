@@ -6,31 +6,32 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get(
   "/",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   userController.getAllUsers
 );
 router.get(
   "/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   userController.getUserById
 );
 router.post(
   "/create",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   uploadAvatar.single("avatar"),
   userController.addNewUser
 );
 router.put(
   "/update/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   uploadAvatar.single("avatar"),
   userController.updateUser
 );
@@ -42,19 +43,19 @@ router.put(
 router.put(
   "/status/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   userController.changeStatus
 );
 router.get(
   "/status-filter/:status",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   userController.filterByStatus
 );
 router.post(
   "/assign-role",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   userController.assignRole
 );
 

@@ -12,6 +12,8 @@ const GoogleAuthCallback = () => {
       id: params.get("id"),
       email: params.get("email"),
       avatar: params.get("avatar"),
+      name: params.get("name"),
+      role_name: params.get("role_name"),
     };
 
     if (token) {

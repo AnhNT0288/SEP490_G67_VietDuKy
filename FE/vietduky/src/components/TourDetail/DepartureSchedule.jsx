@@ -3,9 +3,10 @@ import { formatDayDMY } from "@/utils/dateUtil";
 import { useEffect, useState } from "react";
 
 // eslint-disable-next-line react/prop-types
-export default function DepartureSchedule({ id }) {
+export default function DepartureSchedule({ id, initialSelectedDate }) {
   const [tourSchedules, setTourSchedules] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("2025-02-28");
+  const [selectedDate, setSelectedDate] = useState(initialSelectedDate || "");
+  const [visibleCount, setVisibleCount] = useState(10); // 👈 hiển thị mặc định 10
 
   useEffect(() => {
     TravelTourService.getTravelTourByTourId(id)
@@ -17,7 +18,13 @@ export default function DepartureSchedule({ id }) {
         console.error("Error fetching travel tour data:", error)
       );
   }, [id]);
-    console.log("Tour schedules:", tourSchedules);
+
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + 10);
+  };
+
+  const visibleSchedules = tourSchedules.slice(0, visibleCount);
+
   return (
     <div className="col-span-2 bg-white shadow-lg bg-opacity-20 p-4 rounded-lg mt-4 border border-gray-300">
       {/* Header */}
@@ -32,6 +39,7 @@ export default function DepartureSchedule({ id }) {
           className="px-3 py-1 border rounded-md bg-gray-100 text-gray-600 cursor-pointer"
         />
       </div>
+
       {/*Body*/}
       <div className="mt-3">
         {tourSchedules.length > 0 ? (
@@ -46,7 +54,7 @@ export default function DepartureSchedule({ id }) {
                 </tr>
               </thead>
               <tbody>
-                {tourSchedules.map((schedule, index) => (
+                {visibleSchedules.map((schedule, index) => (
                   <tr
                     key={schedule.id}
                     className={`border-t text-black text-sm ${
@@ -56,7 +64,9 @@ export default function DepartureSchedule({ id }) {
                     <td className="py-4 px-2">
                       {formatDayDMY(schedule.start_day)}
                     </td>
-                    <td className="py-4 px-2">{formatDayDMY(schedule.end_day)}</td>
+                    <td className="py-4 px-2">
+                      {formatDayDMY(schedule.end_day)}
+                    </td>
                     <td className="py-4 px-2">{schedule.max_people}</td>
                     <td className="py-4 px-2 text-right font-bold text-red-700">
                       {schedule.price_tour.toLocaleString("vi-VN")} VNĐ
@@ -73,10 +83,17 @@ export default function DepartureSchedule({ id }) {
         )}
       </div>
 
-      {/* Xem thêm */}
-      <div className="text-center mt-6">
-        <button className="text-red-500 font-medium">Xem thêm</button>
-      </div>
+      {/* Nút Xem thêm */}
+      {visibleCount < tourSchedules.length && (
+        <div className="text-center mt-6">
+          <button
+            className="text-red-500 font-medium hover:underline"
+            onClick={handleShowMore}
+          >
+            Xem thêm
+          </button>
+        </div>
+      )}
     </div>
   );
 }

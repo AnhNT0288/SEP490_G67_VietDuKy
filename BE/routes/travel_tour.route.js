@@ -5,6 +5,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", travelTourController.getAllTravelTours);
@@ -14,32 +15,30 @@ router.get("/:id", travelTourController.getTravelTourById);
 router.post(
   "/create",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   travelTourController.createTravelTour
 );
 router.put(
   "/update/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   travelTourController.updateTravelTour
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   travelTourController.deleteTravelTour
 );
 router.get(
   "/tour/:id",
-  authenticateAdmin,
-  authenticateUser,
   travelTourController.getTravelTourByTourId
 );
 
 router.post(
   "/close/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   travelTourController.closeTourWhenFull
 );
 
@@ -47,7 +46,7 @@ router.post(
 router.get(
   "/max-people/full",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   travelTourController.getFullTravelTours
 );
 

@@ -23,12 +23,12 @@ export default function ExperienceOnTour({ id }) {
           Trải nghiệm thú vị trong tour
         </h1>
         <div className="flex gap-2">
-          <button className="bg-[#1877F2] text-white px-3 py-1.5 rounded-md shadow-md flex gap-1 items-center text-sm font-medium hover:bg-[#1877F2]/80">
+          {/* <button className="bg-[#1877F2] text-white px-3 py-1.5 rounded-md shadow-md flex gap-1 items-center text-sm font-medium hover:bg-[#1877F2]/80">
             <BiSolidLike /> Like
           </button>
           <button className="bg-[#1877F2] text-white px-3 py-1.5 rounded-md shadow-md flex gap-1 items-center text-sm font-medium hover:bg-[#1877F2]/80">
             <FaShare /> Share
-          </button>
+          </button> */}
         </div>
       </div>
       <div className="space-y-3 text-gray-700">

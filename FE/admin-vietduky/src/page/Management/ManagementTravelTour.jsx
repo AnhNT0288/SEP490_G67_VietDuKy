@@ -62,7 +62,7 @@ export default function ManagementTravelTour() {
   };
 
   return (
-    <Layout title="Quản lý Chuyến đi">
+    <div title="Quản lý Chuyến đi">
       <div>
         {/* Search and Filters */}
         <div className="bg-white p-4 rounded-md flex gap-4 items-center">
@@ -183,6 +183,6 @@ export default function ManagementTravelTour() {
         {/* Modal thêm tour */}
         {isModalOpen && <ModalAddTravelTour onClose={toggleModal} />}
       </div>
-    </Layout>
+    </div>
   );
 }

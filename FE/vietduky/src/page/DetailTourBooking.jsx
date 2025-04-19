@@ -4,7 +4,7 @@ import DepartureSchedule from "../components/TourDetail/DepartureSchedule.jsx";
 import ExperienceOnTour from "../components/TourDetail/ExperienceOnTour.jsx";
 import Feedback from "../components/TourDetail/Feedback.jsx";
 import Note from "../components/TourDetail/Note.jsx";
-import RelatedTours from "../components/TourDetail/RelatedTours.jsx";
+import RelatedTours from "../components/TourDetail/RelatedTour/RelatedTours.jsx";
 import TourDescription from "../components/TourDetail/TourDescription.jsx";
 import TourImage from "../components/TourDetail/TourImage.jsx";
 import TourInformation from "../components/TourDetail/TourInformation.jsx";

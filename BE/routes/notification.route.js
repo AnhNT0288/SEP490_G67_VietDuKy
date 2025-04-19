@@ -5,6 +5,7 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get(
@@ -14,14 +15,14 @@ router.get(
 );
 router.post(
   "/create",
-  authenticateAdmin,
-  authenticateStaff,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   notificationController.createNotificationForBooking
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
   notificationController.deleteNotification
 );
 

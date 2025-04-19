@@ -2,7 +2,7 @@ import "./App.css";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Calendar from "./components/Calendar/Calendar";
-import GoogleAuthCallback from "./components/GoogleAuthCallback";
+import AuthCallback from "./components/AuthCallback";
 import PaymentForm from "./components/Payment/CreditCardForm.jsx";
 import ProtectedRoute from "./components/PrivateRouter";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
@@ -64,7 +64,7 @@ function App() {
       />
       <Routes>
         <Route path={"/"} element={<LayoutLandingPage />} />
-        <Route path="/auth/callback" element={<GoogleAuthCallback />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<ProfileCustomer />} />
           <Route path={"/booking/:id"} element={<BookingTour />} />

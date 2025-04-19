@@ -148,7 +148,7 @@ const ContactForm = ({
 
       <div className="grid grid-cols-2 gap-4">
         {[
-          { label: "Người lớn", type: "adult", desc: "Từ 12 trở lên", min: 1 },
+          { label: "Người lớn", type: "adult", desc: "Từ 12 trở lên", min: 0 },
           { label: "Trẻ em", type: "children", desc: "Từ 5 - 11 tuổi", min: 0 },
           {
             label: "Trẻ nhỏ",

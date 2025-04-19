@@ -5,19 +5,20 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 // Route để tạo tour service mới
 router.post(
   "/create",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   tourInfoController.createTourInfo
 );
 
 router.get(
   "/get/:tour_id",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles("admin", "staff"),
   tourInfoController.getTourInfo
 );
 module.exports = router;

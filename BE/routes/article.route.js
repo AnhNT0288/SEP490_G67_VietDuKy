@@ -23,14 +23,14 @@ router.post(
 router.put(
   "/update/:article_id",
     authenticateUser,
-    authenticateAdmin,
+    checkRoles(["admin", "staff"]),
   uploadAlbumPost.array("album_post", 10),
   ArticleController.updateArticle
 );
 router.delete(
   "/delete/:article_id",
     authenticateUser,
-  authenticateAdmin,
+  checkRoles(["admin", "staff"]),
   ArticleController.deleteArticle
 );
 router.post(

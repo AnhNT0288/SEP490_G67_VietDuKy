@@ -240,12 +240,12 @@ exports.getUsersByRoleId = async (req, res) => {
     // Tìm danh sách người dùng theo role_id
     const users = await User.findAll({
       where: { role_id },
-      attributes: ["id", "avatar", "status", "email"],
+      attributes: ["id", "avatar", "status", "email","displayName"],
       include: [
         {
           model: Role,
           as: "role",
-          attributes: ["id", "role_name"], // Lấy thông tin vai trò nếu cần
+          attributes: ["id", "role_name"],
         },
       ],
     });

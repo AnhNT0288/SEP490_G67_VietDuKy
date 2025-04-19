@@ -5,6 +5,7 @@ const {
     authenticateUser,
     authenticateAdmin,
     authenticateStaff,
+    checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", BookingController.getAllBookings);
@@ -36,7 +37,7 @@ router.put("/update/:id",
 router.delete(
     "/cancel/:id",
     authenticateUser,
-    authenticateAdmin,
+    checkRoles(["admin", "staff"]),
     BookingController.deleteBooking
 );
 router.get(

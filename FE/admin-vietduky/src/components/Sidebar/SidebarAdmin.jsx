@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Icons from "../Icons/Icon";
 
 
-export default function Sidebar({isCollapsed }) {
+// eslint-disable-next-line react/prop-types
+export default function SidebarAdmin({isCollapsed, setBreadcrumb  }) {
   const [selected, setSelected] = useState(null);
   const [openSubMenu, setOpenSubMenu] = useState(null);
   const navigate = useNavigate();
@@ -69,9 +70,20 @@ export default function Sidebar({isCollapsed }) {
       name: "Quản lý tài khoản",
       icon: Icons.AccountIcon,
       subItems: [
-        { id: 901, name: "Hướng dẫn viên", path: "/managementTourGuide" },
+        { id: 901, name: "Nhân viên", path: "/managementTourGuide" },
         { id: 902, name: "Phân quyền", path: "/managementUserRole" },
-      ],    },
+      ],
+    },
+    // {
+    //   id: 10,
+    //   name: "Quản lý Staff",
+    //   icon: Icons.AccountIcon,
+    //   subItems: [
+    //     { id: 1001, name: "Hướng dẫn viêsdfn", path: "/" },
+    //     { id: 1002, name: "Phân quysdfền", path: "/" },
+    //   ],
+    // },
+
   ];
 
   useEffect(() => {
@@ -123,6 +135,7 @@ export default function Sidebar({isCollapsed }) {
                            navigate(item.path);
                            setSelected(item.id);
                            setOpenSubMenu(null);
+                           setBreadcrumb([item.name]);
                          }
                        }}
                   >
@@ -158,6 +171,7 @@ export default function Sidebar({isCollapsed }) {
                                   navigate(subItem.path);
                                   setSelected(subItem.id);
                                   setOpenSubMenu(item.id);
+                                  setBreadcrumb([ item.name, subItem.name]);
                                 }}
                             >
                               {subItem.name}

@@ -3,6 +3,7 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { MdEdit, MdDelete } from "react-icons/md";
 import {GrView} from "react-icons/gr";
 
+// eslint-disable-next-line react/prop-types
 export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArticle, isOpen, setOpenDropdown }) {
     const [isHovered, setIsHovered] = useState(false);
 
@@ -25,7 +26,7 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
         >
 
             <button onClick={(e) => {
-                    e.stopPropagation(); // tránh bị document click đóng ngay lập tức
+                    e.stopPropagation();
                     setOpenDropdown(prev => (prev === postId ? null : postId));
                 }}
                 className="p-2"

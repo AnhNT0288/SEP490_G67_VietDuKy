@@ -5,20 +5,21 @@ const {
   authenticateUser,
   authenticateAdmin,
   authenticateStaff,
+  checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", DirectoryController.getAllDirectories);
-router.post("/create",authenticateUser, authenticateAdmin,  DirectoryController.createDirectory);
+router.post("/create",authenticateUser, checkRoles("admin", "staff"),  DirectoryController.createDirectory);
 router.put(
   "/update/:id",
     authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
     DirectoryController.updateDirectory
 );
 router.delete(
   "/delete/:id",
     authenticateUser,
-  authenticateAdmin,
+  checkRoles("admin", "staff"),
     DirectoryController.deleteDirectory
 );
 

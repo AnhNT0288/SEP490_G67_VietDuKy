@@ -112,7 +112,7 @@
     const currentTours = filteredTours.slice(indexOfFirstTour, indexOfLastTour);
 
     return (
-        <Layout title="Quản lý Tour">
+        <div title="Quản lý Tour">
           <div>
             <div className="bg-white p-4 rounded-md flex gap-4 items-center">
               <div className="relative flex-1 ">
@@ -262,6 +262,6 @@
                 />
             )}
           </div>
-        </Layout>
+        </div>
     );
   }

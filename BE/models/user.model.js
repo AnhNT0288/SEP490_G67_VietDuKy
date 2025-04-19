@@ -43,6 +43,16 @@ module.exports = (sequelize, Sequelize) => {
           },
         ],
       },
+      facebookId: {
+        type: Sequelize.STRING,
+        allowNull: true, // Chỉ dùng cho Facebook login
+        indexes: [
+          {
+            unique: true,
+            fields: ["facebookId"], // Đảm bảo không tạo nhiều index trùng lặp
+          },
+        ],
+      },
       avatar: {
         type: Sequelize.TEXT,
         allowNull: true,

@@ -132,6 +132,7 @@ exports.getTourById = async (req, res) => {
                         "price_service",
                     ],
                 },
+                {model: TypeTour, as: "typeTour"},
             ],
             limit: 10,
         });
