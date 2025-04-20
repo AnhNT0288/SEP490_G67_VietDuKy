@@ -12,14 +12,14 @@ router.get("/", serviceController.getAllServices);
 router.get("/:id", authenticateUser, serviceController.getServiceById);
 router.post("/create",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     serviceController.createService);
 router.delete(
     "/delete/:id",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     serviceController.deleteService
 );
-router.put("/update/:id", authenticateUser, checkRoles("admin", "staff"), serviceController.updateService);
+router.put("/update/:id", authenticateUser, checkRoles(["admin", "staff"]), serviceController.updateService);
 
 module.exports = router;

@@ -18,7 +18,7 @@ router.post(
 router.delete(
   "/delete/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   GuideTourController.removeGuideFromTour
 );
 router.put(

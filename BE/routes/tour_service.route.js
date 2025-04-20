@@ -11,7 +11,7 @@ const {
 router.post(
   "/create",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   tourServiceController.createTourService
 );
 

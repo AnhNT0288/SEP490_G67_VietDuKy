@@ -16,13 +16,13 @@ router.get(
 router.post(
   "/create",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   notificationController.createNotificationForBooking
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   notificationController.deleteNotification
 );
 

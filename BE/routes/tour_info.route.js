@@ -11,14 +11,14 @@ const {
 router.post(
   "/create",
   authenticateUser,
-  // checkRoles("admin", "staff"),
+  // checkRoles(["admin", "staff"]),
   tourInfoController.createTourInfo
 );
 
 router.get(
   "/get/:tour_id",
   // authenticateUser,
-  // checkRoles("admin", "staff", "customer"),
+  // checkRoles(["admin", "staff", "customer"]),
   tourInfoController.getTourInfo
 );
 module.exports = router;

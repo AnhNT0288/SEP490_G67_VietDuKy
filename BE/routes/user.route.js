@@ -12,26 +12,26 @@ const {
 router.get(
   "/",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   userController.getAllUsers
 );
 router.get(
   "/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles([ "admin", "staff", "customer", "tour_guide",]),
   userController.getUserById
 );
 router.post(
   "/create",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   uploadAvatar.single("avatar"),
   userController.addNewUser
 );
 router.put(
   "/update/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   uploadAvatar.single("avatar"),
   userController.updateUser
 );
@@ -43,19 +43,19 @@ router.put(
 router.put(
   "/status/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   userController.changeStatus
 );
 router.get(
   "/status-filter/:status",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   userController.filterByStatus
 );
 router.post(
   "/assign-role",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   userController.assignRole
 );
 

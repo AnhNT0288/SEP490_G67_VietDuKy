@@ -30,19 +30,19 @@ router.put(
 router.delete(
   "/delete/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   postExperienceController.deletePostExperience
 );
 router.put(
   "/approve/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   postExperienceController.approvePostExperience
 );
 router.put(
   "/reject/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   postExperienceController.rejectPostExperience
 );
 //Tăng lượt xem bài viết

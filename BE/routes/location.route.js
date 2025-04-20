@@ -14,21 +14,21 @@ router.get("/:id", locationController.getLocationById);
 router.post(
     "/create",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     uploadLocation.single("image"),
     locationController.createLocation
 );
 router.put(
     "/update/:id",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     uploadLocation.single("image"),
     locationController.updateLocation
 );
 router.delete(
     "/delete/:id",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     locationController.deleteLocation
 );
 

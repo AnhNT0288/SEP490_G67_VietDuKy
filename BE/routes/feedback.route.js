@@ -31,7 +31,7 @@ router.put(
 router.delete(
   "/delete/:id",
   authenticateUser,
-  checkRoles("admin", "staff", "customer"),
+  checkRoles(["admin", "staff", "customer"]),
   feedbackController.deleteFeedback
 );
 

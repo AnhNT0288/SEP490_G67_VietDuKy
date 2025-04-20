@@ -59,29 +59,29 @@ export default function HeaderManage({ toggleSidebar, title }) {
                 />
             )}
 
-            {/* Dropdown */}
-            {isOpenMenu && user && (
-                <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50 text-sm">
-                  <p className="text-gray-700 font-medium px-3 py-1 break-words">
-                    {user.email}
-                  </p>
-                  <hr className="my-1" />
-                  <button
-                      className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-                      onClick={() => navigate("/profile")}
-                  >
-                    Xem hồ sơ
-                  </button>
-                  <button
-                      className="w-full text-left px-3 py-2 text-red-600 hover:bg-gray-100 rounded-md"
-                      onClick={handleSignout}
-                  >
-                    Đăng xuất
-                  </button>
-                </div>
-            )}
-          </div>
+          {/* Dropdown Menu */}
+          {isOpenMenu && user && (
+            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+              <p className="text-sm text-gray-700 font-medium px-3 py-1">
+                {user.email}
+              </p>
+              <hr className="my-1" />
+              <button
+                className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
+                onClick={() => navigate("/account/profile")}
+              >
+                Xem hồ sơ
+              </button>
+              <button
+                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-md"
+                onClick={handleSignout}
+              >
+                Đăng xuất
+              </button>
+            </div>
+          )}
         </div>
       </div>
+    </div>
   );
 }

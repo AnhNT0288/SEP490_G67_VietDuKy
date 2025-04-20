@@ -22,7 +22,9 @@ export default function LoginForm() {
           JSON.stringify({
             id: response.data.id,
             email: response.data.email,
-            role: response.data.role_id,
+            role_name: response.data.role_name,
+            avatar: response.data.avatar,
+            name: response.data.name,
           })
         );
         navigate("/dashboard");
@@ -42,14 +44,13 @@ export default function LoginForm() {
       <h2 className="text-2xl font-semibold text-center mb-4">
         Chào mừng trở lại
       </h2>
-      <p className="text-gray-500 text-center mb-6">
+      {/* <p className="text-gray-500 text-center mb-6">
         Đăng nhập bằng tài khoản Google của bạn
       </p>
 
-      {/* Google Sign-In */}
-      <AuthProviders />
+      <AuthProviders /> */}
 
-      <div className="text-center my-4 text-gray-400">Hoặc bằng</div>
+      {/* <div className="text-center my-4 text-gray-400">Hoặc bằng</div> */}
 
       {/* Email Input */}
       <div className="mb-4">

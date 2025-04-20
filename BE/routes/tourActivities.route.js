@@ -12,21 +12,21 @@ const {
 router.post(
     "/create",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     uploadTourActivities.single("image"),
     tourActivitiesController.createTourActivities
 );
 router.put(
     "/update/:id",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     uploadTourActivities.single("image"),
     tourActivitiesController.updateTourActivities
 );  
 router.delete(
     "/delete/:id",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     tourActivitiesController.deleteTourActivities
 );
 
