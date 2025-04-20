@@ -22,10 +22,8 @@ export const StorageService = {
     }
   },
 
-  signout: (navigate) => {
+  signout: () => {
     StorageService.removeToken();
     StorageService.removeUser();
-    navigate("/");
-    window.location.reload();
   },
 };
