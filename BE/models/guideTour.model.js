@@ -29,6 +29,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         defaultValue: false,
       },
+        group: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+        }
     },
     {
       tableName: "guide_tour",
