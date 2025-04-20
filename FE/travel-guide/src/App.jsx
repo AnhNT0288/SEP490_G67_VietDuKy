@@ -3,16 +3,23 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./page/LoginPage.jsx";
 import RegisterPage from "./page/RegisterPage.jsx";
 import PrivateRoute from "./components/PrivateRouter.jsx";
-import Profile from "./components/Profile.jsx";
 import GoogleAuthCallback from "./components/GoogleAuthCallBack.jsx";
 import Dashboard from "./page/Management/Dashboard.jsx";
 import TravelGuideTour from "./page/Management/TravelGuideTour.jsx";
 import DepartureSchedulePage from "./page/Management/DepartureSchedulePage.jsx";
 import TravelTourPendingPage from "./page/Management/TravelTourPendingPage.jsx";
+import Profile from "./components/Profile/Profile.jsx";
+import Modal from "react-modal";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+Modal.setAppElement("#root");
 
 function App() {
   return (
     <BrowserRouter>
+      <ToastContainer position="bottom-right" autoClose={3000} />
+
       <Routes>
         <Route path={"/"} element={<LoginPage />} />
         <Route path={"/register"} element={<RegisterPage />} />

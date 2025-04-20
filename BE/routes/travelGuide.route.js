@@ -18,8 +18,14 @@ router.get(
 router.get(
   "/:user_id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "tour_guide"]),
   travelGuideController.getTravelGuidesByUser
+);
+router.get(
+  "/user/:id",
+  authenticateUser,
+  checkRoles(["admin", "staff", "tour_guide"]),
+  travelGuideController.getTravelGuidesByUserID
 );
 router.post(
   "/create",
@@ -101,7 +107,7 @@ router.post(
 router.put(
   "/update-personal-info/:id",
   authenticateUser,
-  checkRoles(["staff", "admin"]),
+  checkRoles(["staff", "admin", "tour_guide"]),
   travelGuideController.updatePersonalInfo
 );
 
