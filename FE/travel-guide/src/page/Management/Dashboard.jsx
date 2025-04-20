@@ -53,7 +53,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Sau khi đăng nhập lưu user info ở đâu thì get ra rồi truyền user id vào đây
-    // const userId = localStorage.getItem("userId");
+    const userId = JSON.parse(localStorage.getItem("user")).id ;
+    console.log("userId", userId);
+    
 
     const fetchTravelTours = async () => {
       try {

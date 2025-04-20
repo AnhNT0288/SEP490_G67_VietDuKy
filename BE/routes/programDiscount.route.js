@@ -13,19 +13,19 @@ router.get("/:id", programDiscountController.getProgramDiscountById);
 router.post(
   "/create",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   programDiscountController.createProgramDiscount
 );
 router.put(
   "/update/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   programDiscountController.updateProgramDiscount
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   programDiscountController.deleteProgramDiscount
 );
 

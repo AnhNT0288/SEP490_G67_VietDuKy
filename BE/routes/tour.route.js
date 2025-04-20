@@ -23,7 +23,7 @@ router.get("/:id", tourController.getTourById);
 router.post(
   "/create",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   uploadTourImage.array("album"),
   tourController.createTour
 );
@@ -32,14 +32,14 @@ router.put(
   "/update/:id",
   uploadTourImage.array("album"),
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   tourController.updateTourById
 );
 
 router.delete(
   "/delete/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   tourController.deleteTourById
 );
 router.get("/get-by-topic-id/:topicId", tourController.getToursByTopicId);

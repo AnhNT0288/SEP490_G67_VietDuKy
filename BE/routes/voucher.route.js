@@ -15,21 +15,21 @@ router.get("/code/:voucher_code", voucherController.getVoucherByCode);
 router.post(
     "/create",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     uploadVoucher.single("image"),
     voucherController.createVoucher
 );
 router.put(
     "/update/:id",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     uploadVoucher.single("image"),
     voucherController.updateVoucher
 );
 router.delete(
     "/delete/:id",
     authenticateUser,
-    checkRoles("admin", "staff"),
+    checkRoles(["admin", "staff"]),
     voucherController.deleteVoucher
 );
 

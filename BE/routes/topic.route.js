@@ -11,7 +11,7 @@ const {
 router.post(
   "/create",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   topicController.createTopic
 );
 
@@ -25,7 +25,7 @@ router.get("/:id", topicController.getTopicById);
 router.put(
   "/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   topicController.updateTopic
 );
 
@@ -33,7 +33,7 @@ router.put(
 router.delete(
   "/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   topicController.deleteTopic
 );
 

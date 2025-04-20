@@ -9,17 +9,17 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.get("/", DirectoryController.getAllDirectories);
-router.post("/create",authenticateUser, checkRoles("admin", "staff"),  DirectoryController.createDirectory);
+router.post("/create",authenticateUser, checkRoles(["admin", "staff"]),  DirectoryController.createDirectory);
 router.put(
   "/update/:id",
     authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
     DirectoryController.updateDirectory
 );
 router.delete(
   "/delete/:id",
     authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
     DirectoryController.deleteDirectory
 );
 

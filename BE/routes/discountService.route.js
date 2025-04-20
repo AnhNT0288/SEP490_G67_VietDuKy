@@ -17,19 +17,19 @@ router.get(
 router.post(
   "/create",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   discountServiceController.createDiscountService
 );
 router.put(
   "/update/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   discountServiceController.updateDiscountService
 );
 router.delete(
   "/delete/:id",
   authenticateUser,
-  checkRoles("admin", "staff"),
+  checkRoles(["admin", "staff"]),
   discountServiceController.deleteDiscountService
 );
 
