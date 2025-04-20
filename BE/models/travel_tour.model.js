@@ -66,6 +66,21 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.TIME,
         allowNull: true,
       },
+      assigned_guides: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      required_guides: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false,
+      },
+      guide_assignment_status: {
+        type: Sequelize.ENUM("chua_gan", "gan_thieu", "gan_du"),
+        defaultValue: "chua_gan",
+        allowNull: false,
+      },
     },
     {
       tableName: "travel_tour", // Tên bảng trong MySQL

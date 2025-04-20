@@ -93,8 +93,18 @@ router.get(
   // checkRoles("admin", "staff"),
   GuideTourController.getAvailableTravelGuidesForTour
 );
+
+router.get(
+  "/available-guides/location/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  GuideTourController.getAvailableTravelGuidesForTourByLocation
+);
+
+
 router.post("/assign-passenger-auto",
     // authenticateUser,
     // authenticateAdmin,
     GuideTourController.assignPassengerToGuideAuto);
+
 module.exports = router;

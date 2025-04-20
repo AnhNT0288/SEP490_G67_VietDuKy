@@ -30,10 +30,7 @@ router.delete(
   checkRoles(["admin", "staff"]),
   travelTourController.deleteTravelTour
 );
-router.get(
-  "/tour/:id",
-  travelTourController.getTravelTourByTourId
-);
+router.get("/tour/:id", travelTourController.getTravelTourByTourId);
 
 router.post(
   "/close/:id",
@@ -53,8 +50,7 @@ router.get(
 router.get(
   "/by-staff/:user_id",
   // authenticateUser,
-  // authenticateStaff,
-  // authenticateAdmin,
+  // checkRoles(["admin", "staff"]),
   travelTourController.getTravelToursByStaffWithGuideStatus
 );
 

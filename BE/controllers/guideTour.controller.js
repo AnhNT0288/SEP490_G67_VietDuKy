@@ -739,6 +739,18 @@ exports.assignMoreTravelGuideToTravelTour = async (req, res) => {
       );
     }
 
+    // Cập nhật số lượng assigned_guides
+    travelTour.assigned_guides += 1;
+
+    // Kiểm tra trạng thái guide_assignment_status
+    if (travelTour.assigned_guides === travelTour.required_guides) {
+      travelTour.guide_assignment_status = "gan_du";
+    } else {
+      travelTour.guide_assignment_status = "gan_thieu";
+    }
+
+    await travelTour.save();
+
     res.status(201).json({
       message: "Thêm TravelGuide vào nhóm thành công!",
       data: newAssignment,
@@ -885,8 +897,16 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
       });
     }
 
-    // Xóa các GuideTour hiện tại của TravelTour
-    await db.GuideTour.destroy({ where: { travel_tour_id } });
+    // Kiểm tra số lượng hướng dẫn viên được gán
+    const currentAssignedGuides = await db.GuideTour.count({
+      where: { travel_tour_id },
+    });
+
+    if (currentAssignedGuides + guides.length > travelTour.required_guides) {
+      return res.status(400).json({
+        message: "Bạn đã gán quá số người quy định!",
+      });
+    }
 
     // Gán các TravelGuide vào TravelTour
     const assignments = guides.map((guide) => ({
@@ -898,8 +918,23 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
 
     await db.GuideTour.bulkCreate(assignments);
 
+    // Cập nhật số lượng assigned_guides
+    const totalAssignedGuides = currentAssignedGuides + guides.length;
+    travelTour.assigned_guides = totalAssignedGuides;
+
+    if (totalAssignedGuides === travelTour.required_guides) {
+      travelTour.guide_assignment_status = "gan_du";
+    } else {
+      travelTour.guide_assignment_status = "gan_thieu";
+    }
+
+    await travelTour.save();
+
     res.status(200).json({
-      message: "Phân chia nhóm TravelGuide thành công!",
+      message:
+        totalAssignedGuides === travelTour.required_guides
+          ? "Phân chia nhóm TravelGuide thành công! Đã gán đủ số lượng yêu cầu."
+          : "Phân chia nhóm TravelGuide thành công! Nhưng chưa đủ số lượng yêu cầu.",
       data: assignments,
     });
   } catch (error) {
@@ -965,6 +1000,20 @@ exports.unassignTravelGuidesToTravelTour = async (req, res) => {
         message: "Không có hướng dẫn viên nào đủ điều kiện để xóa!",
       });
     }
+
+    // Cập nhật số lượng assigned_guides
+    travelTour.assigned_guides -= deletedCount;
+
+    // Kiểm tra trạng thái guide_assignment_status
+    if (travelTour.assigned_guides === 0) {
+      travelTour.guide_assignment_status = "chua_gan";
+    } else if (travelTour.assigned_guides < travelTour.required_guides) {
+      travelTour.guide_assignment_status = "gan_thieu";
+    } else {
+      travelTour.guide_assignment_status = "gan_du";
+    }
+
+    await travelTour.save();
 
     res.status(200).json({
       message: "Xóa hướng dẫn viên khỏi lịch khởi hành thành công!",
@@ -1069,6 +1118,8 @@ exports.updateTravelGuideGroup = async (req, res) => {
       await db.GuideTour.update({ group_name }, { where: { travel_tour_id } });
     }
 
+    let hasLeader = false;
+
     // Xử lý từng guide trong danh sách
     for (const guide of guides) {
       const { travel_guide_id, isLeader } = guide;
@@ -1092,12 +1143,26 @@ exports.updateTravelGuideGroup = async (req, res) => {
             { isLeader: false },
             { where: { travel_tour_id, isLeader: true } }
           );
+          hasLeader = true;
         }
         guideTour.isLeader = isLeader;
       }
 
       // Lưu thay đổi
       await guideTour.save();
+    }
+
+    // Kiểm tra nếu không có leader nào được chỉ định
+    if (!hasLeader) {
+      const currentLeader = await db.GuideTour.findOne({
+        where: { travel_tour_id, isLeader: true },
+      });
+
+      if (!currentLeader) {
+        return res.status(400).json({
+          message: "Nhóm phải có ít nhất một leader!",
+        });
+      }
     }
 
     res.status(200).json({
@@ -1107,6 +1172,104 @@ exports.updateTravelGuideGroup = async (req, res) => {
     console.error("Lỗi khi cập nhật thông tin nhóm:", error);
     res.status(500).json({
       message: "Lỗi khi cập nhật thông tin nhóm!",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAvailableTravelGuidesForTourByLocation = async (req, res) => {
+  try {
+    const { travel_tour_id } = req.params;
+
+    // Kiểm tra TravelTour có tồn tại không
+    const travelTour = await TravelTour.findByPk(travel_tour_id, {
+      include: [
+        {
+          model: Tour,
+          as: "Tour",
+          attributes: ["start_location", "end_location"],
+        },
+      ],
+    });
+
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy TravelTour!" });
+    }
+
+    // Lấy location_id từ TravelTour (start_location hoặc end_location)
+    const locationIds = [
+      travelTour.Tour.start_location,
+      travelTour.Tour.end_location,
+    ];
+
+    // Lấy danh sách tất cả TravelGuide thuộc các location của TravelTour
+    let allTravelGuides = await TravelGuide.findAll({
+      include: [
+        {
+          model: db.TravelGuideLocation,
+          as: "TravelGuideLocations",
+          where: {
+            location_id: { [Op.in]: locationIds },
+          },
+          include: [
+            {
+              model: db.Location,
+              as: "location",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
+
+    // Lọc các TravelGuide không có lịch trình trùng
+    const availableTravelGuides = [];
+    for (const guide of allTravelGuides) {
+      const overlappingAssignments = await GuideTour.findAll({
+        where: {
+          travel_guide_id: guide.id,
+        },
+        include: [
+          {
+            model: TravelTour,
+            as: "travelTour",
+            where: {
+              [Op.or]: [
+                {
+                  start_day: {
+                    [Op.between]: [travelTour.start_day, travelTour.end_day],
+                  },
+                },
+                {
+                  end_day: {
+                    [Op.between]: [travelTour.start_day, travelTour.end_day],
+                  },
+                },
+                {
+                  [Op.and]: [
+                    { start_day: { [Op.lte]: travelTour.start_day } },
+                    { end_day: { [Op.gte]: travelTour.end_day } },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      });
+
+      if (overlappingAssignments.length === 0) {
+        availableTravelGuides.push(guide);
+      }
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách TravelGuide trống lịch thành công!",
+      data: availableTravelGuides,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách TravelGuide trống lịch:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách TravelGuide trống lịch!",
       error: error.message,
     });
   }
