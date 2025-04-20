@@ -510,15 +510,37 @@ exports.assignTravelGuideToStaff = async (req, res) => {
       return res.status(400).json({ message: "Người dùng không phải Staff!" });
     }
 
-    // Lấy danh sách TravelGuide
+    // Lấy danh sách Location mà Staff phụ trách
+    const staffLocations = await db.StaffLocation.findAll({
+      where: { user_id },
+      attributes: ["location_id"],
+    });
+
+    if (!staffLocations.length) {
+      return res
+        .status(404)
+        .json({ message: "Staff không phụ trách địa điểm nào!" });
+    }
+
+    const locationIds = staffLocations.map((loc) => loc.location_id);
+
+    // Lấy danh sách TravelGuide liên kết với các Location
     const travelGuides = await TravelGuide.findAll({
       where: { id: travel_guide_ids },
+      include: [
+        {
+          model: TravelGuideLocation,
+          as: "TravelGuideLocations",
+          where: { location_id: locationIds },
+        },
+      ],
     });
 
     if (travelGuides.length !== travel_guide_ids.length) {
-      return res
-        .status(400)
-        .json({ message: "Một số hướng dẫn viên không tồn tại!" });
+      return res.status(400).json({
+        message:
+          "Một số hướng dẫn viên không tồn tại hoặc không thuộc các địa điểm mà Staff phụ trách!",
+      });
     }
 
     // Kiểm tra xem TravelGuide nào đã được gán
@@ -661,10 +683,44 @@ exports.getTravelGuidesByStaff = async (req, res) => {
       return res.status(400).json({ message: "Người dùng không phải Staff!" });
     }
 
-    // Lấy danh sách TravelGuide của Staff
-    const travelGuides = await TravelGuide.findAll({
-      where: { staff_id },
+    // Lấy danh sách Location mà Staff phụ trách
+    const staffLocations = await db.StaffLocation.findAll({
+      where: { user_id: staff_id },
+      attributes: ["location_id"],
     });
+
+    if (!staffLocations.length) {
+      return res
+        .status(404)
+        .json({ message: "Staff không phụ trách địa điểm nào!" });
+    }
+
+    const locationIds = staffLocations.map((loc) => loc.location_id);
+
+    // Lấy danh sách TravelGuide liên kết với các Location mà Staff phụ trách
+    const travelGuides = await TravelGuide.findAll({
+      include: [
+        {
+          model: TravelGuideLocation,
+          as: "TravelGuideLocations",
+          where: { location_id: locationIds },
+          include: [
+            {
+              model: Location,
+              as: "location",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!travelGuides.length) {
+      return res.status(404).json({
+        message:
+          "Không tìm thấy hướng dẫn viên nào cho các địa điểm mà Staff phụ trách!",
+      });
+    }
 
     res.status(200).json({
       message: "Lấy danh sách hướng dẫn viên thành công!",
