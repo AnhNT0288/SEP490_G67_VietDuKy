@@ -51,7 +51,7 @@ router.get(
   "/by-staff/:user_id",
   // authenticateUser,
   // checkRoles(["admin", "staff"]),
-  travelTourController.getTravelToursByStaffWithGuideStatus
+  travelTourController.getTravelToursByStaffWithLocation
 );
 
 module.exports = router;

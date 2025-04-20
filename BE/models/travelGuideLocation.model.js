@@ -15,6 +15,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      is_current: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false, // Đánh dấu địa điểm hiện tại
+      },
     },
     {
       tableName: "travel_guide_location",

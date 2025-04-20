@@ -598,7 +598,7 @@ exports.getFullTravelTours = async (req, res) => {
 };
 
 // Lấy danh sách TravelTour mà Staff phụ trách và trạng thái gán hướng dẫn viên
-exports.getTravelToursByStaffWithGuideStatus = async (req, res) => {
+exports.getTravelToursByStaffWithLocation = async (req, res) => {
   try {
     const { user_id } = req.params;
     const { filter } = req.query;
@@ -623,7 +623,33 @@ exports.getTravelToursByStaffWithGuideStatus = async (req, res) => {
 
     const locationIds = staffLocations.map((loc) => loc.location_id);
 
-    // Lấy danh sách TravelTour liên kết với các Location mà Staff phụ trách
+    // Lấy danh sách TravelGuide có `is_current = true` và liên kết với các Location mà Staff phụ trách
+    const travelGuides = await TravelGuide.findAll({
+      include: [
+        {
+          model: db.TravelGuideLocation,
+          as: "TravelGuideLocations",
+          where: {
+            location_id: { [Sequelize.Op.in]: locationIds },
+            is_current: true, // Chỉ lấy địa điểm hiện tại
+          },
+          attributes: ["location_id"],
+        },
+      ],
+    });
+
+    if (!travelGuides.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy TravelGuide nào phù hợp!",
+      });
+    }
+
+    // Lấy danh sách location_id từ TravelGuideLocation
+    const travelGuideLocationIds = travelGuides.flatMap((guide) =>
+      guide.TravelGuideLocations.map((loc) => loc.location_id)
+    );
+
+    // Lấy danh sách TravelTour liên kết với các Location mà TravelGuide phụ trách
     const travelTours = await TravelTour.findAll({
       where: {
         guide_assignment_status: filter ? filter : { [Op.ne]: null }, // Lọc theo trạng thái nếu có
@@ -633,9 +659,9 @@ exports.getTravelToursByStaffWithGuideStatus = async (req, res) => {
           model: db.Tour,
           as: "Tour",
           where: {
-            [Sequelize.Op.or]: [
-              { start_location: { [Sequelize.Op.in]: locationIds } },
-              { end_location: { [Sequelize.Op.in]: locationIds } },
+            [Sequelize.Op.and]: [
+              { start_location: { [Sequelize.Op.in]: locationIds } }, // start_location = current_location của TravelGuide
+              { end_location: { [Sequelize.Op.in]: travelGuideLocationIds } }, // end_location = location trong TravelGuideLocation
             ],
           },
           include: [
@@ -656,7 +682,7 @@ exports.getTravelToursByStaffWithGuideStatus = async (req, res) => {
 
     if (!travelTours.length) {
       return res.status(404).json({
-        message: "Không tìm thấy tour nào cho các địa điểm mà Staff phụ trách!",
+        message: "Không tìm thấy tour nào phù hợp với điều kiện lọc!",
       });
     }
 
