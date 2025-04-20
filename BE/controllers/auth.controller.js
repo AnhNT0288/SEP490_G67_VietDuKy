@@ -515,38 +515,82 @@ const resendResetCode = async (req, res) => {
 };
 
 // Đổi mật khẩu
-const resetPassword = async (req, res) => {
-  try {
-    const { email, resetCode, newPassword, confirmPassword } = req.body;
+// const resetPassword = async (req, res) => {
+//   try {
+//     const { email, resetCode, newPassword, confirmPassword } = req.body;
 
-    // Kiểm tra email và mã xác thực
+//     // Kiểm tra email và mã xác thực
+//     const user = await User.findOne({ where: { email } });
+//     if (!user || user.reset_code !== resetCode) {
+//       return res.status(400).json({ message: "Mã xác thực không hợp lệ!" });
+//     }
+
+//     // Kiểm tra mã xác thực có hết hạn không
+//     if (new Date() > new Date(user.reset_code_expiry)) {
+//       return res.status(400).json({ message: "Mã xác thực đã hết hạn!" });
+//     }
+
+//     // Kiểm tra mật khẩu mới và xác nhận mật khẩu
+//     if (newPassword !== confirmPassword) {
+//       return res.status(400).json({ message: "Mật khẩu không khớp!" });
+//     }
+
+//     // Cập nhật mật khẩu mới
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//     user.password = hashedPassword;
+//     user.reset_code = null; // Xóa mã xác thực sau khi sử dụng
+//     user.reset_code_expiry = null;
+//     await user.save();
+
+//     res.status(200).json({ message: "Đổi mật khẩu thành công!" });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Lỗi khi đổi mật khẩu!", error: error.message });
+//   }
+// };
+
+const verifyResetCode = async (req, res) => {
+  try {
+    const { email, resetCode } = req.body;
+
     const user = await User.findOne({ where: { email } });
     if (!user || user.reset_code !== resetCode) {
       return res.status(400).json({ message: "Mã xác thực không hợp lệ!" });
     }
 
-    // Kiểm tra mã xác thực có hết hạn không
     if (new Date() > new Date(user.reset_code_expiry)) {
       return res.status(400).json({ message: "Mã xác thực đã hết hạn!" });
     }
 
-    // Kiểm tra mật khẩu mới và xác nhận mật khẩu
+    return res.status(200).json({ message: "Mã xác thực hợp lệ" });
+  } catch (error) {
+    return res.status(500).json({ message: "Lỗi xác thực mã!", error: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ message: "Không tìm thấy người dùng!" });
+    }
+
     if (newPassword !== confirmPassword) {
       return res.status(400).json({ message: "Mật khẩu không khớp!" });
     }
 
-    // Cập nhật mật khẩu mới
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    user.reset_code = null; // Xóa mã xác thực sau khi sử dụng
+    user.reset_code = null;
     user.reset_code_expiry = null;
     await user.save();
 
-    res.status(200).json({ message: "Đổi mật khẩu thành công!" });
+    return res.status(200).json({ message: "Đổi mật khẩu thành công!" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Lỗi khi đổi mật khẩu!", error: error.message });
+    return res.status(500).json({ message: "Lỗi khi đổi mật khẩu!", error: error.message });
   }
 };
 
@@ -560,6 +604,7 @@ module.exports = {
   getProfile,
   sendResetCode,
   resetPassword,
+  verifyResetCode,
   resendResetCode,
   refreshToken
 };

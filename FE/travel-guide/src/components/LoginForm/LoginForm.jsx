@@ -1,19 +1,37 @@
 import { login } from "../../services/API/auth.service";
-import AuthProviders from "../AuthProviders/AuthProviders";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { emailRegex } from "../../utils/emailUtil";
+import Icons from "../Icons/Icons";
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
 
   const handleLogin = async () => {
+    const newErrors = { email: "", password: "" };
+
+    if (!username) {
+      newErrors.email = "Vui lòng nhập email";
+    } else if (!emailRegex.test(username)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    if (!password) {
+      newErrors.password = "Vui lòng nhập mật khẩu";
+    }
+
+    if (newErrors.email || newErrors.password) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
-      if (!username || !password) {
-        alert("Vui lòng nhập đủ thông tin");
-        return;
-      }
       const response = await login(username, password);
       if (response.status === 200) {
         localStorage.setItem("access_token", response.data.access_token);
@@ -29,26 +47,29 @@ export default function LoginForm() {
         );
         navigate("/dashboard");
       } else {
-        alert("Đăng nhập thất bại: " + response.data.message);
+        setErrors({
+          ...newErrors,
+          password: "Tài khoản hoặc mật khẩu không đúng!",
+        });
       }
     } catch (error) {
-      alert(
-        "Đăng nhập thất bại: " +
-          (error.response ? error.response.data.message : error.message)
-      );
+      setErrors({
+        ...newErrors,
+        password:
+          error.response?.data?.message ||
+          "Đăng nhập thất bại. Vui lòng thử lại.",
+      });
     }
   };
 
   return (
-    <div className="  w-[400px]">
+    <div className="">
       <h2 className="text-2xl font-semibold text-center mb-4">
         Chào mừng trở lại
       </h2>
-      {/* <p className="text-gray-500 text-center mb-6">
-        Đăng nhập bằng tài khoản Google của bạn
+      <p className="text-gray-500 text-center mb-6">
+        Đăng nhập bằng tài khoản đã cấp
       </p>
-
-      <AuthProviders /> */}
 
       {/* <div className="text-center my-4 text-gray-400">Hoặc bằng</div> */}
 
@@ -58,10 +79,17 @@ export default function LoginForm() {
         <input
           type="email"
           placeholder="Nhập địa chỉ Email"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.email
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-red-500"
+          }`}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        )}
       </div>
 
       {/* Password Input */}
@@ -70,10 +98,17 @@ export default function LoginForm() {
         <input
           type="password"
           placeholder="Nhập một mật khẩu"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.password
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300 focus:ring-red-500"
+          }`}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {errors.password && (
+          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+        )}
       </div>
 
       {/* Remember Me & Forgot Password */}
@@ -81,7 +116,7 @@ export default function LoginForm() {
         <label className="flex items-center">
           <input type="checkbox" className="mr-2" /> Nhớ mật khẩu
         </label>
-        <a href="#" className="text-red-500 hover:underline">
+        <a href="/forgot-password" className="text-red-500 hover:underline">
           Quên mật khẩu?
         </a>
       </div>
@@ -95,12 +130,12 @@ export default function LoginForm() {
       </button>
 
       {/* Register Link */}
-      <p className="text-center text-gray-600 mt-4">
+      {/* <p className="text-center text-gray-600 mt-4">
         Chưa có tài khoản?{" "}
         <a href="register" className="text-red-500 hover:underline">
           Đăng ký ngay
         </a>
-      </p>
+      </p> */}
     </div>
   );
 }

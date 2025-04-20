@@ -35,6 +35,7 @@ router.get(
 );
 
 router.post("/forgot-password", authController.sendResetCode);
+router.post("/verify-otp", authController.verifyResetCode);
 router.post("/reset-password", authController.resetPassword);
 router.post("/resend-reset-code", authController.resendResetCode);
 module.exports = router;

@@ -53,6 +53,56 @@ exports.getTravelGuidesByUser = async (req, res) => {
   }
 };
 
+// Lấy thông tin Travel Guide theo User ID
+exports.getTravelGuidesByUserID = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Kiểm tra người dùng có tồn tại không
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng!" });
+    }
+
+    // Tìm người dùng kèm theo thông tin hướng dẫn viên
+    const travelGuide = await User.findOne({
+      where: { id: userId },
+      attributes: ["id", "email", "password", "displayName", "avatar"],
+      include: [
+        {
+          model: TravelGuide,
+          attributes: [
+            "id", "user_id", "first_name", "last_name", "email",
+            "number_phone", "gender_guide", "birth_date"
+          ],
+        }
+      ],
+    });
+
+    // Nếu không có travelGuide hoặc không có travelGuide data, hoặc user_id không khớp
+    if (
+      !travelGuide ||
+      !travelGuide.TravelGuide || // nếu alias khác, sửa lại
+      travelGuide.TravelGuide.user_id !== Number(userId)
+    ) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy hướng dẫn viên du lịch!" });
+    }
+
+    res.status(200).json({
+      message: "Lấy thông tin hướng dẫn viên du lịch thành công!",
+      data: travelGuide,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy thông tin hướng dẫn viên du lịch!",
+      error: error.message,
+    });
+  }
+};
+
+
 // Lấy tất cả Feedback cho TravelGuide
 exports.getFeedbackByTravelGuide = async (req, res) => {
   try {
