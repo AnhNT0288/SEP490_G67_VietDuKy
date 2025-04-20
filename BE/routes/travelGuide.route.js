@@ -132,4 +132,10 @@ router.get(
   travelGuideController.getCurrentLocation
 );
 
+router.get(
+  "/assigned-travel-guides/staff/:staff_id/",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getAssignedTravelGuidesByStaff
+);
 module.exports = router;
