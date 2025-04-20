@@ -17,13 +17,12 @@ const TourBooking = ({
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
   const [tours, setTours] = useState("");
-  const [travelTourData, setTravelTourData] = useState([]);
 
   useEffect(() => {
     const fetchTours = async () => {
       try {
         const response = await TourService.getTour(tourId);
-        setTours(response?.data?.data);
+        setTours(response.data.data);
       } catch (error) {
         console.error("Error fetching tour:", error);
       }
@@ -31,20 +30,6 @@ const TourBooking = ({
 
     fetchTours();
   }, [tourId]);
-
-  useEffect(() => {
-    const fetchTravelTour = async () => {
-      try {
-        if (travelTour && travelTour.length > 0) {
-          setTravelTourData(travelTour[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching travel tour:", error);
-      }
-    };
-
-    fetchTravelTour();
-  }, [travelTour]);
 
   const handleBooking = async () => {
     if (!formData) {
@@ -94,7 +79,7 @@ const TourBooking = ({
   };
 
   const totalPrice =
-    (formData?.number_adult * travelTourData?.price_tour + formData?.number_children * travelTourData?.children_price + formData?.number_toddler * travelTourData?.toddler_price || 0  + roomCost) ;
+    (formData?.number_adult * travelTour?.price_tour + formData?.number_children * travelTour?.children_price + formData?.number_toddler * travelTour?.toddler_price || 0  + roomCost) ;
 
   console.log("Tổng tiền:", totalPrice);
 
@@ -105,9 +90,12 @@ const TourBooking = ({
     }));
   }, [totalPrice]);
 
-  console.log("Dữ liệu booking:", formData);
-  // console.log("Tour booking:", travelTourData);
-
+  // console.log("Dữ liệu booking:", formData);
+  // console.log("Tour ID:", tourId);
+  // console.log("Tour Data:", tours);
+  
+  // console.log("Travel Tour:", travelTour);
+  
   return (
     <div className="flex flex-col items-end gap-4">
       {/* Box chứa thông tin tour */}
@@ -115,7 +103,7 @@ const TourBooking = ({
         {/* Ảnh và tiêu đề */}
         <div className="flex gap-4">
           <img
-            src={tours.album[0] || "/placeholder.jpg"}
+            src={tours?.album?.[0] || "/placeholder.jpg"}
             alt="tour"
             className="w-26 h-24 object-cover rounded-lg"
           />
@@ -164,11 +152,11 @@ const TourBooking = ({
           <div className="flex">
             <div className="flex-1 pr-4">
               <div className="text-sm font-semibold mb-3">
-                Ngày đi - {travelTourData?.start_day}
+                Ngày đi - {travelTour?.start_day}
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
-                <span>{formatTime(travelTourData?.start_time_depart)}</span>
-                <span>{formatTime(travelTourData?.start_time_close)}</span>
+                <span>{formatTime(travelTour?.start_time_depart)}</span>
+                <span>{formatTime(travelTour?.start_time_close)}</span>
               </div>
               <div className="relative mb-2">
                 <div className="absolute -top-0.8 transforms -translate-y-1/3 w-2 h-2 bg-[#B1B1B1]" />
@@ -186,11 +174,11 @@ const TourBooking = ({
             </div>
             <div className="flex-1 border-l-2 border-gray-200 pl-4">
               <div className="text-sm font-semibold mb-3">
-                Ngày về - {travelTourData?.end_day}
+                Ngày về - {travelTour?.end_day}
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
-                <span>{formatTime(travelTourData?.end_time_depart)}</span>
-                <span>{formatTime(travelTourData?.end_time_close)}</span>
+                <span>{formatTime(travelTour?.end_time_depart)}</span>
+                <span>{formatTime(travelTour?.end_time_close)}</span>
               </div>
               <div className="relative mb-2">
                 <div className="absolute -top-0.8 transforms -translate-y-1/3 w-2 h-2 bg-[#B1B1B1]" />
@@ -229,7 +217,7 @@ const TourBooking = ({
                   <span>Người lớn</span>
                   <span>
                     {formData.number_adult} x{" "}
-                    {travelTourData?.price_tour?.toLocaleString("vi-VN", {
+                    {travelTour?.price_tour?.toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }) || "0 ₫"}
@@ -242,7 +230,7 @@ const TourBooking = ({
                   <span>Trẻ em</span>
                   <span>
                     {formData.number_children} x{" "}
-                    {travelTourData?.children_price?.toLocaleString("vi-VN", {
+                    {travelTour?.children_price?.toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }) || "0 ₫"}
@@ -255,7 +243,7 @@ const TourBooking = ({
                   <span>Trẻ nhỏ</span>
                   <span>
                     {formData.number_toddler} x{" "}
-                    {travelTourData?.toddler_price?.toLocaleString("vi-VN", {
+                    {travelTour?.toddler_price?.toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }) || "0 ₫"}
@@ -268,7 +256,7 @@ const TourBooking = ({
                   <span>Em bé</span>
                   <span>
                     {formData.number_newborn} x{" "}
-                    {/* {travelTourData?.price_tour?.toLocaleString("vi-VN", {
+                    {/* {travelTour?.price_tour?.toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }) || "0 ₫"} */}

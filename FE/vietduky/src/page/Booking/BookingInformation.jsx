@@ -24,7 +24,7 @@ export default function BookingTour() {
   });
   const [formData, setFormData] = useState({
     user_id: user?.id || "",
-    travel_tour_id: travelTourData[0]?.id || "",
+    travel_tour_id: selectedTours[0]?.id || "",
     number_adult: passengers.adult,
     number_children: passengers.children,
     number_toddler: passengers.toddler,
@@ -39,11 +39,6 @@ export default function BookingTour() {
     passengers: [],
   });
   const [roomCost, setRoomCost] = useState(0);
-
-  // console.log("BookingTour:", selectedTours, id);
-  // console.log("Dữ liệu tour:", travelTourData);
-
-  // console.log("Dữ liệu đặt tour:", formData);
 
   useEffect(() => {
     if (user) {
@@ -65,17 +60,24 @@ export default function BookingTour() {
     }
   }, [user.id]);
 
-  useEffect(() => {
-    const fetchTravelTour = async () => {
-      try {
-        setTravelTourData(selectedTours);
-      } catch (error) {
-        console.error("Error fetching travel tour:", error);
-      }
-    };
+  // useEffect(() => {
+  //   if (selectedTours && selectedTours.length > 0) {
+  //     setTravelTourData(selectedTours);
+  //   }
+  // }, [selectedTours]);
 
-    fetchTravelTour();
-  }, []);
+  // useEffect(() => {
+  //   if (travelTourData.length > 0) {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       travel_tour_id: travelTourData[0].id || "",
+  //     }));
+  //   }
+  // }, [travelTourData]);
+
+  console.log("BookingTour:", selectedTours[0]);
+  // console.log("Dữ liệu tour:", travelTourData);
+  // console.log("Dữ liệu đặt tour:", formData);
 
   return (
     <LayoutBookingTour title="Đặt tour">
@@ -89,7 +91,7 @@ export default function BookingTour() {
               setFormData={setFormData}
               passengers={passengers}
               setPassengers={setPassengers}
-              travelTourData={travelTourData}
+              travelTourData={selectedTours[0]}
               roomCost={roomCost}
               setRoomCost={setRoomCost}
             />
@@ -102,7 +104,7 @@ export default function BookingTour() {
             formData={formData}
             setFormData={setFormData}
             tourId={id}
-            travelTour={selectedTours}
+            travelTour={selectedTours[0]}
             roomCost={roomCost}
           />
         </div>
