@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const travelTourController = require("../controllers/travel_tour.controller");
 const {
-  authenticateUser,
-  authenticateAdmin,
-  authenticateStaff,
-  checkRoles,
+    authenticateUser,
+    authenticateAdmin,
+    authenticateStaff,
+    checkRoles,
 } = require("../middleware/authMiddleware");
 
 router.get("/", travelTourController.getAllTravelTours);
@@ -33,18 +33,18 @@ router.delete(
 router.get("/tour/:id", travelTourController.getTravelTourByTourId);
 
 router.post(
-  "/close/:id",
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
-  travelTourController.closeTourWhenFull
+    "/close/:id",
+    authenticateUser,
+    checkRoles(["admin", "staff"]),
+    travelTourController.closeTourWhenFull
 );
 
 //Lấy danh sách travelTour đã đủ số lượng người
 router.get(
-  "/max-people/full",
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
-  travelTourController.getFullTravelTours
+    "/max-people/full",
+    authenticateUser,
+    checkRoles(["admin", "staff"]),
+    travelTourController.getFullTravelTours
 );
 
 router.get(
