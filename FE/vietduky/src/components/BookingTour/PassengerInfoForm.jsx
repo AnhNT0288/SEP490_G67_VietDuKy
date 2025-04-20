@@ -196,7 +196,7 @@ const PassengerInfoForm = ({ passengers, onPassengerDataChange, setPassengers, r
     };
   };  
 
-  console.log("Dữ liệu hành khách:", passengerData);
+  // console.log("Dữ liệu hành khách:", passengerData);
 
   return (
     <div className="space-y-6">
