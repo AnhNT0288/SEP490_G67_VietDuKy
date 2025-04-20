@@ -36,8 +36,8 @@ router.post(
 );
 router.put(
   "/update/:userId",
-    authenticateUser,
-    checkRoles(["admin", "staff"]),
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
   travelGuideController.updateTravelGuide
 );
 router.delete(
@@ -116,6 +116,20 @@ router.get(
   authenticateUser,
   checkRoles(["staff", "admin"]),
   travelGuideController.getAllTravelGuides
+);
+
+router.put(
+  "/update-current-location/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.updateCurrentLocation
+);
+
+router.get(
+  "/current-location/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getCurrentLocation
 );
 
 module.exports = router;

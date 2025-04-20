@@ -897,3 +897,93 @@ exports.getAllTravelGuides = async (req, res) => {
     });
   }
 };
+
+// Cập nhật vị trí hiện tại của TravelGuide
+exports.updateCurrentLocation = async (req, res) => {
+  try {
+    const { travel_guide_id } = req.params;
+    const { location_id } = req.body;
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res.status(404).json({ message: "Không tìm thấy TravelGuide!" });
+    }
+
+    // Kiểm tra Location có tồn tại không
+    const location = await Location.findByPk(location_id);
+    if (!location) {
+      return res.status(404).json({ message: "Không tìm thấy Location!" });
+    }
+
+    // Cập nhật `is_current` trong bảng TravelGuideLocation
+    await TravelGuideLocation.update(
+      { is_current: false }, // Đặt tất cả các địa điểm khác thành không phải hiện tại
+      { where: { travel_guide_id } }
+    );
+
+    const updatedLocation = await TravelGuideLocation.update(
+      { is_current: true }, // Đặt địa điểm mới là hiện tại
+      { where: { travel_guide_id, location_id } }
+    );
+
+    if (!updatedLocation[0]) {
+      return res.status(404).json({
+        message: "TravelGuide không được gán với Location này!",
+      });
+    }
+
+    res.status(200).json({
+      message: "Cập nhật vị trí hiện tại thành công!",
+      data: { travel_guide_id, location_id },
+    });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật vị trí hiện tại:", error);
+    res.status(500).json({
+      message: "Lỗi khi cập nhật vị trí hiện tại!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy vị trí hiện tại của TravelGuide
+exports.getCurrentLocation = async (req, res) => {
+  try {
+    const { travel_guide_id } = req.params;
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res.status(404).json({ message: "Không tìm thấy TravelGuide!" });
+    }
+
+    // Lấy địa điểm hiện tại từ bảng TravelGuideLocation
+    const currentLocation = await TravelGuideLocation.findOne({
+      where: { travel_guide_id, is_current: true },
+      include: [
+        {
+          model: Location,
+          as: "location",
+          attributes: ["id", "name_location"],
+        },
+      ],
+    });
+
+    if (!currentLocation) {
+      return res.status(404).json({
+        message: "Không tìm thấy vị trí hiện tại của TravelGuide!",
+      });
+    }
+
+    res.status(200).json({
+      message: "Lấy vị trí hiện tại thành công!",
+      data: currentLocation.location,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy vị trí hiện tại:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy vị trí hiện tại!",
+      error: error.message,
+    });
+  }
+};

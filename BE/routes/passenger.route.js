@@ -22,7 +22,12 @@ router.get(
   passengerController.getPassengerByBookingId
 );
 
-router.delete("/:id", authenticateUser, checkRoles(["admin", "staff"]), passengerController.deletePassenger);
+router.delete(
+  "/:id",
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
+  passengerController.deletePassenger
+);
 
 router.put(
   "/:id",
