@@ -109,11 +109,11 @@ exports.getDiscountServiceById = async (req, res) => {
 // Tạo dịch vụ giảm giá mới
 exports.createDiscountService = async (req, res) => {
   try {
-    const { travel_tour_id, program_discount_id } = req.body;
+    const { travel_tour_id } = req.body;
 
     const newDiscountService = await DiscountService.create({
       travel_tour_id,
-      program_discount_id,
+      program_discount_id: 1,
     });
 
     res.status(201).json({
