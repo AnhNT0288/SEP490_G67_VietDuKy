@@ -72,10 +72,16 @@ exports.getTravelGuidesByUserID = async (req, res) => {
         {
           model: TravelGuide,
           attributes: [
-            "id", "user_id", "first_name", "last_name", "email",
-            "number_phone", "gender_guide", "birth_date"
+            "id",
+            "user_id",
+            "first_name",
+            "last_name",
+            "email",
+            "number_phone",
+            "gender_guide",
+            "birth_date",
           ],
-        }
+        },
       ],
     });
 
@@ -101,7 +107,6 @@ exports.getTravelGuidesByUserID = async (req, res) => {
     });
   }
 };
-
 
 // Lấy tất cả Feedback cho TravelGuide
 exports.getFeedbackByTravelGuide = async (req, res) => {
@@ -983,6 +988,54 @@ exports.getCurrentLocation = async (req, res) => {
     console.error("Lỗi khi lấy vị trí hiện tại:", error);
     res.status(500).json({
       message: "Lỗi khi lấy vị trí hiện tại!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách TravelGuide đã được gán cho Staff
+exports.getAssignedTravelGuidesByStaff = async (req, res) => {
+  try {
+    const { staff_id } = req.params;
+
+    // Kiểm tra staff_id có phải role Staff không
+    const staff = await User.findByPk(staff_id);
+    if (!staff || staff.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Lấy danh sách TravelGuide đã được gán cho Staff
+    const assignedTravelGuides = await TravelGuide.findAll({
+      where: { staff_id, status: 1 }, // Chỉ lấy các TravelGuide đã được gán
+      include: [
+        {
+          model: TravelGuideLocation,
+          as: "TravelGuideLocations",
+          include: [
+            {
+              model: Location,
+              as: "location",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!assignedTravelGuides.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy hướng dẫn viên nào đã được gán cho Staff này!",
+      });
+    }
+
+    res.status(200).json({
+      message: "Lấy danh sách hướng dẫn viên đã được gán thành công!",
+      data: assignedTravelGuides,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách hướng dẫn viên đã được gán:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách hướng dẫn viên đã được gán!",
       error: error.message,
     });
   }
