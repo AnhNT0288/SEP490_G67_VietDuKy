@@ -101,4 +101,10 @@ router.get(
   GuideTourController.getAvailableTravelGuidesForTourByLocation
 );
 
+
+router.post("/assign-passenger-auto",
+    // authenticateUser,
+    // authenticateAdmin,
+    GuideTourController.assignPassengerToGuideAuto);
+
 module.exports = router;

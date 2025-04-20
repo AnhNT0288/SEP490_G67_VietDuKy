@@ -16,7 +16,7 @@ router.get(
 );
 router.get(
     "/:id",
-    authenticateUser,
+    // authenticateUser,
     BookingController.getBookingById
 );
 // router.post(
@@ -30,7 +30,7 @@ router.post(
     // authenticateUser,
     BookingController.createBooking
 );
-router.put("/update/:id", 
+router.put("/update/:id",
     // authenticateUser, 
     // authenticateStaff, 
     BookingController.updateBooking);
@@ -49,7 +49,7 @@ router.get(
     "/user/:id",
     // authenticateUser,
     BookingController.getBookingByUserId
-);  
+);
 router.get(
     "/travel-tour/:id",
     BookingController.getBookingByTravelTourId
