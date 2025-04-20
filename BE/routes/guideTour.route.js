@@ -94,4 +94,11 @@ router.get(
   GuideTourController.getAvailableTravelGuidesForTour
 );
 
+router.get(
+  "/available-guides/location/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  GuideTourController.getAvailableTravelGuidesForTourByLocation
+);
+
 module.exports = router;
