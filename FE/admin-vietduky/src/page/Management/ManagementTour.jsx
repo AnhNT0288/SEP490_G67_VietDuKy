@@ -7,6 +7,7 @@
   import ModalUpdateTour from "../../components/ModalManage/ModalUpdate/ModalUpdateTour.jsx";
   import ModalManageActivity from "../../components/ModalManage/ModalList/ModalManageActivity.jsx";
   import { getTourById } from "../../services/API/tour.service";
+  import ModalNoteList from "../../components/ModalManage/ModalList/ModalNoteList.jsx";
 
   export default function ManagementTour() {
     const [tours, setTours] = useState([]);
@@ -23,6 +24,13 @@
     const [currentPage, setCurrentPage] = useState(1);
     const toursPerPage = 12;
     const [selectedProgramTour, setSelectedProgramTour] = useState(null);
+    const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+    const [noteTourId, setNoteTourId] = useState(null);
+
+    const handleOpenNoteTour = (tour) => {
+      setNoteTourId(tour.id);
+      setIsNoteModalOpen(true);
+    };
 
     const toggleDropdown = (id) => {
       setOpenDropdown(openDropdown === id ? null : id);
@@ -196,6 +204,7 @@
                                 isOpen={openDropdown === tour.id}
                                 setOpenDropdown={setOpenDropdown}
                                 onOpenManagementProgram={handleOpenManagementProgram}
+                                onOpenNoteTour={handleOpenNoteTour}
                             />
                           </button>
                         </td>
@@ -246,7 +255,7 @@
                 <ModalUpdateTour
                     tourId={editingTour}
                     onClose={() => setIsUpdateTourModalOpen(false)}
-                    onCreateSuccess={(updatedId) => {
+                    onCreateSuccess={() => {
                       fetchTours();
                       setIsUpdateTourModalOpen(false);
                     }}
@@ -256,6 +265,15 @@
                 <ModalManageActivity
                     tour={selectedProgramTour}
                     onClose={() => setIsManagementProgramModalOpen(false)}
+                />
+            )}
+            {isNoteModalOpen && noteTourId && (
+                <ModalNoteList
+                    tourId={noteTourId}
+                    onClose={() => {
+                      setIsNoteModalOpen(false);
+                      setNoteTourId(null);
+                    }}
                 />
             )}
           </div>

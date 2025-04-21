@@ -3,10 +3,11 @@ import Select from "react-select";
 import { getLocations } from "../../../services/API/location.service";
 import { updateTravelGuide } from "../../../services/API/accounts.services";
 
-export default function ModalUpdateGuide({ onClose, user, refreshUserList }) {
+// eslint-disable-next-line react/prop-types
+export default function ModalUpdateUser({ onClose, user, refreshUserList }) {
     const [locations, setLocations] = useState([]);
     const [selectedLocations, setSelectedLocations] = useState([]);
-    const [roleId, setRoleId] = useState(4); // Default role_id
+    const [roleId, setRoleId] = useState(null);
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -28,24 +29,35 @@ export default function ModalUpdateGuide({ onClose, user, refreshUserList }) {
         setSelectedLocations(selectedOptions);
     };
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    const locationIds = selectedLocations.map((location) => location.value);
+        const locationIds = selectedLocations.map((location) => location.value);
 
-    try {
-        await updateTravelGuide(user.id, {
-            locations: locationIds,
-            role_id: roleId,
-        });
+        try {
+            await updateTravelGuide(user.id, {
+                locations: locationIds,
+                role_id: roleId,
+            });
 
-        alert("Cập nhật thành công!");
-        onClose(); // Ensure this is called after the alert
-        refreshUserList(); // Refresh the user list
-    } catch (error) {
-        console.error("Error updating user:", error);
-    }
-};
+            alert("Cập nhật thành công!");
+            onClose();
+            refreshUserList();
+        } catch (error) {
+            console.error("Error updating user:", error);
+        }
+    };
+
+    const getRoleLabel = (roleId) => {
+        switch (roleId) {
+            case 1: return "Người dùng";
+            case 2: return "Nhân viên";
+            case 3: return "Admin";
+            case 4: return "Hướng dẫn viên";
+            default: return "Không xác định";
+        }
+    };
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
             <div className="bg-white rounded-md shadow-lg w-2/5 p-6" onClick={(e) => e.stopPropagation()}>
@@ -86,13 +98,22 @@ const handleSubmit = async (e) => {
                                 isSearchable
                             />
 
-                            <label className="block mb-2 font-medium">Role ID</label>
-                            <input
-                                type="number"
-                                name="role_id"
-                                className="w-full p-2 border rounded mb-4"
-                                value={roleId}
-                                onChange={(e) => setRoleId(Number(e.target.value))}
+                            <label className="block mb-2 font-medium">Quyền</label>
+                            <Select
+                                options={[
+                                    { value: 1, label: "Người dùng" },
+                                    { value: 2, label: "Nhân viên" },
+                                    { value: 3, label: "Admin" },
+                                    { value: 4, label: "Hướng dẫn viên" },
+                                ]}
+                                value={
+                                    roleId
+                                        ? { value: roleId, label: getRoleLabel(roleId) }
+                                        : null
+                                }
+                                onChange={(option) => setRoleId(option.value)}
+                                className="w-full mb-4"
+                                placeholder="Chọn quyền"
                             />
                         </div>
                     </div>

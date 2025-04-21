@@ -480,8 +480,20 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
     const guideTours = await GuideTour.findAll({
       where: {
         travel_tour_id: travel_tour_id,
-        status: 1, // Chỉ lấy hướng dẫn viên đã được duyệt
+        status: 1 // Chỉ lấy hướng dẫn viên đã được duyệt
       },
+      include: [
+        {
+          model: TravelGuide,
+          as: "travelGuide",
+          include: [
+            {
+              model: User,
+              as: "user",
+            }
+          ]
+        }
+      ]
     });
 
     if (!guideTours || guideTours.length === 0) {
@@ -645,6 +657,17 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
       }
     }
 
+    // Format thông tin hướng dẫn viên
+    const formattedGuides = guideTours.map(guideTour => ({
+      id: guideTour.travelGuide.id,
+      group: guideTour.group,
+      number_phone: guideTour.travelGuide.number_phone,
+      gender_guide: guideTour.travelGuide.gender_guide,
+      first_name: guideTour.travelGuide.first_name,
+      last_name: guideTour.travelGuide.last_name,
+      birth_date: guideTour.travelGuide.birth_date,
+    }));
+
     res.status(200).json({
       message: "Phân công xe tự động thành công!",
       data: {
@@ -653,6 +676,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
         numberOfGroups: groups.length,
         numberOfGuides: guideTours.length,
         numberOfBookings: validBookings.length,
+        guides: formattedGuides,
         groups: groups.map((group, index) => ({
           groupNumber: index + 1,
           countablePassengers: group.currentCount,
@@ -945,6 +969,7 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
       group_name,
       isLeader: guide.isLeader || false,
       status: 1,
+
     }));
 
     await db.GuideTour.bulkCreate(assignments);
