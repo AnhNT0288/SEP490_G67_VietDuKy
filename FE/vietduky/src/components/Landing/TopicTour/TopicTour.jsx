@@ -39,7 +39,7 @@ export default function TopicTour({ topic }) {
   
   return (
     <div className="bg-transparent">
-      <div className="py-10 w-4/5 mx-auto relative p-6 ">
+      <div className="py-10 md:w-full lg:w-4/5 sm:w-full mx-auto relative p-6 ">
         <div className="flex flex-col">
           <p className="text-3xl font-bold">
             {topic.name}
@@ -50,8 +50,8 @@ export default function TopicTour({ topic }) {
           <div className="w-1/5 h-1 bg-red-800 rounded-sm mt-2" />
         </div>
 
-        <div className="flex flex-wrap justify-between gap-12 mt-6 mx-auto">
-          {tours.map((tour) => (
+        <div className="flex flex-wrap justify-between gap-12 mt-6 mx-auto topic-tour-list">
+          {tours?.slice(0, 6).map((tour) => (
             <div
               key={tour.id}
               className="relative box-border"

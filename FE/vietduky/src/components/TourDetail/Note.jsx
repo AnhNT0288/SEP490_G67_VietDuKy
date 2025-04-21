@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import axios from "axios";
 import { TourInfoService } from "@/services/API/tour_info.service";
 
 export default function Note({ id }) {
@@ -14,17 +13,22 @@ export default function Note({ id }) {
         const res = await TourInfoService.getTourInfo(id);
         const data = res.data.data;
 
-        // Tạo danh sách tab (dạng chữ)
-        const tabs = data.map((item) => item.tab);
-        setTabs(tabs);
-        setActiveTab(tabs[0]);
-
-        // Tạo object chứa mô tả nội dung cho từng tab
+        // Tạo object chứa mô tả nội dung cho từng tab (nếu có nội dung)
         const newContentMap = {};
+        const validTabs = [];
+
         data.forEach((item) => {
           const label = item.tab;
-          newContentMap[label] = item.description;
+          const description = item.description?.trim(); // loại bỏ khoảng trắng đầu/cuối
+
+          if (description) {
+            newContentMap[label] = description;
+            validTabs.push(label);
+          }
         });
+
+        setTabs(validTabs);
+        setActiveTab(validTabs[0] || null);
         setContentMap(newContentMap);
       } catch (err) {
         console.error("Lỗi khi lấy thông tin tab:", err);
@@ -36,7 +40,9 @@ export default function Note({ id }) {
 
   return (
     <div className="relative mt-4 mx-auto bg-white rounded-lg shadow-lg p-4 text-sm border border-gray-300">
-      <h2 className="text-2xl text-neutral-700 font-bold mb-4">Thông tin cần lưu ý</h2>
+      <h2 className="text-2xl text-neutral-700 font-bold mb-4">
+        Thông tin cần lưu ý
+      </h2>
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-1 border-b border-gray-200">

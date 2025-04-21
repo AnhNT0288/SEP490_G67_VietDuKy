@@ -84,13 +84,14 @@ export default function TourCard({
         return (
           <div
             key={tour.id}
-            className="flex bg-white bg-opacity-40 mb-4 shadow-lg rounded-lg overflow-hidden border border-gray-200"
+            className="flex sm:flex-row flex-col bg-white bg-opacity-40 mb-4 shadow-lg rounded-lg overflow-hidden border border-gray-200"
           >
             {/* Hình ảnh Tour */}
-            <div className="w-1/3 relative">
+            <div className="w-full md:w-1/3 relative">
               <img
                 src={tour.album[0]}
                 alt="Tour"
+                onClick={() => navigate(`/tour/${tour.id}`)}
                 className="w-full h-full object-cover rounded-l-lg shadow-md cursor-pointer hover:scale-105 transition-transform duration-300"
               />
               <span className="absolute bottom-2 left-2 bg-red-800 text-white text-sm font-bold px-3 py-1 rounded">
@@ -115,7 +116,7 @@ export default function TourCard({
             </div>
 
             {/* Nội dung Tour */}
-            <div className="w-2/3 p-4 flex flex-col justify-between">
+            <div className="w-full md:w-2/3 p-4 flex flex-col justify-between">
               <h3
                 className="text-lg font-semibold text-gray-900 cursor-pointer hover:text-red-600"
                 onClick={() => navigate(`/tour/${tour.id}`)}
@@ -123,7 +124,7 @@ export default function TourCard({
                 {tour.name_tour}
               </h3>
 
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 mb-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 mb-2">
                 <div className="flex items-center text-neutral-900">
                   <img src={Icons.Coupon} className="mr-2" />
                   <span>Mã tour:</span>{" "}

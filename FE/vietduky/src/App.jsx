@@ -29,6 +29,7 @@ import DynamicArticlePage from "./page/ArticlePage/PostDynamicArticle/DynamicArt
 import PostExperiencePage from "./page/ArticlePage/PostExperience/PostExperiencePage";
 import DetailPostExperience from "./page/ArticlePage/PostExperience/DetailPostExperience";
 import PhoneAuthen from "./components/AuthProviders/PhoneAuthen";
+import '../src/styles/responsive.css';
 
 function App() {
   const [directory, setDirectory] = useState([]);

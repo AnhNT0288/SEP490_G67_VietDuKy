@@ -11,6 +11,7 @@ import { TourService } from "@/services/API/tour.service";
 import { TravelTourService } from "@/services/API/travel_tour.service";
 import { TypeTourService } from "@/services/API/type_tour.service";
 import { useEffect, useState } from "react";
+import { FaBars } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 
 export default function ListTour() {
@@ -25,6 +26,7 @@ export default function ListTour() {
   const [topics, setTopics] = useState([]);
   const [favoriteTours, setFavoriteTours] = useState([]);
   const [message, setMessage] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -75,13 +77,15 @@ export default function ListTour() {
     const fetchFavoriteTours = async () => {
       if (user) {
         try {
-          const response = await FavouriteTourService.getFavouriteTourByUserID(user.id);
+          const response = await FavouriteTourService.getFavouriteTourByUserID(
+            user.id
+          );
           setFavoriteTours(response.data.data);
         } catch (error) {
           console.error("Error fetching favorite tours:", error);
         }
       }
-    }
+    };
 
     fetchTours();
     fetchTravelTours();
@@ -108,7 +112,11 @@ export default function ListTour() {
       const res = await TourService.searchTour(filterParams);
       const toursData = res.data.data.tours;
       setFilteredTours(toursData);
-      setMessage(toursData.length === 0 ? "Chúng tôi không tìm thấy tour nào cho bạn !" : ""); // Cập nhật thông báo
+      setMessage(
+        toursData.length === 0
+          ? "Chúng tôi không tìm thấy tour nào cho bạn !"
+          : ""
+      ); // Cập nhật thông báo
     } catch (err) {
       console.error("Lỗi khi tìm kiếm tour:", err);
       setMessage("Chúng tôi không tìm thấy tour nào cho bạn !"); // Hiển thị thông báo nếu có lỗi
@@ -132,20 +140,32 @@ export default function ListTour() {
       <HeaderCard />
       {/* Nội dung chính */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row gap-6">
-          <div>
-            <h2 className="text-lg font-bold bg-transparent text-gray-900 py-8">
+        <div className="flex flex-col md:flex-row md:gap-6">
+          <button
+            className="md:hidden text-xl text-gray-700 flex items-center gap-4 bg-white rounded-lg px-4 py-2"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <FaBars />
+            <span>Bộ lọc tìm kiếm</span>
+          </button>
+
+          {/* Bộ lọc bên trái */}
+          <div
+            className={`${
+              isFilterOpen ? "block" : "hidden"
+            } md:block w-full md:w-1/4 bg-white rounded-lg p-6`}
+          >
+            <h2 className="text-lg font-bold bg-transparent text-gray-900 pt-2 pb-6 hidden md:block">
               Bộ lọc tìm kiếm
             </h2>
-            {/* Bộ lọc bên trái */}
             <TourFilter
               locations={locations}
               typeTours={tourTypes}
-              activeTopics={activeTopics}
+              activeTopics={topics}
               onFilter={handleFilter}
-              initialDeparture={location.state?.departure || "Tất cả"} // Truyền departure từ state
-              initialDate={location.state?.date || ""} // Truyền date từ state
-              initialDestination={location.state?.destination || ""} // Truyền destination từ state
+              initialDeparture={location.state?.departure || "Tất cả"}
+              initialDate={location.state?.date || ""}
+              initialDestination={location.state?.destination || ""}
             />
           </div>
           {/* Danh sách Tour */}
