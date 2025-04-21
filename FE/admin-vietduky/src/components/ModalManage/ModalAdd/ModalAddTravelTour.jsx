@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaArrowRight } from "react-icons/fa";
 import { createTravelTour } from "../../../services/API/travel_tour.service.js";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
   const [loading, setLoading] = useState(false);
   const [travelTourData, setTravelTourData] = useState({

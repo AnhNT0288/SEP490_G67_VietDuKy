@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import {getTravelGuidesByStaffId} from "../../../services/API/staff.service.js";
+import {
+    getAssignedTravelGuidesByStaffId,
+    unassignGuideFromStaff
+} from "../../../services/API/staff.service.js";
 import {MdOutlineDeleteForever} from "react-icons/md";
 
 // eslint-disable-next-line react/prop-types
@@ -23,16 +26,36 @@ export default function ModalViewGuidesOfStaff({ staff, onClose }) {
     useEffect(() => {
         const fetchGuides = async () => {
             try {
-                const data = await getTravelGuidesByStaffId(staff.id);
+                const data = await getAssignedTravelGuidesByStaffId(staff.id);
                 setGuides(data);
             } catch (error) {
-                console.error("❌ Không thể lấy danh sách hướng dẫn viên đã gán:", error);
+                console.error("Không thể lấy danh sách hướng dẫn viên đã gán:", error);
             }
         };
 
-        // eslint-disable-next-line react/prop-types
         if (staff?.id) fetchGuides();
     }, [staff]);
+
+    const handleUnassign = async (guideId) => {
+        console.log("Unassign request:", {
+            // eslint-disable-next-line react/prop-types
+            user_id: staff.id,
+            travel_guide_ids: [guideId],
+        });
+
+        try {
+            // eslint-disable-next-line react/prop-types
+            await unassignGuideFromStaff(staff.id, [guideId]);
+            setGuides((prev) => prev.filter((g) => g.id !== guideId));
+            alert("🗑️ Đã xoá hướng dẫn viên khỏi nhân viên!");
+        } catch (err) {
+            const errorMessage =
+                err?.response?.data?.message || "Xảy ra lỗi khi xoá hướng dẫn viên!";
+            alert(errorMessage);
+            console.error("Lỗi khi xoá hướng dẫn viên:", err?.response?.data || err);
+        }
+    };
+
 
     const formatDate = (isoDate) => {
         return isoDate ? new Date(isoDate).toLocaleDateString("vi-VN") : "—";
@@ -100,7 +123,15 @@ export default function ModalViewGuidesOfStaff({ staff, onClose }) {
                                 <td className="p-2 ">{guide.gender_guide === "male" ? "Nam" : "Nữ"}</td>
                                 <td className="p-2 ">{formatDate(guide.birth_date)}</td>
                                 <td className="p-2 ">{guide.number_phone}</td>
-                                <td className="p-2 text-center"><MdOutlineDeleteForever className="text-red-500 cursor-pointer" /></td>
+                                <td className="p-2 text-center">
+                                    <button
+                                        onClick={() => handleUnassign(guide.id)}
+                                        className="text-red-500 hover:text-red-700"
+                                        title="Xoá hướng dẫn viên khỏi nhân viên"
+                                    >
+                                        <MdOutlineDeleteForever className="text-lg" />
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                         </tbody>

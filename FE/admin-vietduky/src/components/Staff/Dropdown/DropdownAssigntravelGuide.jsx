@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { FaUserPlus, FaUsers } from "react-icons/fa";
-import {MdOutlineAddLocationAlt} from "react-icons/md";
-import {CiBoxList} from "react-icons/ci";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownMenuStaff({ staff, onAddGuide, onViewGuides, isOpen, setOpenDropdown, onAssignLocation, onViewLocations }) {
+export default function DropdownAssignTravelGuide({travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides,
+                                                  }) {
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
@@ -28,7 +27,7 @@ export default function DropdownMenuStaff({ staff, onAddGuide, onViewGuides, isO
             <button
                 onClick={(e) => {
                     e.stopPropagation();
-                    setOpenDropdown(prev => (prev === staff.id ? null : staff.id));
+                    setOpenDropdown((prev) => (prev === travelTour.id ? null : travelTour.id));
                 }}
                 className="p-2"
             >
@@ -40,41 +39,22 @@ export default function DropdownMenuStaff({ staff, onAddGuide, onViewGuides, isO
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
-                            onAssignLocation(staff);
+                            onAssignGuide(travelTour);
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
-                        <MdOutlineAddLocationAlt className="mr-2" />
-                        Gán địa điểm
+                        <FaUserPlus className="mr-2" />
+                        Gán hướng dẫn viên
                     </button>
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
-                            onViewLocations(staff);
-                        }}
-                        className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
-                    >
-                        <CiBoxList className="mr-2" />
-                        Xem địa điểm đã gán
-                    </button>
-                    <button
-                        onClick={() => {
-                            setOpenDropdown(null);
-                            onAddGuide(staff);
-                        }}
-                        className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
-                    >
-                        <FaUserPlus className="mr-2" /> Thêm hướng dẫn viên
-                    </button>
-                    <button
-                        onClick={() => {
-                            setOpenDropdown(null);
-                            onViewGuides(staff);
+                            onViewGuides(travelTour);
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
                         <FaUsers className="mr-2" />
-                        Xem danh sách hướng dẫn viên
+                        Xem hướng dẫn viên đã gán
                     </button>
                 </div>
             )}

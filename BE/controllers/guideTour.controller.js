@@ -914,6 +914,7 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
       travel_guide_id: guide.travel_guide_id,
       group_name,
       isLeader: guide.isLeader || false,
+      status:1
     }));
 
     await db.GuideTour.bulkCreate(assignments);

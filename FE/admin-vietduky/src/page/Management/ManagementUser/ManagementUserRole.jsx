@@ -4,7 +4,7 @@ import Layout from "../../../layouts/LayoutManagement";
 import ModalAddUser from "../../../components/ModalManage/ModalUser/ModalAddUser.jsx";
 import { getAllAccounts } from "../../../services/API/accounts.services";
 import DropdownMenuUser from "../../../components/Dropdown/DropdownMenuUser.jsx";
-import ModalUpdateGuide from "../../../components/ModalManage/ModalUpdate/ModalUpdateGuide.jsx";
+import ModalUpdateUser from "../../../components/ModalManage/ModalUpdate/ModalUpdateUser.jsx";
 
 export default function ManagementUserRole() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -17,18 +17,19 @@ export default function ManagementUserRole() {
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 12;
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await getAllAccounts();
-                setUsers(Array.isArray(response.data) ? response.data : []);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-        };
+    const fetchUsers = async () => {
+        try {
+            const response = await getAllAccounts();
+            setUsers(Array.isArray(response.data) ? response.data : []);
+        } catch (error) {
+            console.error("Error fetching users:", error);
+        }
+    };
 
+    useEffect(() => {
         fetchUsers();
     }, []);
+
 
     const filteredUsers = Array.isArray(users)
         ? users.filter((user) =>
@@ -158,9 +159,10 @@ export default function ManagementUserRole() {
                 {/* Modals */}
                 {isAddTourModalOpen && <ModalAddUser onClose={toggleAddTourModal} />}
                 {isUpdateModalOpen && (
-                    <ModalUpdateGuide
+                    <ModalUpdateUser
                         onClose={() => setIsUpdateModalOpen(false)}
                         user={selectedUser}
+                        refreshUserList={fetchUsers}
                     />
                 )}
             </div>
