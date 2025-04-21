@@ -230,7 +230,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 exports.assignPassengersToTravelGuide = async (req, res) => {
   try {
     const { travel_guide_id } = req.params;
-    const { passenger_ids } = req.body;
+    const { passenger_ids, group } = req.body;
 
     if (
       !passenger_ids ||
@@ -279,10 +279,11 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
       });
     }
 
-    // Cập nhật travel_guide_id cho từng Passenger
+    // Gộp tất cả hành khách vào một nhóm và gán travel_guide_id
     await Promise.all(
       passengers.map((passenger) => {
         passenger.travel_guide_id = travel_guide_id;
+        passenger.group = group;
         return passenger.save();
       })
     );

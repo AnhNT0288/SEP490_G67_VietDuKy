@@ -138,4 +138,11 @@ router.get(
   // checkRoles(["admin", "staff"]),
   travelGuideController.getAssignedTravelGuidesByStaff
 );
+
+router.get(
+  "/by-staff/:user_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getTravelGuidesByStaffWithLocation
+);
 module.exports = router;
