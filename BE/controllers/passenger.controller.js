@@ -226,11 +226,10 @@ exports.getPassengersByTravelTourId = async (req, res) => {
   }
 };
 
-//thủ công
 exports.assignPassengersToTravelGuide = async (req, res) => {
   try {
     const { travel_guide_id } = req.params;
-    const { passenger_ids, group } = req.body;
+    const { passenger_ids } = req.body;
 
     if (
       !passenger_ids ||
@@ -279,11 +278,17 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
       });
     }
 
+    // Tìm group lớn nhất hiện có của travel_guide_id và tăng lên 1
+    const maxGroup = await Passenger.max("group", {
+      where: { travel_guide_id },
+    });
+    const newGroup = (maxGroup || 0) + 1;
+
     // Gộp tất cả hành khách vào một nhóm và gán travel_guide_id
     await Promise.all(
       passengers.map((passenger) => {
         passenger.travel_guide_id = travel_guide_id;
-        passenger.group = group;
+        passenger.group = newGroup;
         return passenger.save();
       })
     );

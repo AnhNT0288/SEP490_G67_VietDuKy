@@ -1169,3 +1169,99 @@ exports.getTravelGuidesByStaffWithLocation = async (req, res) => {
     });
   }
 };
+
+// Lấy danh sách TravelGuide theo TravelTour
+exports.getTravelGuidesByTravelTour = async (req, res) => {
+  try {
+    const { travel_tour_id } = req.params;
+
+    // Kiểm tra TravelTour có tồn tại không
+    const travelTour = await TravelTour.findByPk(travel_tour_id, {
+      include: [
+        {
+          model: Tour,
+          as: "Tour",
+          include: [
+            {
+              model: Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+            {
+              model: Location,
+              as: "endLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy TravelTour!" });
+    }
+
+    // Lấy danh sách GuideTour liên kết với TravelTour
+    const guideTours = await GuideTour.findAll({
+      where: { travel_tour_id },
+      include: [
+        {
+          model: TravelGuide,
+          as: "travelGuide",
+          include: [
+            {
+              model: TravelGuideLocation,
+              as: "TravelGuideLocations",
+              include: [
+                {
+                  model: Location,
+                  as: "location",
+                  attributes: ["id", "name_location"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!guideTours.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy hướng dẫn viên nào cho TravelTour này!",
+      });
+    }
+
+    // Format lại dữ liệu trả về
+    const formattedGuides = guideTours.map((guideTour) => {
+      const guide = guideTour.travelGuide;
+      const currentLocation = guide.TravelGuideLocations.find(
+        (loc) => loc.is_current
+      )?.location;
+
+      return {
+        id: guide.id,
+        first_name: guide.first_name,
+        last_name: guide.last_name,
+        email: guide.email,
+        phone: guide.number_phone,
+        gender: guide.gender_guide,
+        start_location: currentLocation || null, // start_location = location với is_current = true
+        end_location: guide.TravelGuideLocations.map((loc) => ({
+          id: loc.location_id,
+          name: loc.location.name_location,
+        })), // end_location = location được gán cho TravelGuide
+      };
+    });
+
+    res.status(200).json({
+      message: "Lấy danh sách TravelGuide thành công!",
+      data: formattedGuides,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách TravelGuide:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách TravelGuide!",
+      error: error.message,
+    });
+  }
+};

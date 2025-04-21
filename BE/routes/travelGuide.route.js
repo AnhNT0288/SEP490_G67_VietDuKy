@@ -145,4 +145,12 @@ router.get(
   // checkRoles(["admin", "staff"]),
   travelGuideController.getTravelGuidesByStaffWithLocation
 );
+
+// Lấy danh sách TravelGuide theo TravelTour
+router.get(
+  "/travel-tour/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getTravelGuidesByTravelTour
+);
 module.exports = router;

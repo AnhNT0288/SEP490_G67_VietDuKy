@@ -458,7 +458,10 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
 
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
         age--;
       }
 
@@ -468,60 +471,80 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
     // Kiểm tra tour du lịch tồn tại
     const travelTour = await TravelTour.findByPk(travel_tour_id);
     if (!travelTour) {
-      return res.status(200).json({ message: "Không tìm thấy lịch khởi hành!" });
+      return res
+        .status(200)
+        .json({ message: "Không tìm thấy lịch khởi hành!" });
     }
 
     // Lấy danh sách hướng dẫn viên của tour
     const guideTours = await GuideTour.findAll({
       where: {
         travel_tour_id: travel_tour_id,
-        status: 1 // Chỉ lấy hướng dẫn viên đã được duyệt
-      }
+        status: 1, // Chỉ lấy hướng dẫn viên đã được duyệt
+      },
     });
 
     if (!guideTours || guideTours.length === 0) {
-      return res.status(200).json({ message: "Không tìm thấy hướng dẫn viên cho tour này!" });
+      return res
+        .status(200)
+        .json({ message: "Không tìm thấy hướng dẫn viên cho tour này!" });
     }
 
     // Lấy danh sách booking của tour
     const bookings = await Booking.findAll({
       where: {
         travel_tour_id: travel_tour_id,
-        status: 2 // Chỉ lấy booking đã thanh toán
-      }
+        status: 2, // Chỉ lấy booking đã thanh toán
+      },
     });
 
     if (!bookings || bookings.length === 0) {
-      return res.status(200).json({ message: "Không tìm thấy booking cho tour này!" });
+      return res
+        .status(200)
+        .json({ message: "Không tìm thấy booking cho tour này!" });
     }
 
     // Lấy danh sách hành khách cho từng booking
-    const bookingsWithPassengers = await Promise.all(bookings.map(async (booking) => {
-      const passengers = await Passenger.findAll({
-        where: { booking_id: booking.id }
-      });
+    const bookingsWithPassengers = await Promise.all(
+      bookings.map(async (booking) => {
+        const passengers = await Passenger.findAll({
+          where: { booking_id: booking.id },
+        });
 
-      // Tính số hành khách trên 2 tuổi
-      const countablePassengers = passengers.filter(p => calculateAge(p.birth_date) >= 2).length;
+        // Tính số hành khách trên 2 tuổi
+        const countablePassengers = passengers.filter(
+          (p) => calculateAge(p.birth_date) >= 2
+        ).length;
 
-      return {
-        ...booking.toJSON(),
-        passenger: passengers,
-        countablePassengers,
-        totalPassengers: passengers.length
-      };
-    }));
+        return {
+          ...booking.toJSON(),
+          passenger: passengers,
+          countablePassengers,
+          totalPassengers: passengers.length,
+        };
+      })
+    );
 
     // Lọc các booking có hành khách
-    const validBookings = bookingsWithPassengers.filter(booking => booking.passenger && booking.passenger.length > 0);
+    const validBookings = bookingsWithPassengers.filter(
+      (booking) => booking.passenger && booking.passenger.length > 0
+    );
 
     if (validBookings.length === 0) {
-      return res.status(200).json({ message: "Không tìm thấy hành khách hợp lệ cho tour này!" });
+      return res
+        .status(200)
+        .json({ message: "Không tìm thấy hành khách hợp lệ cho tour này!" });
     }
 
     // Tính tổng số hành khách (chỉ tính người từ 2 tuổi trở lên)
-    let totalCountablePassengers = validBookings.reduce((sum, booking) => sum + booking.countablePassengers, 0);
-    let totalActualPassengers = validBookings.reduce((sum, booking) => sum + booking.totalPassengers, 0);
+    let totalCountablePassengers = validBookings.reduce(
+      (sum, booking) => sum + booking.countablePassengers,
+      0
+    );
+    let totalActualPassengers = validBookings.reduce(
+      (sum, booking) => sum + booking.totalPassengers,
+      0
+    );
 
     // Khởi tạo các nhóm
     let groups = [{ currentCount: 0, passengers: [], actualCount: 0 }];
@@ -539,7 +562,9 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
       if (countableSize > number_passenger) {
         // Tạo các nhóm mới cho booking lớn
         let remainingPassengers = [...allPassengers];
-        let currentCountable = remainingPassengers.filter(p => calculateAge(p.birth_date) >= 2).length;
+        let currentCountable = remainingPassengers.filter(
+          (p) => calculateAge(p.birth_date) >= 2
+        ).length;
 
         while (remainingPassengers.length > 0) {
           if (groups[currentGroupIndex].currentCount >= number_passenger) {
@@ -548,7 +573,8 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
           }
 
           // Tính toán số hành khách có thể thêm vào nhóm hiện tại
-          const spaceLeft = number_passenger - groups[currentGroupIndex].currentCount;
+          const spaceLeft =
+            number_passenger - groups[currentGroupIndex].currentCount;
           let passengersToAdd = [];
           let countableInGroup = 0;
 
@@ -563,11 +589,15 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
           }
 
           // Cập nhật remainingPassengers
-          remainingPassengers = remainingPassengers.slice(passengersToAdd.length);
+          remainingPassengers = remainingPassengers.slice(
+            passengersToAdd.length
+          );
 
           // Thêm hành khách vào nhóm
           groups[currentGroupIndex].passengers.push(...passengersToAdd);
-          groups[currentGroupIndex].currentCount += passengersToAdd.filter(p => calculateAge(p.birth_date) >= 2).length;
+          groups[currentGroupIndex].currentCount += passengersToAdd.filter(
+            (p) => calculateAge(p.birth_date) >= 2
+          ).length;
           groups[currentGroupIndex].actualCount += passengersToAdd.length;
         }
       } else {
@@ -588,7 +618,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
           groups.push({
             currentCount: countableSize,
             passengers: [...allPassengers],
-            actualCount: allPassengers.length
+            actualCount: allPassengers.length,
           });
           currentGroupIndex++;
         }
@@ -598,7 +628,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
     // Kiểm tra số hướng dẫn viên có đủ không
     if (guideTours.length < groups.length) {
       return res.status(200).json({
-        message: `Số hướng dẫn viên không đủ! Cần ${groups.length} hướng dẫn viên nhưng chỉ có ${guideTours.length} hướng dẫn viên.`
+        message: `Số hướng dẫn viên không đủ! Cần ${groups.length} hướng dẫn viên nhưng chỉ có ${guideTours.length} hướng dẫn viên.`,
       });
     }
 
@@ -627,14 +657,14 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
           groupNumber: index + 1,
           countablePassengers: group.currentCount,
           actualPassengers: group.actualCount,
-          passengers: group.passengers.map(p => ({
+          passengers: group.passengers.map((p) => ({
             id: p.id,
             name: p.name,
             birth_date: p.birth_date,
-            age: calculateAge(p.birth_date)
-          }))
-        }))
-      }
+            age: calculateAge(p.birth_date),
+          })),
+        })),
+      },
     });
   } catch (error) {
     console.error("Error:", error);
@@ -914,6 +944,7 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
       travel_guide_id: guide.travel_guide_id,
       group_name,
       isLeader: guide.isLeader || false,
+      status: 1,
     }));
 
     await db.GuideTour.bulkCreate(assignments);
