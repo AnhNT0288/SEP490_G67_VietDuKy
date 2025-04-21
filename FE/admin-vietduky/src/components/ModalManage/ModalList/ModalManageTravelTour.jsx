@@ -11,14 +11,13 @@ import {
 import { FiCalendar, FiList } from "react-icons/fi";
 import CalendarTravelTour from "../ModalCalendar/CalendarTravelTour.jsx";
 import DropdownMenuTravelTour from "../../Dropdown/DropdowMenuTravelTour.jsx";
-import ModalAssignGuide from "../ModalAdd/ModalAssignGuide.jsx";
-import ModalManageGuideforTravelTour from "./ModalManageGuideforTravelTour.jsx";
+import ModalManageGuideForTravelTour from "./ModalManageGuideForTravelTour.jsx";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [travelTours, setTravelTours] = useState([]);
   const [isAddTravelTourModalOpen, setIsAddTravelTourModalOpen] = useState(false);
-  const [isAssignGuideModalOpen, setIsAssignGuideModalOpen] = useState(false);
   const [locationId, setLocationId] = useState(null);
   const [viewMode, setViewMode] = useState("list");
   const dropdownRef = useRef(null);
@@ -34,7 +33,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     setIsAddTravelTourModalOpen(false);
     try {
       const response = await getTravelTourByTourId(tourId);
-      const data = response.data || []; // Chỉnh sửa theo data mới
+      const data = response.data || [];
       setTravelTours(data);
     } catch (error) {
       console.error("Lỗi khi reload danh sách:", error);
@@ -45,8 +44,8 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     const fetchTravelTours = async () => {
       try {
         const response = await getTravelTourByTourId(tourId);
-        const data = response.data || []; // Chỉnh sửa theo data mới
-        console.log("📦 Danh sách travelTours:", data); // ✅ log toàn bộ danh sách
+        const data = response.data || [];
+        console.log("📦 Danh sách travelTours:", data);
         setTravelTours(data);
       } catch (error) {
         console.log("Lỗi khi lấy dữ liệu từ API", error);
@@ -339,7 +338,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                       {/*    />*/}
                       {/*)}*/}
                       {isListGuideModalOpen && (
-                          <ModalManageGuideforTravelTour
+                          <ModalManageGuideForTravelTour
                               travel_tour_id={selectedTravelTourId}
                               locationId={locationId}
                               onClose={() => setIsListGuideModalOpen(false)}

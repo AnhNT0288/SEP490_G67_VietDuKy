@@ -92,8 +92,8 @@ router.delete(
 
 router.get(
   "/staff/:staff_id",
-  // authenticateUser,
-  // checkRoles(["staff", "admin"]),
+  authenticateUser,
+  checkRoles(["staff", "admin"]),
   travelGuideController.getTravelGuidesByStaff
 );
 
@@ -137,5 +137,20 @@ router.get(
   // authenticateUser,
   // checkRoles(["admin", "staff"]),
   travelGuideController.getAssignedTravelGuidesByStaff
+);
+
+router.get(
+  "/by-staff/:user_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getTravelGuidesByStaffWithLocation
+);
+
+// Lấy danh sách TravelGuide theo TravelTour
+router.get(
+  "/travel-tour/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getTravelGuidesByTravelTour
 );
 module.exports = router;

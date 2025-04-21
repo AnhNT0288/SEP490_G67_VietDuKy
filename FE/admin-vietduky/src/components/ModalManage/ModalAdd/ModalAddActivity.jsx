@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { HiOutlineInbox, HiOutlineTrash, HiOutlineX } from "react-icons/hi";
+import { HiOutlineInbox, HiOutlineTrash} from "react-icons/hi";
 import {createTourActivity} from "../../../services/API/activity_tour.service.js";
 import {IoMdAdd} from "react-icons/io";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
     const [submittedPrograms, setSubmittedPrograms] = useState([]);
     const [programs, setPrograms] = useState([

@@ -7,6 +7,8 @@ const Tour = db.Tour;
 const Customer = db.Customer;
 const TravelGuideLocation = db.TravelGuideLocation;
 const Location = db.Location;
+const TravelTour = db.TravelTour;
+const GuideTour = db.GuideTour;
 
 //Lấy tất cả TravelGuide
 exports.getAllTravelGuides = async (req, res) => {
@@ -1036,6 +1038,229 @@ exports.getAssignedTravelGuidesByStaff = async (req, res) => {
     console.error("Lỗi khi lấy danh sách hướng dẫn viên đã được gán:", error);
     res.status(500).json({
       message: "Lỗi khi lấy danh sách hướng dẫn viên đã được gán!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách TravelGuide theo Staff và Location
+exports.getTravelGuidesByStaffWithLocation = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Kiểm tra user_id có phải role Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Lấy danh sách Location mà Staff phụ trách
+    const staffLocations = await db.StaffLocation.findAll({
+      where: { user_id },
+      attributes: ["location_id"],
+    });
+
+    if (!staffLocations.length) {
+      return res.status(404).json({
+        message: "Staff không phụ trách địa điểm nào!",
+      });
+    }
+
+    const locationIds = staffLocations.map((loc) => loc.location_id);
+
+    // Lấy danh sách TravelGuide liên kết với các Location mà Staff phụ trách
+    const travelGuides = await TravelGuide.findAll({
+      include: [
+        {
+          model: TravelGuideLocation,
+          as: "TravelGuideLocations",
+          where: {
+            location_id: { [Sequelize.Op.in]: locationIds },
+          },
+          attributes: ["location_id", "is_current"],
+          include: [
+            {
+              model: Location,
+              as: "location",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+        {
+          model: GuideTour,
+          as: "GuideTours",
+          include: [
+            {
+              model: TravelTour,
+              as: "travelTour",
+              include: [
+                {
+                  model: Tour,
+                  as: "Tour",
+                  where: {
+                    [Sequelize.Op.and]: [
+                      { start_location: { [Sequelize.Op.in]: locationIds } }, // start_location = location với is_current = true
+                      { end_location: { [Sequelize.Op.in]: locationIds } }, // end_location = location được gán cho TravelGuide
+                    ],
+                  },
+                  include: [
+                    {
+                      model: Location,
+                      as: "startLocation",
+                      attributes: ["id", "name_location"],
+                    },
+                    {
+                      model: Location,
+                      as: "endLocation",
+                      attributes: ["id", "name_location"],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!travelGuides.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy TravelGuide nào phù hợp!",
+      });
+    }
+
+    // Format lại dữ liệu trả về
+    const formattedTravelGuides = travelGuides.map((guide) => ({
+      id: guide.id,
+      first_name: guide.first_name,
+      last_name: guide.last_name,
+      email: guide.email,
+      phone: guide.number_phone,
+      gender: guide.gender_guide,
+      current_location:
+        guide.TravelGuideLocations.find((loc) => loc.is_current)?.location ||
+        null,
+      assigned_locations: guide.TravelGuideLocations.map((loc) => ({
+        id: loc.location_id,
+        name: loc.location.name_location,
+      })),
+      tours: guide.GuideTours.map((guideTour) => {
+        const travelTour = guideTour.TravelTour;
+        const tour = travelTour?.Tour;
+
+        return {
+          id: travelTour?.id || null,
+          name: tour?.name_tour || null,
+          start_location: tour?.startLocation || null,
+          end_location: tour?.endLocation || null,
+        };
+      }),
+    }));
+
+    res.status(200).json({
+      message: "Lấy danh sách TravelGuide thành công!",
+      data: formattedTravelGuides,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách TravelGuide:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách TravelGuide!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách TravelGuide theo TravelTour
+exports.getTravelGuidesByTravelTour = async (req, res) => {
+  try {
+    const { travel_tour_id } = req.params;
+
+    // Kiểm tra TravelTour có tồn tại không
+    const travelTour = await TravelTour.findByPk(travel_tour_id, {
+      include: [
+        {
+          model: Tour,
+          as: "Tour",
+          include: [
+            {
+              model: Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+            {
+              model: Location,
+              as: "endLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy TravelTour!" });
+    }
+
+    // Lấy danh sách GuideTour liên kết với TravelTour
+    const guideTours = await GuideTour.findAll({
+      where: { travel_tour_id },
+      include: [
+        {
+          model: TravelGuide,
+          as: "travelGuide",
+          include: [
+            {
+              model: TravelGuideLocation,
+              as: "TravelGuideLocations",
+              include: [
+                {
+                  model: Location,
+                  as: "location",
+                  attributes: ["id", "name_location"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!guideTours.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy hướng dẫn viên nào cho TravelTour này!",
+      });
+    }
+
+    // Format lại dữ liệu trả về
+    const formattedGuides = guideTours.map((guideTour) => {
+      const guide = guideTour.travelGuide;
+      const currentLocation = guide.TravelGuideLocations.find(
+        (loc) => loc.is_current
+      )?.location;
+
+      return {
+        id: guide.id,
+        first_name: guide.first_name,
+        last_name: guide.last_name,
+        email: guide.email,
+        phone: guide.number_phone,
+        gender: guide.gender_guide,
+        start_location: currentLocation || null, // start_location = location với is_current = true
+        end_location: guide.TravelGuideLocations.map((loc) => ({
+          id: loc.location_id,
+          name: loc.location.name_location,
+        })), // end_location = location được gán cho TravelGuide
+      };
+    });
+
+    res.status(200).json({
+      message: "Lấy danh sách TravelGuide thành công!",
+      data: formattedGuides,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách TravelGuide:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách TravelGuide!",
       error: error.message,
     });
   }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllTravelGuides} from "../../../services/API/guide_tour.services";
+import { getTravelGuidesByStaffId} from "../../../services/API/guide_tour.services";
 import {assignTravelGuidesToStaff} from "../../../services/API/staff.service.js";
 
 // eslint-disable-next-line react/prop-types
@@ -10,18 +10,20 @@ export default function ModalAssignGuideToStaff({ staff, onClose }) {
     const itemsPerPage = 10;
 
     useEffect(() => {
-        console.log("👤 Nhân viên truyền vào modal:", staff);
-
         const fetchGuides = async () => {
+            if (!staff?.id) return; // ✅ Chặn nếu chưa có staff
+
             try {
-                const data = await getAllTravelGuides();
+                const data = await getTravelGuidesByStaffId(staff.id);
                 setGuides(data);
             } catch (error) {
                 console.error("❌ Không thể load hướng dẫn viên:", error);
             }
         };
+
         fetchGuides();
-    }, []);
+    }, [staff]);
+
 
     const handleCheck = (guideId) => {
         setSelectedGuideIds((prev) =>
@@ -45,9 +47,15 @@ export default function ModalAssignGuideToStaff({ staff, onClose }) {
             });
             alert("Phân công thành công!");
             onClose();
-            // eslint-disable-next-line no-unused-vars
         } catch (err) {
-            alert("Phân công thất bại!");
+            const errorMessage =
+                err?.response?.data?.message || "Phân công thất bại! Có lỗi xảy ra.";
+            const conflictedGuides = err?.response?.data?.data;
+            if (conflictedGuides && conflictedGuides.length) {
+                alert(`${errorMessage}`);
+            } else {
+                alert(errorMessage);
+            }
         }
     };
 

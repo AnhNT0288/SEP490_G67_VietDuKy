@@ -1,14 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { MdEdit, MdDelete } from "react-icons/md";
 
-export default function DropdownMenuDirectory({
-                                                  directoryId,
-                                                  onEdit,
-                                                  onDelete,
-                                                  isOpen,
-                                                  setOpenDropdown,
-                                              }) {
+// eslint-disable-next-line react/prop-types
+export default function DropdownMenuDirectory({directoryId, onEdit, onDelete, isOpen, setOpenDropdown,}) {
     const dropdownRef = useRef(null);
 
     useEffect(() => {
