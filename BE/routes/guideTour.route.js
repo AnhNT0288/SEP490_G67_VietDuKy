@@ -11,54 +11,41 @@ const {
 router.get("/:id", GuideTourController.getGuideTours);
 router.post(
   "/create",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  authenticateAdmin,
   GuideTourController.addGuideToTour
 );
-router.delete(
-  "/delete/:id",
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
-  GuideTourController.removeGuideFromTour
-);
+
 router.put(
   "/approve/:id",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
   GuideTourController.approveGuideTour
 );
 router.put(
   "/reject/:id",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
   GuideTourController.rejectGuideTour
 );
 router.get(
   "/user/:id",
-  // authenticateUser,
-  // authenticateAdmin,
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
   GuideTourController.getGuideTourByUserId
 );
 router.get(
   "/travel-tour/:travelTourId",
   // authenticateUser,
-  // authenticateAdmin,
+  // checkRoles(["admin", "staff"]),
   GuideTourController.getTravelTourDetailForGuide
-);
-
-//TravelGuide xác nhận hoặc từ chối GuideTour
-router.post(
-  "/confirm-guide-tour/:guide_tour_id",
-  // authenticateUser,
-  // authenticateStaff,
-  GuideTourController.confirmGuideTour
 );
 
 //Gán NHIỀU hướng dẫn viên cho tour
 router.post(
   "/assign-guides-to-tour",
   // authenticateUser,
-  // checkRoles("admin", "staff"),
+  // checkRoles(["admin", "staff"]),
   GuideTourController.assignTravelGuidesToTravelTour
 );
 
@@ -101,10 +88,11 @@ router.get(
   GuideTourController.getAvailableTravelGuidesForTourByLocation
 );
 
-
-router.post("/assign-passenger-auto",
-    // authenticateUser,
-    // authenticateAdmin,
-    GuideTourController.assignPassengerToGuideAuto);
+router.post(
+  "/assign-passenger-auto",
+  // authenticateUser,
+  // authenticateAdmin,
+  GuideTourController.assignPassengerToGuideAuto
+);
 
 module.exports = router;

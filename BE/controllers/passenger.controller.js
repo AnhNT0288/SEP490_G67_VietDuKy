@@ -408,3 +408,140 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
     });
   }
 };
+
+// Gán thêm hành khách vào hướng dẫn viên
+exports.addPassengersToTravelGuide = async (req, res) => {
+  try {
+    const { travel_guide_id } = req.params;
+    const { passenger_ids } = req.body;
+
+    if (
+      !passenger_ids ||
+      !Array.isArray(passenger_ids) ||
+      passenger_ids.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Danh sách passenger_ids không hợp lệ!" });
+    }
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await db.TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy hướng dẫn viên!" });
+    }
+
+    // Kiểm tra và lấy danh sách Passenger
+    const passengers = await Passenger.findAll({
+      where: { id: passenger_ids },
+    });
+
+    if (!passengers || passengers.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy hành khách nào trong danh sách passenger_ids!",
+      });
+    }
+
+    // Kiểm tra nếu bất kỳ hành khách nào đã được assign cho một TravelGuide khác
+    const alreadyAssignedPassengers = passengers.filter(
+      (passenger) =>
+        passenger.travel_guide_id &&
+        passenger.travel_guide_id !== travel_guide_id
+    );
+
+    if (alreadyAssignedPassengers.length > 0) {
+      return res.status(400).json({
+        message: "Một số hành khách đã được phân công cho hướng dẫn viên khác!",
+        data: alreadyAssignedPassengers.map((p) => ({
+          id: p.id,
+          name: p.name,
+          assigned_travel_guide_id: p.travel_guide_id,
+        })),
+      });
+    }
+
+    // Tìm group hiện tại của travel_guide_id
+    const currentGroup = await Passenger.findOne({
+      where: { travel_guide_id },
+      attributes: ["group"],
+      order: [["group", "DESC"]],
+    });
+
+    const groupToAssign = currentGroup ? currentGroup.group : 1; // Nếu không có group, mặc định là 1
+
+    // Gộp tất cả hành khách vào nhóm hiện tại và gán travel_guide_id
+    await Promise.all(
+      passengers.map((passenger) => {
+        passenger.travel_guide_id = travel_guide_id;
+        passenger.group = groupToAssign;
+        return passenger.save();
+      })
+    );
+
+    res.status(200).json({
+      message: "Thêm hành khách mới cho hướng dẫn viên thành công!",
+      data: passengers,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi thêm hành khách mới!",
+      error: error.message,
+    });
+  }
+};
+
+// Xóa hành khách khỏi hướng dẫn viên
+exports.removePassengersFromTravelGuide = async (req, res) => {
+  try {
+    const { travel_guide_id } = req.params;
+    const { passenger_ids } = req.body;
+
+    if (
+      !passenger_ids ||
+      !Array.isArray(passenger_ids) ||
+      passenger_ids.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Danh sách passenger_ids không hợp lệ!" });
+    }
+
+    // Kiểm tra TravelGuide có tồn tại không
+    const travelGuide = await db.TravelGuide.findByPk(travel_guide_id);
+    if (!travelGuide) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy hướng dẫn viên!" });
+    }
+
+    // Xóa các hành khách khỏi TravelGuide
+    const updatedCount = await Passenger.update(
+      { travel_guide_id: null, group: null },
+      {
+        where: {
+          id: passenger_ids,
+          travel_guide_id,
+        },
+      }
+    );
+
+    if (updatedCount[0] === 0) {
+      return res.status(404).json({
+        message:
+          "Không tìm thấy hành khách nào để xóa hoặc hành khách không thuộc hướng dẫn viên này!",
+      });
+    }
+
+    res.status(200).json({
+      message: "Xóa hành khách khỏi hướng dẫn viên thành công!",
+      updatedCount: updatedCount[0],
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi xóa hành khách!",
+      error: error.message,
+    });
+  }
+};

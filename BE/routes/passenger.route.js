@@ -66,4 +66,20 @@ router.get(
   passengerController.getPassengersByTravelGuideIdBooking
 );
 
+// Thêm hành khách mới cho TravelGuide
+router.post(
+  "/add-passengers/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.addPassengersToTravelGuide
+);
+
+// Xóa hành khách khỏi TravelGuide
+router.post(
+  "/remove-passengers/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.removePassengersFromTravelGuide
+);
+
 module.exports = router;
