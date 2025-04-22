@@ -34,6 +34,8 @@ export default function DetailTourPage() {
   }, [id]);
 
   // console.log("Tours", tours);
+  console.log("Initial Selected Date", initialSelectedDate);
+  
 
   return (
     <div className="bg-white">

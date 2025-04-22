@@ -8,6 +8,7 @@ import {
   AiOutlineHeart,
 } from "react-icons/ai"; // Import heart icons
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function TourCard({
   tours = [],
@@ -33,8 +34,13 @@ export default function TourCard({
     const isFavorite = favoriteTours.some(
       (favTour) => favTour.tour_id === tourId
     );
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      toast.error("Bạn phải đăng nhập để thêm tour vào danh sách yêu thích.");
+      return;
+    }
     const data = {
-      user_id: JSON.parse(localStorage.getItem("user")).id,
+      user_id: user.id,
       tour_id: tourId,
     };
 

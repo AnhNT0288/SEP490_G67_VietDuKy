@@ -117,7 +117,7 @@ export default function Feedback({ id }) {
 
   const handleToggleLike = async (feedbackId) => {
     const userId = JSON.parse(localStorage.getItem("user"))?.id;
-    if (!userId) return toast("Bạn cần đăng nhập để thích");
+    if (!userId) return toast.error("Bạn cần đăng nhập để thích");
 
     try {
       // Toggle like status

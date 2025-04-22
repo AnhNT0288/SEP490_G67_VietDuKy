@@ -30,7 +30,7 @@ const BookingConfirmation = ({ bookingData }) => {
   };
 
   const createQrSrc = () => {
-    const src = `https://img.vietqr.io/image/mbbank-0868884528-compact2.jpg?amount=${
+    const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=${
       bookingData?.total_cost
     }&addInfo=start${generateAddInfo()}end&accountName=VietDuKy`;
     setQrSrc(src);
@@ -42,7 +42,7 @@ const BookingConfirmation = ({ bookingData }) => {
     bookingId: bookingData?.id,
     customerId: bookingData?.user_id,
     paymentKey: paymentKey,
-    amount: bookingData?.total_cost,
+    // amount: bookingData?.total_cost,
   };
 
   console.log("paymentData:", paymentData);
