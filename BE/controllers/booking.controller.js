@@ -601,6 +601,7 @@ exports.updateBooking = async (req, res) => {
                     phone_number: passengers[i].phone_number,
                     booking_id: bookingId,
                     passport_number: passengers[i].passport_number,
+                    single_room: passengers[i].single_room,
                 });
             }
         }
