@@ -92,8 +92,8 @@ router.delete(
 
 router.get(
   "/staff/:staff_id",
-  authenticateUser,
-  checkRoles(["staff", "admin"]),
+  // authenticateUser,
+  // checkRoles(["staff", "admin"]),
   travelGuideController.getTravelGuidesByStaff
 );
 

@@ -829,9 +829,28 @@ exports.getTravelGuidesByStaff = async (req, res) => {
       });
     }
 
+    // Lọc ra các TravelGuide chưa được gán vào TravelTour
+    const unassignedTravelGuides = [];
+    for (const guide of travelGuides) {
+      const assignedTours = await GuideTour.findOne({
+        where: { travel_guide_id: guide.id },
+      });
+
+      if (!assignedTours) {
+        unassignedTravelGuides.push(guide);
+      }
+    }
+
+    if (!unassignedTravelGuides.length) {
+      return res.status(404).json({
+        message:
+          "Không tìm thấy hướng dẫn viên nào chưa được gán vào TravelTour!",
+      });
+    }
+
     res.status(200).json({
       message: "Lấy danh sách hướng dẫn viên thành công!",
-      data: travelGuides,
+      data: unassignedTravelGuides,
     });
   } catch (error) {
     res.status(500).json({
