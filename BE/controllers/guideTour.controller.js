@@ -385,6 +385,18 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         },
       ],
     });
+
+    if (
+      guideTours.length === 0 ||
+      !guideTours ||
+      !guideTours[0] ||
+      !guideTours[0].travelGuide
+    ) {
+      return res
+        .status(200)
+        .json({ message: "Chưa có hướng dẫn viên cho tour này!" });
+    }
+
     const bookings = await Booking.findAll({
       where: { travel_tour_id: travelTourId },
     });

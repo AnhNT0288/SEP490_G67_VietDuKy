@@ -367,8 +367,9 @@ exports.getToursByTravelGuideLocation = async (req, res) => {
 exports.getTravelGuidesByLocation = async (req, res) => {
   try {
     const locationId = req.params.locationId;
-    const { start_day, end_day } = req.query; // Nhận thời gian từ query params
+    const { start_day, end_day } = req.query; // Nhận start_day và end_day từ query params
 
+    // Kiểm tra xem địa điểm có tồn tại không
     const location = await Location.findByPk(locationId);
     if (!location) {
       return res.status(404).json({ message: "Không tìm thấy địa điểm!" });
@@ -450,6 +451,7 @@ exports.getTravelGuidesByLocation = async (req, res) => {
       data: availableGuides,
     });
   } catch (error) {
+    console.error("Lỗi khi lấy danh sách hướng dẫn viên theo địa điểm:", error);
     res.status(500).json({
       message: "Lỗi khi lấy danh sách hướng dẫn viên theo địa điểm!",
       error: error.message,
