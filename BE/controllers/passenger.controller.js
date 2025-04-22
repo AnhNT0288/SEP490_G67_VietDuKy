@@ -215,6 +215,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
             "number_adult",
             "number_children",
             "travel_tour_id",
+            "booking_code",
           ],
         },
       ],
@@ -238,6 +239,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
       if (!acc[bookingId]) {
         acc[bookingId] = {
           booking_id: bookingId,
+          booking_code: booking.booking_code,
           number_adult: booking.number_adult,
           number_children: booking.number_children,
           travel_tour_id: booking.travel_tour_id,
