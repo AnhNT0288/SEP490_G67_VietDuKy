@@ -1153,7 +1153,15 @@ exports.assignMoreTravelGuideToTravelTour = async (req, res) => {
     const { travel_tour_id, travel_guide_id, group_name, isLeader } = req.body;
 
     // Kiểm tra TravelTour có tồn tại không
-    const travelTour = await db.TravelTour.findByPk(travel_tour_id);
+    const travelTour = await db.TravelTour.findByPk(travel_tour_id, {
+      include: [
+        {
+          model: db.Tour,
+          as: "Tour",
+          attributes: ["name_tour", "start_location", "end_location"],
+        },
+      ],
+    });
     if (!travelTour) {
       return res.status(404).json({ message: "Không tìm thấy TravelTour!" });
     }
@@ -1219,6 +1227,15 @@ exports.assignMoreTravelGuideToTravelTour = async (req, res) => {
       });
     }
 
+    // Kiểm tra nếu số lượng assigned_guides vượt quá required_guides
+    const remainingSlots =
+      travelTour.required_guides - travelTour.assigned_guides;
+    if (remainingSlots <= 0) {
+      return res.status(400).json({
+        message: `Không thể gán thêm hướng dẫn viên! Số lượng yêu cầu là ${travelTour.required_guides}, đã gán ${travelTour.assigned_guides}.`,
+      });
+    }
+
     // Thêm TravelGuide vào nhóm
     const newAssignment = await db.GuideTour.create({
       travel_tour_id,
@@ -1252,6 +1269,119 @@ exports.assignMoreTravelGuideToTravelTour = async (req, res) => {
     }
 
     await travelTour.save();
+
+    // Gửi email thông báo cho TravelGuide
+    const mailOptions = {
+      from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+      to: travelGuide.email, // Email của TravelGuide
+      subject: "Thông báo phân công Tour du lịch",
+      html: `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background-color: #fff;
+                margin: 0;
+                padding: 0;
+              }
+              .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                background-color: #fef2f2;
+                position: relative;
+              }
+              h1 {
+                color: #d32f2f;
+                text-align: center;
+              }
+              p {
+                margin: 10px 0;
+              }
+              .info-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                table-layout: fixed;
+              }
+              .info-table th, .info-table td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+                word-wrap: break-word;
+              }
+              .info-table th {
+                background-color: #d32f2f;
+                color: #fff;
+              }
+              .info-table td {
+                background-color: #fff;
+              }
+              .footer {
+                text-align: center;
+                margin-top: 20px;
+                font-size: 0.9em;
+                color: #666;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <h1>Thông báo phân công Tour du lịch</h1>
+              <p>Xin chào <strong>${travelGuide.first_name} ${
+        travelGuide.last_name
+      }</strong>,</p>
+              <p>Bạn đã được phân công vào tour <strong>${
+                travelTour.Tour.name_tour
+              }</strong>. Dưới đây là thông tin chi tiết:</p>
+              <table class="info-table">
+                <tr>
+                  <th>Thông tin tour</th>
+                  <th>Chi tiết</th>
+                </tr>
+                <tr>
+                  <td>Tên tour</td>
+                  <td>${travelTour.Tour.name_tour}</td>
+                </tr>
+                <tr>
+                  <td>Ngày bắt đầu</td>
+                  <td>${formatDate(travelTour.start_day)}</td>
+                </tr>
+                <tr>
+                  <td>Ngày kết thúc</td>
+                  <td>${formatDate(travelTour.end_day)}</td>
+                </tr>
+                <tr>
+                  <td>Địa điểm bắt đầu</td>
+                  <td>${travelTour.Tour.start_location}</td>
+                </tr>
+                <tr>
+                  <td>Địa điểm kết thúc</td>
+                  <td>${travelTour.Tour.end_location}</td>
+                </tr>
+              </table>
+              <p>Vui lòng chuẩn bị và sẵn sàng cho chuyến đi. Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+              <div class="footer">
+                <p>© 2025 Việt Du Ký</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Lỗi khi gửi email: ", error);
+      } else {
+        console.log("Email đã được gửi: " + info.response);
+      }
+    });
 
     res.status(201).json({
       message: "Thêm TravelGuide vào nhóm thành công!",
@@ -1316,10 +1446,73 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
       const alreadyAssignedIds = existingAssignments.map(
         (assignment) => assignment.travel_guide_id
       );
+      const unassignedGuides = guides.filter(
+        (guide) => !alreadyAssignedIds.includes(guide.travel_guide_id)
+      );
+
+      if (unassignedGuides.length === 0) {
+        return res.status(400).json({
+          message: "Tất cả TravelGuide đã được gán vào TravelTour này!",
+        });
+      }
+
+      // Cập nhật danh sách guides chỉ với những TravelGuide chưa được gán
+      guides = unassignedGuides;
+    }
+
+    // Kiểm tra nếu số lượng assigned_guides vượt quá required_guides
+    const remainingSlots =
+      travelTour.required_guides - travelTour.assigned_guides;
+    if (guides.length > remainingSlots) {
       return res.status(400).json({
-        message: "Một hoặc nhiều TravelGuide đã được gán vào TravelTour này!",
-        data: alreadyAssignedIds,
+        message: `Không thể gán thêm hướng dẫn viên! Số lượng yêu cầu là ${travelTour.required_guides}, đã gán ${travelTour.assigned_guides}, chỉ có thể gán thêm tối đa ${remainingSlots} hướng dẫn viên.`,
       });
+    }
+
+    // Kiểm tra xem TravelGuide có bị trùng lịch với TravelTour khác không
+    for (const guide of guides) {
+      const overlappingAssignments = await db.GuideTour.findAll({
+        where: {
+          travel_guide_id: guide.travel_guide_id,
+        },
+        include: [
+          {
+            model: db.TravelTour,
+            as: "travelTour",
+            where: {
+              [Op.or]: [
+                {
+                  start_day: {
+                    [Op.between]: [travelTour.start_day, travelTour.end_day],
+                  },
+                },
+                {
+                  end_day: {
+                    [Op.between]: [travelTour.start_day, travelTour.end_day],
+                  },
+                },
+                {
+                  [Op.and]: [
+                    { start_day: { [Op.lte]: travelTour.start_day } },
+                    { end_day: { [Op.gte]: travelTour.end_day } },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      });
+
+      if (overlappingAssignments.length > 0) {
+        return res.status(400).json({
+          message: `TravelGuide với ID ${guide.travel_guide_id} đã được gán vào một TravelTour khác trong khoảng thời gian này!`,
+          data: overlappingAssignments.map((assignment) => ({
+            travel_tour_id: assignment.travel_tour_id,
+            start_day: assignment.travelTour.start_day,
+            end_day: assignment.travelTour.end_day,
+          })),
+        });
+      }
     }
 
     // Gán các TravelGuide vào TravelTour
