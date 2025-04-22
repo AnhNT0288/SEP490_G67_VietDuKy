@@ -1,0 +1,11 @@
+<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon/concierge-bell">
+<path id="Vector" d="M1.83334 12.5003C1.83334 12.1467 1.97382 11.8076 2.22387 11.5575C2.47392 11.3075 2.81305 11.167 3.16668 11.167H13.8333C14.187 11.167 14.5261 11.3075 14.7762 11.5575C15.0262 11.8076 15.1667 12.1467 15.1667 12.5003V13.8337H1.83334V12.5003Z" stroke="#202D60" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+<g id="Vector_2">
+<path d="M13.8333 11.1663C13.8333 9.75185 13.2714 8.3953 12.2712 7.3951C11.271 6.39491 9.91448 5.83301 8.49999 5.83301C7.0855 5.83301 5.72895 6.39491 4.72875 7.3951C3.72856 8.3953 3.16666 9.75185 3.16666 11.1663" fill="white"/>
+<path d="M13.8333 11.1663C13.8333 9.75185 13.2714 8.3953 12.2712 7.3951C11.271 6.39491 9.91448 5.83301 8.49999 5.83301C7.0855 5.83301 5.72895 6.39491 4.72875 7.3951C3.72856 8.3953 3.16666 9.75185 3.16666 11.1663" stroke="#202D60" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<path id="Vector_3" d="M8.5 3.16699V5.83366" stroke="#202D60" stroke-width="0.77" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M7.16666 3.16699H9.83332" stroke="#202D60" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>

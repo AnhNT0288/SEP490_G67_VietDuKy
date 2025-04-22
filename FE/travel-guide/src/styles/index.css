@@ -1,0 +1,8 @@
+.scroll-hidden::-webkit-scrollbar {
+    display: none; /* Ẩn scrollbar trên Chrome, Safari */
+  }
+  .scroll-hidden {
+    -ms-overflow-style: none; /* Ẩn scrollbar trên IE, Edge */
+    scrollbar-width: none; /* Ẩn scrollbar trên Firefox */
+  }
+  

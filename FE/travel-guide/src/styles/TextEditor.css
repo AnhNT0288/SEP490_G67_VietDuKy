@@ -1,0 +1,12 @@
+.ql-undo, .ql-redo {
+  color: black !important;
+  font-size: 18px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.ql-undo:hover, .ql-redo:hover {
+  color: #333;
+}

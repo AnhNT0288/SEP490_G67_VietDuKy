@@ -1,57 +1,50 @@
-const { DataTypes } = require("sequelize");
+module.exports = (sequelize, Sequelize) => {
+  const Customer = sequelize.define(
+    "Customer",
+    {
+      id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      payment_card_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      first_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      last_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      gender: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      birth_date: {
+        type: Sequelize.DATEONLY,
+        allowNull: true,
+      },
+      number_phone: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      address: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+    },
+    {
+      tableName: "customer",
+      timestamps: false,
+    }
+  );
 
-module.exports = (sequelize) => {
-    const Customer = sequelize.define(
-        "Customer",
-        {
-            id: {
-                type: DataTypes.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-            },
-            user_id: {
-                type: DataTypes.INTEGER,
-                allowNull: true,
-                references: {
-                    model: "user", // Bảng tham chiếu
-                    key: "id",
-                },
-                onUpdate: "CASCADE",
-                onDelete: "SET NULL",
-            },
-            first_name: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            last_name: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            email: {
-                type: DataTypes.STRING,
-                allowNull: true,
-                validate: {
-                    isEmail: true,
-                },
-            },
-            gender: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            birth_date: {
-                type: DataTypes.DATEONLY,
-                allowNull: true,
-            },
-            number_phone: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-        },
-        {
-            tableName: "customer",
-            timestamps: false, 
-        }
-    );
-
-    return Customer;
+  return Customer;
 };

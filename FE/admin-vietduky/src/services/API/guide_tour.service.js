@@ -1,0 +1,109 @@
+import restClient from "../restClient";
+import { StorageService } from "../storage/StorageService";
+
+// Hàm để lấy header Authorization với token
+function getAuthHeaders() {
+    const token = StorageService.getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function getTravelGuideByLocation(locationId) {
+    return restClient({
+        url: `travel-guide/location/${locationId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên theo địa điểm:", err.response?.data || err);
+            throw err;
+        });
+}
+export function assignGuideToTour(data) {
+    console.log("Dữ liệu gửi đến API phân công:", data);
+
+    return restClient({
+        url: `guide-tour/create`,
+        method: "POST",
+        headers: {
+            ...getAuthHeaders(),
+        },
+        data,
+    })
+        .then((res) => {
+            console.log("Phản hồi từ API phân công:", res);
+            return res.data;
+        })
+        .catch((err) => {
+            console.error("❌ Lỗi khi phân công hướng dẫn viên cho tour:", err.response?.data || err);
+            throw err;
+        });
+}
+
+export function assignGroupGuideToTour(data) {
+    console.log("Dữ liệu gửi đến API phân công nhóm hướng dẫn viên:", data);
+
+    return restClient({
+        url: `guide-tour/assign-guides-to-tour`,
+        method: "POST",
+        headers: {
+            ...getAuthHeaders(),
+        },
+        data,
+    })
+        .then((res) => {
+            console.log("Phản hồi từ API phân công nhóm hướng dẫn viên:", res);
+            return res.data;
+        })
+        .catch((err) => {
+            console.error("❌ Lỗi khi phân công nhóm hướng dẫn viên cho tour:", err.response?.data || err);
+            throw err;
+        });
+}
+
+export function getGuidesByTravelTourId(travel_tour_id) {
+    return restClient({
+        url: `guide-tour/travel-tour/${travel_tour_id}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then(res => res.data?.data || [])
+        .catch(err => {
+            console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên đã gán:", err.response?.data || err);
+            throw err;
+        });
+}
+// Lấy tất cả hướng dẫn viên
+export function getAllTravelGuides() {
+    return restClient({
+        url: `travel-guide/`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data.data || [])
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy danh sách tất cả hướng dẫn viên:", err.response?.data || err);
+            throw err;
+        });
+}
+export function getTravelGuidesByStaffId(staffId) {
+    return restClient({
+        url: `travel-guide/staff/${staffId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then(res => res.data.data || [])
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên của nhân viên:", err.response?.data || err);
+            throw err;
+        });
+}
+
