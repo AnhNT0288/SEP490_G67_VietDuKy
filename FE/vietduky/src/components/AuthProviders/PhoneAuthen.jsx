@@ -4,49 +4,61 @@ import firebase from "@/services/firebase/firebase";
 const PhoneAuthen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
-  const [confirmationResult, setConfirmationResult] = useState(null);
-
-  const setupRecaptcha = () => {
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
-      "recaptcha-container",
-      {
-        size: "invisible",
-        defaultCountry: "VN",
-        callback: (response) => {
-          console.log("Recaptcha verified", response);
-        },
-      }
-    );
-  };
 
   useEffect(() => {
-    setupRecaptcha();
+    // setup sau khi component render
+    setTimeout(() => {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+          "recaptcha-container",
+          {
+            size: "invisible",
+            callback: (response) => {
+              console.log("Recaptcha verified");
+            },
+            "expired-callback": () => {
+              console.warn("Recaptcha expired");
+            },
+          }
+        );
+
+        window.recaptchaVerifier.render().then((widgetId) => {
+          window.recaptchaWidgetId = widgetId;
+        });
+      }
+    }, 500); // delay để DOM sẵn sàng
   }, []);
 
   const handleSendOtp = async () => {
     const appVerifier = window.recaptchaVerifier;
-    await firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
-    .then((confirmationResult) => {
+
+    if (!appVerifier) {
+      alert("Recaptcha chưa sẵn sàng");
+      return;
+    }
+
+    try {
+      const confirmationResult = await firebase
+        .auth()
+        .signInWithPhoneNumber(phoneNumber, appVerifier);
+
       window.confirmationResult = confirmationResult;
-      alert("Đã gửi OTP thành công!");
-    })
-    .catch((error) => {
-      console.error("Gửi OTP thất bại", error.message);
-    });
+      alert("OTP đã được gửi về điện thoại!");
+    } catch (error) {
+      console.error("Gửi OTP thất bại", error);
+      alert(`Gửi OTP thất bại: ${error.message}`);
+    }
   };
 
   const handleVerifyOtp = async () => {
-    window.confirmationResult
-      .confirm(otp)
-      .then((result) => {
-        const user = result.user;
-        console.log("Xác thực thành công", user);
-        alert("Xác thực thành công!");
-      })
-      .catch((error) => {
-        console.error("Xác thực thất bại", error.message);
-        alert("Xác thực thất bại");
-      });
+    try {
+      const result = await window.confirmationResult.confirm(otp);
+      alert("Xác thực thành công!");
+      console.log(result.user);
+    } catch (error) {
+      console.error("OTP không đúng", error);
+      alert("Xác thực thất bại");
+    }
   };
 
   return (

@@ -20,6 +20,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
                 { id: 201, name: "Vị trí", path: "/managementLocation" },
                 { id: 202, name: "Chuyến du lịch", path: "/managementTour" },
                 { id: 203, name: "Chủ đề", path: "/managementTheme" },
+                { id: 204, name: "Quản lý Tour phút chót", path: "/managementTourDiscountLastMinute" },
             ],
         },
         {

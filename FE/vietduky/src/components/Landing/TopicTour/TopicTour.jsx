@@ -34,8 +34,8 @@ export default function TopicTour({ topic }) {
     fetchTours();
   }, [topic.id, userId]);
 
-  console.log("topic", tours);
-  console.log("favoriteTours", favoriteTours);
+  // console.log("topic", tours);
+  // console.log("favoriteTours", favoriteTours);
   
   return (
     <div className="bg-transparent">

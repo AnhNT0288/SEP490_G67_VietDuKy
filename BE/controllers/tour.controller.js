@@ -290,11 +290,11 @@ exports.searchTour = async (req, res) => {
             order: [["id", "DESC"]],
         });
 
-        // if (!tours || tours.length === 0) {
-        //     return res.status(404).json({
-        //         message: "Không tìm thấy tour nào phù hợp!",
-        //     });
-        // }
+        if (!tours || tours.length === 0) {
+            return res.status(404).json({
+                message: "Không tìm thấy tour nào phù hợp!",
+            });
+        }
 
         // Format lại dữ liệu trả về
         const formattedTours = tours.map((tour) => {
@@ -825,11 +825,11 @@ exports.getToursByTopicId = async (req, res) => {
             offset,
         });
 
-        if (!tours || tours.length === 0) {
-            return res.status(404).json({
-                message: "Không tìm thấy tour nào cho chủ đề này!",
-            });
-        }
+        // if (!tours || tours.length === 0) {
+        //     return res.status(404).json({
+        //         message: "Không tìm thấy tour nào cho chủ đề này!",
+        //     });
+        // }
 
         // Định dạng lại dữ liệu để dễ sử dụng hơn
         const formattedTours = tours.map((tour) => {

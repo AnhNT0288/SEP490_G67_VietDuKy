@@ -1,82 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import ExpireTourCard from "./ExpireTourCard";
+import { useEffect, useState } from "react";
+import { DiscountService } from "@/services/API/discount_service.service";
+import { formatDate } from "@/utils/dateUtil";
 
-const tours = [
-  {
-    id: 1,
-    image: "/images/tour1.jpg",
-    title: "Tour Côn Đảo 2N2Đ bằng Xe Giường Nằm + Tàu Cao Tốc",
-    start_day: "2023-10-01",
-    end_day: "2023-10-05",
-    timeLeft: "2 Ngày 3 Giờ",
-    duration: "5 Ngày 4 Đêm",
-    seatsLeft: 14,
-    originalPrice: "9.900.000 VNĐ",
-    discountPrice: "5.900.000 VNĐ",
-  },
-  {
-    id: 2,
-    image: "/images/tour1.jpg",
-    title: "Tour Côn Đảo 2N2Đ bằng Xe Giường Nằm + Tàu Cao Tốc",
-    start_day: "2023-10-01",
-    end_day: "2023-10-05",
-    timeLeft: "2 Ngày 3 Giờ",
-    duration: "5 Ngày 4 Đêm",
-    seatsLeft: 14,
-    originalPrice: "9.900.000 VNĐ",
-    discountPrice: "5.900.000 VNĐ",
-  },
-  {
-    id: 3,
-    image: "/images/tour1.jpg",
-    title: "Tour Côn Đảo 2N2Đ bằng Xe Giường Nằm + Tàu Cao Tốc",
-    start_day: "2023-10-01",
-    end_day: "2023-10-05",
-    timeLeft: "2 Ngày 3 Giờ",
-    duration: "5 Ngày 4 Đêm",
-    seatsLeft: 14,
-    originalPrice: "9.900.000 VNĐ",
-    discountPrice: "5.900.000 VNĐ",
-  },
-  {
-    id: 4,
-    image: "/images/tour1.jpg",
-    title: "Tour Côn Đảo 2N2Đ bằng Xe Giường Nằm + Tàu Cao Tốc",
-    start_day: "2023-10-01",
-    end_day: "2023-10-05",
-    timeLeft: "2 Ngày 3 Giờ",
-    duration: "5 Ngày 4 Đêm",
-    seatsLeft: 14,
-    originalPrice: "9.900.000 VNĐ",
-    discountPrice: "5.900.000 VNĐ",
-  },
-  {
-    id: 5,
-    image: "/images/tour1.jpg",
-    title: "Tour Côn Đảo 2N2Đ bằng Xe Giường Nằm + Tàu Cao Tốc",
-    start_day: "2023-10-01",
-    end_day: "2023-10-05",
-    timeLeft: "2 Ngày 3 Giờ",
-    duration: "5 Ngày 4 Đêm",
-    seatsLeft: 14,
-    originalPrice: "9.900.000 VNĐ",
-    discountPrice: "5.900.000 VNĐ",
-  },
-  {
-    id: 6,
-    image: "/images/tour1.jpg",
-    title: "Tour Côn Đảo 2N2Đ bằng Xe Giường Nằm + Tàu Cao Tốc",
-    start_day: "2023-10-01",
-    end_day: "2023-10-05",
-    timeLeft: "2 Ngày 3 Giờ",
-    duration: "5 Ngày 4 Đêm",
-    seatsLeft: 14,
-    originalPrice: "9.900.000 VNĐ",
-    discountPrice: "5.900.000 VNĐ",
-  },
-];
 export default function ExpireTour() {
   const navigate = useNavigate();
+  const [discountTours, setDiscountTours] = useState([]);
+
+  useEffect(() => {
+    const fetchDiscountTours = async () => {
+      try {
+        const response = await DiscountService.getDiscounts();
+        setDiscountTours(response.data.data);
+      } catch (error) {
+        console.error("Error fetching discount tours:", error);
+      }
+    };
+
+    fetchDiscountTours();
+  }, []);
+
+  console.log("discountTours", discountTours);
 
   return (
     <div className="bg-white">
@@ -88,15 +33,44 @@ export default function ExpireTour() {
           </p>
           <div className="w-1/5 h-1 bg-red-800 rounded-sm mt-2" />
         </div>
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 items-center mt-6 mx-auto">
-          {tours.map((tour) => (
-            <div className="box-border cursor-pointer" key={tour.id}>
-              <ExpireTourCard {...tour} />
-            </div>
-          ))}
+        <div className="flex flex-wrap justify-between gap-12 items-center mt-6 mx-auto">
+          {Array.isArray(discountTours) &&
+            discountTours.map((item) => (
+              <ExpireTourCard
+                key={item.id}
+                title={item.travelTour?.Tour?.name_tour}
+                duration={`${item.travelTour?.Tour?.day_number} ngày`}
+                seatsLeft={
+                  item.travelTour?.max_people -
+                  (item.travelTour?.current_people || 0)
+                }
+                start_day={item.travelTour?.start_day}
+                end_day={item.travelTour?.end_day}
+                originalPrice={`${Number(
+                  item.travelTour?.price_tour
+                ).toLocaleString()} VNĐ`}
+                discountPrice={`${(
+                  Number(item.travelTour?.price_tour) -
+                  item.programDiscount?.discount_value
+                ).toLocaleString()} VNĐ`}
+                onClick={() => navigate(`/tour/${item.travelTour?.Tour?.id}`, {
+                  state: {
+                    selectedDate: formatDate(item.travelTour?.start_day),
+                    discountInfo: {
+                      discountId: item.id,
+                      value: item.programDiscount?.discount_value,
+                      percent: item.programDiscount?.percent_discount,
+                    },
+                  }
+                })}
+              />
+            ))}
         </div>
         <div className="text-center mt-9">
-          <button onClick={() => navigate("/listTour")} className="bg-white border border-red-500 text-red-500 px-10 py-3 font-semibold rounded-md hover:bg-red-500 hover:text-white transition duration-300">
+          <button
+            onClick={() => navigate("/listTour")}
+            className="bg-white border border-red-500 text-red-500 px-10 py-3 font-semibold rounded-md hover:bg-red-500 hover:text-white transition duration-300"
+          >
             Xem thêm Tours
           </button>
         </div>
