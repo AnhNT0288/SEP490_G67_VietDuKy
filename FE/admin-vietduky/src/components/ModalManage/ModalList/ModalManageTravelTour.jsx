@@ -84,25 +84,12 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     }
   };
 
-  // const handleAssignGuide = (tour) => {
-  //   if (tour && tour.Tour && tour.Tour.endLocation) {
-  //     setOpenDropdown(null); // 👉 Tắt dropdown ngay lập tức
-  //
-  //     setLocationId(tour.Tour.endLocation.id);
-  //     setSelectedTravelTourId(tour.id);
-  //     setIsAssignGuideModalOpen(true);
-  //     console.log("Travel Tour ID passed to ModalAssignGuide:", tour.id);
-  //   } else {
-  //     console.error("Không tìm thấy thông tin endLocation trong tour", tour);
-  //   }
-  // };
-
   const handleAssignGuide = (tour) => {
     if (tour && tour.Tour && tour.Tour.endLocation) {
-      setOpenDropdown(null); // Đóng dropdown
+      setOpenDropdown(null);
       setLocationId(tour.Tour.endLocation.id);
       setSelectedTravelTourId(tour.id);
-      setIsListGuideModalOpen(true); // 👉 mở modal danh sách hướng dẫn viên
+      setIsListGuideModalOpen(true);
       console.log("Mở danh sách hướng dẫn viên của travel_tour:", tour.id);
     } else {
       console.error("Không tìm thấy thông tin endLocation trong tour", tour);
@@ -326,17 +313,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                             })}
                         </tbody>
                       </table>
-                      {/*{isAssignGuideModalOpen && (*/}
-                      {/*    <ModalAssignGuide*/}
-                      {/*        travel_tour_id={selectedTravelTourId}*/}
-                      {/*        locationId={locationId}*/}
-                      {/*        onClose={() => setIsAssignGuideModalOpen(false)}*/}
-                      {/*        onAssignSuccess={(selectedGuides) => {*/}
-                      {/*          console.log("Các hướng dẫn viên đã chọn:", selectedGuides);*/}
-                      {/*          setIsAssignGuideModalOpen(false);*/}
-                      {/*        }}*/}
-                      {/*    />*/}
-                      {/*)}*/}
+
                       {isListGuideModalOpen && (
                           <ModalManageGuideForTravelTour
                               travel_tour_id={selectedTravelTourId}

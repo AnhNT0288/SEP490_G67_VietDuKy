@@ -18,7 +18,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
             icon: Icons.TourIcon,
             subItems: [
                 { id: 201, name: "Vị trí", path: "/managementLocation" },
-                { id: 202, name: "Chuyến du lịch", path: "/managementTourForStaff" },
+                { id: 202, name: "Chuyến du lịch", path: "/managementTour" },
                 { id: 203, name: "Chủ đề", path: "/managementTheme" },
             ],
         },
@@ -33,21 +33,12 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
                 }
             }
         },
-        // {
-        //     id: 4,
-        //     name: "Quản lý nhà hàng",
-        //     icon: Icons.RestaurantIcon,
-        //     path: "/managementRestaurant",
-        // },
-        // {
-        //     id: 5,
-        //     name: "Quản lý phương tiện",
-        //     icon: Icons.VehicleIcon,
-        //     subItems: [
-        //         { id: 501, name: "Loại phương tiện" },
-        //         { id: 502, name: "Phương tiện" },
-        //     ],
-        // },
+        {
+            id: 4,
+            name: "Quản lý Tour có Booking",
+            icon: Icons.RestaurantIcon,
+            path: "/managementTourForStaff",
+        },
         {
             id: 6,
             name: "Quản lý khuyến mãi",
@@ -70,15 +61,15 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
                 { id: 802, name: "Bài viết", path: "/managementPost" },
             ],
         },
-        {
-            id: 9,
-            name: "Quản lý tài khoản",
-            icon: Icons.AccountIcon,
-            subItems: [
-                { id: 901, name: "Nhân viên", path: "/managementStaffTourGuide" },
+        // {
+        //     id: 9,
+        //     name: "Quản lý tài khoản",
+        //     icon: Icons.AccountIcon,
+        //     subItems: [
+        //         { id: 901, name: "Nhân viên", path: "/managementStaffTourGuide" },
                 // { id: 902, name: "Phân quyền", path: "/managementUserRole" },
-            ],
-        },
+        //     ],
+        // },
         // {
         //   id: 10,
         //   name: "Quản lý Staff",
