@@ -9,11 +9,6 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.get("/", discountServiceController.getAllDiscountServices);
-router.get(
-  "/:id",
-  authenticateUser,
-  discountServiceController.getDiscountServiceById
-);
 router.post(
   "/create",
   authenticateUser,
@@ -38,6 +33,29 @@ router.post(
   // checkRoles(["admin", "staff"]),
   discountServiceController.addTravelTourToDiscountService
 );
+router.post(
+  "/approve-discount-service",
+    // authenticateUser,
+    // checkRoles(["admin", "staff"]),
+  discountServiceController.approveDiscountService
+);
+router.get(
+  "/get-not-approve-discount-service",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  discountServiceController.getNotApproveDiscountService
+);
+router.get(
+  "/get-approve-discount-service",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  discountServiceController.getApproveDiscountService
+);
 
+router.get(
+  "/:id",
+  authenticateUser,
+  discountServiceController.getDiscountServiceById
+);
 
 module.exports = router;
