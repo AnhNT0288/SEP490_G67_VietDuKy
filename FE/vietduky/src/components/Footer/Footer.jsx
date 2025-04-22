@@ -1,8 +1,11 @@
+import { FaTiktok, FaFacebookF } from "react-icons/fa";
+import { FaF } from "react-icons/fa6";
+
 export default function Footer() {
   return (
     <footer className="bg-[#A8111A] text-white py-14 w-full bottom-0">
-      <div className="w-5/6 mx-auto px-4 grid grid-cols-12 gap-6">
-        <div className="col-span-3">
+      <div className="md:w-4/5 sm:w-full lg:w-5/6 mx-auto px-4 gap-8 grid sm:grid-cols-1 lg:grid-cols-12 md:gap-6">
+        <div className="lg:col-span-3">
           <h3 className="text-xl font-semibold">Về Việt Du Ký</h3>
           <p className="text-sm mt-2">
             Việt Du Ký là nền tảng trực tuyến tiên phong trong việc sử dụng trí
@@ -10,9 +13,9 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="col-span-2 col-start-5">
+        <div className="lg:col-span-2 lg:col-start-5">
           <h3 className="text-xl font-semibold">Liên hệ</h3>
-          <p className="text-sm flex items-center mt-2">
+          <p className="text-sm flex items-start gap-2 mt-2">
             <img src="/Image/Symbol1.png" alt="Địa chỉ" className="mr-4" />
             Hòa Lạc, Hà Nội
           </p>
@@ -26,15 +29,15 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="col-span-2 col-start-8">
+        <div className="lg:col-span-2 lg:col-start-8">
           <h3 className="text-xl font-semibold">Mạng xã hội</h3>
           <div className="flex space-x-4 mt-2">
-            <img src="/Image/Symbol.png" alt="Facebook" />
-            <img src="/Image/Symbol2.png" alt="Tiktok" />
+            <FaFacebookF className="text-3xl cursor-pointer" />
+            <FaTiktok className="text-3xl cursor-pointer" />
           </div>
         </div>
 
-        <div className="col-span-3 col-start-10">
+        <div className="lg:col-span-3 lg:col-start-10">
           <h3 className="text-xl font-semibold">Tra cứu Booking</h3>
           <input
             type="text"

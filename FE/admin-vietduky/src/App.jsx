@@ -24,6 +24,8 @@ import GoogleAuthCallback from "./components/GoogleAuthCallBack.jsx";
 import SidebarStaff from "./components/Sidebar/SidebarStaff.jsx";
 import RoleBasedRoute from "./components/RoleBasedRoute.jsx";
 import PageAssignedGuides from "./components/Staff/PageAssignedGuides.jsx";
+import StaffTourGuideManagement from "./components/Staff/Management/StaffTourGuideManagement.jsx";
+import AssignedTravelToursManagement from "./components/Staff/Management/AssignedTravelToursManagement.jsx";
 
 function App() {
   return (
@@ -50,6 +52,8 @@ function App() {
             <Route path="/managementTheme" element={<ManagementTheme />} />
             <Route path="/managementSaleProgram" element={<ManagementSaleProgram />} />
             <Route path="/staff/:id/assigned-guides" element={<PageAssignedGuides />} />
+            <Route path="/managementStaffTourGuide" element={<StaffTourGuideManagement />} />
+            <Route path="/managementTourForStaff" element={<AssignedTravelToursManagement/>} />
           </Route>
 
           {/* Admin-only routes */}

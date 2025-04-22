@@ -51,7 +51,7 @@ const ContactForm = ({
       birth_date: p.birthdate || "",
       gender: p.gender || "",
       phone_number: p.phone || "",
-      passport_number: p.passport || "",
+      single_room: p.singleRoom,
     }));
 
     setPassengerData(formattedPassengers);
@@ -71,7 +71,9 @@ const ContactForm = ({
       [type]: Math.max(0, prev[type] + increment),
     }));
   };
-
+  
+  console.log("Passenger data:", passengerData);
+  
   // console.log("Hành khách", passengers);
 
   return (

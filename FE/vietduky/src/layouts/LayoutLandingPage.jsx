@@ -45,14 +45,14 @@ export default function LayoutLandingPage() {
   };
 
   return (
-    <div className="bg-white">
+    <div className="bg-white overflow-x-hidden">
       {/* Header */}
       <Header />
 
       <SearchTour />
 
       {/* Image Slider */}
-      <div className="p-6 relative w-4/5 mx-auto sm:w-full">
+      <div className="p-6 relative sm:w-full md:w-full lg:w-4/5 mx-auto  slider-wrapper">
         <Slider {...settings}>
           <div>
             <img

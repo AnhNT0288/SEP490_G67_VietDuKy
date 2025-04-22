@@ -19,6 +19,33 @@ const TourBooking = ({
   const [tours, setTours] = useState("");
   const [travelTourData, setTravelTourData] = useState([]);
 
+  const validatePhoneNumber = (phone) => /^0\d{9,10}$/.test(phone);
+  const isDateInRange = (dateStr) => {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    return date.getFullYear() >= 1900 && date <= new Date();
+  };
+
+  const getPassengerErrors = (passenger) => {
+    const errors = {};
+    if (!passenger.name?.trim()) errors.name = "Họ tên không được để trống";
+    if (!validatePhoneNumber(passenger.phone_number))
+      errors.phone = "Số điện thoại không hợp lệ";
+    if (!passenger.gender) errors.gender = "Chưa chọn giới tính";
+    if (!isDateInRange(passenger.birth_date))
+      errors.birthdate = "Ngày sinh không hợp lệ";
+    return errors;
+  };
+
+  const isAllPassengerValid = (passengerList) => {
+    return (
+      Array.isArray(passengerList) &&
+      passengerList.every(
+        (p) => Object.keys(getPassengerErrors(p)).length === 0
+      )
+    );
+  };
+
   useEffect(() => {
     const fetchTours = async () => {
       try {
@@ -67,13 +94,23 @@ const TourBooking = ({
       return;
     }
 
-    if (!formData.number_adult && !formData.number_children && !formData.number_toddler && !formData.number_newborn) {
+    if (
+      !formData.number_adult &&
+      !formData.number_children &&
+      !formData.number_toddler &&
+      !formData.number_newborn
+    ) {
       toast.error("Vui lòng chọn ít nhất một hành khách!");
       return;
     }
 
     if (!Array.isArray(formData.passengers)) {
       toast.error("Danh sách hành khách không hợp lệ!");
+      return;
+    }
+  
+    if (!isAllPassengerValid(formData.passengers)) {
+      toast.error("Vui lòng kiểm tra lại thông tin hành khách!");
       return;
     }
 
@@ -94,7 +131,10 @@ const TourBooking = ({
   };
 
   const totalPrice =
-    (formData?.number_adult * travelTourData?.price_tour + formData?.number_children * travelTourData?.children_price + formData?.number_toddler * travelTourData?.toddler_price + roomCost || 0 ) ;
+    formData?.number_adult * travelTourData?.price_tour +
+      formData?.number_children * travelTourData?.children_price +
+      formData?.number_toddler * travelTourData?.toddler_price +
+      roomCost || 0;
 
   // console.log("Tổng tiền:", totalPrice);
 
@@ -107,9 +147,6 @@ const TourBooking = ({
 
   // console.log("Dữ liệu booking:", formData);
   // console.log("Tour booking:", travelTourData);
-
-
-
 
   return (
     <div className="flex flex-col items-end gap-4">
@@ -146,7 +183,9 @@ const TourBooking = ({
           </div>
           <div className="flex items-center gap-1">
             <span className="text-gray-700">Thời gian:</span>
-            <span className="text-red-800 font-semibold ml-1">{tours.day_number}N{tours.day_number-1}Đ</span>
+            <span className="text-red-800 font-semibold ml-1">
+              {tours.day_number}N{tours.day_number - 1}Đ
+            </span>
           </div>
         </div>
 

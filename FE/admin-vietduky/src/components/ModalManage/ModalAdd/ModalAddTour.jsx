@@ -6,6 +6,7 @@ import { createTour } from "../../../services/API/tour.service.js";
 import ModalConfirmTravelTour from "../ModalConfirm/ModalConfirmTravelTour.jsx";
 import Select from "react-select"; // Import React Select đúng cách
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddTour({ onClose, onCreateSuccess }) {
   const [locations, setLocations] = useState([]);
   const [services, setServices] = useState([]);

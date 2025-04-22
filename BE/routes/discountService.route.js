@@ -31,6 +31,13 @@ router.delete(
   authenticateUser,
   checkRoles(["admin", "staff"]),
   discountServiceController.deleteDiscountService
+);  
+router.post(
+  "/add-travel-tour",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  discountServiceController.addTravelTourToDiscountService
 );
+
 
 module.exports = router;

@@ -162,6 +162,20 @@ exports.getTravelTourByTourId = async (req, res) => {
   }
 };
 
+const calculateRequiredGuides = (max_people) => {
+  if (!max_people || max_people <= 0) {
+    throw new Error("Số lượng khách không hợp lệ!");
+  }
+
+  // Một hướng dẫn viên quản lý tối đa 15 khách
+  const guideCapacity = 15;
+  const fullGuides = Math.floor(max_people / guideCapacity);
+  const remainingPeople = max_people % guideCapacity;
+
+  // Nếu số người còn lại lớn hơn 10, thêm một hướng dẫn viên mới
+  return remainingPeople > 10 ? fullGuides + 1 : fullGuides;
+};
+
 //Tạo travel tour mới
 exports.createTravelTour = async (req, res) => {
   try {
@@ -178,6 +192,9 @@ exports.createTravelTour = async (req, res) => {
       children_price,
       toddler_price,
     } = req.body;
+
+    // Tính toán required_guides dựa trên max_people
+    const required_guides = calculateRequiredGuides(max_people);
 
     if (
       !tour_id ||
@@ -207,6 +224,7 @@ exports.createTravelTour = async (req, res) => {
       end_time_close,
       children_price,
       toddler_price,
+      required_guides,
       status: 0,
       active: 1,
     };
@@ -345,9 +363,17 @@ exports.updateTravelTour = async (req, res) => {
       return res.status(400).json({ message: "Giá tour phải lớn hơn 0!" });
     }
 
-    if (max_people < 0) {
-      return res.status(400).json({ message: "Số người phải lớn hơn 0!" });
+    // Nếu max_people được cập nhật, tính toán lại required_guides
+    if (max_people !== undefined) {
+      if (max_people <= 0) {
+        return res
+          .status(400)
+          .json({ message: "Số lượng khách không hợp lệ!" });
+      }
+      travelTour.required_guides = calculateRequiredGuides(max_people);
+      travelTour.max_people = max_people;
     }
+
     if (tour_id !== undefined) travelTour.tour_id = tour_id;
     if (start_day !== undefined) travelTour.start_day = start_day;
     if (end_day !== undefined) travelTour.end_day = end_day;
@@ -577,10 +603,10 @@ exports.getFullTravelTours = async (req, res) => {
 };
 
 // Lấy danh sách TravelTour mà Staff phụ trách và trạng thái gán hướng dẫn viên
-exports.getTravelToursByStaffWithGuideStatus = async (req, res) => {
+exports.getTravelToursByStaffWithLocation = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const { filter } = req.query; // Bộ lọc: chưa gán, gán thiếu, gán đủ
+    const { filter } = req.query;
 
     // Kiểm tra user_id có phải role Staff không
     const user = await User.findByPk(user_id);
@@ -588,50 +614,196 @@ exports.getTravelToursByStaffWithGuideStatus = async (req, res) => {
       return res.status(400).json({ message: "Người dùng không phải Staff!" });
     }
 
-    // Lấy danh sách TravelTour mà Staff phụ trách
-    const travelTours = await TravelTour.findAll({
+    // Lấy danh sách Location mà Staff phụ trách
+    const staffLocations = await db.StaffLocation.findAll({
+      where: { user_id },
+      attributes: ["location_id"],
+    });
+
+    if (!staffLocations.length) {
+      return res
+        .status(404)
+        .json({ message: "Staff không phụ trách địa điểm nào!" });
+    }
+
+    const locationIds = staffLocations.map((loc) => loc.location_id);
+
+    // Lấy danh sách TravelGuide có `is_current = true` và liên kết với các Location mà Staff phụ trách
+    const travelGuides = await TravelGuide.findAll({
       include: [
         {
-          model: GuideTour,
-          as: "GuideTours",
-          attributes: ["id", "travel_guide_id"],
+          model: db.TravelGuideLocation,
+          as: "TravelGuideLocations",
+          where: {
+            location_id: { [Sequelize.Op.in]: locationIds },
+            is_current: true, // Chỉ lấy địa điểm hiện tại
+          },
+          attributes: ["location_id"],
         },
       ],
     });
 
-    // Tính toán số lượng đã gán và trạng thái
-    const formattedTravelTours = travelTours.map((tour) => {
-      const assignedGuides = tour.GuideTours.length;
-      const status =
-        assignedGuides === 0
-          ? "chưa gán"
-          : assignedGuides < tour.required_guides
-          ? "gán thiếu"
-          : "gán đủ";
+    if (!travelGuides.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy TravelGuide nào phù hợp!",
+      });
+    }
 
-      return {
-        id: tour.id,
-        name: tour.name,
-        start_day: tour.start_day,
-        end_day: tour.end_day,
-        max_people: tour.max_people,
-        assigned_guides: assignedGuides,
-        required_guides: tour.required_guides,
-        status,
-      };
+    // Lấy danh sách location_id từ TravelGuideLocation
+    const travelGuideLocationIds = travelGuides.flatMap((guide) =>
+      guide.TravelGuideLocations.map((loc) => loc.location_id)
+    );
+
+    // Lấy danh sách TravelTour liên kết với các Location mà TravelGuide phụ trách
+    const travelTours = await TravelTour.findAll({
+      where: {
+        guide_assignment_status: filter ? filter : { [Op.ne]: null }, // Lọc theo trạng thái nếu có
+      },
+      include: [
+        {
+          model: db.Tour,
+          as: "Tour",
+          where: {
+            [Sequelize.Op.and]: [
+              { start_location: { [Sequelize.Op.in]: locationIds } }, // start_location = current_location của TravelGuide
+              { end_location: { [Sequelize.Op.in]: travelGuideLocationIds } }, // end_location = location trong TravelGuideLocation
+            ],
+          },
+          include: [
+            {
+              model: db.Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+            {
+              model: db.Location,
+              as: "endLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
     });
 
-    // Lọc theo trạng thái nếu có
-    let filteredTravelTours = formattedTravelTours;
-    if (filter) {
-      filteredTravelTours = formattedTravelTours.filter(
-        (tour) => tour.status === filter
-      );
+    if (!travelTours.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy tour nào phù hợp với điều kiện lọc!",
+      });
     }
+
+    // Format lại dữ liệu trả về
+    const formattedTravelTours = travelTours.map((tour) => ({
+      id: tour.id,
+      name: tour.name,
+      start_day: tour.start_day,
+      end_day: tour.end_day,
+      max_people: tour.max_people,
+      assigned_guides: tour.assigned_guides,
+      required_guides: tour.required_guides,
+      guide_assignment_status: tour.guide_assignment_status,
+      start_location: tour.Tour?.startLocation || null,
+      end_location: tour.Tour?.endLocation || null,
+    }));
 
     res.status(200).json({
       message: "Lấy danh sách TravelTour thành công!",
-      data: filteredTravelTours,
+      data: formattedTravelTours,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách TravelTour:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách TravelTour!",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy danh sách TravelTour mà Staff phụ trách
+exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Kiểm tra user_id có phải role Staff không
+    const user = await User.findByPk(user_id);
+    if (!user || user.role_id !== 2) {
+      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    }
+
+    // Lấy danh sách Location mà Staff phụ trách
+    const staffLocations = await db.StaffLocation.findAll({
+      where: { user_id },
+      attributes: ["location_id"],
+    });
+
+    if (!staffLocations.length) {
+      return res.status(404).json({
+        message: "Staff không phụ trách địa điểm nào!",
+      });
+    }
+
+    const locationIds = staffLocations.map((loc) => loc.location_id);
+
+    // Lấy danh sách TravelTour có end_location trong bảng Tour trùng với location mà Staff phụ trách
+    const travelTours = await TravelTour.findAll({
+      include: [
+        {
+          model: Booking,
+          as: "Bookings",
+          required: true, // Chỉ lấy các TravelTour có Booking
+        },
+        {
+          model: Tour,
+          as: "Tour",
+          where: {
+            end_location: { [Sequelize.Op.in]: locationIds }, // end_location từ bảng Tour
+          },
+          include: [
+            {
+              model: Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+            {
+              model: Location,
+              as: "endLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!travelTours.length) {
+      return res.status(404).json({
+        message: "Không tìm thấy TravelTour nào phù hợp!",
+      });
+    }
+
+    // Format lại dữ liệu trả về
+    const formattedTravelTours = travelTours.map((travelTour) => ({
+      id: travelTour.id,
+      name: travelTour.Tour?.name_tour || null,
+      start_day: travelTour.start_day,
+      end_day: travelTour.end_day,
+      max_people: travelTour.max_people,
+      current_people: travelTour.current_people,
+      start_location: travelTour.Tour?.startLocation || null,
+      end_location: travelTour.Tour?.endLocation || null,
+      bookings: travelTour.Bookings.map((booking) => ({
+        id: booking.id,
+        name: booking.name,
+        email: booking.email,
+        phone: booking.phone,
+        number_adult: booking.number_adult,
+        number_children: booking.number_children,
+        number_toddler: booking.number_toddler,
+        booking_date: booking.booking_date,
+      })),
+    }));
+
+    res.status(200).json({
+      message: "Lấy danh sách TravelTour thành công!",
+      data: formattedTravelTours,
     });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách TravelTour:", error);

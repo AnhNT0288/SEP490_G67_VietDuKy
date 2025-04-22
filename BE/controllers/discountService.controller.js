@@ -2,6 +2,8 @@ const db = require("../models");
 const DiscountService = db.DiscountService;
 const ProgramDiscount = db.ProgramDiscount;
 const TravelTour = db.TravelTour;
+const Tour = db.Tour;
+const { Op } = require("sequelize");
 
 // Lấy tất cả dịch vụ giảm giá
 exports.getAllDiscountServices = async (req, res) => {
@@ -9,7 +11,7 @@ exports.getAllDiscountServices = async (req, res) => {
     const discountServices = await DiscountService.findAll({
       include: [
         { model: ProgramDiscount, as: "programDiscount" },
-        { model: TravelTour, as: "travelTour" },
+        { model: TravelTour, as: "travelTour", include: [{ model: Tour }] },
       ],
     });
     res.status(200).json({
@@ -20,6 +22,59 @@ exports.getAllDiscountServices = async (req, res) => {
     res.status(500).json({
       message: "Lỗi khi lấy danh sách dịch vụ giảm giá",
       error: error.message,
+    });
+  }
+};
+
+exports.addTravelTourToDiscountService = async (req, res) => {
+  try {
+    const now = new Date();
+    const sevenDaysLater = new Date(now);
+    sevenDaysLater.setDate(now.getDate() + 7);
+
+    // Tìm các tour sắp khởi hành và còn chỗ trống
+    const upcomingTours = await db.TravelTour.findAll({
+      where: {
+        start_day: {
+          [Op.between]: [now, sevenDaysLater]
+        },
+        current_people: {
+          [Op.lt]: db.sequelize.literal('max_people - 10')
+        }
+      }
+    });
+
+    // Tạo DiscountService cho mỗi tour tìm được
+    const createdServices = [];
+    for (const tour of upcomingTours) {
+      // Kiểm tra xem đã có DiscountService cho tour này chưa
+      const existingService = await db.DiscountService.findOne({
+        where: {
+          travel_tour_id: tour.id,
+          program_discount_id: 1
+        }
+      });
+
+      // Nếu chưa có thì tạo mới
+      if (!existingService) {
+        const discountService = await db.DiscountService.create({
+          travel_tour_id: tour.id,
+          program_discount_id: 1 // ID cố định là 1 theo yêu cầu
+        });
+        createdServices.push(discountService);
+      }
+    }
+
+    return res.status(200).json({
+      message: `Đã tạo ${createdServices.length} dịch vụ giảm giá tự động!`,
+      data: createdServices
+    });
+
+  } catch (error) {
+    console.error("Lỗi khi thêm tour vào dịch vụ giảm giá:", error);
+    res.status(500).json({
+      message: "Lỗi khi thêm tour vào dịch vụ giảm giá!",
+      error: error.message
     });
   }
 };
@@ -54,11 +109,11 @@ exports.getDiscountServiceById = async (req, res) => {
 // Tạo dịch vụ giảm giá mới
 exports.createDiscountService = async (req, res) => {
   try {
-    const { travel_tour_id, program_discount_id } = req.body;
+    const { travel_tour_id } = req.body;
 
     const newDiscountService = await DiscountService.create({
       travel_tour_id,
-      program_discount_id,
+      program_discount_id: 1,
     });
 
     res.status(201).json({

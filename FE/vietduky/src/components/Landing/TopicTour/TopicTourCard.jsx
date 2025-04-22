@@ -31,7 +31,7 @@ const TopicTourCard = ({
 
   return (
     <div
-      className="w-96 px-2 py-3 bg-white rounded-2xl flex flex-col gap-2 hover:bg-gray-300 cursor-pointer relative group"
+      className="lg:w-96 md:w-80 px-2 py-3 bg-white rounded-2xl flex flex-col gap-2 hover:bg-gray-300 cursor-pointer relative group sm:w-80"
       onClick={() => navigate(`/tour/${id}`)}
     >
       {/* Hình ảnh + Thời gian */}
@@ -53,7 +53,7 @@ const TopicTourCard = ({
         </button>
       </div>
       {/* Tiêu đề */}
-      <h3 className="text-sky-900 text-base font-bold leading-tight">
+      <h3 className="text-sky-900 text-base font-bold leading-tight truncate overflow-hidden whitespace-nowrap">
         {name_tour}
       </h3>
       {/* Thông tin tour */}

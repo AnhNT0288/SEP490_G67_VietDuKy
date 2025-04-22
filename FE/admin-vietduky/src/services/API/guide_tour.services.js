@@ -70,3 +70,18 @@ export function getAllTravelGuides() {
             throw err;
         });
 }
+export function getTravelGuidesByStaffId(staffId) {
+    return restClient({
+        url: `travel-guide/staff/${staffId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then(res => res.data.data || [])
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên của nhân viên:", err.response?.data || err);
+            throw err;
+        });
+}
+

@@ -435,7 +435,7 @@ exports.createBooking = async (req, res) => {
         // Kiểm tra tour có tồn tại không
         const travelTour = await TravelTour.findByPk(travel_tour_id);
         if (!travelTour) {
-            return res.status(200).json({
+            return res.status(500).json({
                 message: "Tour không tồn tại!",
             });
         }
@@ -450,10 +450,9 @@ exports.createBooking = async (req, res) => {
             number_adult +
             number_children +
             number_toddler +
-            number_newborn +
             travelTour.current_people;
         if (total_people > travelTour.max_people) {
-            return res.status(200).json({
+            return res.status(500).json({
                 message: "Số lượng người đã vượt quá số lượng tối đa của chuyến!",
             });
         }
@@ -492,9 +491,6 @@ exports.createBooking = async (req, res) => {
             voucher_id,
             booking_code
         });
-        travelTour.current_people +=
-            number_adult + number_children + number_toddler;
-        await travelTour.save();
 
         // Xử lý danh sách passenger nếu có
         if (passengersArray && passengersArray.length > 0) {
@@ -510,6 +506,9 @@ exports.createBooking = async (req, res) => {
                         "Số lượng thông tin hành khách không khớp với số lượng người đã đăng ký!",
                 });
             }
+            travelTour.current_people +=
+                number_adult + number_children + number_toddler;
+            await travelTour.save();
 
             // Tạo danh sách passenger
             const passengerPromises = passengersArray.map((passenger) => {
@@ -520,6 +519,7 @@ exports.createBooking = async (req, res) => {
                     phone_number: passenger.phone_number,
                     booking_id: newBooking.id,
                     passport_number: passenger.passport_number,
+                    single_room: passenger.single_room
                 });
             });
 

@@ -41,7 +41,7 @@ export default function SearchTour() {
 
   const handleSearch = () => {
     // Điều hướng đến trang listTour với các tham số
-    navigate('/listTour', {
+    navigate("/listTour", {
       state: {
         departure: selectedStart,
         date: date,
@@ -53,120 +53,112 @@ export default function SearchTour() {
   return (
     <div className="relative">
       {/* Background Image */}
-      <div className="relative w-100 h-[500px] overflow-hidden bg-opacity-30 rounded-b-[48px]">
+      <div className="relative w-full h-[500px] overflow-hidden rounded-b-[48px]">
         <img
           src={Banner}
           alt="Background"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            filter: "brightness(70%)",
-            position: "absolute",
-            top: 0,
-            transform: "scale(1.1)",
-            transition: "transform 0.5s ease",
-          }}
+          className="w-full h-full object-cover brightness-[70%] scale-[1.1] transition-transform duration-500"
         />
-      </div>
 
-      {/* Search Box */}
-      <div className="absolute w-full bg-[rgba(0,0,0,0.3)] shadow-md rounded mx-auto bottom-20 left-1/4 transform -translate-x-1/4 max-w-5xl z-10">
-        <div className="flex flex-col justify-center text-left p-10 text-white">
-          <h2 className="text-5xl font-bold leading-10">Thế giới tour trong tay bạn</h2>
-          <p className="text-xl font-normal leading-snug mt-2">Phục vụ tận tâm, giá siêu ưu đãi</p>
-        </div>
-        {/* Search Form */}
-        <div className="space-y-4 p-4 bg-transparent rounded">
-          <div className="flex items-center bg-white rounded p-4 h-16 w-full text-lg">
-            <span className="text-gray-500 mr-3 text-xl">
-              <img src={Icons.LocationThin} className="w-6 h-6" />
-            </span>
-            <input
-              type="text"
-              placeholder="Nhập điểm du lịch"
-              className="w-full outline-none text-lg p-2"
-              value={destination} // Gán giá trị cho ô nhập
-              onChange={(e) => setDestination(e.target.value)} // Cập nhật state destination
-            />
+        <div className="absolute bg-[rgba(0,0,0,0.3)] inset-0 flex flex-col justify-center items-center px-4 sm:px-10">
+          <div className="text-white text-center max-w-4xl">
+            <h2 className="text-3xl sm:text-5xl font-bold leading-snug sm:leading-[3.5rem] search-tour-title">
+              Thế giới tour trong tay bạn
+            </h2>
+            <p className="text-sm sm:text-xl font-normal mt-2 search-tour-subtitle">
+              Phục vụ tận tâm, giá siêu ưu đãi
+            </p>
           </div>
 
-          <div className="grid grid-cols-5 gap-4">
-            <div className="flex items-center bg-white rounded p-2 w-full col-span-2">
-              <img
-                src={Icons.CalendarThin}
-                className="w-6 h-6 text-gray-400 ml-1"
-              />
-
-              <div className="ml-4 flex flex-col">
-                <span className="text-gray-400 text-normal">
-                  Ngày khởi hành
-                </span>
-                <span
-                  className="text-black text-md cursor-pointer"
-                  onClick={() =>
-                    document.getElementById("datePicker").showPicker()
-                  }
-                >
-                  {date ? date : "Chọn ngày khởi hành"}
-                </span>
-              </div>
-
+          {/* Search Form */}
+          <div className="w-full max-w-4xl bg-white rounded-lg mt-6 p-4 shadow-md">
+            <div className="flex items-center bg-gray-100 rounded mb-4 px-3 py-2">
+              <img src={Icons.LocationThin} className="w-5 h-5 mr-2" />
               <input
-                type="date"
-                id="datePicker"
-                className="absolute opacity-0 w-0 h-0"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+                type="text"
+                placeholder="Nhập điểm du lịch"
+                className="w-full bg-transparent outline-none text-sm sm:text-lg"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
               />
             </div>
 
-            <div className="relative w-full col-span-2" ref={dropdownRef}>
-              {/* Vùng bấm mở dropdown */}
-              <div
-                className="flex items-center bg-white rounded p-2 w-full cursor-pointer"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                {/* Icon */}
-                <img src={Icons.PlanePaper} className="text-gray-400 w-6 h-6" />
-
-                {/* Text */}
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+              {/* Ngày khởi hành */}
+              <div className="flex items-center bg-gray-100 rounded p-2 col-span-1 sm:col-span-2">
+                <img
+                  src={Icons.CalendarThin}
+                  className="w-5 h-5 text-gray-400 ml-1"
+                />
                 <div className="ml-3 flex flex-col">
-                  <span className="text-gray-400 text-normal">
-                    Điểm khởi hành
-                  </span>
-                  <span className="text-black text-md">
-                    {selectedStart ? selectedStart : "Chọn điểm khởi hành"}
+                  <span className="text-gray-400 text-sm">Ngày khởi hành</span>
+                  <span
+                    className="text-black text-sm cursor-pointer"
+                    onClick={() =>
+                      document.getElementById("datePicker").showPicker()
+                    }
+                  >
+                    {date ? date : "Chọn ngày khởi hành"}
                   </span>
                 </div>
+                <input
+                  type="date"
+                  id="datePicker"
+                  className="absolute opacity-0 w-0 h-0"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
               </div>
 
-              {/* Dropdown List */}
-              {isOpen && (
-                <div className="absolute left-0 top-full mt-1 w-full border rounded bg-white shadow-md">
-                  {locations.map((location) => (
-                    <div
-                      key={location.id}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                      onClick={() => {
-                        setSelectedStart(location.name_location);
-                        setIsOpen(false);
-                      }}
-                    >
-                      {location.name_location}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col col-span-1">
-              <button
-                onClick={handleSearch}
-                className="bg-[#A80F21] text-white h-[64px] p-4 rounded text-xl shadow-xl hover:bg-[#991b1b] transition duration-300 ease-in-out"
+              {/* Điểm khởi hành */}
+              <div
+                className="relative col-span-1 sm:col-span-2"
+                ref={dropdownRef}
               >
-                TÌM
-              </button>
+                <div
+                  className="flex items-center bg-gray-100 rounded p-2 cursor-pointer"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  <img
+                    src={Icons.PlanePaper}
+                    className="w-5 h-5 text-gray-400"
+                  />
+                  <div className="ml-3 flex flex-col">
+                    <span className="text-gray-400 text-sm">
+                      Điểm khởi hành
+                    </span>
+                    <span className="text-black text-sm">
+                      {selectedStart ? selectedStart : "Chọn điểm khởi hành"}
+                    </span>
+                  </div>
+                </div>
+                {isOpen && (
+                  <div className="absolute left-0 top-full mt-1 w-full border rounded bg-white shadow-md z-50">
+                    {locations.map((location) => (
+                      <div
+                        key={location.id}
+                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                        onClick={() => {
+                          setSelectedStart(location.name_location);
+                          setIsOpen(false);
+                        }}
+                      >
+                        {location.name_location}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Nút TÌM */}
+              <div className="col-span-1">
+                <button
+                  onClick={handleSearch}
+                  className="w-full bg-[#A80F21] text-white py-3 rounded text-base sm:text-xl font-semibold hover:bg-[#991b1b] transition"
+                >
+                  TÌM
+                </button>
+              </div>
             </div>
           </div>
         </div>

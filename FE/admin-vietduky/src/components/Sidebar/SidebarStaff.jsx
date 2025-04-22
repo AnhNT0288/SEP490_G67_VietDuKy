@@ -18,7 +18,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
             icon: Icons.TourIcon,
             subItems: [
                 { id: 201, name: "Vị trí", path: "/managementLocation" },
-                { id: 202, name: "Chuyến du lịch", path: "/managementTour" },
+                { id: 202, name: "Chuyến du lịch", path: "/managementTourForStaff" },
                 { id: 203, name: "Chủ đề", path: "/managementTheme" },
             ],
         },
@@ -75,7 +75,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
             name: "Quản lý tài khoản",
             icon: Icons.AccountIcon,
             subItems: [
-                { id: 901, name: "Nhân viên", path: "/managementStaff" },
+                { id: 901, name: "Nhân viên", path: "/managementStaffTourGuide" },
                 // { id: 902, name: "Phân quyền", path: "/managementUserRole" },
             ],
         },

@@ -79,3 +79,37 @@ export function closeTravelTour(id) {
         throw error;
       });
 }
+
+export function getTravelToursByStaffId(staffId) {
+  return restClient({
+    url: `user/travel-tours/${staffId}`,
+    method: "GET",
+  })
+      .then((response) => {
+        console.log("📥 API trả về:", response.data);
+        return response.data;
+      })
+      .catch((error) => {
+        console.error("Lỗi API:", error.response?.data || error);
+        throw error;
+      });
+}
+
+// Lấy danh sách Travel Tours theo nhân viên và điểm đến
+export async function getTravelToursByStaffAndEndLocation(staffId, endLocationId) {
+    try {
+        const response = await restClient({
+            url: `travel-tour/by-staff-end-location/${staffId}`,
+            method: "GET",
+            headers: {
+            },
+        });
+        return response.data.data;
+    } catch (error) {
+        console.error("❌ Lỗi khi lấy danh sách Travel Tours:", error.response?.data || error);
+        throw error;
+    }
+}
+
+
+

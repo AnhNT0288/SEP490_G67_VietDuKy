@@ -13,7 +13,7 @@ export default function SearchBar({ tours, travelTours, filteredTours }) {
             Chúng tôi tìm thấy{" "}
             <span className="font-bold text-red-600">
               {" "}
-              {filteredTours.length > 0 ? filteredTours.length : tours.length}
+              {tours.length || filteredTours.length}
             </span>{" "}
             chương trình tour cho quý khách
           </div>

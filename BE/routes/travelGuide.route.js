@@ -36,8 +36,8 @@ router.post(
 );
 router.put(
   "/update/:userId",
-    authenticateUser,
-    checkRoles(["admin", "staff"]),
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
   travelGuideController.updateTravelGuide
 );
 router.delete(
@@ -92,8 +92,8 @@ router.delete(
 
 router.get(
   "/staff/:staff_id",
-  // authenticateUser,
-  // checkRoles(["staff", "admin"]),
+  authenticateUser,
+  checkRoles(["staff", "admin"]),
   travelGuideController.getTravelGuidesByStaff
 );
 
@@ -118,4 +118,39 @@ router.get(
   travelGuideController.getAllTravelGuides
 );
 
+router.put(
+  "/update-current-location/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.updateCurrentLocation
+);
+
+router.get(
+  "/current-location/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getCurrentLocation
+);
+
+router.get(
+  "/assigned-travel-guides/staff/:staff_id/",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getAssignedTravelGuidesByStaff
+);
+
+router.get(
+  "/by-staff/:user_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getTravelGuidesByStaffWithLocation
+);
+
+// Lấy danh sách TravelGuide theo TravelTour
+router.get(
+  "/travel-tour/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  travelGuideController.getTravelGuidesByTravelTour
+);
 module.exports = router;
