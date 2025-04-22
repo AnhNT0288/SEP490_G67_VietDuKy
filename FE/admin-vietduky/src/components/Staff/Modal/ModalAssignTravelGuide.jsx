@@ -1,189 +1,240 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { getGuidesByTravelTourId } from "../../../services/API/guide_tour.service.js";
+import {getGuidesByTravelTourId} from "../../../services/API/guide_tour.service.js";
+import ModalAssignPassenger from "./ModalAssignPassenger.jsx";
+import ModalAssignGuide from "../../ModalManage/ModalAdd/ModalAssignGuide.jsx";
 
 // eslint-disable-next-line react/prop-types
-export default function ModalAssignGuide({ tourId, onClose }) {
+export default function ModalAssignTravelGuide({ tourId, onClose }) {
     const [tourInfo, setTourInfo] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [guides, setGuides] = useState([]);
-    const [openAssignModal, setOpenAssignModal] = useState(false);
-    const [filterGender, setFilterGender] = useState("all");
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedGuide, setSelectedGuide] = useState(null);
+    const [openAssignGuideModal, setOpenAssignGuideModal] = useState(false);
 
-    // useEffect(() => {
-    //     const fetchGuides = async () => {
-    //         try {
-    //             const data = await getGuidesByTravelTourId(tourId);
-    //             setGuides(data);
-    //         } catch (error) {
-    //             console.error("Không thể load danh sách hướng dẫn viên đã gán:", error);
-    //         }
-    //     };
-    //
-    //     if (tourId) {
-    //         fetchGuides();
-    //     }
-    // }, [tourId]);
     useEffect(() => {
-        // Lấy danh sách hướng dẫn viên và thông tin tour từ API
         getGuidesByTravelTourId(tourId)
-            .then((data) => {
-                console.log("Data from API: ", data);
-                setTourInfo(data?.tour);
-                setGuides(data?.guides || []);
-                setLoading(false);
+            .then((res) => {
+                console.log("DATA 2:", res)
+                setTourInfo(res);
+                setGuides(res?.guides || []);
             })
-            .catch((error) => {
-                console.error("Error fetching guides and tour info:", error);
-                setLoading(false);
-            });
+            .catch((err) => {
+                console.error("Lỗi:", err);
+            })
+            .finally(() => setLoading(false));
     }, [tourId]);
 
-    // Hàm format ngày với kiểm tra hợp lệ
     const formatDate = (date) => {
         if (date && !isNaN(new Date(date))) {
             return format(new Date(date), "dd/MM/yyyy");
-        } else {
-            return "Ngày không hợp lệ";
         }
+        return "Không rõ";
     };
-    // Lọc theo giới tính
-    const filteredGuides = guides.filter((guide) => {
-        if (filterGender === "all") return true;
-        return guide.gender === filterGender;
-    });
 
-    // Phân trang
-    const totalPages = Math.ceil(filteredGuides.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentGuides = filteredGuides.slice(startIndex, startIndex + itemsPerPage);
+    const filteredGuides = guides.filter((g) =>
+        g.display_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-    const handleGenderChange = (e) => {
-        setFilterGender(e.target.value);
-        setCurrentPage(1); // reset về trang đầu
-    };
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    if (loading) return <div className="text-center py-10">Đang tải...</div>;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" onClick={onClose}>
             <div
-                className="bg-white p-6 rounded-lg shadow-lg w-[80%] h-[70%] flex flex-col"
                 onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-lg w-[90%] h-[85%] flex overflow-hidden shadow-xl"
             >
-                <div className="flex justify-between items-center pb-3 mb-3">
-                    <div className="flex items-center gap-4 mb-2">
-                        <h2 className="text-xl font-semibold">Hướng dẫn viên đã phân công</h2>
-                        <select
-                            value={filterGender}
-                            onChange={handleGenderChange}
-                            className="border border-gray-300 rounded-md px-2 py-1"
-                        >
-                            <option value="all">Tất cả</option>
-                            <option value="male">Nam</option>
-                            <option value="female">Nữ</option>
-                            <option value="other">Khác</option>
-                        </select>
+                {/* LEFT: Tour Info */}
+                <div className="w-[30%] p-6 text-sm">
+                    <h2 className="text-xl font-semibold ">Thông tin lịch khởi hành</h2>
+                    <h2 className="text-red-700 mb-4">{tourInfo?.tour?.name_tour}</h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className=" mb-2">
+                            <label className="block font-medium text-gray-700">Điểm khởi hành</label>
+                            <input
+                                type="text"
+                                value={tourInfo?.tour?.start_location?.name_location || ''}
+                                readOnly
+                                className="w-full border border-gray-100 text-gray-500 rounded-md px-3 py-2 "
+                            />
+                        </div>
+                        <div className=" mb-1">
+                            <label className="block font-medium text-gray-700 ">Điểm đến</label>
+                            <input
+                                type="text"
+                                value={tourInfo?.tour?.end_location?.name_location || ''}
+                                readOnly
+                                className="w-full border border-gray-100 text-gray-500 rounded-md px-3 py-2 "
+                            />
+                        </div>
+
+                        <div className=" mb-1">
+                            <label className="block font-medium text-gray-700">Ngày khởi hành</label>
+                            <input
+                                type="text"
+                                value={formatDate(tourInfo?.start_day)}
+                                readOnly
+                                className="w-full border border-gray-100 text-gray-500 rounded-md px-3 py-2 "
+                            />
+                        </div>
+                        <div className=" mb-1">
+                            <label className="block font-medium text-gray-700">Ngày về</label>
+                            <input
+                                type="text"
+                                value={formatDate(tourInfo?.end_day)}
+                                readOnly
+                                className="w-full border border-gray-100 text-gray-500 rounded-md px-3 py-2 "
+                            />
+                        </div>
+
+                        <div className=" mb-1 col-span-2">
+                            <label className="block font-medium text-gray-700">Tình trạng chỗ</label>
+                            <input
+                                type="text"
+                                value={`${tourInfo?.current_people || 0}/${tourInfo?.max_people || 0}`}
+                                readOnly
+                                className="w-full border border-gray-100 text-gray-500 rounded-md px-3 py-2 "
+                            />
+                        </div>
+
+                        <div className=" mb-1 col-span-2">
+                            <label className="block font-medium text-gray-700">Giá Tour</label>
+                            <input
+                                type="text"
+                                value={tourInfo?.price_tour?.toLocaleString("vi-VN") || ''}
+                                readOnly
+                                className="w-full border border-gray-100 text-gray-500 rounded-md px-3 py-2 "
+                            />
+                        </div>
+
+                        <div className="col-span-2 mb-1">
+                            <label className="block font-medium text-gray-700">Nội dung ghi chú</label>
+                            <textarea
+                                value={tourInfo?.note || 'Không có ghi chú nào'}
+                                readOnly
+                                rows={3}
+                                className="w-full border border-gray-100 text-gray-500 rounded-md px-3 py-2  resize-none"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-auto">
-                    {currentGuides.length === 0 ? (
-                            <div>
-                                <p className="text-gray-600">Không có hướng dẫn viên phù hợp.</p>
-                                <button
-                                    onClick={() => setOpenAssignModal(true)}
-                                    className="bg-red-700 text-white px-4 py-2 rounded-md"
-                                >
-                                    Thêm hướng dẫn viên
-                                </button>
-                            </div>
+                {/* RIGHT: Danh sách HDV */}
+                <div className="w-[70%] p-6 flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-base font-semibold">Danh sách HDV</h2>
+                        <button className="bg-[#A31627] text-white px-3 py-2 rounded text-sm">
+                            Phân công tự động
+                        </button>
+                    </div>
+
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm bằng từ khóa"
+                        className="border px-3 py-2 mb-4 rounded-md w-full"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+
+                    {filteredGuides.length === 0 ? (
+                        <div className="flex-1 flex flex-col items-center text-gray-500">
+                            <table className="table-auto w-full text-sm border-t">
+                                <thead>
+                                <tr className="bg-gray-100 text-left">
+                                    <th className="p-2">Tên hướng dẫn viên</th>
+                                    <th className="p-2">Giới tính</th>
+                                    <th className="p-2">Ngày sinh</th>
+                                    <th className="p-2">Số điện thoại</th>
+                                    <th className="p-2">Tổng khách hàng</th>
+                                    <th className="p-2">Thao tác</th>
+                                </tr>
+                                </thead>
+                            </table>
+                            <div className="text-5xl mb-4"></div>
+                            <p className="mb-2">Chưa có hướng dẫn viên trong lịch trình</p>
+                            <p className="text-sm mb-4">Tiến hành gán Hướng dẫn viên</p>
+                            <button
+                                className="bg-[#A31627] text-white px-4 py-2 rounded-md"
+                                onClick={() => setOpenAssignGuideModal(true)}
+                            >
+                                Gán hướng dẫn viên du lịch
+                            </button>
+
+                        </div>
                     ) : (
-                        <table className="w-full table-auto border-collapse">
+                        <table className="table-auto w-full text-sm border-t">
                             <thead>
-                            <tr className="bg-gray-100">
-                                <th className="p-2 text-left w-12">STT</th>
-                                <th className="p-2 text-left">Tên</th>
-                                <th className="p-2 text-left">Giới tính</th>
-                                <th className="p-2 text-left">Email</th>
-                                <th className="p-2 text-left">SĐT</th>
-                                <th className="p-2 text-left">Ảnh đại diện</th>
+                            <tr className="bg-gray-100 text-left">
+                                <th className="p-2">Tên hướng dẫn viên</th>
+                                <th className="p-2">Giới tính</th>
+                                <th className="p-2">Ngày sinh</th>
+                                <th className="p-2">Số điện thoại</th>
+                                <th className="p-2">Tổng khách hàng</th>
+                                <th className="p-2">Thao tác</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {currentGuides.map((guide, index) => (
-                                <tr key={guide.id} className="border-t">
-                                    <td className="p-2">{startIndex + index + 1}</td>
-                                    <td className="p-2">{guide.display_name}</td>
+                            {filteredGuides.map((g) => (
+                                <tr key={g.id} className="border-t">
+                                    <td className="p-2">{g.display_name}</td>
                                     <td className="p-2">
-                                        {guide.gender === "male"
-                                            ? "Nam"
-                                            : guide.gender === "female"
-                                                ? "Nữ"
-                                                : "Khác"}
+                                        {g.gender === "male" ? "Nam" :
+                                            g.gender === "female" ? "Nữ" : "Khác"}
                                     </td>
-                                    <td className="p-2">{guide.email || "Chưa có"}</td>
-                                    <td className="p-2">{guide.phone || "Chưa có"}</td>
+                                    <td className="p-2">{g.birth_date || "Không rõ"}</td>
+                                    <td className="p-2">{g.phone || "Chưa có"}</td>
+                                    <td className="p-2">{g.customer_count || 0}</td>
                                     <td className="p-2">
-                                        {guide.avatar ? (
-                                            <img
-                                                src={guide.avatar}
-                                                alt="avatar"
-                                                className="w-10 h-10 rounded-full object-cover"
-                                            />
-                                        ) : (
-                                            <span>Không có ảnh</span>
-                                        )}
+                                        <button
+                                            onClick={() => setSelectedGuide(g)}
+                                            className="text-blue-600 hover:underline text-sm"
+                                        >
+                                            Gán KH
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedGuide(g)}
+                                            className="text-red-600 hover:underline text-sm ml-2"
+                                        >
+                                            Xóa
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
                             </tbody>
                         </table>
                     )}
-                </div>
-
-                {/* Phân trang */}
-                {totalPages > 1 && (
-                    <div className="flex justify-center mt-4 gap-2">
-                        {Array.from({ length: totalPages }, (_, i) => (
-                            <button
-                                key={i}
-                                className={`px-3 py-1 rounded-md border ${
-                                    currentPage === i + 1
-                                        ? "bg-red-600 text-white"
-                                        : "bg-white text-gray-700"
-                                }`}
-                                onClick={() => setCurrentPage(i + 1)}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
+                    <div className="pt-6 flex justify-end">
+                        <button
+                            onClick={onClose}
+                            className="border border-gray-300 px-4 py-2 rounded-md text-gray-700"
+                        >
+                            Hủy
+                        </button>
+                        <button className="ml-2 bg-red-700 text-white px-4 py-2 rounded-md">
+                            Cập nhật
+                        </button>
                     </div>
-                )}
-
-                {/* Footer */}
-                <div className="pt-4 flex justify-end border-t border-gray-200 mt-4">
-                    <button
-                        onClick={onClose}
-                        className="border border-gray-300 px-4 py-2 rounded-md text-gray-700"
-                    >
-                        Hủy
-                    </button>
                 </div>
-
-                {openAssignModal && (
+                {selectedGuide && (
+                    <ModalAssignPassenger
+                        tourId={tourId}
+                        guide={selectedGuide}
+                        onClose={() => setSelectedGuide(null)}
+                    />
+                )}
+                {openAssignGuideModal && (
                     <ModalAssignGuide
-                        travel_tour_id={travel_tour_id}
-                        locationId={locationId}
-                        onClose={() => setOpenAssignModal(false)}
+                        locationId={tourInfo?.tour?.start_location?.id}
+                        travel_tour_id={tourId}
+                        onClose={() => setOpenAssignGuideModal(false)}
                         onAssignSuccess={() => {
-                            setOpenAssignModal(false);
-                            setTimeout(() => {
-                                getGuidesByTravelTourId(travel_tour_id).then(setGuides);
-                            }, 300);
+                            setOpenAssignGuideModal(false);
+                            getGuidesByTravelTourId(tourId)
+                                .then((res) => {
+                                    setTourInfo(res);
+                                    setGuides(res?.guides || []);
+                                });
                         }}
                     />
                 )}

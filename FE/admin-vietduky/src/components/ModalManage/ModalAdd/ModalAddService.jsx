@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createService } from "../../../services/API/service.service.js"; // Import createService
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddService({ onClose, onSuccess }) {
     const [serviceData, setServiceData] = useState({
         name_service: "",
@@ -9,8 +10,6 @@ export default function ModalAddService({ onClose, onSuccess }) {
     });
     const [errors, setErrors] = useState({
         name_service: false,
-        description_service: false,
-        price_service: false,
     });
     const [loading, setLoading] = useState(false);
 
@@ -27,8 +26,6 @@ export default function ModalAddService({ onClose, onSuccess }) {
         // Validation
         const newErrors = {
             name_service: !serviceData.name_service.trim(),
-            description_service: !serviceData.description_service.trim(),
-            price_service: !serviceData.price_service.trim() || isNaN(serviceData.price_service) || serviceData.price_service <= 0,
         };
         setErrors(newErrors);
 
@@ -93,19 +90,18 @@ export default function ModalAddService({ onClose, onSuccess }) {
                     {errors.name_service && <p className="text-red-500 text-sm">Vui lòng nhập tên dịch vụ</p>}
 
                     {/* Service Description */}
-                    <label className="block mb-2 font-medium before:content-['*'] before:text-red-500 before:mr-1">Mô tả</label>
+                    <label className="block mb-2 font-medium ">Mô tả</label>
                     <textarea
                         name="description_service"
                         className={`w-full p-2 border rounded mb-4 h-[80px] ${errors.description_service ? 'border-red-500' : ''}`}
                         placeholder="Mô tả dịch vụ"
                         value={serviceData.description_service}
                         onChange={handleChange}
-                        required
                     />
                     {errors.description_service && <p className="text-red-500 text-sm">Vui lòng nhập mô tả dịch vụ</p>}
 
                     {/* Service Price */}
-                    <label className="block mb-2 font-medium before:content-['*'] before:text-red-500 before:mr-1">Giá dịch vụ</label>
+                    <label className="block mb-2 font-medium ">Giá dịch vụ</label>
                     <input
                         type="number"
                         name="price_service"
@@ -113,7 +109,6 @@ export default function ModalAddService({ onClose, onSuccess }) {
                         placeholder="Giá dịch vụ"
                         value={serviceData.price_service}
                         onChange={handleChange}
-                        required
                     />
                     {errors.price_service && <p className="text-red-500 text-sm">Vui lòng nhập giá dịch vụ hợp lệ</p>}
 

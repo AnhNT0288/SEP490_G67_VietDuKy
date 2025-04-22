@@ -116,4 +116,16 @@ export const getTravelTourDetailForGuide = async (travelTourId) => {
     throw error;
   }
 };
-
+// Lấy danh sách hành khách được gán cho hướng dẫn viên
+export const getPassengersByGuideId = async (guideId) => {
+  try {
+    const response = await restClient({
+      url: `passenger/booking/travel-guide/${guideId}`,
+      method: "GET",
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách hành khách theo hướng dẫn viên:", error);
+    throw error;
+  }
+};

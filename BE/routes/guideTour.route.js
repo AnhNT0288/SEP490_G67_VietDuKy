@@ -31,7 +31,7 @@ router.put(
 router.get(
   "/user/:id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff","tour_guide"]),
   GuideTourController.getGuideTourByUserId
 );
 router.get(

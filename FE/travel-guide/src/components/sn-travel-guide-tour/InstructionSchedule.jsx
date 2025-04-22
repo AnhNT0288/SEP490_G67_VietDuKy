@@ -93,7 +93,7 @@ const InstructionSchedule = () => {
     };
 
     fetchTours();
-  }, [search, startLocation, endLocation, pagination, tab, travelGuideId, startDate]); // ✅ Đảm bảo thêm `startDate`
+  }, [search, startLocation, endLocation, pagination, tab, travelGuideId, startDate]);
 
   // Reset về trang 1 mỗi khi filter thay đổi
   useEffect(() => {
@@ -180,12 +180,16 @@ const InstructionSchedule = () => {
 
         <div className="flex-1">
           {viewType === "calendar" ? (
-              <CalendarTravelTour travelTours={tours} />
+              <CalendarTravelTour
+                  travelTours={tours}
+                  guideId={travelGuideId}
+              />
           ) : (
               <InstructionScheduleTable
                   loading={loading}
                   tours={tours}
                   setTourSelected={setTourSelected}
+                  guideId={travelGuideId}
               />
           )}
         </div>
@@ -200,6 +204,7 @@ const InstructionSchedule = () => {
             tourSelected={tourSelected}
             open={!!tourSelected}
             onClose={() => setTourSelected(null)}
+            guideId={travelGuideId}
         />
       </div>
   );

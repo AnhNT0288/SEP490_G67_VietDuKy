@@ -7,9 +7,9 @@ const InstructionScheduleTable = ({ tours, loading, setTourSelected }) => {
     return (
     <table className="w-full border-collapse">
       <thead>
-        <tr className="text-SmokyGray text-left bg-gray-100">
+        <tr className="text-SmokyGray text-left bg-gray-100 ">
           <th className="p-2">STT</th>
-          <th className="p-2">Tên tour</th>
+          <th className="p-2 ">Tên tour</th>
           <th className="p-2 text-center">Điểm khởi hành</th>
           <th className="p-2 text-center">Điểm kết thúc</th>
           <th className="p-2 text-center">Ngày khởi hành</th>

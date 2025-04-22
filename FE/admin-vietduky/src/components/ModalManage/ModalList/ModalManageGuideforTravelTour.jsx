@@ -14,7 +14,9 @@ export default function ModalManageGuideforTravelTour({ travel_tour_id, location
         const fetchGuides = async () => {
             try {
                 const data = await getGuidesByTravelTourId(travel_tour_id);
-                setGuides(data);
+                console.log("DATA FROM API:", data);
+
+                setGuides(data || []);
             } catch (error) {
                 console.error("Không thể load danh sách hướng dẫn viên đã gán:", error);
             }
@@ -156,8 +158,9 @@ export default function ModalManageGuideforTravelTour({ travel_tour_id, location
                         onAssignSuccess={() => {
                             setOpenAssignModal(false);
                             setTimeout(() => {
-                                getGuidesByTravelTourId(travel_tour_id).then(setGuides);
-                            }, 300);
+                                getGuidesByTravelTourId(travel_tour_id).then((data) => {
+                                    setGuides(data?.guides || []);
+                                });                            }, 300);
                         }}
                     />
                 )}

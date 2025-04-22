@@ -71,7 +71,7 @@ export function getGuidesByTravelTourId(travel_tour_id) {
             ...getAuthHeaders(),
         },
     })
-        .then(res => res.data.data?.guides || [])
+        .then(res => res.data?.data || [])
         .catch(err => {
             console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên đã gán:", err.response?.data || err);
             throw err;
