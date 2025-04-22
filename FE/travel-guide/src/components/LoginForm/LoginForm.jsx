@@ -2,12 +2,17 @@ import { login } from "../../services/API/auth.service";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { emailRegex } from "../../utils/emailUtil";
-import Icons from "../Icons/Icons";
+import { encrypt, decrypt } from "../../utils/authUtil";
+import { Eye, EyeOff } from "lucide-react";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -34,6 +39,17 @@ export default function LoginForm() {
     try {
       const response = await login(username, password);
       if (response.status === 200) {
+        toast.success("Đăng nhập thành công!");
+        if (rememberMe) {
+          localStorage.setItem("saved_email", username);
+          localStorage.setItem("saved_password", encrypt(password));
+          localStorage.setItem("access_token", response.data.access_token);
+        } else {
+          localStorage.removeItem("saved_email");
+          localStorage.removeItem("saved_password");
+          localStorage.removeItem("access_token");
+        }
+        // Lưu thông tin người dùng vào localStorage hoặc sessionStorage nếu cần
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem(
           "user",
@@ -61,6 +77,17 @@ export default function LoginForm() {
       });
     }
   };
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("saved_email");
+    const savedPasswordEncrypted = localStorage.getItem("saved_password");
+
+    if (savedEmail && savedPasswordEncrypted) {
+      setUsername(savedEmail);
+      setPassword(decrypt(savedPasswordEncrypted));
+      setRememberMe(true);
+    }
+  }, []);
 
   return (
     <div className="">
@@ -95,17 +122,29 @@ export default function LoginForm() {
       {/* Password Input */}
       <div className="mb-4">
         <label className="block text-gray-700 font-medium">Mật khẩu</label>
-        <input
-          type="password"
-          placeholder="Nhập một mật khẩu"
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-            errors.password
-              ? "border-red-500 focus:ring-red-500"
-              : "border-gray-300 focus:ring-red-500"
-          }`}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Nhập một mật khẩu"
+            className={`w-full px-4 py-2 border rounded-lg pr-10 focus:outline-none focus:ring-2 ${
+              errors.password
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:ring-red-500"
+            }`}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {/* Icon hiện/ẩn mật khẩu */}
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
+
         {errors.password && (
           <p className="text-red-500 text-sm mt-1">{errors.password}</p>
         )}
@@ -114,7 +153,13 @@ export default function LoginForm() {
       {/* Remember Me & Forgot Password */}
       <div className="flex justify-between text-sm text-gray-600 mb-4">
         <label className="flex items-center">
-          <input type="checkbox" className="mr-2" /> Nhớ mật khẩu
+          <input
+            type="checkbox"
+            className="mr-2"
+            checked={rememberMe}
+            onChange={() => setRememberMe(!rememberMe)}
+          />{" "}
+          Nhớ mật khẩu
         </label>
         <a href="/forgot-password" className="text-red-500 hover:underline">
           Quên mật khẩu?

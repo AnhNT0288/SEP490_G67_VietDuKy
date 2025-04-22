@@ -18,9 +18,10 @@ export default function HeaderManage({ toggleSidebar, title }) {
   }, []);
 
   const handleSignout = () => {
-    StorageService.signout(navigate);
+    StorageService.signout();
     setUser(null);
     setIsOpenMenu(false);
+    navigate("/");
   };
 
   return (
@@ -61,7 +62,7 @@ export default function HeaderManage({ toggleSidebar, title }) {
 
           {/* Dropdown Menu */}
           {isOpenMenu && user && (
-            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+            <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
               <p className="text-sm text-gray-700 font-medium px-3 py-1">
                 {user.email}
               </p>

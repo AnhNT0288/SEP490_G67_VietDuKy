@@ -27,6 +27,12 @@ export default function restClient(options) {
     if (StorageService.isExpired()) {
       StorageService.signout();
     }
+    if (err.response) {
+      console.error("❌ RESTClient Error:", err.response);
+    } else {
+      console.error("❌ Axios unknown error:", err.message);
+    }
+    
     return Promise.reject(err);
   });
 }

@@ -48,11 +48,20 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       name: "Quản lý khuyến mãi",
       icon: Icons.PromotionIcon,
       subItems: [
-        { id: 601, name: "Chương trình triết khấu", path: "/managementSaleProgram" },
+        {
+          id: 601,
+          name: "Chương trình triết khấu",
+          path: "/managementSaleProgram",
+        },
         { id: 602, name: "Mã giảm giá", path: "/managementDiscount" },
       ],
     },
-    { id: 7, name: "Quản lý dịch vụ", icon: Icons.ServiceIcon, path: "/managementService" },
+    {
+      id: 7,
+      name: "Quản lý dịch vụ",
+      icon: Icons.ServiceIcon,
+      path: "/managementService",
+    },
   ];
 
   const systemItems = [
@@ -130,7 +139,9 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
             const isParentSelected =
               selected && item.subItems?.some((sub) => sub.id === selected);
             const isSelected =
-              selected === item.id || isParentSelected || openSubMenu === item.id;
+              selected === item.id ||
+              isParentSelected ||
+              openSubMenu === item.id;
 
             return (
               <li key={item.id}>
@@ -208,7 +219,9 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
             const isParentSelected =
               selected && item.subItems?.some((sub) => sub.id === selected);
             const isSelected =
-              selected === item.id || isParentSelected || openSubMenu === item.id;
+              selected === item.id ||
+              isParentSelected ||
+              openSubMenu === item.id;
 
             return (
               <li key={item.id}>
@@ -225,6 +238,7 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
                       navigate(item.path);
                       setSelected(item.id);
                       setOpenSubMenu(null);
+                      setBreadcrumb([item.name]);
                     }
                   }}
                 >
@@ -263,6 +277,7 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
                             navigate(subItem.path);
                             setSelected(subItem.id);
                             setOpenSubMenu(item.id);
+                            setBreadcrumb([item.name, subItem.name]);
                           }}
                         >
                           {subItem.name}

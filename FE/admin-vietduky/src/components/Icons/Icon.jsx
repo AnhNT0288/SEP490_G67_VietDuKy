@@ -13,6 +13,9 @@ import ArrowBottom from "../../assets/icons/arrow-bottom.svg";
 import ArrowRight from "../../assets/icons/arrow-right.svg";
 import ArrowTop from "../../assets/icons/arrow-top.svg";
 import ArrowLeft from "../../assets/icons/arrow-left.svg";
+import Plane from "../../assets/icons/plane.svg";
+import Logo from "../../assets/icons/logo.svg";
+import VietDuKy from "../../assets/icons/VIỆT DU KÝ.svg";
 
 const Icons = {
   Sidebar: barChartIcon,
@@ -30,6 +33,9 @@ const Icons = {
   ArrowRight: ArrowRight,
   ArrowTop: ArrowTop,
   ArrowLeft: ArrowLeft,
+  Plane: Plane,
+  Logo: Logo,
+  VietDuKy: VietDuKy,
 };
 
 export default Icons;

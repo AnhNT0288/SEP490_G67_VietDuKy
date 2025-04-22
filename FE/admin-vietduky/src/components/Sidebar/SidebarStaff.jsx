@@ -248,6 +248,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
                                                 navigate(subItem.path);
                                                 setSelected(subItem.id);
                                                 setOpenSubMenu(item.id);
+                                                setBreadcrumb([ item.name, subItem.name]);
                                             }}
                                         >
                                             {subItem.name}

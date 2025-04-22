@@ -55,6 +55,9 @@ const InstructionSchedule = () => {
     }
   }, [travelGuides, userId]);
 
+  console.log("travelGuideId", travelGuideId);
+  
+
   useEffect(() => {
     const fetchTours = async () => {
       if (!travelGuideId) {

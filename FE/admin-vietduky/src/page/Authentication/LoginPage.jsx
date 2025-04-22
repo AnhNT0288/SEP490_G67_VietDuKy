@@ -1,4 +1,5 @@
-import LoginForm from "../components/LoginForm/LoginForm";
+import Icons from "../../components/Icons/Icon";
+import LoginForm from "../../components/LoginForm/LoginForm";
 export default function LoginPage() {
   return (
     <div className="flex h-screen w-full">
@@ -9,7 +10,7 @@ export default function LoginPage() {
           backgroundImage: "url('../../public/Image/loginImage.png')",
         }}
       >
-        <div className="absolute inset-0 "></div>
+        <div className="absolute inset-0 bg-black bg-opacity-30 lg:bg-opacity-30"></div>
         <div className="relative z-10 flex flex-col items-center justify-center text-white text-center p-10">
           <img
             src="/Image/Logo.png"
@@ -32,13 +33,9 @@ export default function LoginPage() {
       {/* Right Section - Background Image & Login Form */}
       <div
         className="w-full lg:w-1/2 flex items-center justify-center relative bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://free.vector6.com/wp-content/uploads/2021/03/E269-vector-trong-dong.jpg')",
-        }}
       >
-        <div className="absolute inset-0 bg-white bg-opacity-80"></div>
-        <div className="relative z-10">
+        <img src={Icons.Plane} className="absolute right-0 top-10" />
+        <div className="relative z-10 w-full max-w-md">
           <LoginForm />
         </div>
       </div>

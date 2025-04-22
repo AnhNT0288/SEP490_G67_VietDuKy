@@ -1,7 +1,8 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LoginPage from "./page/LoginPage.jsx";
-import RegisterPage from "./page/RegisterPage.jsx";
+import Modal from "react-modal";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import ManagementTour from "./page/Management/ManagementTour.jsx";
 import ManagementLocation from "./page/Management/ManagementLocation.jsx";
 import ManagementTravelTour from "./page/Management/ManagementTravelTour.jsx";
@@ -26,50 +27,76 @@ import RoleBasedRoute from "./components/RoleBasedRoute.jsx";
 import PageAssignedGuides from "./components/Staff/PageAssignedGuides.jsx";
 import StaffTourGuideManagement from "./components/Staff/Management/StaffTourGuideManagement.jsx";
 import AssignedTravelToursManagement from "./components/Staff/Management/AssignedTravelToursManagement.jsx";
+import LoginPage from "./page/Authentication/LoginPage.jsx";
+import ForgotPasswordFlow from "./page/Authentication/ForgotPasswordFlow.jsx";
+// import RegisterPage from "./page/Authentication/RegisterPage.jsx";
+
+Modal.setAppElement("#root");
 
 function App() {
   return (
-      <BrowserRouter>
-        <Routes>
-          <Route path={"/"} element={<LoginPage />} />
-          <Route path={"/register"} element={<RegisterPage />} />
-          <Route path="/auth/callback" element={<GoogleAuthCallback />} />
-          <Route path={"/account"} element={<PrivateRoute />}>
-            <Route path="profile" element={<Profile />} />
-          </Route>
+    <BrowserRouter>
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
-          <Route path={"/calendar"} element={<Calendar />} />
-          {/*<Route path={'/forgot-password'}/>*/}
+      <Routes>
+        <Route path={"/"} element={<LoginPage />} />
+        {/* <Route path={"/register"} element={<RegisterPage />} /> */}
+        <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
+        <Route path="/auth/callback" element={<GoogleAuthCallback />} />
+        <Route path={"/account"} element={<PrivateRoute />}>
+          <Route path="profile" element={<Profile />} />
+        </Route>
 
-          <Route element={<RoleBasedRoute allowedRoles={["admin", "staff"]} />}>
-            <Route path="/managementLocation" element={<ManagementLocation />} />
-            <Route path="/managementTour" element={<ManagementTour />} />
-            <Route path="/managementDiscount" element={<ManagementDiscount />} />
-            <Route path="/managementService" element={<ManagementService />} />
-            <Route path="/managementStaff" element={<ManagementStaff />} />
-            <Route path="/managementPost" element={<ManagementPost />} />
-            <Route path="/managementCategory" element={<ManagementDirectory />} />
-            <Route path="/managementTheme" element={<ManagementTheme />} />
-            <Route path="/managementSaleProgram" element={<ManagementSaleProgram />} />
-            <Route path="/staff/:id/assigned-guides" element={<PageAssignedGuides />} />
-            <Route path="/managementStaffTourGuide" element={<StaffTourGuideManagement />} />
-            <Route path="/managementTourForStaff" element={<AssignedTravelToursManagement/>} />
-          </Route>
+        <Route path={"/calendar"} element={<Calendar />} />
+        {/*<Route path={'/forgot-password'}/>*/}
 
-          {/* Admin-only routes */}
-          <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
-            <Route path="/managementTravelTour" element={<ManagementTravelTour />} />
-            <Route path="/managementHotel" element={<ManagementHotel />} />
-            <Route path="/managementRestaurant" element={<ManagementRestaurant />} />
-            <Route path="/managementVehicle" element={<ManagementVehicle />} />
-            <Route path="/managementUserRole" element={<ManagementUserRole />} />
-          </Route>
+        <Route element={<RoleBasedRoute allowedRoles={["admin", "staff"]} />}>
+          <Route path="/managementLocation" element={<ManagementLocation />} />
+          <Route path="/managementTour" element={<ManagementTour />} />
+          <Route path="/managementDiscount" element={<ManagementDiscount />} />
+          <Route path="/managementService" element={<ManagementService />} />
+          <Route path="/managementStaff" element={<ManagementStaff />} />
+          <Route path="/managementPost" element={<ManagementPost />} />
+          <Route path="/managementCategory" element={<ManagementDirectory />} />
+          <Route path="/managementTheme" element={<ManagementTheme />} />
+          <Route
+            path="/managementSaleProgram"
+            element={<ManagementSaleProgram />}
+          />
+          <Route
+            path="/staff/:id/assigned-guides"
+            element={<PageAssignedGuides />}
+          />
+          <Route
+            path="/managementStaffTourGuide"
+            element={<StaffTourGuideManagement />}
+          />
+          <Route
+            path="/managementTourForStaff"
+            element={<AssignedTravelToursManagement />}
+          />
+        </Route>
 
-          <Route path={"/modalL"} element={<ModalManageTravelTour />} />
+        {/* Admin-only routes */}
+        <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
+          <Route
+            path="/managementTravelTour"
+            element={<ManagementTravelTour />}
+          />
+          <Route path="/managementHotel" element={<ManagementHotel />} />
+          <Route
+            path="/managementRestaurant"
+            element={<ManagementRestaurant />}
+          />
+          <Route path="/managementVehicle" element={<ManagementVehicle />} />
+          <Route path="/managementUserRole" element={<ManagementUserRole />} />
+        </Route>
 
-          <Route path={"/sidebar_staff"} element={<SidebarStaff/>} />
-        </Routes>
-      </BrowserRouter>
+        <Route path={"/modalL"} element={<ModalManageTravelTour />} />
+
+        <Route path={"/sidebar_staff"} element={<SidebarStaff />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 export default App;

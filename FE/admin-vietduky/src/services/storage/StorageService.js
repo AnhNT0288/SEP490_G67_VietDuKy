@@ -4,6 +4,7 @@ export const StorageService = {
   setRefreshToken: (token) => localStorage.setItem("refresh_token", token),
   setToken: (token) => localStorage.setItem("access_token", token),
   removeToken: () => localStorage.removeItem("access_token"),
+  removeRefreshToken: () => localStorage.removeItem("refresh_token"),
 
   getUser: () => {
     const user = localStorage.getItem("user");
@@ -30,9 +31,9 @@ export const StorageService = {
     localStorage.removeItem("user");
   },
 
-  signout: (navigate) => {
-    StorageService.clearAll();
-    navigate("/");
-    window.location.reload();
+  signout: () => {
+    StorageService.removeToken();
+    StorageService.removeRefreshToken();
+    StorageService.removeUser();
   }
 };
