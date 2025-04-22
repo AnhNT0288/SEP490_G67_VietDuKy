@@ -14,6 +14,23 @@ exports.checkPayment = async (req, res) => {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
     console.log(url);
     try {
+        if (!paymentKey) {
+            return res.status(400).json({
+                message: "Không có mã thanh toán",
+            });
+        }
+        if (!bookingId) {
+            return res.status(400).json({
+                message: "Không có bookingId",
+            });
+        }
+        if (!customerId) {  
+            return res.status(400).json({
+                message: "Không có customerId",
+            });
+        }
+        
+
         const response = await axios.get(url);
 
         console.log("Data from Google Sheets API:", response.data);
