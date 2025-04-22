@@ -6,11 +6,13 @@ import { TravelTourService } from "@/services/API/travel_tour.service";
 import { formatTime } from "@/utils/dateUtil";
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
+import { useNavigate } from "react-router-dom";
 
 // Import Modal từ react-modal
 Modal.setAppElement("#root");
 
 const BookingConfirmation = ({ bookingData }) => {
+  const navigate = useNavigate();
   const [booking, setBooking] = useState([]);
   const [travelTour, setTravelTour] = useState([]);
   const [tour, setTour] = useState([]);
@@ -30,24 +32,17 @@ const BookingConfirmation = ({ bookingData }) => {
     return `${randomLetters}${timestamp}`;
   };
 
-  const createQrSrc = () => {
-    const key = generateAddInfo();
-    const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=${
-      bookingData?.total_cost
-    }&addInfo=start${key}end&accountName=VietDuKy`;
-    setPaymentKey(key); 
-    setQrSrc(src);
-  };
+  // const createQrSrc = () => {
+  //   const key = generateAddInfo();
+  //   const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=${
+  //     bookingData?.total_cost
+  //   }&addInfo=start${key}end&accountName=VietDuKy`;
+  //   setPaymentKey(key); 
+  //   setQrSrc(src);
+  // };
 
-  const paymentData = {
-    bookingId: bookingData?.id,
-    customerId: bookingData?.user_id,
-    paymentKey: paymentKey,
-    // amount: bookingData?.total_cost,
-  };
-
-  console.log("paymentData:", paymentData);
-  console.log("qrSrc:", qrSrc);
+  // console.log("paymentData:", paymentData);
+  // console.log("qrSrc:", qrSrc);
 
   // console.log("bookingData:", bookingData);
   
@@ -86,19 +81,53 @@ const BookingConfirmation = ({ bookingData }) => {
     fetchData();
   }, [bookingData]);
 
+  
+
+  const handleOpenModal = () => {
+    const key = generateAddInfo();     // B1: tạo paymentKey duy nhất
+    setPaymentKey(key);                // B2: lưu key để dùng sau này
+  
+    const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=10000&addInfo=start${key}end&accountName=VietDuKy`;
+    setQrSrc(src);                     // B3: tạo QR dựa trên key
+  
+    setIsQRModalOpen(true);           // B4: mở modal
+  };
+
+  const handleCloseModal = () => {
+    setIsQRModalOpen(false);
+    clearInterval(intervalId); // Dừng kiểm tra khi đóng modal
+    setCountdown(600); // Reset đếm ngược
+  };
+
+  const handleCloseSuccessModal = () => {
+    setIsSuccessModalOpen(false);
+    // Có thể thêm điều hướng hoặc hành động khác ở đây
+  };
+
+  useEffect(() => {
+    if (isQRModalOpen && paymentKey) {
+      startPaymentCheck();
+    }
+  }, [isQRModalOpen, paymentKey]);
+
   const checkPayment = async () => {
+    const paymentData = {
+      bookingId: bookingData?.id,
+      customerId: bookingData?.user_id,
+      paymentKey: paymentKey, // Sử dụng đúng key đã tạo
+    };
+  
     try {
       const response = await PaymentService.checkPayment(paymentData);
       if (response?.status === 200) {
-        console.log("Kết quả kiểm tra thanh toán:", response.data);
-        setIsSuccessModalOpen(true); // Hiển thị modal thông báo thành công
-        clearInterval(intervalId); // Dừng kiểm tra
+        setIsSuccessModalOpen(true);
+        clearInterval(intervalId);
+        setCountdown(0); // Dừng đếm ngược khi thanh toán thành công
       }
     } catch (error) {
       console.error("Lỗi khi kiểm tra thanh toán:", error);
     }
   };
-
   const startPaymentCheck = () => {
     // Bắt đầu kiểm tra thanh toán khi modal mở
     const id = setInterval(() => {
@@ -114,23 +143,6 @@ const BookingConfirmation = ({ bookingData }) => {
     }, 2000);
 
     setIntervalId(id); // Lưu intervalId
-  };
-
-  const handleOpenModal = () => {
-    setIsQRModalOpen(true);
-    createQrSrc(); // Tạo mã QR khi mở modal
-    startPaymentCheck(); // Bắt đầu kiểm tra thanh toán khi mở modal
-  };
-
-  const handleCloseModal = () => {
-    setIsQRModalOpen(false);
-    clearInterval(intervalId); // Dừng kiểm tra khi đóng modal
-    setCountdown(600); // Reset đếm ngược
-  };
-
-  const handleCloseSuccessModal = () => {
-    setIsSuccessModalOpen(false);
-    // Có thể thêm điều hướng hoặc hành động khác ở đây
   };
 
   return (
@@ -333,7 +345,7 @@ const BookingConfirmation = ({ bookingData }) => {
             Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
           </p>
           <button
-            onClick={handleCloseSuccessModal}
+            onClick={navigate("/bookingHistory")}
             className="mt-4 px-4 py-2 bg-gray-200 text-gray-500 rounded-md hover:bg-gray-400"
           >
             Đóng
