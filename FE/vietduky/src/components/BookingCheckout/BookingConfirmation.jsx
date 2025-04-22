@@ -18,6 +18,7 @@ const BookingConfirmation = ({ bookingData }) => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Modal thông báo thành công
   const [countdown, setCountdown] = useState(600);
   const [intervalId, setIntervalId] = useState(null);
+  const [paymentKey, setPaymentKey] = useState("");
   const [qrSrc, setQrSrc] = useState("");
 
   const generateAddInfo = () => {
@@ -30,14 +31,14 @@ const BookingConfirmation = ({ bookingData }) => {
   };
 
   const createQrSrc = () => {
+    const key = generateAddInfo();
     const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=${
       bookingData?.total_cost
-    }&addInfo=start${generateAddInfo()}end&accountName=VietDuKy`;
+    }&addInfo=start${key}end&accountName=VietDuKy`;
+    setPaymentKey(key); 
     setQrSrc(src);
-    return src;
   };
 
-  const paymentKey = qrSrc.split("start")[1]?.split("e")[0]; // Lấy paymentKey từ qrSrc
   const paymentData = {
     bookingId: bookingData?.id,
     customerId: bookingData?.user_id,
