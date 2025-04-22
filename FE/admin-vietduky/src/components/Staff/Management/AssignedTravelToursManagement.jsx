@@ -3,6 +3,7 @@ import { format, isAfter, isBefore, isSameDay } from "date-fns";
 import DropdownAssignTravelGuide from "../Dropdown/DropdownAssigntravelGuide.jsx";
 import { getTravelToursByStaffAndEndLocation } from "../../../services/API/travel_tour.service.js";
 import {getAssignedLocationsByStaffId} from "../../../services/API/staff.service.js";
+import ModalAssignTravelGuide from "../Modal/ModalAssignTravelGuide.jsx";
 
 // eslint-disable-next-line react/prop-types
 export default function AssignedTravelToursManagement({ staffId }) {
@@ -16,7 +17,8 @@ export default function AssignedTravelToursManagement({ staffId }) {
     const [startDate, setStartDate] = useState("");
     const [tab, setTab] = useState("all");
     const [assignedLocations, setAssignedLocations] = useState([]);
-
+    const [selectedTour, setSelectedTour] = useState(null); // State quản lý tour được chọn
+    const [openAssignModal, setOpenAssignModal] = useState(false); // State mở modal
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -72,6 +74,11 @@ export default function AssignedTravelToursManagement({ staffId }) {
 
     const totalPages = Math.ceil(filteredTours.length / itemsPerPage);
 
+    // Hàm mở modal gán hướng dẫn viên
+    const handleOpenAssignModal = (tourId) => {
+        setSelectedTour(tourId);
+        setOpenAssignModal(true); // Mở modal
+    };
     return (
         <div className="bg-white p-4 rounded-md">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Danh sách Travel Tour</h2>
@@ -169,7 +176,7 @@ export default function AssignedTravelToursManagement({ staffId }) {
                                     travelTour={tour}
                                     isOpen={openDropdown === tour.id}
                                     setOpenDropdown={setOpenDropdown}
-                                    onAssignGuide={(t) => console.log("Assign guide:", t)}
+                                    onAssignGuide={(t) => handleOpenAssignModal(t.id)} // Gọi hàm mở modal
                                     onViewGuides={(t) => console.log("View guides:", t)}
                                 />
                             </td>
@@ -185,7 +192,13 @@ export default function AssignedTravelToursManagement({ staffId }) {
                     </tbody>
                 </table>
             </div>
-
+            {/* Modal Gán hướng dẫn viên */}
+            {openAssignModal && selectedTour && (
+                <ModalAssignTravelGuide
+                    tourId={selectedTour}
+                    onClose={() => setOpenAssignModal(false)}
+                />
+            )}
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex justify-center mt-6 gap-2">

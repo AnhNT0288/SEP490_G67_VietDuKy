@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { FaUserPlus, FaUsers } from "react-icons/fa";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownAssignTravelGuide({travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides,
-                                                  }) {
+export default function DropdownAssignTravelGuide({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides }) {
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
@@ -39,7 +38,7 @@ export default function DropdownAssignTravelGuide({travelTour, isOpen, setOpenDr
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
-                            onAssignGuide(travelTour);
+                            onAssignGuide(travelTour); // Gọi hàm mở modal
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
