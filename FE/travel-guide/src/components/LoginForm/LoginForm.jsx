@@ -50,17 +50,9 @@ export default function LoginForm() {
           localStorage.removeItem("access_token");
         }
         // Lưu thông tin người dùng vào localStorage hoặc sessionStorage nếu cần
+        localStorage.setItem("user", JSON.stringify(response.data));
         localStorage.setItem("access_token", response.data.access_token);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: response.data.id,
-            email: response.data.email,
-            role_name: response.data.role_name,
-            avatar: response.data.avatar,
-            name: response.data.name,
-          })
-        );
+        localStorage.setItem("refresh_token", response.data.refresh_token);
         navigate("/dashboard");
       } else {
         setErrors({
