@@ -39,7 +39,7 @@ const ExpireTourCard = ({
   };
 
   return (
-    <div className="w-96 px-2 py-3 bg-white hover:bg-gray-100 rounded-2xl flex flex-col gap-2 shadow">
+    <div className="md:w-64 mx-auto lg:w-full px-2 px-2 py-3 bg-white hover:bg-gray-100 rounded-2xl flex flex-col gap-2 shadow sm:w-64">
       {/* Hình ảnh + Thời gian */}
       <div className="relative h-60 rounded-2xl overflow-hidden">
         <img
@@ -62,7 +62,7 @@ const ExpireTourCard = ({
       </div>
 
       {/* Tiêu đề */}
-      <h3 className="text-sky-900 text-sm font-bold leading-tight">{title}</h3>
+      <h3 className="text-sky-900 text-sm font-bold leading-tight truncate overflow-hidden whitespace-nowrap">{title}</h3>
 
       {/* Thông tin tour */}
       <div className="flex justify-between items-center text-blue-950 text-xs font-normal">

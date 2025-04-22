@@ -80,7 +80,7 @@ export default function ExpireTour() {
 
   return (
     <div className="bg-white">
-      <div className="py-10 w-4/5 mx-auto relative p-6 ">
+      <div className="py-10 sm:w-full md:w-full lg:w-4/5 mx-auto relative p-2 md:p-4 lg:p-6">
         <div className="flex flex-col">
           <p className="text-3xl font-bold text-[#A80F21]">Ưu đãi phút chót</p>
           <p className="text-zinc-900 mt-2">
@@ -88,7 +88,7 @@ export default function ExpireTour() {
           </p>
           <div className="w-1/5 h-1 bg-red-800 rounded-sm mt-2" />
         </div>
-        <div className="flex flex-wrap justify-between gap-12 mt-6 mx-auto">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 items-center mt-6 mx-auto">
           {tours.map((tour) => (
             <div className="box-border cursor-pointer" key={tour.id}>
               <ExpireTourCard {...tour} />

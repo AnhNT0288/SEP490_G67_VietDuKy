@@ -34,7 +34,7 @@ export default function LocationVN() {
 
   return (
     <div className="bg-[rgba(254,238,199,0.35)]">
-      <div className="py-10 w-4/5 mx-auto relative p-6 ">
+      <div className="py-10 md:w-full lg:w-4/5 sm:w-full mx-auto relative p-6 ">
         <div className="flex flex-col">
           <p className="text-3xl font-bold text-neutral-700">
             Các điểm du lịch phổ biến
@@ -45,7 +45,7 @@ export default function LocationVN() {
           <div className="w-1/5 h-1 bg-[#A80F21] rounded-sm mt-2" />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-rows-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-2 sm:grid-rows-2 sm:grid-cols-3 md:grid-rows-2 md:grid-cols-3 lg:grid-cols-3 md:gap-6 gap-2 mt-6">
         {randomLocations.map((place, index) => {
             // Tạo số lượng hành trình ngẫu nhiên cho mỗi địa điểm
             const randomTrips = Math.floor(Math.random() * 50) + 1;
@@ -66,7 +66,7 @@ export default function LocationVN() {
                   <h3 className="text-white text-3xl font-semibold">
                     {place.name_location}
                   </h3>
-                  <p className="text-white text-base">{randomTrips} Hành Trình</p>
+                  {/* <p className="text-white text-base">{randomTrips} Hành Trình</p> */}
                 </div>
               </div>
             );

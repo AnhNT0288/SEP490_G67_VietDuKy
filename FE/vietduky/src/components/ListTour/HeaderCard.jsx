@@ -29,7 +29,7 @@ export default function HeaderCard() {
     <div className="relative">
       {/* Background container */}
       <div
-        className="relative w-full h-[250px] bg-cover bg-center overflow-hidden"
+        className="relative w-full pb-5 lg:pb-20 bg-cover bg-center overflow-hidden"
         style={{ backgroundImage: `url(${Banner})` }}
       >
         {/* Overlay phủ màu */}
@@ -38,7 +38,7 @@ export default function HeaderCard() {
         {/* Nội dung bên trên lớp phủ */}
         <div className="relative z-10">
           {/* Breadcrumb */}
-          <div className="text-white w-4/5 mx-auto px-4 pt-10 text-lg font-light">
+          <div className="text-white w-4/5 mx-auto px-4 pt-10 text-lg font-light sm:text-lg">
             Việt Du Ký /{" "}
             <span className="text-red-600 font-semibold">
               Du lịch Việt Du Ký
@@ -46,7 +46,7 @@ export default function HeaderCard() {
           </div>
 
           {/* Search Bar */}
-          <div className="w-4/5 mx-auto px-4 mt-6">
+          <div className="lg:w-4/5 mx-auto px-4 mt-6">
             <div className="bg-transparent pt-4 p-4 flex flex-col md:flex-row md:items-stretch md:space-x-4 space-y-4 md:space-y-0 w-full">
               {/* Ô nhập điểm du lịch */}
               <div className="flex items-start flex-1 bg-white border rounded-lg px-4 py-6 h-full">
