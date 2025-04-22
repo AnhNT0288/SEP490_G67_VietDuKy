@@ -50,8 +50,8 @@ router.delete(
 router.get(
   "/location/:locationId",
 
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
   travelGuideController.getTravelGuidesByLocation
 );
 

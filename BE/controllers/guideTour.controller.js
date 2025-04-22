@@ -397,7 +397,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
       end_day: travelTour.end_day,
       status: travelTour.status,
       active: travelTour.active,
-      price: travelTour.price,
+      price_tour: travelTour.price_tour,
       current_people: travelTour.current_people,
       max_people: travelTour.max_people,
       tour: {
@@ -447,6 +447,8 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
     });
   }
 };
+
+// Gán hành khách cho hướng dẫn viên tự động
 exports.assignPassengerToGuideAuto = async (req, res) => {
   try {
     const { number_passenger, travel_tour_id } = req.body;
@@ -480,7 +482,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
     const guideTours = await GuideTour.findAll({
       where: {
         travel_tour_id: travel_tour_id,
-        status: 1 // Chỉ lấy hướng dẫn viên đã được duyệt
+        status: 1, // Chỉ lấy hướng dẫn viên đã được duyệt
       },
       include: [
         {
@@ -490,10 +492,10 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
             {
               model: User,
               as: "user",
-            }
-          ]
-        }
-      ]
+            },
+          ],
+        },
+      ],
     });
 
     if (!guideTours || guideTours.length === 0) {
@@ -658,7 +660,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
     }
 
     // Format thông tin hướng dẫn viên
-    const formattedGuides = guideTours.map(guideTour => ({
+    const formattedGuides = guideTours.map((guideTour) => ({
       id: guideTour.travelGuide.id,
       group: guideTour.group,
       number_phone: guideTour.travelGuide.number_phone,
@@ -969,7 +971,6 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
       group_name,
       isLeader: guide.isLeader || false,
       status: 1,
-
     }));
 
     await db.GuideTour.bulkCreate(assignments);
