@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTravelGuidesByStaffId} from "../../../services/API/guide_tour.services";
+import { getTravelGuidesByStaffId} from "../../../services/API/guide_tour.service";
 import {assignTravelGuidesToStaff} from "../../../services/API/staff.service.js";
 
 // eslint-disable-next-line react/prop-types

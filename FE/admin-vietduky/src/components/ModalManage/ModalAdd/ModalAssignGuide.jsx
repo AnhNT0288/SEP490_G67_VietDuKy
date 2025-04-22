@@ -1,14 +1,21 @@
 import { useState, useEffect } from "react";
-import { getTravelGuideByLocation } from "../../../services/API/guide_tour.services.js"; // Đảm bảo đã import đúng hàm này
-import { assignGuideToTour } from "../../../services/API/guide_tour.services.js"; // API để phân công hướng dẫn viên cho tour
+import { assignGroupGuideToTour, getGuidesByTravelTourId, getTravelGuideByLocation } from "../../../services/API/guide_tour.service.js"; // Đảm bảo đã import đúng hàm này
 
-// eslint-disable-next-line react/prop-types
 export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, onAssignSuccess }) {
     const [guides, setGuides] = useState([]);
     const [selectedGuides, setSelectedGuides] = useState([]);
     const [assignedGuides, setAssignedGuides] = useState([]); // Lưu danh sách hướng dẫn viên đã phân công
     const [searchQuery, setSearchQuery] = useState("");
     const [selectAll, setSelectAll] = useState(false);
+    const generateGroupName = () => {
+        const groupNumber = selectedGuides.length;
+        const charIndex = selectedGuides.length % 26; // Tăng dần chữ cái theo số lượng hướng dẫn viên đã chọn
+        const sequentialChar = String.fromCharCode(65 + charIndex);
+        return `Nhóm tour ${travel_tour_id}-${groupNumber}-${sequentialChar}`;
+    };
+
+    // console.log("GName", generateGroupName());
+    
 
     // Fetch danh sách hướng dẫn viên khi có locationId
     useEffect(() => {
@@ -29,9 +36,11 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
     useEffect(() => {
         const fetchAssignedGuides = async () => {
             try {
-                const response = await fetch(`/api/guide-tour/${travel_tour_id}`); // API lấy danh sách hướng dẫn viên đã phân công cho tour này
-                const data = await response.json();
-                setAssignedGuides(data.map((guide) => guide.travel_guide_id)); // Lưu danh sách hướng dẫn viên đã phân công
+                const response = await getGuidesByTravelTourId(travel_tour_id); // API lấy danh sách hướng dẫn viên đã phân công cho tour này
+                const data = await response;
+                console.log("Assigned Guides Data:", response); // Kiểm tra dữ liệu đã lấy
+                
+                setAssignedGuides(data.map((guide) => guide.id)); // Lưu danh sách hướng dẫn viên đã phân công
             } catch (error) {
                 console.error("Lỗi khi lấy hướng dẫn viên đã phân công:", error);
             }
@@ -60,48 +69,56 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
         setSelectAll(!selectAll);
     };
 
-    const handleAssign = async () => {
-        console.log("Đang phân công hướng dẫn viên...");
-        console.log("Travel Tour ID:", travel_tour_id);
-        console.log("Danh sách hướng dẫn viên đã chọn:", selectedGuides);
+    const formatSelectedGuides = () => {
+        return selectedGuides.map((guideId, index) => {
+            return {
+                travel_guide_id: guideId,
+                isLeader: index === 0
+            };
+        });
+    };
 
+    // console.log("Selected Guides:", selectedGuides);
+    // console.log("Formatted Selected Guides:", formatSelectedGuides());
+    console.log("Assigned Guides:", assignedGuides);
+    
+
+    const handleAssign = async () => {
         if (!travel_tour_id) {
             alert("Lỗi: Travel Tour ID không hợp lệ.");
             return;
         }
 
-        let hasSuccessfulAssignment = false; // Flag to track successful assignments
-
+        if (selectedGuides.length === 0) {
+            alert("Vui lòng chọn ít nhất một hướng dẫn viên để phân công.");
+            return;
+        }
+    
         try {
-            for (const guideId of selectedGuides) {
-                console.log("travel_tour_id:", travel_tour_id, typeof travel_tour_id);
-                console.log("travel_guide_id:", guideId, typeof guideId);
-                const data = {
-                    travel_tour_id: travel_tour_id,
-                    travel_guide_id: guideId,
-                };
-                console.log("Dữ liệu gửi đến API phân công:", data);
-                const response = await assignGuideToTour(data);
-
-                if (response.message === "Hướng dẫn viên đã được gán cho tour này!") {
-                    alert(`Hướng dẫn viên ID ${guideId} đã được gán trước đó.`);
-                    continue;
-                }
-
-                console.log("Phản hồi từ API phân công:", response);
-                hasSuccessfulAssignment = true;
-            }
-
-            if (hasSuccessfulAssignment) {
+            const data = {
+                travel_tour_id,
+                group_name: generateGroupName(),
+                guides: formatSelectedGuides(), // Gửi toàn bộ danh sách đã chọn trong một lần
+            };
+            console.log("Dữ liệu gửi đến API phân công:", data);
+    
+            const response = await assignGroupGuideToTour(data);
+            console.log("Phản hồi từ API phân công:", response);
+    
+            if (response.message === "Hướng dẫn viên đã được gán cho tour này!") {
+                alert("Một số hướng dẫn viên đã được gán trước đó.");
+            } else {
                 alert("Phân công hướng dẫn viên thành công!");
                 onAssignSuccess?.();
             }
-            // onClose?.();
+    
         } catch (error) {
             console.error("Lỗi phân công:", error);
-            alert("Đã xảy ra lỗi khi phân công hướng dẫn viên. Vui lòng thử lại.");
+            // alert("Đã xảy ra lỗi khi phân công hướng dẫn viên. Vui lòng thử lại.");
+            alert(error.response?.data?.message || "Đã xảy ra lỗi khi phân công hướng dẫn viên. Vui lòng thử lại.");
         }
     };
+    
     const filteredGuides = guides.filter((guide) =>
         `${guide.first_name} ${guide.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
     );

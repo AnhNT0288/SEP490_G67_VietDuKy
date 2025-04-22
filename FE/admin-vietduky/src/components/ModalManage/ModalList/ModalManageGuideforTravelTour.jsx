@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ModalAssignGuide from "../ModalAdd/ModalAssignGuide.jsx";
-import { getGuidesByTravelTourId } from "../../../services/API/guide_tour.services";
+import { getGuidesByTravelTourId } from "../../../services/API/guide_tour.service";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalManageGuideforTravelTour({ travel_tour_id, locationId, onClose }) {
@@ -24,6 +24,9 @@ export default function ModalManageGuideforTravelTour({ travel_tour_id, location
             fetchGuides();
         }
     }, [travel_tour_id]);
+
+    console.log("Guides: ", guides);
+    
 
     // Lọc theo giới tính
     const filteredGuides = guides.filter((guide) => {

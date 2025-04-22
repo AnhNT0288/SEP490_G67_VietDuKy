@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { getGuidesByTravelTourId } from "../../../services/API/guide_tour.services.js";
+import { getGuidesByTravelTourId } from "../../../services/API/guide_tour.service.js";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAssignGuide({ tourId, onClose }) {

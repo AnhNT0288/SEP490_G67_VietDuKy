@@ -41,6 +41,28 @@ export function assignGuideToTour(data) {
             throw err;
         });
 }
+
+export function assignGroupGuideToTour(data) {
+    console.log("Dữ liệu gửi đến API phân công nhóm hướng dẫn viên:", data);
+
+    return restClient({
+        url: `guide-tour/assign-guides-to-tour`,
+        method: "POST",
+        headers: {
+            ...getAuthHeaders(),
+        },
+        data,
+    })
+        .then((res) => {
+            console.log("Phản hồi từ API phân công nhóm hướng dẫn viên:", res);
+            return res.data;
+        })
+        .catch((err) => {
+            console.error("❌ Lỗi khi phân công nhóm hướng dẫn viên cho tour:", err.response?.data || err);
+            throw err;
+        });
+}
+
 export function getGuidesByTravelTourId(travel_tour_id) {
     return restClient({
         url: `guide-tour/travel-tour/${travel_tour_id}`,
