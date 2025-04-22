@@ -745,6 +745,9 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
 
     // Lấy danh sách TravelTour có end_location trong bảng Tour trùng với location mà Staff phụ trách
     const travelTours = await TravelTour.findAll({
+      where: {
+        active: true, // Chỉ lấy các tour chưa đóng
+      },
       include: [
         {
           model: Booking,
