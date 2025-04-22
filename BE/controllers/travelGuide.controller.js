@@ -367,6 +367,7 @@ exports.getToursByTravelGuideLocation = async (req, res) => {
 exports.getTravelGuidesByLocation = async (req, res) => {
   try {
     const locationId = req.params.locationId;
+    const { start_day, end_day } = req.query; // Nhận thời gian từ query params
 
     const location = await Location.findByPk(locationId);
     if (!location) {
@@ -391,15 +392,62 @@ exports.getTravelGuidesByLocation = async (req, res) => {
       ],
     });
 
-    if (travelGuides.length === 0) {
+    if (!travelGuides.length) {
       return res.status(404).json({
         message: "Không tìm thấy hướng dẫn viên nào cho địa điểm này!",
       });
     }
 
+    // Lọc ra các hướng dẫn viên không có lịch trình trùng lặp
+    const availableGuides = [];
+    for (const guide of travelGuides) {
+      const overlappingAssignments = await GuideTour.findAll({
+        where: {
+          travel_guide_id: guide.id,
+        },
+        include: [
+          {
+            model: TravelTour,
+            as: "travelTour",
+            where: {
+              [Sequelize.Op.or]: [
+                {
+                  start_day: {
+                    [Sequelize.Op.between]: [start_day, end_day],
+                  },
+                },
+                {
+                  end_day: {
+                    [Sequelize.Op.between]: [start_day, end_day],
+                  },
+                },
+                {
+                  [Sequelize.Op.and]: [
+                    { start_day: { [Sequelize.Op.lte]: start_day } },
+                    { end_day: { [Sequelize.Op.gte]: end_day } },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      });
+
+      if (overlappingAssignments.length === 0) {
+        availableGuides.push(guide);
+      }
+    }
+
+    if (!availableGuides.length) {
+      return res.status(404).json({
+        message:
+          "Không tìm thấy hướng dẫn viên nào khả dụng trong thời gian này!",
+      });
+    }
+
     res.status(200).json({
       message: "Lấy danh sách hướng dẫn viên theo địa điểm thành công!",
-      data: travelGuides,
+      data: availableGuides,
     });
   } catch (error) {
     res.status(500).json({
