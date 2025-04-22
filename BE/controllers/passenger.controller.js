@@ -304,3 +304,70 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
     });
   }
 };
+
+// Lấy danh sách hành khách theo travel_guide_id
+exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
+  try {
+    const { travel_guide_id } = req.params;
+
+    if (!travel_guide_id) {
+      return res.status(400).json({ message: "Thiếu travel_guide_id" });
+    }
+
+    // Lấy danh sách hành khách theo travel_guide_id
+    const passengers = await Passenger.findAll({
+      where: { travel_guide_id },
+      include: [
+        {
+          model: Booking,
+          as: "booking", // Đảm bảo alias khớp với định nghĩa trong mối quan hệ
+          attributes: [
+            "id",
+            "number_adult",
+            "number_children",
+            "travel_tour_id",
+          ],
+        },
+      ],
+    });
+
+    if (!passengers || passengers.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy hành khách nào!" });
+    }
+
+    // Nhóm hành khách theo booking_id và tính tổng số người lớn, trẻ em
+    const groupedPassengers = passengers.reduce((acc, passenger) => {
+      const booking = passenger.booking; // Sử dụng alias "booking"
+      if (!booking) {
+        return acc; // Bỏ qua nếu không có thông tin booking
+      }
+
+      const bookingId = booking.id;
+
+      if (!acc[bookingId]) {
+        acc[bookingId] = {
+          booking_id: bookingId,
+          number_adult: booking.number_adult,
+          number_children: booking.number_children,
+          travel_tour_id: booking.travel_tour_id,
+          passengers: [],
+        };
+      }
+
+      acc[bookingId].passengers.push(passenger);
+      return acc;
+    }, {});
+
+    res.status(200).json({
+      message: "Lấy danh sách hành khách thành công!",
+      data: Object.values(groupedPassengers),
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách hành khách!",
+      error: error.message,
+    });
+  }
+};
