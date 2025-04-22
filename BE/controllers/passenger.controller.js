@@ -191,7 +191,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
     // Tìm tất cả các booking liên quan đến travel_tour_id
     const bookings = await Booking.findAll({
       where: { travel_tour_id },
-      attributes: ["id"], // Chỉ lấy booking_id
+      attributes: ["id", "number_adult", "number_children", "travel_tour_id"], // Lấy thông tin cần thiết
     });
 
     if (!bookings || bookings.length === 0) {
@@ -206,6 +206,18 @@ exports.getPassengersByTravelTourId = async (req, res) => {
       where: {
         booking_id: bookingIds,
       },
+      include: [
+        {
+          model: Booking,
+          as: "booking",
+          attributes: [
+            "id",
+            "number_adult",
+            "number_children",
+            "travel_tour_id",
+          ],
+        },
+      ],
     });
 
     if (!passengers || passengers.length === 0) {
@@ -214,9 +226,32 @@ exports.getPassengersByTravelTourId = async (req, res) => {
         .json({ message: "Không tìm thấy hành khách nào!" });
     }
 
+    // Nhóm hành khách theo booking_id và tính tổng số người lớn, trẻ em
+    const groupedPassengers = passengers.reduce((acc, passenger) => {
+      const booking = passenger.booking;
+      if (!booking) {
+        return acc; // Bỏ qua nếu không có thông tin booking
+      }
+
+      const bookingId = booking.id;
+
+      if (!acc[bookingId]) {
+        acc[bookingId] = {
+          booking_id: bookingId,
+          number_adult: booking.number_adult,
+          number_children: booking.number_children,
+          travel_tour_id: booking.travel_tour_id,
+          passengers: [],
+        };
+      }
+
+      acc[bookingId].passengers.push(passenger);
+      return acc;
+    }, {});
+
     res.status(200).json({
       message: "Lấy danh sách hành khách thành công!",
-      data: passengers,
+      data: Object.values(groupedPassengers),
     });
   } catch (error) {
     res.status(500).json({
@@ -320,7 +355,7 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
       include: [
         {
           model: Booking,
-          as: "booking", // Đảm bảo alias khớp với định nghĩa trong mối quan hệ
+          as: "booking",
           attributes: [
             "id",
             "number_adult",
@@ -339,7 +374,7 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
 
     // Nhóm hành khách theo booking_id và tính tổng số người lớn, trẻ em
     const groupedPassengers = passengers.reduce((acc, passenger) => {
-      const booking = passenger.booking; // Sử dụng alias "booking"
+      const booking = passenger.booking;
       if (!booking) {
         return acc; // Bỏ qua nếu không có thông tin booking
       }

@@ -45,8 +45,8 @@ router.get(
 
 router.get(
   "/travel-tour/:travel_tour_id",
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
   passengerController.getPassengersByTravelTourId
 );
 
