@@ -29,7 +29,6 @@ import StaffTourGuideManagement from "./components/Staff/Management/StaffTourGui
 import AssignedTravelToursManagement from "./components/Staff/Management/AssignedTravelToursManagement.jsx";
 import LoginPage from "./page/Authentication/LoginPage.jsx";
 import ForgotPasswordFlow from "./page/Authentication/ForgotPasswordFlow.jsx";
-import ManagementTourDiscountLastMinute from "./page/Management/ManagementTourDLM.jsx";
 // import RegisterPage from "./page/Authentication/RegisterPage.jsx";
 
 Modal.setAppElement("#root");
@@ -54,7 +53,6 @@ function App() {
         <Route element={<RoleBasedRoute allowedRoles={["admin", "staff"]} />}>
           <Route path="/managementLocation" element={<ManagementLocation />} />
           <Route path="/managementTour" element={<ManagementTour />} />
-          <Route path="/managementTourDiscountLastMinute" element={<ManagementTourDiscountLastMinute />} />
           <Route path="/managementDiscount" element={<ManagementDiscount />} />
           <Route path="/managementService" element={<ManagementService />} />
           <Route path="/managementStaff" element={<ManagementStaff />} />
