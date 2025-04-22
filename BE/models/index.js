@@ -247,8 +247,8 @@ TypeTour.hasMany(Tour, { foreignKey: "type_id" });
 Tour.belongsTo(TypeTour, { foreignKey: "type_id", as: "typeTour" });
 
 //Passenger/Booking
-Passenger.hasMany(Booking, { foreignKey: "booking_id", as: "passenger" });
-Booking.belongsTo(Passenger, { foreignKey: "booking_id", as: "passenger" });
+Passenger.belongsTo(Booking, { foreignKey: "booking_id", as: "booking" });
+Booking.hasMany(Passenger, { foreignKey: "booking_id", as: "passengers" });
 
 //Tour/TourActivities
 Tour.hasMany(TourActivities, { foreignKey: "tour_id" });

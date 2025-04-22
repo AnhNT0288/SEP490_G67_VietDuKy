@@ -38,24 +38,32 @@ router.put(
 
 router.get(
   "/travel-guide/:travel_guide_id",
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
   passengerController.getPassengersByTravelGuideId
 );
 
 router.get(
   "/travel-tour/:travel_tour_id",
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
   passengerController.getPassengersByTravelTourId
 );
 
 //Gán nhiều passenger cho travel guide
 router.post(
   "/assign/:travel_guide_id",
-  authenticateUser,
-  checkRoles(["admin", "staff"]),
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
   passengerController.assignPassengersToTravelGuide
+);
+
+//Lấy danh sách hành khách theo travel_guide_id
+router.get(
+  "/booking/travel-guide/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.getPassengersByTravelGuideIdBooking
 );
 
 module.exports = router;
