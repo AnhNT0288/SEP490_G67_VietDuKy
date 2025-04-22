@@ -78,6 +78,72 @@ exports.addTravelTourToDiscountService = async (req, res) => {
     });
   }
 };
+exports.getNotApproveDiscountService = async (req, res) => {
+  try {
+    const discountServices = await DiscountService.findAll({
+        where: { status: 0 },
+        include: [
+            { model: TravelTour, as: "travelTour", include: [{ model: Tour }] },
+          ],
+    });
+    res.status(200).json({
+      message: "Lấy danh sách dịch vụ giảm giá chưa phê duyệt thành công",
+      data: discountServices,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách dịch vụ giảm giá chưa phê duyệt",
+      error: error.message,
+    });
+  }
+};  
+exports.getApproveDiscountService = async (req, res) => {
+  try {
+    const discountServices = await DiscountService.findAll({
+      where: { status: 1 },
+      include: [
+        { model: TravelTour, as: "travelTour", include: [{ model: Tour }] },
+      ],
+    });
+    res.status(200).json({
+      message: "Lấy danh sách dịch vụ giảm giá đã phê duyệt thành công",
+      data: discountServices,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách dịch vụ giảm giá đã phê duyệt",
+      error: error.message,
+    });
+  }
+};
+exports.approveDiscountService = async (req, res) => {
+  try {
+    const { discount_service_id, price_discount } = req.body;
+    const discountService = await DiscountService.findByPk(discount_service_id);
+    if (!discountService) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy dịch vụ giảm giá!" });
+    }
+    if (!price_discount) {
+      return res
+        .status(400)
+        .json({ message: "Giá giảm không được để trống!" });
+    }
+    discountService.status = 1;
+    discountService.price_discount = price_discount;
+    await discountService.save();
+    res.status(200).json({
+      message: "Phê duyệt dịch vụ giảm giá thành công!",
+      data: discountService,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi phê duyệt dịch vụ giảm giá",
+      error: error.message,
+    });
+  }
+};
 
 // Lấy dịch vụ giảm giá theo ID
 exports.getDiscountServiceById = async (req, res) => {

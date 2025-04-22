@@ -8,12 +8,20 @@ module.exports = (sequelize, Sequelize) => {
                 primaryKey: true,
             },
             status: {
-                type: Sequelize.INTEGER,
+                type: Sequelize.INTEGER, //0: Chưa duyệt, 1: Đã duyệt
                 allowNull: true,
             },
             program_discount_id: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
+            },
+            price_discount: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            travel_tour_id: {
+                type: Sequelize.INTEGER,
+                allowNull: true,
             },
         },
         {
