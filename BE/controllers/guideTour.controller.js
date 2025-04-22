@@ -397,9 +397,37 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         .json({ message: "Chưa có hướng dẫn viên cho tour này!" });
     }
 
+    // Lấy danh sách booking của tour
     const bookings = await Booking.findAll({
       where: { travel_tour_id: travelTourId },
     });
+
+    // Lấy danh sách hành khách đã được gán cho từng TravelGuide
+    const passengersByGuide = await Passenger.findAll({
+      where: {
+        travel_guide_id: {
+          [Op.ne]: null, // Chỉ lấy hành khách đã được gán cho TravelGuide
+        },
+      },
+      include: [
+        {
+          model: Booking,
+          as: "booking",
+          where: { travel_tour_id: travelTourId },
+          attributes: ["id"],
+        },
+      ],
+    });
+
+    // Nhóm hành khách theo TravelGuide
+    const passengerCountByGuide = passengersByGuide.reduce((acc, passenger) => {
+      const guideId = passenger.travel_guide_id;
+      if (!acc[guideId]) {
+        acc[guideId] = 0;
+      }
+      acc[guideId]++;
+      return acc;
+    }, {});
 
     // Format lại dữ liệu trả về
     const formattedTravelTour = {
@@ -428,6 +456,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         address: guideTour.travelGuide.address,
         avatar: guideTour.travelGuide.user.avatar,
         display_name: guideTour.travelGuide.user.displayName,
+        passenger_count: passengerCountByGuide[guideTour.travelGuide.id] || 0,
       })),
       bookings: bookings.map((booking) => ({
         id: booking.id,
