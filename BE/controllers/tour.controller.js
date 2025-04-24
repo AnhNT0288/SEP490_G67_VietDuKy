@@ -676,48 +676,26 @@ exports.updateTourById = async (req, res) => {
                 });
             }
 
-            // Tìm danh sách dịch vụ hiện tại trong TourService
-            const existingTourServices = await TourService.findAll({
-                where: {
-                    tour_id: tourId,
-                },
-            });
+            // Lấy danh sách service hiện tại của tour
+            const existingServices = await tour.getServices();
+            const existingServiceIds = existingServices.map(service => service.id);
 
-            // Lấy danh sách service_id hiện có
-            const existingServiceIds = existingTourServices.map(
-                (service) => service.service_id
-            );
-
-            // Tìm các dịch vụ cần thêm
-            const servicesToAdd = serviceIds.filter(
-                (id) => !existingServiceIds.includes(id)
-            );
-
-            // Tìm các dịch vụ cần xóa
+            // Xác định services cần thêm và xóa
+            const servicesToAdd = serviceIds && serviceIds.length > 0 
+                ? serviceIds.filter(id => !existingServiceIds.includes(id))
+                : [];
             const servicesToRemove = existingServiceIds.filter(
                 (id) => !serviceIds.includes(id)
             );
 
-            // Xóa các dịch vụ không còn trong danh sách mới
-            if (servicesToRemove.length > 0) {
-                await TourService.destroy({
-                    where: {
-                        tour_id: tourId,
-                        service_id: {
-                            [Op.in]: servicesToRemove,
-                        },
-                    },
-                });
+            // Thêm services mới
+            if (servicesToAdd.length > 0) {
+                await tour.addServices(servicesToAdd);
             }
 
-            // Thêm các dịch vụ mới vào TourService
-            if (servicesToAdd.length > 0) {
-                const tourServiceData = servicesToAdd.map((service_id) => ({
-                    tour_id: tourId,
-                    service_id,
-                }));
-
-                await TourService.bulkCreate(tourServiceData);
+            // Xóa services không còn được chọn
+            if (servicesToRemove.length > 0) {
+                await tour.removeServices(servicesToRemove);
             }
         }
 
