@@ -52,18 +52,20 @@ const TextEditor = ({ value, onChange }) => {
       </div>
 
       {/* Quill Editor */}
-      <ReactQuill
-        ref={quillRef}
-        value={value}
-        onChange={onChange}
-        modules={{
-          toolbar: {
-            container: "#custom-toolbar",
-          },
-        }}
-        placeholder="Nhập nội dung bài viết của bạn..."
-        theme="snow"
-      />
+      <div className="flex-1 overflow-y-auto border border-gray-300 rounded">
+        <ReactQuill
+          ref={quillRef}
+          value={value}
+          onChange={onChange}
+          modules={{
+            toolbar: {
+              container: "#custom-toolbar",
+            },
+          }}
+          placeholder="Nhập nội dung bài viết của bạn..."
+          theme="snow"
+        />
+      </div>
     </div>
   );
 };

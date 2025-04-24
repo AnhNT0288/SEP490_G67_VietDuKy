@@ -21,7 +21,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
       },
       description_post: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       post_date: {
@@ -44,7 +44,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     {
       tableName: "post_experience",
-      timestamps: false,
+      timestamps: true,
     }
   );
   return PostExperience;

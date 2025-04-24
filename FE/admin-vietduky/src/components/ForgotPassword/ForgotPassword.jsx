@@ -53,7 +53,7 @@ export default function ForgotPassword({ onNext }) {
 
         <div className="space-y-8">
           <div className="flex items-start gap-4">
-            <span className="bg-white text-[#B60000] rounded-full w-7 h-7 flex items-center justify-center font-bold">
+            <span className="bg-white text-[#B60000] ring-2 ring-yellow-300 rounded-full w-7 h-7 flex items-center justify-center font-bold">
               1
             </span>
             <div>

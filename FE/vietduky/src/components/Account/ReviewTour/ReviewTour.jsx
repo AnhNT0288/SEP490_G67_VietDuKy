@@ -221,7 +221,7 @@ export default function ReviewTour() {
       {activeTab === "shared" &&
         sharedPosts.map((post) => {
           const postExAlbum = JSON.parse(post.postEx_album);
-          const firstImage = postExAlbum[0];
+          const firstImage = postExAlbum?.[0];
 
           return (
             <div

@@ -94,6 +94,7 @@ function App() {
         <Route path={"/calendar"} element={<Calendar />} />
 
         <Route path={"/phoneauth"} element={<PhoneAuthen />} />
+
       </Routes>
     </BrowserRouter>
   );

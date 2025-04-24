@@ -48,7 +48,8 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
       toast.error("Lỗi khi thêm bài viết!");
       console.error("Lỗi khi đăng bài viết:", error);
     } finally {
-      resetForm(); // Reset form data when done
+      resetForm();
+      onClose(); 
     }
   };
 
@@ -156,7 +157,7 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
           {/* Soạn thảo nội dung */}
           <div className="flex flex-col h-full col-span-3">
             <label className="text-sm font-medium mb-2">Bài viết</label>
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden max-h-[600px]">
               <TextEditor
                 value={form.description_post}
                 onChange={(value) => setForm((prev) => ({ ...prev, description_post: value }))}

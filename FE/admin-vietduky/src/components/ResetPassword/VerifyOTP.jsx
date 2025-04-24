@@ -70,7 +70,7 @@ export default function VerifyOtp({ email, onSuccess }) {
             Xác nhận
           </button>
 
-          <p className="text-sm mt-4 text-[#B60000] hover:underline cursor-pointer">
+          <p href="/" className="text-sm mt-4 text-[#B60000] hover:underline cursor-pointer">
             ← Quay lại trang đăng nhập
           </p>
         </div>
