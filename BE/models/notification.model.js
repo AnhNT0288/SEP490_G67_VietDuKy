@@ -5,33 +5,44 @@ module.exports = (sequelize, Sequelize) => {
       id: {
         type: Sequelize.INTEGER.UNSIGNED,
         primaryKey: true,
+        autoIncrement: true
       },
-      booking_id: {
+      userId: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false
       },
-      user_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      type_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      send_date: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      title: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       message: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: false
       },
+      read: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      notificationType: {
+        type: Sequelize.ENUM('SYSTEM', 'BOOKING', 'PAYMENT', 'OTHER'),
+        defaultValue: 'SYSTEM',
+        field: 'type'
+      },
+      data: {
+        type: Sequelize.JSON,
+        allowNull: true
+      }
     },
     {
-      tableName: "notification",
-      timestamps: false, // Không có `createdAt` và `updatedAt`
+      tableName: "notifications",
+      timestamps: true,
+      // Tắt tự động tạo associations
+      defaultScope: {
+        attributes: { exclude: [] }
+      }
     }
   );
 
+  // Không thêm associations ở đây
   return Notification;
 };

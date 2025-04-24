@@ -48,10 +48,6 @@ const PaymentCard = require("./paymentCard.model.js")(sequelize, Sequelize);
 const Payment = require("./payment.model.js")(sequelize, Sequelize);
 //Notification
 const Notification = require("./notification.model.js")(sequelize, Sequelize);
-const NotificationType = require("./notificationType.model.js")(
-  sequelize,
-  Sequelize
-);
 
 //Article
 const Article = require("./article.model.js")(sequelize, Sequelize);
@@ -135,16 +131,8 @@ Customer.hasMany(PaymentCard, { foreignKey: "customer_id" });
 PaymentCard.belongsTo(Customer, { foreignKey: "customer_id" });
 
 //User/Notification
-User.hasMany(Notification, { foreignKey: "user_id" });
-Notification.belongsTo(User, { foreignKey: "user_id" });
-
-//NotificationType/Notification
-NotificationType.hasMany(Notification, { foreignKey: "type_id" });
-Notification.belongsTo(NotificationType, { foreignKey: "type_id", as: "type" });
-
-//Booking/Notification
-Booking.hasMany(Notification, { foreignKey: "booking_id" });
-Notification.belongsTo(Booking, { foreignKey: "booking_id" });
+// User.hasMany(Notification, { foreignKey: "userId" });
+// Notification.belongsTo(User, { foreignKey: "userId" });
 
 //Feedback/User
 User.hasMany(Feedback, { foreignKey: "user_id" });
@@ -234,9 +222,6 @@ User.belongsTo(Role, { foreignKey: "role_id", as: "role" });
 User.hasMany(PostExperience, { foreignKey: "id" });
 PostExperience.belongsTo(User, { foreignKey: "id", as: "user" });
 
-//Booking/Notification
-Booking.hasMany(Notification, { foreignKey: "booking_id" });
-Notification.belongsTo(Booking, { foreignKey: "booking_id" });
 
 //DepartureSchedule/Booking
 TravelTour.hasMany(Booking, { foreignKey: "travel_tour_id" });
@@ -387,7 +372,6 @@ db.PaymentCard = PaymentCard;
 db.Payment = Payment;
 
 db.Notification = Notification;
-db.NotificationType = NotificationType;
 
 db.Role = Role;
 
