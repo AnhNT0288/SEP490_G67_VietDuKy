@@ -6,53 +6,58 @@ const TravelTour = db.TravelTour;
 const Service = db.Service;
 const User = db.User;
 const Feedback = db.Feedback;
+const Passenger = db.Passenger;
 
 exports.getDashboardStats = async (req, res) => {
     try {
         const today = new Date();
         const startOfDay = new Date(today.setHours(0, 0, 0, 0));
         const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
         // Doanh số hôm nay
-        const todayRevenue = await Booking.sum('total_price', {
+        const todayRevenue = await Booking.sum('total_cost', {
             where: {
                 createdAt: {
                     [Op.between]: [startOfDay, endOfDay]
                 },
-                status: 'COMPLETED'
+            }
+        }) || 0;
+
+        // Doanh số tuần này
+        const weeklyRevenue = await Booking.sum('total_cost', {
+            where: {
+                createdAt: {
+                    [Op.between]: [startOfWeek, endOfWeek]
+                },
             }
         }) || 0;
 
         // Tổng doanh số trong tháng
-        const monthlyRevenue = await Booking.sum('total_price', {
+        const monthlyRevenue = await Booking.sum('total_cost', {
             where: {
                 createdAt: {
                     [Op.between]: [startOfMonth, endOfMonth]
                 },
-                status: 'COMPLETED'
             }
         }) || 0;
 
         // Tổng số đặt dịch vụ
-        const totalServices = await Service.count();
+        const totalBookings = await Booking.count();
 
         // Tổng số khách hàng
-        const totalCustomers = await User.count({
-            where: {
-                role_id: 3 // Giả sử role_id = 3 là khách hàng
-            }
-        });
+        const totalCustomers = await Passenger.count();
 
         // Thống kê doanh thu theo tháng
         const monthlyStats = await Booking.findAll({
             attributes: [
                 [Sequelize.fn('MONTH', Sequelize.col('createdAt')), 'month'],
-                [Sequelize.fn('SUM', Sequelize.col('total_price')), 'revenue']
+                [Sequelize.fn('SUM', Sequelize.col('total_cost')), 'revenue']
             ],
             where: {
-                status: 'COMPLETED',
                 createdAt: {
                     [Op.gte]: new Date(today.getFullYear(), 0, 1) // Từ đầu năm
                 }
@@ -71,14 +76,8 @@ exports.getDashboardStats = async (req, res) => {
                 'id',
                 'name_tour',
                 'code_tour',
-                [Sequelize.fn('AVG', Sequelize.col('Feedbacks.rating')), 'average_rating'],
-                [Sequelize.fn('COUNT', Sequelize.col('Feedbacks.id')), 'total_reviews']
             ],
             group: ['Tour.id'],
-            order: [
-                [Sequelize.literal('average_rating'), 'DESC'],
-                [Sequelize.literal('total_reviews'), 'DESC']
-            ],
             limit: 4
         });
 
@@ -87,31 +86,27 @@ exports.getDashboardStats = async (req, res) => {
             where: {
                 role_id: 4 // Giả sử role_id = 4 là hướng dẫn viên
             },
-            include: [{
-                model: Feedback,
-                as: 'guideFeedbacks',
-                attributes: ['rating']
-            }],
-            attributes: [
-                'id',
-                'fullname',
-                'avatar',
-                [Sequelize.fn('COUNT', Sequelize.col('guideFeedbacks.id')), 'total_tours'],
-                [Sequelize.fn('AVG', Sequelize.col('guideFeedbacks.rating')), 'average_rating']
-            ],
             group: ['User.id']
+        });
+        const feedbacks = await Feedback.findAll({
+            include: [{
+                model: Tour,
+                as: 'tour',
+            }],
         });
 
         res.json({
             success: true,
             data: {
                 today_revenue: todayRevenue,
+                weekly_revenue: weeklyRevenue,
                 monthly_revenue: monthlyRevenue,
-                total_services: totalServices,
+                total_bookings: totalBookings,
                 total_customers: totalCustomers,
                 monthly_stats: monthlyStats,
                 top_tours: topTours,
-                guides: guides
+                guides: guides,
+                feedbacks: feedbacks
             }
         });
 

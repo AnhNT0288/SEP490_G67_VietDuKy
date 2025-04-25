@@ -95,4 +95,10 @@ router.post(
   GuideTourController.assignPassengerToGuideAuto
 );
 
+router.get(
+  "/passenger-guide/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  GuideTourController.getGuideTourByTravelTourId
+);
 module.exports = router;
