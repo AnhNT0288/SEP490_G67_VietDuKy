@@ -29,7 +29,9 @@ import DynamicArticlePage from "./page/ArticlePage/PostDynamicArticle/DynamicArt
 import PostExperiencePage from "./page/ArticlePage/PostExperience/PostExperiencePage";
 import DetailPostExperience from "./page/ArticlePage/PostExperience/DetailPostExperience";
 import PhoneAuthen from "./components/AuthProviders/PhoneAuthen";
-import '../src/styles/responsive.css';
+import "../src/styles/responsive.css";
+import ModalPaymentSuccess from "./components/BookingCheckout/ModalBookingCheckout/ModalPaymentSuccess";
+import ModalSuccessPage from "./components/BookingCheckout/ModalBookingCheckout/test";
 
 function App() {
   const [directory, setDirectory] = useState([]);
@@ -42,11 +44,11 @@ function App() {
       } catch (error) {
         console.error("Error fetching directory:", error);
       }
-    }
+    };
 
     fetchDirectory();
   }, []);
-  
+
   return (
     <BrowserRouter>
       <ScrollToTop />
@@ -71,11 +73,17 @@ function App() {
           <Route path={"/booking/:id"} element={<BookingTour />} />
           <Route path={"/bookingConfirm"} element={<BookingConfirm />} />
           <Route path={"/bookingComplete"} element={<BookingComplete />} />
-          <Route path={"/bookingHistory"} element={<TourBookingHistoryPage />} />
+          <Route
+            path={"/bookingHistory"}
+            element={<TourBookingHistoryPage />}
+          />
           <Route path={"/reviews"} element={<ReviewPage />} />
           <Route path={"/favorites"} element={<FavouriteTourPage />} />
           <Route path={"/settings"} element={<SettingPage />} />
-          <Route path={"/detail-booking-tour/:id"} element={<DetailTourBooking />} />
+          <Route
+            path={"/detail-booking-tour/:id"}
+            element={<DetailTourBooking />}
+          />
         </Route>
         <Route path={"/personalAI"} element={<PersonalAIPage />} />
         <Route path={"/deals"} element={<DealsPage />} />
@@ -83,17 +91,19 @@ function App() {
         <Route path={"/detailTour"} element={<DetailTourPage />} />
         <Route path="/tour/:id" element={<DetailTourPage />} />
         <Route path={"/article/home"} element={<ArticlePage />} />
-        <Route path={"/article/post-experience"} element={<PostExperiencePage />} />
-        <Route path={"/article/post-experience/:id"} element={<DetailPostExperience />} />
+        <Route
+          path={"/article/post-experience"}
+          element={<PostExperiencePage />}
+        />
+        <Route
+          path={"/article/post-experience/:id"}
+          element={<DetailPostExperience />}
+        />
         <Route path={"/article/:alias"} element={<DynamicArticlePage />} />
         <Route path={"/article/:id"} element={<DetailArticlePage />} />
 
-
-        <Route path={"/credit"} element={<PaymentForm />} />
-
         <Route path={"/calendar"} element={<Calendar />} />
-
-        <Route path={"/phoneauth"} element={<PhoneAuthen />} />
+        <Route path="/modalSuccess" element={<ModalSuccessPage />} />
       </Routes>
     </BrowserRouter>
   );

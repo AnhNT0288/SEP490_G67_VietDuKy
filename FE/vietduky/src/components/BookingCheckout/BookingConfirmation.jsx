@@ -7,6 +7,8 @@ import { formatTime } from "@/utils/dateUtil";
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
+import ModalQRPayment from "./ModalBookingCheckout/ModalPayment";
+import ModalPaymentSuccess from "./ModalBookingCheckout/ModalPaymentSuccess";
 
 // Import Modal từ react-modal
 Modal.setAppElement("#root");
@@ -37,7 +39,7 @@ const BookingConfirmation = ({ bookingData }) => {
   //   const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=${
   //     bookingData?.total_cost
   //   }&addInfo=start${key}end&accountName=VietDuKy`;
-  //   setPaymentKey(key); 
+  //   setPaymentKey(key);
   //   setQrSrc(src);
   // };
 
@@ -45,7 +47,6 @@ const BookingConfirmation = ({ bookingData }) => {
   // console.log("qrSrc:", qrSrc);
 
   // console.log("bookingData:", bookingData);
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,16 +82,14 @@ const BookingConfirmation = ({ bookingData }) => {
     fetchData();
   }, [bookingData]);
 
-  
-
   const handleOpenModal = () => {
-    const key = generateAddInfo();     // B1: tạo paymentKey duy nhất
-    setPaymentKey(key);                // B2: lưu key để dùng sau này
-  
+    const key = generateAddInfo();
+    setPaymentKey(key);
+
     const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=10000&addInfo=start${key}end&accountName=VietDuKy`;
-    setQrSrc(src);                     // B3: tạo QR dựa trên key
-  
-    setIsQRModalOpen(true);           // B4: mở modal
+    setQrSrc(src);
+
+    setIsQRModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -101,7 +100,7 @@ const BookingConfirmation = ({ bookingData }) => {
 
   const handleCloseSuccessModal = () => {
     setIsSuccessModalOpen(false);
-    // Có thể thêm điều hướng hoặc hành động khác ở đây
+    navigate("/bookingHistory");
   };
 
   useEffect(() => {
@@ -114,9 +113,9 @@ const BookingConfirmation = ({ bookingData }) => {
     const paymentData = {
       bookingId: bookingData?.id,
       customerId: bookingData?.user_id,
-      paymentKey: paymentKey, // Sử dụng đúng key đã tạo
+      paymentKey: paymentKey,
     };
-  
+
     try {
       const response = await PaymentService.checkPayment(paymentData);
       if (response?.status === 200) {
@@ -128,22 +127,34 @@ const BookingConfirmation = ({ bookingData }) => {
       console.error("Lỗi khi kiểm tra thanh toán:", error);
     }
   };
+
   const startPaymentCheck = () => {
-    // Bắt đầu kiểm tra thanh toán khi modal mở
     const id = setInterval(() => {
       checkPayment();
       setCountdown((prev) => {
         if (prev <= 0) {
           clearInterval(id);
           console.log("Kiểm tra thanh toán đã ngừng sau 10 phút.");
-          return prev; // Không giảm xuống dưới 0
+          return prev;
         }
         return prev - 1;
       });
     }, 2000);
 
-    setIntervalId(id); // Lưu intervalId
+    setIntervalId(id);
   };
+
+  useEffect(() => {
+    if (isSuccessModalOpen) {
+      const timer = setTimeout(() => {
+        navigate("/bookingHistory");
+      }, 5000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccessModalOpen]);
+
+  
 
   return (
     <>
@@ -245,113 +256,22 @@ const BookingConfirmation = ({ bookingData }) => {
       </div>
 
       {/* Modal QR Code */}
-      <Modal
+      <ModalQRPayment
         isOpen={isQRModalOpen}
-        onRequestClose={handleCloseModal}
-        contentLabel="QR Code Thanh Toán"
-        overlayClassName={"fixed inset-0 bg-black bg-opacity-50 z-10"}
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-0"
-      >
-        <div className="bg-white p-6 rounded-md shadow-lg text-center z-40">
-          <div className="flex flex-col">
-            <div className="text-left flex items-center justify-between mb-4">
-              <div className="flex-1">
-                <p className="text-zinc-900 font-bold">Thanh toán chuyến đi</p>
-                <p className="text-zinc-500 text-xs">
-                  Khách hàng xem thông tin đơn hàng và quét mã QR
-                </p>
-              </div>
-              <p className="text-zinc-500 text-xs font-semibold">
-                Giao dịch hết hạn sau:
-                <span className="ml-2 bg-black rounded-lg py-2 px-1 text-white font-semibold inline-block w-[80px] text-center font-mono">
-                  {Math.floor(countdown / 60)
-                    .toString()
-                    .padStart(2, "0")}{" "}
-                  : {(countdown % 60).toString().padStart(2, "0")}
-                </span>
-              </p>
-            </div>
-            <div className="flex mt-4 gap-6">
-              <div className="w-2/5 bg-gray-50 rounded p-4 shadow-md">
-                <div className="flex flex-col text-left mt-4 gap-6">
-                  <div>
-                    <p className="text-zinc-800 text-lg font-semibold">
-                      Thông tin đơn hàng
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-zinc-500 text-sm font-semibold">
-                      Số tiền thanh toán
-                    </p>
-                    <p className="text-red-800 text-lg font-semibold">
-                      {booking?.data?.total_cost.toLocaleString("vi-VN")} VND
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-zinc-500 text-sm font-semibold">
-                      Giá trị đơn hàng
-                    </p>
-                    <p className="text-zinc-900 text-lg font-semibold">
-                      {booking?.data?.total_cost.toLocaleString("vi-VN")} VND
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-zinc-500 text-sm font-semibold">
-                      Phí giao dịch
-                    </p>
-                    <p className="text-zinc-900 text-lg font-semibold">0 VND</p>
-                  </div>
-                  <div>
-                    <p className="text-zinc-500 text-sm font-semibold">
-                      Mã đơn hàng
-                    </p>
-                    <p className="text-zinc-900 text-lg font-semibold">xxxxx</p>
-                  </div>
-                  <div>
-                    <p className="text-zinc-500 text-sm font-semibold">
-                      Nhà cung cấp
-                    </p>
-                    <p className="text-zinc-900 font-semibold">VietDuKy</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-between mt-4 mb-2 w-3/5">
-                <img src={qrSrc} alt="QR Code" className="rounded-lg mx-auto" />
-                <button
-                  onClick={handleCloseModal}
-                  className="mt-4 px-4 py-2 bg-gray-200 text-gray-500 rounded-md hover:bg-gray-400"
-                >
-                  Hủy thanh toán
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Modal>
+        countdown={countdown}
+        qrSrc={qrSrc}
+        booking={booking}
+        onClose={handleCloseModal}
+      />
 
       {/* Modal thông báo thành công */}
-      <Modal
+      <ModalPaymentSuccess
         isOpen={isSuccessModalOpen}
-        onRequestClose={handleCloseSuccessModal}
-        contentLabel="Thông báo thành công"
-        overlayClassName={"fixed inset-0 bg-black bg-opacity-50 z-10"}
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-0"
-      >
-        <div className="bg-white p-6 rounded-md shadow-lg text-center z-40">
-          <h2 className="text-green-600 font-bold text-lg">
-            Thanh toán thành công!
-          </h2>
-          <p className="text-gray-600">
-            Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
-          </p>
-          <button
-            onClick={navigate("/bookingHistory")}
-            className="mt-4 px-4 py-2 bg-gray-200 text-gray-500 rounded-md hover:bg-gray-400"
-          >
-            Đóng
-          </button>
-        </div>
-      </Modal>
+        onClose={() => {
+          setIsSuccessModalOpen(false);
+          navigate("/bookingHistory");
+        }}
+      />
     </>
   );
 };

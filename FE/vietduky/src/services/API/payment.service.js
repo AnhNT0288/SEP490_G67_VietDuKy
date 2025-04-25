@@ -8,10 +8,22 @@ export const PaymentService = {
             data,
         });
     },
-    getPayment: (id) => {
+    getPaymentByBookingId: (id) => {
+        return restClient({
+            url: `payment/booking/${id}`,
+            method: "GET",
+        });
+    },
+    getPaymentById: (id) => {
         return restClient({
             url: `payment/${id}`,
             method: "GET",
         });
     },
+    getPaymentByCustomerId: (id) => {
+        return restClient({
+            url: `payment/customer/${id}`,
+            method: "GET",
+        });
+    }
 };

@@ -27,6 +27,8 @@ export default function ListTour() {
   const [favoriteTours, setFavoriteTours] = useState([]);
   const [message, setMessage] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const countTours = tours.length;
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -96,36 +98,57 @@ export default function ListTour() {
   }, [userId]);
 
   const handleFilter = async (filterParams) => {
-    // Kiểm tra xem có bộ lọc nào hợp lệ không
     const hasFilters = Object.values(filterParams).some(
       (param) => param !== "" && param !== "Tất cả"
     );
-
+  
     if (!hasFilters) {
-      // Nếu không có bộ lọc, đặt lại danh sách tour về danh sách gốc
-      setFilteredTours(tours);
-      setMessage(""); // Xóa thông báo
+      setFilteredTours([]);
+      setIsFiltering(false);
+      setMessage("");
       return;
     }
-
+  
     try {
       const res = await TourService.searchTour(filterParams);
-      const toursData = res.data.data.tours;
-      setFilteredTours(toursData);
-      setMessage(
-        toursData.length === 0
-          ? "Chúng tôi không tìm thấy tour nào cho bạn !"
-          : ""
-      ); // Cập nhật thông báo
+      if (res.status === 200) {
+        const toursData = res.data.data.tours;
+        setFilteredTours(toursData);
+        setIsFiltering(true);
+        setMessage(
+          toursData.length === 0
+            ? "Chúng tôi không tìm thấy tour nào cho bạn !"
+            : ""
+        );
+      }
     } catch (err) {
       console.error("Lỗi khi tìm kiếm tour:", err);
-      setMessage("Chúng tôi không tìm thấy tour nào cho bạn !"); // Hiển thị thông báo nếu có lỗi
+      setMessage("Chúng tôi không tìm thấy tour nào cho bạn !");
     }
   };
+  
 
   const activeTopics = topics.filter((topic) => topic.active === true);
 
-  // console.log("filteredTours", filteredTours);
+  const handleSearchHeader = (destination, departure, date) => {
+    handleFilter({
+      destination,
+      departure,
+      date,
+      type: "Tất cả",
+      topic: "Tất cả",
+    });
+  };
+
+  const validTravelTours = travelTours.filter((tour) => {
+    const startDate = new Date(tour.start_day);
+    const now = new Date();
+    
+    // Chỉ lấy tour có ngày khởi hành hôm nay hoặc sau hôm nay
+    return startDate >= new Date(now.setHours(0, 0, 0, 0));
+  });
+
+  console.log("filteredTours", filteredTours);
   // console.log("tours", tours);
   // console.log("travelTours", travelTours);
   // console.log("locations", locations);
@@ -137,7 +160,10 @@ export default function ListTour() {
     <div className="bg-white">
       {/* Header */}
       <Header />
-      <HeaderCard />
+      {/* Header Card */}
+      <div className="relative">
+        <HeaderCard onSearch={handleSearchHeader} />
+      </div>
       {/* Nội dung chính */}
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row md:gap-6">
@@ -176,6 +202,7 @@ export default function ListTour() {
                 tours={tours}
                 travelTours={travelTours}
                 filteredTours={filteredTours}
+                isFiltering={isFiltering}
               />
             </div>
             {/* Danh sách Tour */}
@@ -188,7 +215,7 @@ export default function ListTour() {
               {!message && (
                 <TourCard
                   tours={filteredTours.length > 0 ? filteredTours : tours}
-                  travelTours={travelTours}
+                  travelTours={validTravelTours}
                   favoriteTours={favoriteTours}
                   setFavoriteTours={setFavoriteTours}
                 />

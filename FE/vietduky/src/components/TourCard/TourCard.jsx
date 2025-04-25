@@ -93,12 +93,12 @@ export default function TourCard({
             className="flex sm:flex-row flex-col bg-white bg-opacity-40 mb-4 shadow-lg rounded-lg overflow-hidden border border-gray-200"
           >
             {/* Hình ảnh Tour */}
-            <div className="w-full md:w-1/3 relative">
+            <div className="w-full md:w-1/3 relative h-64 ">
               <img
                 src={tour.album[0]}
                 alt="Tour"
                 onClick={() => navigate(`/tour/${tour.id}`)}
-                className="w-full h-full object-cover rounded-l-lg shadow-md cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover rounded-l-lg sm:rounded-b-lg shadow-md cursor-pointer hover:scale-105 transition-transform duration-300"
               />
               <span className="absolute bottom-2 left-2 bg-red-800 text-white text-sm font-bold px-3 py-1 rounded">
                 {tour.typeTour ? tour.typeTour.name_type : "Không rõ"}

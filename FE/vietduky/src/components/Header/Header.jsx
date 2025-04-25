@@ -83,6 +83,9 @@ export default function Header() {
           <a href="/" className="hover:underline text-white">
             Trang Chủ
           </a>
+          <a href="/article/home" className="hover:underline text-white">
+            Bài viết
+          </a>
           <a href="/listTour" className="hover:underline text-white">
             Du lịch trọn gói
           </a>
@@ -154,6 +157,9 @@ export default function Header() {
         <div className="p-6 flex flex-col gap-4">
           <a href="/" className="text-lg font-semibold">
             Trang Chủ
+          </a>
+          <a href="/article/home" className="text-lg font-semibold">
+            Bài viết
           </a>
           <a href="/listTour" className="text-lg font-semibold">
             Du lịch trọn gói
