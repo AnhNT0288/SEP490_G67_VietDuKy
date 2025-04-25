@@ -779,7 +779,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
     });
 
     if (!travelTour) {
-      return res.status(200).json({ message: "Không tìm thấy tour du lịch!" });
+      return res.status(404).json({ message: "Không tìm thấy tour du lịch!" });
     }
 
     // Lấy thông tin hướng dẫn viên của tour
@@ -798,17 +798,6 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         },
       ],
     });
-
-    if (
-      guideTours.length === 0 ||
-      !guideTours ||
-      !guideTours[0] ||
-      !guideTours[0].travelGuide
-    ) {
-      return res
-        .status(200)
-        .json({ message: "Chưa có hướng dẫn viên cho tour này!" });
-    }
 
     // Lấy danh sách booking của tour
     const bookings = await Booking.findAll({
@@ -889,8 +878,13 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
       })),
     };
 
+    const message =
+      guideTours.length === 0
+        ? "Chưa có hướng dẫn viên cho tour này!"
+        : "Lấy thông tin tour du lịch thành công!";
+
     res.json({
-      message: "Lấy thông tin tour du lịch thành công!",
+      message,
       data: formattedTravelTour,
     });
   } catch (error) {
@@ -2047,7 +2041,6 @@ exports.getAvailableTravelGuidesForTourByLocation = async (req, res) => {
         },
       ],
     });
-
     if (!travelTour) {
       return res.status(404).json({ message: "Không tìm thấy TravelTour!" });
     }
@@ -2160,9 +2153,9 @@ exports.getGuideTourByTravelTourId = async (req, res) => {
       include: [
         {
           model: Passenger,
-          as: "passengers"
-        }
-      ]
+          as: "passengers",
+        },
+      ],
     });
 
     // Lấy tất cả passengers từ bookings
@@ -2175,7 +2168,7 @@ exports.getGuideTourByTravelTourId = async (req, res) => {
 
     // Nhóm passenger theo group
     const groupedPassengers = allPassengers.reduce((acc, passenger) => {
-      const group = passenger.group || 'ungrouped';
+      const group = passenger.group || "ungrouped";
       if (!acc[group]) {
         acc[group] = [];
       }
@@ -2185,7 +2178,7 @@ exports.getGuideTourByTravelTourId = async (req, res) => {
 
     // Nhóm guideTour theo group
     const groupedGuideTours = guideTour.reduce((acc, guide) => {
-      const group = guide.group || 'ungrouped';
+      const group = guide.group || "ungrouped";
       if (!acc[group]) {
         acc[group] = [];
       }
@@ -2194,15 +2187,18 @@ exports.getGuideTourByTravelTourId = async (req, res) => {
     }, {});
 
     // Kết hợp dữ liệu theo group
-    const result = Object.keys({...groupedPassengers, ...groupedGuideTours}).map(group => ({
+    const result = Object.keys({
+      ...groupedPassengers,
+      ...groupedGuideTours,
+    }).map((group) => ({
       group,
       passengers: groupedPassengers[group] || [],
-      guides: groupedGuideTours[group] || []
+      guides: groupedGuideTours[group] || [],
     }));
 
     res.status(200).json({
       message: "Lấy danh sách GuideTour và Passenger theo nhóm thành công!",
-      data: result
+      data: result,
     });
   } catch (error) {
     console.error("Lỗi khi lấy danh sách GuideTour:", error);
