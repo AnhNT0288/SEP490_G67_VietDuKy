@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { LuSearch } from "react-icons/lu";
 import ModalAddService from "../../components/ModalManage/ModalAdd/ModalAddService.jsx";
+import {deleteService, getService} from "../../services/API/service.service.js";
+import DropdownMenuService from "../../components/Dropdown/DropdownService.jsx";
+import ModalUpdateService from "../../components/ModalManage/ModalUpdate/ModalUpdateService.jsx";
 
 export default function ManagementService() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [services, setServices] = useState([]); // Dữ liệu dịch vụ từ API
-
+    const [openDropdownId, setOpenDropdownId] = useState(null);
+    const [selectedServiceId, setSelectedServiceId] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     // Mở/đóng modal
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -18,25 +23,24 @@ export default function ManagementService() {
     };
 
     // Gọi API lấy danh sách dịch vụ
-    useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                const response = await fetch("http://localhost:3000/api/service/");
-                const result = await response.json();
-                console.log("Dữ liệu từ API:", result);
-
-                if (result.data && Array.isArray(result.data)) {
-                    setServices(result.data); // ✅ Lấy danh sách từ `data`
-                } else {
-                    console.error("Dữ liệu API không đúng định dạng:", result);
-                    setServices([]);
-                }
-            } catch (error) {
-                console.error("Lỗi khi gọi API:", error);
+// Thêm ngoài useEffect
+    const fetchServices = async () => {
+        try {
+            const result = await getService();
+            if (result && Array.isArray(result.data)) {
+                setServices(result.data);
+            } else {
+                console.error("Dữ liệu API không đúng định dạng:", result);
                 setServices([]);
             }
-        };
+        } catch (error) {
+            console.error("Lỗi khi gọi API:", error);
+            setServices([]);
+        }
+    };
 
+// useEffect chỉ gọi fetchServices 1 lần lúc load
+    useEffect(() => {
         fetchServices();
     }, []);
 
@@ -44,6 +48,24 @@ export default function ManagementService() {
     const filteredServices = services.filter((service) =>
         service.name_service.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    const handleUpdateService = (id) => {
+        console.log("Cập nhật dịch vụ id:", id);
+        setSelectedServiceId(id);
+        setIsEditModalOpen(true);
+    };
+
+    const handleDeleteService = async (id) => {
+        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa dịch vụ này không?");
+        if (!confirmDelete) return;
+
+        try {
+            await deleteService(id);
+            alert("Xóa dịch vụ thành công!");
+            fetchServices(); // ✅ reload lại danh sách dịch vụ mới nhất
+        } catch (error) {
+            alert("Xóa dịch vụ thất bại. Vui lòng thử lại.");
+        }
+    };
 
     return (
         <div title="Quản lý Dịch vụ">
@@ -90,7 +112,15 @@ export default function ManagementService() {
                                 <td className="p-2">
                                     {(service.price_service ?? 0).toLocaleString()} VNĐ
                                 </td>
-                                <td className="p-2 text-right">...</td>
+                                <td className="p-2 text-right">
+                                    <DropdownMenuService
+                                        serviceId={service.id}
+                                        onEditService={handleUpdateService}
+                                        onDeleteService={handleDeleteService}
+                                        isOpen={openDropdownId === service.id}
+                                        setOpenDropdown={setOpenDropdownId}
+                                    />
+                                </td>
                             </tr>
                         ))
                     ) : (
@@ -107,6 +137,18 @@ export default function ManagementService() {
                 {isModalOpen && (
                     <ModalAddService onClose={toggleModal} onSuccess={handleSuccess} />
                 )}
+                {isEditModalOpen && selectedServiceId && (
+                    <ModalUpdateService
+                        serviceId={selectedServiceId}
+                        onClose={() => setIsEditModalOpen(false)}
+                        onSuccess={() => {
+                            setIsEditModalOpen(false);
+                            fetchServices();  // ✅ Reload lại bảng dịch vụ ngay sau khi cập nhật xong
+                        }}
+                    />
+                )}
+
+
             </div>
         </div>
     );
