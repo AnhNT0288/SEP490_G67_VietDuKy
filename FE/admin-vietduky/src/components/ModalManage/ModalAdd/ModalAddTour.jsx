@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import {fetchLocations, fetchServices, fetchTypeTours} from "../../../services/service.js";
 import { createTour } from "../../../services/API/tour.service.js";
 import ModalConfirmTravelTour from "../ModalConfirm/ModalConfirmTravelTour.jsx";
-import Select from "react-select"; // Import React Select đúng cách
+import Select from "react-select";
+import ModalAddService from "./ModalAddService.jsx"; // Import React Select đúng cách
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddTour({ onClose, onCreateSuccess }) {
@@ -15,6 +16,7 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [pendingTourData, setPendingTourData] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
+  const [isAddServiceModalOpen, setIsAddServiceModalOpen] = useState(false);
 
   const [tourData, setTourData] = useState({
     name_tour: "",
@@ -151,6 +153,10 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
     return Number(value).toLocaleString("vi-VN");
   };
 
+  const handleAddServiceSuccess = (newService) => {
+    setServices((prev) => [...prev, newService]);
+  };
+
   const handleWrapperClick = () => {
     onClose();
   };
@@ -275,7 +281,7 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
               </select>
 
               {/* Dịch vụ */}
-              <label className="block mb-2 font-medium before:content-['*'] before:text-red-500 before:mr-1">
+              <label className="block mb-2 font-medium before:content-['*'] before:text-red-500 before:mr-1 mt-2">
                 Dịch vụ
               </label>
               <Select
@@ -293,7 +299,15 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
                   placeholder="Chọn dịch vụ kèm theo"
                   isSearchable
               />
-
+              <div className="text-right">
+                <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-sm bg-red-50 text-blue-700 px-3 py-1 rounded-md hover:bg-red-200 transition"
+                    onClick={() => setIsAddServiceModalOpen(true)}
+                >
+                  Thêm dịch vụ mới
+                </button>
+              </div>
               {/* Ảnh minh họa */}
               <label className="block mb-2 font-medium before:content-['*'] before:text-red-500 before:mr-1">
                 Ảnh bìa
@@ -398,6 +412,12 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
               open={isConfirmModalOpen}
               onCancel={handleCancel}
               onConfirm={handleConfirm}
+          />
+      )}
+      {isAddServiceModalOpen && (
+          <ModalAddService
+              onClose={() => setIsAddServiceModalOpen(false)}
+              onSuccess={handleAddServiceSuccess}
           />
       )}
     </div>
