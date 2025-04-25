@@ -816,3 +816,27 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
     });
   }
 };
+exports.closeTravelTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const travelTour = await TravelTour.findByPk(id);
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy tour du lịch!" });
+    }
+    if (travelTour.active === false) {
+      return res.status(400).json({ message: "Tour du lịch đã đóng!" });
+    }
+
+    travelTour.active = false;
+    await travelTour.save();
+
+    res.status(200).json({
+      message: "Đóng tour du lịch thành công!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi đóng tour du lịch!",
+      error: error.message,
+    });
+  }
+};
