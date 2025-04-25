@@ -291,6 +291,7 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
             Cập nhật
           </button> */}
         </div>
+
       </div>
       <BookingDetailsModal
         booking={booking}

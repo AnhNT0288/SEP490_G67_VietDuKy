@@ -23,6 +23,7 @@ export default function CalendarTravelTour({ travelTours = [] }) {
 
   const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 });
+  const currentGuideId = JSON.parse(localStorage.getItem("user"))?.id;
 
   const days = [];
   let current = start;
@@ -214,8 +215,8 @@ export default function CalendarTravelTour({ travelTours = [] }) {
             tourSelected={tourSelected}
             open={!!tourSelected}
             onClose={() => setTourSelected(null)}
+            guideId={currentGuideId}
         />
-
       </div>
   );
 }

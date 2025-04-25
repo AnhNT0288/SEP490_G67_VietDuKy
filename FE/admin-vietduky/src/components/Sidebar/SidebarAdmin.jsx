@@ -51,9 +51,16 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
         {
           id: 601,
           name: "Chương trình triết khấu",
-          path: "/managementSaleProgram",
+          path: "/managementSaleProgram"
         },
-        { id: 602, name: "Mã giảm giá", path: "/managementDiscount" },
+        { id: 602,
+          name: "Mã giảm giá",
+          path: "/managementDiscount"
+        },
+        { id: 603,
+          name: "Ưu đãi phút chót",
+          path: "/managementLastMinuteDeals"
+        },
       ],
     },
     {

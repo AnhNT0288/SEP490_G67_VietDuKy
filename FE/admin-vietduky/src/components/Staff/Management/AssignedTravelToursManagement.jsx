@@ -17,8 +17,8 @@ export default function AssignedTravelToursManagement({ staffId }) {
     const [startDate, setStartDate] = useState("");
     const [tab, setTab] = useState("all");
     const [assignedLocations, setAssignedLocations] = useState([]);
-    const [selectedTour, setSelectedTour] = useState(null); // State quản lý tour được chọn
-    const [openAssignModal, setOpenAssignModal] = useState(false); // State mở modal
+    const [selectedTour, setSelectedTour] = useState(null);
+    const [openAssignModal, setOpenAssignModal] = useState(false);
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
