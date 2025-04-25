@@ -32,6 +32,7 @@ const PaymentRouter = require("./payment.route");
 const FavoriteTourRouter = require("./favoriteTour.route");
 const LikeRouter = require("./like.route");
 const TourInfoRouter = require("./tour_info.route");
+const statisticRoutes = require('./statistic.routes');
 
 router.use("/auth", AuthRouter);
 router.use("/tour", TourRouter);
@@ -65,4 +66,6 @@ router.use("/payment", PaymentRouter);
 router.use("/favorite-tour", FavoriteTourRouter);
 router.use("/like", LikeRouter);
 router.use("/tour-info", TourInfoRouter);
+router.use('/statistic', statisticRoutes);
+
 module.exports = router;
