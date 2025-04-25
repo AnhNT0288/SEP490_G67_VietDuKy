@@ -55,7 +55,7 @@ const ModalQRPayment = ({
                 </div>
                 <div>
                   <p className="text-zinc-500 text-sm font-semibold">Mã đơn hàng</p>
-                  <p className="text-zinc-900 text-lg font-semibold">xxxxx</p>
+                  <p className="text-zinc-900 text-lg font-semibold">{booking?.data?.booking_code}</p>
                 </div>
                 <div>
                   <p className="text-zinc-500 text-sm font-semibold">Nhà cung cấp</p>

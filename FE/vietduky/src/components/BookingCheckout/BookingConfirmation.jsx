@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
 import ModalQRPayment from "./ModalBookingCheckout/ModalPayment";
+import ModalPaymentSuccess from "./ModalBookingCheckout/ModalPaymentSuccess";
 
 // Import Modal từ react-modal
 Modal.setAppElement("#root");
@@ -99,7 +100,7 @@ const BookingConfirmation = ({ bookingData }) => {
 
   const handleCloseSuccessModal = () => {
     setIsSuccessModalOpen(false);
-    // Có thể thêm điều hướng hoặc hành động khác ở đây
+    navigate("/bookingHistory");
   };
 
   useEffect(() => {
@@ -126,6 +127,7 @@ const BookingConfirmation = ({ bookingData }) => {
       console.error("Lỗi khi kiểm tra thanh toán:", error);
     }
   };
+
   const startPaymentCheck = () => {
     const id = setInterval(() => {
       checkPayment();
@@ -141,6 +143,18 @@ const BookingConfirmation = ({ bookingData }) => {
 
     setIntervalId(id);
   };
+
+  useEffect(() => {
+    if (isSuccessModalOpen) {
+      const timer = setTimeout(() => {
+        navigate("/bookingHistory");
+      }, 5000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccessModalOpen]);
+
+  
 
   return (
     <>
@@ -251,28 +265,13 @@ const BookingConfirmation = ({ bookingData }) => {
       />
 
       {/* Modal thông báo thành công */}
-      <Modal
+      <ModalPaymentSuccess
         isOpen={isSuccessModalOpen}
-        onRequestClose={handleCloseSuccessModal}
-        contentLabel="Thông báo thành công"
-        overlayClassName={"fixed inset-0 bg-black bg-opacity-50 z-10"}
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-0"
-      >
-        <div className="bg-white p-6 rounded-md shadow-lg text-center z-40">
-          <h2 className="text-green-600 font-bold text-lg">
-            Thanh toán thành công!
-          </h2>
-          <p className="text-gray-600">
-            Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
-          </p>
-          <button
-            // onClick={navigate("/bookingHistory")}
-            className="mt-4 px-4 py-2 bg-gray-200 text-gray-500 rounded-md hover:bg-gray-400"
-          >
-            Đóng
-          </button>
-        </div>
-      </Modal>
+        onClose={() => {
+          setIsSuccessModalOpen(false);
+          navigate("/bookingHistory");
+        }}
+      />
     </>
   );
 };

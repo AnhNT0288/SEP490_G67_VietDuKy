@@ -11,14 +11,14 @@ const {
 router.post(
   "/create",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.createPassenger
 );
 
 router.get(
   "/:booking_id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.getPassengerByBookingId
 );
 

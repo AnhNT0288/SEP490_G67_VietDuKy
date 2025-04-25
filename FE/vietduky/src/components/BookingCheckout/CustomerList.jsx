@@ -20,7 +20,7 @@ export default function CustomerList({ passengerData, bookingData }) {
     PassengerService.getPassengerByBookingId(bookingData?.id)
       .then((response) => {
         if (response?.data) {
-          setPassengerList(response.data);
+          setPassengerList(response.data.data);
         }
       })
       .catch((error) => {
@@ -209,7 +209,7 @@ export default function CustomerList({ passengerData, bookingData }) {
               </tr>
             </thead>
             <tbody>
-              {passengerList.map((passenger, index) => {
+              {passengerList.length > 0 && passengerList.map((passenger, index) => {
                 const { age, type, label } = calculateAgeAndType(passenger.birth_date); // Tính toán độ tuổi và loại
                 return (
                   <tr key={index}>
