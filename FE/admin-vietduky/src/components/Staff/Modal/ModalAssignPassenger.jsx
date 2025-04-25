@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import {assignPassengersToGuide, getPassengersByTravelTourId} from "../../../services/API/passenger.service.js";
 import {SlArrowDown, SlArrowUp} from "react-icons/sl";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAssignPassenger({ tourId, guide, onClose }) {
@@ -75,7 +76,7 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
     const handleAssign = async () => {
         const passengerIds = selectedStats.map((p) => p.original_id);
         if (!passengerIds.length) {
-            alert("Vui lòng chọn ít nhất một hành khách.");
+            toast.error("Vui lòng chọn ít nhất một hành khách.");
             return;
         }
 
@@ -84,9 +85,9 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
 
             if (res.message?.includes("Một số hành khách")) {
                 const conflictedNames = res.data?.map((p) => p.name).join(", ");
-                alert(`❌ Một số hành khách đã được phân công hướng dẫn viên khác:\n${conflictedNames}`);
+                toast.error(`❌ Một số hành khách đã được phân công hướng dẫn viên khác:\n${conflictedNames}`);
             } else {
-                alert("✅ Phân công thành công!");
+                toast.success("✅ Phân công thành công!");
                 onClose();
             }
         } catch (err) {
@@ -94,7 +95,7 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
                 err?.response?.data?.message ||
                 err?.message ||
                 "Đã xảy ra lỗi khi phân công.";
-            alert(`❌ ${messageFromServer}`);
+            toast.error(`❌ ${messageFromServer}`);
         }
     };
 

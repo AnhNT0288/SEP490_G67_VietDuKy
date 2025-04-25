@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { HiOutlineInbox } from "react-icons/hi";
 import ModalAddActivity from "../ModalAdd/ModalAddActivity.jsx";
 import { deleteTourActivity } from "../../../services/API/activity_tour.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 function ModalActivityDetail({ activity, onClose }) {
@@ -70,10 +71,10 @@ export default function ModalManageActivity({ tour, onClose }) {
         try {
             await deleteTourActivity(activityId);
             setActivities((prev) => prev.filter((item) => item.id !== activityId));
-            alert("Đã xoá chương trình thành công.");
+            toast.success("Đã xoá chương trình thành công.");
         } catch (error) {
             console.error("Lỗi khi xoá chương trình:", error);
-            alert("Xoá chương trình thất bại.");
+            toast.error("Xoá chương trình thất bại.");
         }
     };
 

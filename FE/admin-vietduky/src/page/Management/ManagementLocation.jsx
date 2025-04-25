@@ -8,6 +8,7 @@ import { MdEdit, MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
 import ModalUpdateLocation from "../../components/ModalManage/ModalUpdate/ModalUpdateLocation.jsx";
 import ModalDeleteLocation from "../../components/ModalManage/ModalConfirm/ModalDeleteLocation.jsx";
+import {toast} from "react-toastify";
 
 export default function ManagementLocation() {
   const [locations, setLocations] = useState([]);
@@ -47,10 +48,10 @@ export default function ManagementLocation() {
     if (!locationToDelete) return;
     try {
       await deleteLocation(locationToDelete.id);
-      alert("Xóa vị trí thành công");
+      toast.success("Xóa vị trí thành công");
       setLocations((prev) => prev.filter((loc) => loc.id !== locationToDelete.id));
     } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.log("Lỗi khi xóa vị trí", error);
     } finally {
       setIsDeleteModalOpen(false);

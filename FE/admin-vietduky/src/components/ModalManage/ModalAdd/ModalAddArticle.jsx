@@ -3,7 +3,9 @@ import { createArticle } from "../../../services/API/article.service";
 import TextEditor from "../../../lib/TextEditor";
 import { FaTimes } from "react-icons/fa";
 import {getAllDirectories} from "../../../services/API/directory.service.js";
+import {toast} from "react-toastify";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddArticle({ onClose, onCreated }) {
     const [previewImage, setPreviewImage] = useState(null);
     const [form, setForm] = useState({
@@ -95,7 +97,7 @@ export default function ModalAddArticle({ onClose, onCreated }) {
         const userId = storedUser ? JSON.parse(storedUser).id : null;
 
         if (!userId) {
-            alert("Không tìm thấy user_id trong localStorage");
+            toast.error("Không tìm thấy user_id trong localStorage");
             return;
         }
         formData.append("user_id", userId);
@@ -106,17 +108,17 @@ export default function ModalAddArticle({ onClose, onCreated }) {
         if (form.album_post) {
             formData.append("album_post", form.album_post);
         } else {
-            alert("Vui lòng chọn ảnh bìa!");
+            toast.error("Vui lòng chọn ảnh bìa!");
             return;
         }
 
         try {
             await createArticle(formData);
-            alert("✅ Tạo bài viết thành công!");
+            toast.success("Tạo bài viết thành công!");
             onCreated?.();
             onClose();
         } catch (err) {
-            alert("❌ Tạo bài viết thất bại");
+            toast.error("Tạo bài viết thất bại");
             console.error(err);
         }
     };

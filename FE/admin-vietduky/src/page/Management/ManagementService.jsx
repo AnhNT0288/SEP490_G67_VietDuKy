@@ -4,6 +4,7 @@ import ModalAddService from "../../components/ModalManage/ModalAdd/ModalAddServi
 import {deleteService, getService} from "../../services/API/service.service.js";
 import DropdownMenuService from "../../components/Dropdown/DropdownService.jsx";
 import ModalUpdateService from "../../components/ModalManage/ModalUpdate/ModalUpdateService.jsx";
+import {toast} from "react-toastify";
 
 export default function ManagementService() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -60,10 +61,11 @@ export default function ManagementService() {
 
         try {
             await deleteService(id);
-            alert("Xóa dịch vụ thành công!");
-            fetchServices(); // ✅ reload lại danh sách dịch vụ mới nhất
+            toast.success("Xóa dịch vụ thành công!");
+            fetchServices();
+            // eslint-disable-next-line no-unused-vars
         } catch (error) {
-            alert("Xóa dịch vụ thất bại. Vui lòng thử lại.");
+            toast.error("Xóa dịch vụ thất bại. Vui lòng thử lại.");
         }
     };
 

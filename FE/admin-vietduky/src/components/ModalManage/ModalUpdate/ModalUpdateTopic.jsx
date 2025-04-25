@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { updateTopic } from "../../../services/API/topic.service";
+import {toast} from "react-toastify";
 
 export default function ModalUpdateTopic({ topic, onClose, onUpdate }) {
     const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ export default function ModalUpdateTopic({ topic, onClose, onUpdate }) {
             };
 
             const res = await updateTopic(topic.id, updatedData);
-            alert("Cập nhật thành công!");
+            toast.success("Cập nhật thành công!");
 
             if (onUpdate) {
                 onUpdate({ ...topic, ...updatedData });
@@ -26,7 +27,7 @@ export default function ModalUpdateTopic({ topic, onClose, onUpdate }) {
             onClose();
         } catch (error) {
             console.error("Lỗi khi cập nhật chủ đề:", error);
-            alert("Cập nhật thất bại!");
+            toast.error("Cập nhật thất bại!");
         }
     };
 

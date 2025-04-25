@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Modal from "react-modal";
 import {approveDiscountService} from "../../../services/API/lastminutedeals.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalApproveDiscount({ isOpen, onClose, discountService }) {
@@ -18,13 +19,13 @@ export default function ModalApproveDiscount({ isOpen, onClose, discountService 
                 discount_service_id: discountService.id,
                 price_discount: parseInt(priceDiscount),
             });
-            alert("Cập nhật thành công!");
-            onClose(true); // đóng modal và báo cha reload
+            toast.success("Cập nhật thành công!");
+            onClose(true);
         } catch (err) {
-            alert("Đã có lỗi xảy ra khi cập nhật!");
+            toast.error("Đã có lỗi xảy ra khi cập nhật!");
             onClose(false);
         } finally {
-            setIsSubmitting(false); // ✅ reset trạng thái submit
+            setIsSubmitting(false);
         }
     };
 

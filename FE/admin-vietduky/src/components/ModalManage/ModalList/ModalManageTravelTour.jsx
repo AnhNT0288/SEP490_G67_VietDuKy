@@ -12,6 +12,7 @@ import { FiCalendar, FiList } from "react-icons/fi";
 import CalendarTravelTour from "../ModalCalendar/CalendarTravelTour.jsx";
 import DropdownMenuTravelTour from "../../Dropdown/DropdowMenuTravelTour.jsx";
 import ModalManageGuideForTravelTour from "./ModalManageGuideForTravelTour.jsx";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
@@ -77,9 +78,9 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     try {
       await deleteTravelTour(id);
       setTravelTours((prev) => prev.filter((_, i) => i !== index));
-      alert("Xóa hành trình thành công");
+      toast.success("Xóa hành trình thành công");
     } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.log("Lỗi khi xóa hành trình", error);
     }
   };
@@ -101,11 +102,11 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
 
     try {
       await closeTravelTour(id);
-      alert("✅ Đã đóng lịch khởi hành thành công.");
+      toast.success("✅ Đã đóng lịch khởi hành thành công.");
       const response = await getTravelTourByTourId(tourId);
       setTravelTours(response.data || []);
     } catch (error) {
-      alert("❌ Đóng lịch khởi hành thất bại.", error);
+      toast.error("❌ Đóng lịch khởi hành thất bại.", error);
     }
   };
 

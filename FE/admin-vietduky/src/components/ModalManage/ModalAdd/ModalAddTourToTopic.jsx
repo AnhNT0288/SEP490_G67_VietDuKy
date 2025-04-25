@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { addTourToTopic, getAllTours } from "../../../services/API/topic.service";
 import { getLocations } from "../../../services/API/location.service";
 import { getToursByLocation } from "../../../services/API/tour.service";
+import {toast} from "react-toastify";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddTourToTopic({ topic, onClose }) {
     const [locations, setLocations] = useState([]);
     const [selectedLocationIds, setSelectedLocationIds] = useState([]);
@@ -80,11 +82,11 @@ export default function ModalAddTourToTopic({ topic, onClose }) {
                 topicId: topic.id,
                 tourIds: selectedTours,
             });
-            alert("Thêm tour vào chủ đề thành công!");
+            toast.success("Thêm tour vào chủ đề thành công!");
             onClose();
         } catch (error) {
             console.error("Lỗi khi thêm tour:", error);
-            alert("Thất bại khi thêm tour.");
+            toast.error("Thất bại khi thêm tour.");
         }
     };
 

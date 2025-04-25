@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaArrowRight } from "react-icons/fa";
 import { createTravelTour } from "../../../services/API/travel_tour.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
@@ -42,7 +43,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
 
     // Basic validation
     if (travelTourData.end_day < travelTourData.start_day) {
-      alert("Ngày về không được trước ngày khởi hành.");
+      toast.error("Ngày về không được trước ngày khởi hành.");
       setLoading(false);
       return;
     }
@@ -60,11 +61,11 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
 
     try {
       const response = await createTravelTour(formattedData);
-      alert("Thêm Travel Tour thành công!");
+      toast.success("Thêm Travel Tour thành công!");
       onClose();
       if (onAddSuccess) onAddSuccess(response.data);
     } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.error("Lỗi khi thêm Travel Tour", error);
     } finally {
       setLoading(false);

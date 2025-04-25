@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { updateService, getServiceById } from "../../../services/API/service.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalUpdateService({ serviceId, onClose, onSuccess }) {
@@ -23,7 +24,7 @@ export default function ModalUpdateService({ serviceId, onClose, onSuccess }) {
                 }
             } catch (error) {
                 console.error("Lỗi khi lấy dịch vụ:", error);
-                alert("Không thể tải dữ liệu dịch vụ.");
+                toast.success("Không thể tải dữ liệu dịch vụ.");
                 onClose();
             }
         };
@@ -44,12 +45,12 @@ export default function ModalUpdateService({ serviceId, onClose, onSuccess }) {
 
         try {
             await updateService(serviceId, serviceData);
-            alert("Cập nhật dịch vụ thành công!");
+            toast.error("Cập nhật dịch vụ thành công!");
             onSuccess();
             onClose();
         } catch (error) {
             console.error("Lỗi cập nhật:", error);
-            alert("Cập nhật thất bại, vui lòng thử lại.");
+            toast.success("Cập nhật thất bại, vui lòng thử lại.");
         } finally {
             setLoading(false);
         }

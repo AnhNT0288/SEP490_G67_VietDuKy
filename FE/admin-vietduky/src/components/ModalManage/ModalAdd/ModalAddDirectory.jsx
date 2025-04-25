@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createDirectory } from "../../../services/API/directory.service";
+import {toast} from "react-toastify";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalAddDirectory({ onClose, onCreateSuccess }) {
     const [name_directory, setNameDirectory] = useState("");
     const [alias, setAlias] = useState("");
@@ -8,13 +10,13 @@ export default function ModalAddDirectory({ onClose, onCreateSuccess }) {
     const handleCreate = async () => {
         try {
             const res = await createDirectory({ name_directory, alias });
-            alert("✅ Tạo danh mục thành công!");
+            toast.success("Tạo danh mục thành công!");
             if (onCreateSuccess) {
                 onCreateSuccess(res?.data || { name_directory, alias });
             }
             onClose();
         } catch (error) {
-            alert("❌ Tạo danh mục thất bại!");
+            toast.error("Tạo danh mục thất bại!");
             console.error("Lỗi tạo danh mục:", error);
         }
     };

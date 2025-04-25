@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Select from "react-select";
 import { getLocations } from "../../../services/API/location.service";
 import { updateTravelGuide } from "../../../services/API/accounts.services";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalUpdateUser({ onClose, user, refreshUserList }) {
@@ -40,7 +41,7 @@ export default function ModalUpdateUser({ onClose, user, refreshUserList }) {
                 role_id: roleId,
             });
 
-            alert("Cập nhật thành công!");
+            toast.success("Cập nhật thành công!");
             onClose();
             refreshUserList();
         } catch (error) {

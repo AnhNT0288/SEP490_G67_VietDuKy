@@ -8,6 +8,7 @@ import ModalUpdateTour from "../../components/ModalManage/ModalUpdate/ModalUpdat
 import ModalManageActivity from "../../components/ModalManage/ModalList/ModalManageActivity.jsx";
 import { getTourById } from "../../services/API/tour.service";
 import ModalNoteList from "../../components/ModalManage/ModalList/ModalNoteList.jsx";
+import {toast} from "react-toastify";
 
 export default function ManagementTour() {
   const [tours, setTours] = useState([]);
@@ -101,7 +102,7 @@ export default function ManagementTour() {
       setOpenDropdown(null);
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết tour:", error);
-      alert("Không thể tải chi tiết chương trình tour.");
+      toast.error("Không thể tải chi tiết chương trình tour.");
     }
   };
 
@@ -259,7 +260,7 @@ export default function ManagementTour() {
               setIsAddTourModalOpen(false);
               setSelectedProgramTour(newTour.id);
               setIsManagementProgramModalOpen(true);
-              alert("Tạo Tour thành công!");
+              toast.success("Tạo Tour thành công!");
             }}
           />
         )}

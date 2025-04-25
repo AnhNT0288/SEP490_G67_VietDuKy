@@ -2,6 +2,7 @@ import { useState } from "react";
 import { HiOutlineInbox, HiOutlineTrash} from "react-icons/hi";
 import {createTourActivity} from "../../../services/API/activity_tour.service.js";
 import {IoMdAdd} from "react-icons/io";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
@@ -58,7 +59,7 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
                 !p.image
         );
         if (hasInvalid) {
-            alert("Vui lòng nhập đúng ngày (số dương), tiêu đề, mô tả và ảnh.");
+            toast.error("Vui lòng nhập đúng ngày (số dương), tiêu đề, mô tả và ảnh.");
             return;
         }
 
@@ -66,7 +67,7 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
         const days = programs.map((p) => Number(p.day));
         const hasDuplicateDay = days.some((day, index) => days.indexOf(day) !== index);
         if (hasDuplicateDay) {
-            alert("Không được nhập trùng ngày trong các chương trình.");
+            toast.error("Không được nhập trùng ngày trong các chương trình.");
             return;
         }
 
@@ -96,7 +97,7 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
                     preview: response.data.image  // Tạo thêm `preview` để dùng làm `src` nếu cần
                 });            }
 
-            alert("Tạo chương trình tour thành công!");
+            toast.success("Tạo chương trình tour thành công!");
             setSubmittedPrograms((prev) => [...prev, ...submitted]);
             setPrograms([{ day: "", title: "", description: "", detail: "", image: null, preview: null }]);
             onAddTravelTour(submitted);
@@ -104,10 +105,9 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
 
         } catch (error) {
             console.error("🔥 Lỗi từ backend:", error.response?.data || error);
-            alert(error.response?.data?.message || "Tạo chương trình tour thất bại.");
+            toast.error(error.response?.data?.message || "Tạo chương trình tour thất bại.");
         }
     };
-
 
     const handleWrapperClick = () => {
         onClose();

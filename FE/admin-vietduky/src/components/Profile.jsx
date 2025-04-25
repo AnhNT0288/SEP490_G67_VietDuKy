@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {toast} from "react-toastify";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -17,7 +18,7 @@ export default function Profile() {
     }
 
     if (!token) {
-      alert("Bạn chưa đăng nhập!");
+      toast.error("Bạn chưa đăng nhập!");
       navigate("/");
       return;
     }
@@ -34,7 +35,7 @@ export default function Profile() {
         if (response.ok) {
           setUser(data);
         } else {
-          alert(data.message || "Lỗi khi lấy thông tin người dùng!");
+          toast.error(data.message || "Lỗi khi lấy thông tin người dùng!");
           localStorage.removeItem("access_token");
           navigate("/login");
         }

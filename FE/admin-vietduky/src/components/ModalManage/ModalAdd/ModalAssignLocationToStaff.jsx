@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getLocations } from "../../../services/API/location.service";
 import { getAssignedLocationsByStaffId, assignLocationsToStaff } from "../../../services/API/staff.service.js";
 import Select from "react-select";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAssignLocationToStaff({ staff, onClose }) {
@@ -29,7 +30,7 @@ export default function ModalAssignLocationToStaff({ staff, onClose }) {
 
     const handleAssign = async () => {
         if (!selectedOptions.length) {
-            alert("Vui lòng chọn ít nhất một địa điểm!");
+            toast.error("Vui lòng chọn ít nhất một địa điểm!");
             return;
         }
 
@@ -38,10 +39,11 @@ export default function ModalAssignLocationToStaff({ staff, onClose }) {
 
         try {
             await assignLocationsToStaff(staff.id, location_ids);
-            alert("✅ Gán địa điểm thành công!");
+            toast.success("Gán địa điểm thành công!");
             onClose();
+            // eslint-disable-next-line no-unused-vars
         } catch (err) {
-            alert("❌ Lỗi khi gán địa điểm!");
+            toast.error("Lỗi khi gán địa điểm!");
         } finally {
             setIsLoading(false);
         }

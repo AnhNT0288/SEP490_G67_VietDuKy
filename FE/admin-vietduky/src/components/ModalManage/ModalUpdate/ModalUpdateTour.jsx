@@ -6,6 +6,7 @@ import { fetchLocations, fetchServices, fetchTypeTours } from "../../../services
 import ModalAddActivity from "../ModalAdd/ModalAddActivity.jsx";
 import { createTour, updateTour, getTourById } from "../../../services/API/tour.service.js";
 import Select from "react-select";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalUpdateTour({ mode = "update", tourId = null, onClose, onCreateSuccess }) {
@@ -81,7 +82,7 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
                 }
             } catch (error) {
                 console.error("Lỗi khi lấy dữ liệu:", error);
-                alert("Không thể tải thông tin tour hoặc danh mục!");
+                toast.error("Không thể tải thông tin tour hoặc danh mục!");
             }
         };
         fetchData();
@@ -150,7 +151,7 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
         e.preventDefault();
 
         if (!tourData.activity_description.trim()) {
-            alert("Vui lòng nhập mô tả hành trình!");
+            toast.error("Vui lòng nhập mô tả hành trình!");
             return;
         }
 
@@ -193,19 +194,19 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
 
             const id = response?.tour?.id || tourId;
             if (id) {
-                alert(`${mode === "update" ? "Cập nhật" : "Tạo"} Tour thành công!`);
+                toast.success(`${mode === "update" ? "Cập nhật" : "Tạo"} Tour thành công!`);
                 onCreateSuccess?.(id);
                 onClose();
             } else {
-                alert(`${mode === "update" ? "Cập nhật" : "Tạo"} Tour thất bại!`);
+                toast.error(`${mode === "update" ? "Cập nhật" : "Tạo"} Tour thất bại!`);
             }
         } catch (error) {
             console.error("Lỗi cập nhật tour:", error);
             if (error.response) {
                 console.error("Server response:", error.response.data);
-                alert(`Lỗi từ server: ${error.response.data.message || "Không xác định"}`);
+                toast.error(`Lỗi từ server: ${error.response.data.message || "Không xác định"}`);
             } else {
-                alert(`Lỗi: ${error.message}`);
+                toast.error(`Lỗi: ${error.message}`);
             }
         }
     };
@@ -220,8 +221,8 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
             activities: [...prev.activities, ...newList],
         }));
 
-        alert("Tạo chương trình tour thành công!");
-        setIsModalOpen(false); // ✅ Chỉ đóng modal thêm, giữ nguyên ModalUpdateTour
+        toast.success("Tạo chương trình tour thành công!");
+        setIsModalOpen(false);
     };
 
     const handleWrapperClick = () => {

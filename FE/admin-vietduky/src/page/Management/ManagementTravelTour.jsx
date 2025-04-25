@@ -11,6 +11,7 @@ import {
   getTravelTour,
 } from "../../services/API/travel_tour.service";
 import {CiLock} from "react-icons/ci";
+import {toast} from "react-toastify";
 
 export default function ManagementTravelTour() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,19 +45,15 @@ export default function ManagementTravelTour() {
     fetchTravelTours();
   }, []);
 
-  const handleSuccess = (newTravelTour) => {
-    setTravelTours((prev) => [...prev, newTravelTour]);
-  };
-
   const handleDelete = async (id) => {
     try {
       const response = await deleteTravelTour(id);
-      alert("Xóa hành trình thành công");
+      toast.success("Xóa hành trình thành công");
       setTravelTours((prev) =>
         prev.filter((travelTour) => travelTour.id !== id)
       );
     } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.log("Lỗi khi xóa hành trình", error);
     }
   };

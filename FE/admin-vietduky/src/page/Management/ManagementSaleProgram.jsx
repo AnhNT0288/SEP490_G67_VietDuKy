@@ -15,10 +15,10 @@ export default function ManagementSaleProgram() {
             try {
                 const response = await fetch("http://localhost:3000/api/program-discount");
                 const result = await response.json();
-                console.log("Dữ liệu từ API:", result); // Log để kiểm tra
+                console.log("Dữ liệu từ API:", result);
 
                 if (result.data && Array.isArray(result.data)) {
-                    setDiscountPrograms(result.data); // ✅ Lấy dữ liệu từ `data`
+                    setDiscountPrograms(result.data);
                 } else {
                     console.error("API không trả về dữ liệu đúng định dạng:", result);
                     setDiscountPrograms([]);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getTravelGuidesByStaffId} from "../../../services/API/guide_tour.service";
 import {assignTravelGuidesToStaff} from "../../../services/API/staff.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAssignGuideToStaff({ staff, onClose }) {
@@ -35,7 +36,7 @@ export default function ModalAssignGuideToStaff({ staff, onClose }) {
 
     const handleAssign = async () => {
         if (!selectedGuideIds.length) {
-            alert("Vui lòng chọn ít nhất một hướng dẫn viên!");
+            toast.error("Vui lòng chọn ít nhất một hướng dẫn viên!");
             return;
         }
 
@@ -45,16 +46,16 @@ export default function ModalAssignGuideToStaff({ staff, onClose }) {
                 user_id: staff.id,
                 travel_guide_ids: selectedGuideIds
             });
-            alert("Phân công thành công!");
+            toast.success("Phân công thành công!");
             onClose();
         } catch (err) {
             const errorMessage =
                 err?.response?.data?.message || "Phân công thất bại! Có lỗi xảy ra.";
             const conflictedGuides = err?.response?.data?.data;
             if (conflictedGuides && conflictedGuides.length) {
-                alert(`${errorMessage}`);
+                toast.error(`${errorMessage}`);
             } else {
-                alert(errorMessage);
+                toast.error(errorMessage);
             }
         }
     };

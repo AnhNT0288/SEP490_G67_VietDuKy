@@ -3,6 +3,7 @@ import {FaArrowRight} from "react-icons/fa";
 import TextEditor from "../../../lib/TextEditor.jsx";
 import {fetchLocations, fetchServices, fetchTypeTours} from "../../../services/service.js";
 import {createTour} from "../../../services/API/tour.service.js";
+import {toast} from "react-toastify";
 
 export default function ModalAddSaleProgram({ onClose }) {
     const [locations, setLocations] = useState([]);
@@ -54,7 +55,7 @@ export default function ModalAddSaleProgram({ onClose }) {
         e.preventDefault();
 
         if (!tourData.activity_description.trim()) {
-            alert("Vui lòng nhập mô tả hành trình!");
+            toast.error("Vui lòng nhập mô tả hành trình!");
             return;
         }
 
@@ -74,7 +75,7 @@ export default function ModalAddSaleProgram({ onClose }) {
 
             const response = await createTour(formData);
             if (response) {
-                alert("Tạo Tour mới thành công");
+                toast.success("Tạo Tour mới thành công");
                 setTourData({
                     ...tourData,
                     name_tour: "",
@@ -82,10 +83,10 @@ export default function ModalAddSaleProgram({ onClose }) {
                     travel_tours: [],
                 });
             } else {
-                alert("Có lỗi xảy ra, vui lòng thử lại!");
+                toast.error("Có lỗi xảy ra, vui lòng thử lại!");
             }
         } catch (error) {
-            alert(`Lỗi: ${JSON.stringify(error.response?.data)}`);
+            toast.error(`Lỗi: ${JSON.stringify(error.response?.data)}`);
             console.error("Lỗi API:", error.response?.data || error.message);
         }
     };

@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
-import { MdDelete } from "react-icons/md";
 import ModalAddNote from "../ModalAdd/ModalAddNote";
 import { getTourNotes } from "../../../services/API/note.service.js";
 import { RiDeleteBinLine } from "react-icons/ri";
 
-// eslint-disable-next-line react/prop-types
 export default function ModalNoteList({ tourId, onClose }) {
     const [notes, setNotes] = useState([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(""); // State cho tìm kiếm
-
-    useEffect(() => {
-        fetchNotes();
-    }, []);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const fetchNotes = async () => {
         try {
             const res = await getTourNotes(tourId);
+            console.log("📥 Notes fetched:", res);
             setNotes(res);
         } catch (error) {
             console.error("Lỗi khi lấy danh sách note:", error);
@@ -30,10 +25,9 @@ export default function ModalNoteList({ tourId, onClose }) {
         }
     }, [tourId]);
 
-    // Lọc các ghi chú theo từ khóa tìm kiếm
     const filteredNotes = notes.filter(note =>
-        note.tab.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        note.description.toLowerCase().includes(searchTerm.toLowerCase())
+        (note.tab || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (note.description || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -42,7 +36,6 @@ export default function ModalNoteList({ tourId, onClose }) {
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-800">Thông tin lưu ý</h2>
 
-                    {/* Thêm ô tìm kiếm */}
                     <div className="relative w-64">
                         <input
                             type="text"
@@ -53,7 +46,10 @@ export default function ModalNoteList({ tourId, onClose }) {
                         />
                     </div>
 
-                    <button className="text-white bg-red-600 px-4 py-2 rounded" onClick={() => setIsAddModalOpen(true)}>
+                    <button
+                        className="text-white bg-red-600 px-4 py-2 rounded"
+                        onClick={() => setIsAddModalOpen(true)}
+                    >
                         Thêm thông tin
                     </button>
                 </div>
@@ -67,15 +63,13 @@ export default function ModalNoteList({ tourId, onClose }) {
                     </tr>
                     </thead>
                     <tbody>
-                    {Array.isArray(filteredNotes) && filteredNotes.length > 0 ? (
+                    {filteredNotes.length > 0 ? (
                         filteredNotes.map((note) => (
                             <tr key={note.id}>
-                                <td className="p-2">{note.tab}</td>
+                                <td className="p-2">{note.tab || "(Không có tiêu đề)"}</td>
                                 <td className="p-2">{note.description}</td>
                                 <td className="p-2 text-center">
-                                    <button>
-                                        <RiDeleteBinLine />
-                                    </button>
+                                    <button><RiDeleteBinLine /></button>
                                 </td>
                             </tr>
                         ))
@@ -94,7 +88,7 @@ export default function ModalNoteList({ tourId, onClose }) {
                         tourId={tourId}
                         onClose={() => {
                             setIsAddModalOpen(false);
-                            fetchNotes();
+                            setTimeout(fetchNotes, 200); // Delay nhẹ giúp backend ghi xong
                         }}
                     />
                 )}
@@ -109,4 +103,3 @@ export default function ModalNoteList({ tourId, onClose }) {
         </div>
     );
 }
-

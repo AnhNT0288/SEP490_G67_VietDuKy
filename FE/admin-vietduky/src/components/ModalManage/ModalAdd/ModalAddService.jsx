@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { createService } from "../../../services/API/service.service.js"; // Import createService
+import { createService } from "../../../services/API/service.service.js";
+import {toast} from "react-toastify"; // Import createService
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddService({ onClose, onSuccess }) {
@@ -39,7 +40,7 @@ export default function ModalAddService({ onClose, onSuccess }) {
         try {
             const response = await createService(serviceData);
             if (response) {
-                alert("Thêm dịch vụ mới thành công");
+                toast.success("Thêm dịch vụ mới thành công");
                 setServiceData({
                     name_service: "",
                     description_service: "",
@@ -48,10 +49,10 @@ export default function ModalAddService({ onClose, onSuccess }) {
                 onSuccess(response.data); // Passing newly added service data
                 onClose(); // Close the modal
             } else {
-                alert("Có lỗi xảy ra, vui lòng thử lại!");
+                toast.error("Có lỗi xảy ra, vui lòng thử lại!");
             }
         } catch (error) {
-            alert(`Lỗi: ${JSON.stringify(error.response?.data)}`);
+            toast.error(`Lỗi: ${JSON.stringify(error.response?.data)}`);
             console.error("Lỗi API:", error.response?.data || error.message);
         } finally {
             setLoading(false);
