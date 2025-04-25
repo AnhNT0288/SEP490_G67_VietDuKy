@@ -256,7 +256,7 @@ export default function ManagementTour() {
           <ModalAddTour
             onClose={toggleAddTourModal}
             onCreateSuccess={(newTour) => {
-              setTours((prev) => [...prev, newTour]); // 👈 thêm vào cuối
+              setTours((prev) => [...prev, newTour]);
               setIsAddTourModalOpen(false);
               setSelectedProgramTour(newTour.id);
               setIsManagementProgramModalOpen(true);

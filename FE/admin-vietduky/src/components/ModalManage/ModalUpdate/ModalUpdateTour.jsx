@@ -68,7 +68,9 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
                     });
                     let preview = [];
                     try {
-                        if (typeof tour.album === "string") {
+                        if (Array.isArray(tour.album)) {
+                            preview = tour.album;
+                        } else if (typeof tour.album === "string") {
                             const urlMatches = tour.album.match(/https?:\/\/[^,\s"]+/g);
                             if (Array.isArray(urlMatches)) {
                                 preview = urlMatches;
@@ -77,8 +79,8 @@ export default function ModalUpdateTour({ mode = "update", tourId = null, onClos
                     } catch (e) {
                         console.warn("Không thể parse album:", e, "\nAlbum gốc:", tour.album);
                     }
-
                     setPreviewImages(preview);
+
                 }
             } catch (error) {
                 console.error("Lỗi khi lấy dữ liệu:", error);

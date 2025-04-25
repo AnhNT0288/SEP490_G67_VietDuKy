@@ -4,6 +4,7 @@ import {MdEdit, MdDelete, MdOutlineStickyNote2} from "react-icons/md";
 import { deleteTour } from "../../services/API/tour.service";
 import { BsCalendar3 } from "react-icons/bs";
 import {GoMultiSelect} from "react-icons/go";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function DropdownMenu({ tour, onDelete, onManageTravelTour, onEdit, isOpen, setOpenDropdown, onOpenManagementProgram, onOpenNoteTour }) {
@@ -25,9 +26,9 @@ export default function DropdownMenu({ tour, onDelete, onManageTravelTour, onEdi
     try {
       await deleteTour(id);
       onDelete(id);
-      alert("Xóa tour thành công");
+      toast.success("Xóa tour thành công");
     } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.log("Lỗi khi xóa tour", error);
     } finally {
       setOpenDropdown(null);
