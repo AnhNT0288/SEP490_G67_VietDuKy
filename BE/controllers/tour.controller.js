@@ -687,7 +687,7 @@ exports.updateTourById = async (req, res) => {
             const existingServiceIds = existingTourServices.map(
                 (service) => service.service_id
             );
-            const servicesToAdd = [];
+            let servicesToAdd = [];
             // Tìm các dịch vụ cần thêm
             if (serviceIds.length > 0) {
                 servicesToAdd = serviceIds.filter(
