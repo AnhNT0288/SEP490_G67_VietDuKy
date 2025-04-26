@@ -754,7 +754,7 @@ exports.getGuideTourByUserId = async (req, res) => {
 exports.getTravelTourDetailForGuide = async (req, res) => {
   try {
     const { travelTourId } = req.params;
-
+    const {travel_guide_id} = req.query;
     // Lấy thông tin tour du lịch
     const travelTour = await TravelTour.findOne({
       where: { id: travelTourId },
@@ -798,6 +798,9 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         },
       ],
     });
+    const guideTour = await GuideTour.findOne({
+      where: {travel_guide_id, travel_tour_id: travelTourId}
+    })
 
     // Lấy danh sách booking của tour
     const bookings = await Booking.findAll({
@@ -810,6 +813,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         booking_id: {
           [Op.in]: bookings.map((booking) => booking.id),
         },
+        group: guideTour.group,
       },
       include: [
         {
