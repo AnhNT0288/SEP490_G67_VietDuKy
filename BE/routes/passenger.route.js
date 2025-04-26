@@ -81,5 +81,10 @@ router.post(
   // checkRoles(["admin", "staff"]),
   passengerController.removePassengersFromTravelGuide
 );
-
+router.get(
+  "/travel-guide/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.getPassengerByTravelGuideId
+);
 module.exports = router;

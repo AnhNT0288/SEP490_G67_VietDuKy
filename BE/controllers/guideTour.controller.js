@@ -1463,13 +1463,13 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
     }
 
     // Kiểm tra nếu số lượng assigned_guides vượt quá required_guides
-    const remainingSlots =
-      travelTour.required_guides - travelTour.assigned_guides;
-    if (guides.length > remainingSlots) {
-      return res.status(400).json({
-        message: `Không thể gán thêm hướng dẫn viên! Số lượng yêu cầu là ${travelTour.required_guides}, đã gán ${travelTour.assigned_guides}, chỉ có thể gán thêm tối đa ${remainingSlots} hướng dẫn viên.`,
-      });
-    }
+    // const remainingSlots =
+    //   travelTour.required_guides - travelTour.assigned_guides;
+    // if (guides.length > remainingSlots) {
+    //   return res.status(400).json({
+    //     message: `Không thể gán thêm hướng dẫn viên! Số lượng yêu cầu là ${travelTour.required_guides}, đã gán ${travelTour.assigned_guides}, chỉ có thể gán thêm tối đa ${remainingSlots} hướng dẫn viên.`,
+    //   });
+    // }
 
     // Kiểm tra xem TravelGuide có bị trùng lịch với TravelTour khác không
     for (const guide of guides) {
