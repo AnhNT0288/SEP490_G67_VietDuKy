@@ -801,16 +801,18 @@ exports.getTravelGuidesByStaff = async (req, res) => {
         .status(404)
         .json({ message: "Staff không phụ trách địa điểm nào!" });
     }
-
+    
     const locationIds = staffLocations.map((loc) => loc.location_id);
+    
 
     // Lấy danh sách TravelGuide liên kết với các Location mà Staff phụ trách
     const travelGuides = await TravelGuide.findAll({
+      where: { staff_id: null }, // Chỉ lấy các TravelGuide chưa được gán cho Staff
       include: [
         {
           model: TravelGuideLocation,
           as: "TravelGuideLocations",
-          where: { location_id: locationIds },
+          where: {location_id: locationIds},
           include: [
             {
               model: Location,
@@ -821,36 +823,23 @@ exports.getTravelGuidesByStaff = async (req, res) => {
         },
       ],
     });
-
-    if (!travelGuides.length) {
-      return res.status(404).json({
-        message:
-          "Không tìm thấy hướng dẫn viên nào cho các địa điểm mà Staff phụ trách!",
-      });
-    }
+    
 
     // Lọc ra các TravelGuide chưa được gán vào TravelTour
-    const unassignedTravelGuides = [];
-    for (const guide of travelGuides) {
-      const assignedTours = await GuideTour.findOne({
-        where: { travel_guide_id: guide.id },
-      });
+    // const unassignedTravelGuides = [];
+    // for (const guide of travelGuides) {
+    //   const assignedTours = await GuideTour.findOne({
+    //     where: { travel_guide_id: guide.id },
+    //   });
 
-      if (!assignedTours) {
-        unassignedTravelGuides.push(guide);
-      }
-    }
-
-    if (!unassignedTravelGuides.length) {
-      return res.status(404).json({
-        message:
-          "Không tìm thấy hướng dẫn viên nào chưa được gán vào TravelTour!",
-      });
-    }
+    //   if (!assignedTours) {
+    //     unassignedTravelGuides.push(guide);
+    //   }
+    // }
 
     res.status(200).json({
       message: "Lấy danh sách hướng dẫn viên thành công!",
-      data: unassignedTravelGuides,
+      data: travelGuides,
     });
   } catch (error) {
     res.status(500).json({

@@ -13,6 +13,7 @@ const TourBooking = ({
   tourId,
   travelTour,
   roomCost,
+  assistance,
 }) => {
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
@@ -28,12 +29,20 @@ const TourBooking = ({
 
   const getPassengerErrors = (passenger) => {
     const errors = {};
-    if (!passenger.name?.trim()) errors.name = "Họ tên không được để trống";
-    if (!validatePhoneNumber(passenger.phone_number))
-      errors.phone = "Số điện thoại không hợp lệ";
-    if (!passenger.gender) errors.gender = "Chưa chọn giới tính";
-    if (!isDateInRange(passenger.birth_date))
+    if (!passenger.name?.trim()) {
+      errors.name = "Họ tên không được để trống";
+    }
+    if (passenger.type === "adult") {
+      if (!validatePhoneNumber(passenger.phone_number)) {
+        errors.phone = "Số điện thoại không hợp lệ (chỉ kiểm tra với người lớn)";
+      }
+    }
+    if (!passenger.gender) {
+      errors.gender = "Chưa chọn giới tính";
+    }
+    if (!isDateInRange(passenger.birth_date)) {
       errors.birthdate = "Ngày sinh không hợp lệ";
+    }
     return errors;
   };
 
@@ -109,7 +118,7 @@ const TourBooking = ({
       return;
     }
   
-    if (!isAllPassengerValid(formData.passengers)) {
+    if (!assistance && !isAllPassengerValid(formData.passengers)) {
       toast.error("Vui lòng kiểm tra lại thông tin hành khách!");
       return;
     }
@@ -210,7 +219,7 @@ const TourBooking = ({
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
                 <span>{formatTime(travelTourData?.start_time_depart)}</span>
-                <span>{formatTime(travelTourData?.start_time_close)}</span>
+                <span>{formatTime(travelTourData?.end_time_depart)}</span>
               </div>
               <div className="relative mb-2">
                 <div className="absolute -top-0.8 transforms -translate-y-1/3 w-2 h-2 bg-[#B1B1B1]" />
@@ -231,7 +240,7 @@ const TourBooking = ({
                 Ngày về - {travelTourData?.end_day}
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
-                <span>{formatTime(travelTourData?.end_time_depart)}</span>
+                <span>{formatTime(travelTourData?.start_time_close)}</span>
                 <span>{formatTime(travelTourData?.end_time_close)}</span>
               </div>
               <div className="relative mb-2">

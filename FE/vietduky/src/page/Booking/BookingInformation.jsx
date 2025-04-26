@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom";
 export default function BookingTour() {
   const location = useLocation();
   const user = StorageService.getUser();
-
+  const [assistance, setAssistance] = useState(false);
   const [travelTourData, setTravelTourData] = useState([]);
   const { selectedTours, id } = location.state || {
     selectedTours: [],
@@ -92,6 +92,8 @@ export default function BookingTour() {
               travelTourData={travelTourData}
               roomCost={roomCost}
               setRoomCost={setRoomCost}
+              assistance={assistance}
+              setAssistance={setAssistance}
             />
           </div>
         </div>
@@ -104,6 +106,7 @@ export default function BookingTour() {
             tourId={id}
             travelTour={selectedTours}
             roomCost={roomCost}
+            assistance={assistance}
           />
         </div>
       </div>

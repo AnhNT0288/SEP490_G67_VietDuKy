@@ -17,10 +17,32 @@ import { useNavigate } from "react-router-dom";
 import Slider from "react-slick"; // Import the slider component
 import "slick-carousel/slick/slick.css"; // Import slick CSS
 import "slick-carousel/slick/slick-theme.css"; // Import slick theme CSS
+import { FaArrowAltCircleUp } from "react-icons/fa";
 
 export default function LayoutLandingPage() {
   const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
+  const [showButton, setShowButton] = useState(false);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowButton(true);
+      } else {
+        setShowButton(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchTopic = async () => {
@@ -99,7 +121,7 @@ export default function LayoutLandingPage() {
           topic.active && (
             <div
               key={topic.id}
-              className={`${index % 2 === 0 ? 'bg-[#FEEEC759]' : 'bg-white'}`}
+              className={`${index % 2 === 0 ? "bg-[#FEEEC759]" : "bg-white"}`}
             >
               <TopicTour topic={topic} />
             </div>
@@ -111,6 +133,15 @@ export default function LayoutLandingPage() {
 
       {/* Footer */}
       <Footer />
+      {/* Scroll to Top Button */}
+      {showButton && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 font-bold rounded-full transition-all duration-300 z-50"
+        >
+          <FaArrowAltCircleUp className="w-12 h-12 text-red-500 hover:text-red-800" />
+        </button>
+      )}
     </div>
   );
 }

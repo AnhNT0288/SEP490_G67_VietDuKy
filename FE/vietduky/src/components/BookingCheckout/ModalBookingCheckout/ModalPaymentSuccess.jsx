@@ -11,7 +11,9 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
   useEffect(() => {
     const fetchPaymentInfo = async () => {
       try {
-        const response = await PaymentService.getAllPayment();
+        const response = await PaymentService.getPaymentByBookingId(
+          booking?.id
+        );
         setPaymentInfo(response.data.data);
       } catch (error) {
         console.error("Error fetching payment info:", error);
@@ -41,17 +43,17 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
           Thanh toán thành công!
         </h2>
         <p className="text-2xl font-extrabold text-black mb-4">
-          {/* {Number(paymentInfo.amount || 0).toLocaleString("vi-VN")} VND */}
+          {Number(paymentInfo?.amount || 0).toLocaleString("vi-VN")} VND
         </p>
 
         <div className="text-left text-sm text-gray-700 space-y-2">
           <div>
             <span className="font-medium">Mã hóa đơn:</span>{" "}
-            {/* {paymentInfo.transactionCode || "250306110713_250306JVPEEC"} */}
+            {paymentInfo?.transactionCode || "250306110713_250306JVPEEC"}
           </div>
           <div>
             <span className="font-medium">Thời gian thanh toán:</span>{" "}
-            {/* {paymentInfo.createAt || "06-03-2025, 23:50:16"} */}
+            {paymentInfo?.createAt || "06-03-2025, 23:50:16"}
           </div>
           <div>
             <span className="font-medium">Phương thức thanh toán:</span> Quét mã
@@ -59,11 +61,11 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
           </div>
           <div>
             <span className="font-medium">Tên người gửi:</span>{" "}
-            {/* {paymentInfo.senderName || "Phạm Đức Mạnh"} */}
+            {booking?.name || "Phạm Đức Mạnh"}
           </div>
           <div>
             <span className="font-medium">Số tiền:</span>{" "}
-            {/* {Number(paymentInfo.amount || 0).toLocaleString("vi-VN")} VND */}
+            {Number(paymentInfo?.amount || 0).toLocaleString("vi-VN")} VND
           </div>
           <div>
             <span className="font-medium">Phí giao dịch:</span> 0 VND

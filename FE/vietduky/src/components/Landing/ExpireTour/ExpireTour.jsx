@@ -38,6 +38,7 @@ export default function ExpireTour() {
             discountTours.map((item) => (
               <ExpireTourCard
                 key={item.id}
+                image={item.travelTour?.Tour?.album?.[0]}
                 title={item.travelTour?.Tour?.name_tour}
                 duration={`${item.travelTour?.Tour?.day_number} ngày`}
                 seatsLeft={
@@ -49,10 +50,7 @@ export default function ExpireTour() {
                 originalPrice={`${Number(
                   item.travelTour?.price_tour
                 ).toLocaleString()} VNĐ`}
-                discountPrice={`${(
-                  Number(item.travelTour?.price_tour) -
-                  item.programDiscount?.discount_value
-                ).toLocaleString()} VNĐ`}
+                discountPrice={(item.programDiscount?.price_discount?.toLocaleString()) || "NaN"}
                 onClick={() => navigate(`/tour/${item.travelTour?.Tour?.id}`, {
                   state: {
                     selectedDate: formatDate(item.travelTour?.start_day),

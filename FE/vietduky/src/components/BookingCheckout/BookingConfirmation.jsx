@@ -19,7 +19,8 @@ const BookingConfirmation = ({ bookingData }) => {
   const [travelTour, setTravelTour] = useState([]);
   const [tour, setTour] = useState([]);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Modal thông báo thành công
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(600);
   const [intervalId, setIntervalId] = useState(null);
   const [paymentKey, setPaymentKey] = useState("");
@@ -69,7 +70,7 @@ const BookingConfirmation = ({ bookingData }) => {
   }, [bookingData]);
 
   console.log("Booking:", booking);
-  
+
   const handleOpenModal = () => {
     const key = generateAddInfo();
     setPaymentKey(key);
@@ -137,13 +138,11 @@ const BookingConfirmation = ({ bookingData }) => {
       const timer = setTimeout(() => {
         navigate("/bookingComplete");
       }, 5000);
-  
+
       return () => clearTimeout(timer);
     }
   }, [isSuccessModalOpen]);
-
-  
-
+    
   return (
     <>
       <div className="border border-[#b1b1b1] rounded-xl bg-white p-4 shadow-md ">
@@ -232,7 +231,10 @@ const BookingConfirmation = ({ bookingData }) => {
       </div>
 
       <div className="flex gap-2 mt-4">
-        <button className="flex-1 bg-white border border-[#a80f21] text-[#a80f21] font-bold py-3 rounded-xl hover:bg-gray-200 hover:text-[#a80f21]">
+        <button
+          onClick={() => navigate("/bookingComplete")}
+          className="flex-1 bg-white border border-[#a80f21] text-[#a80f21] font-bold py-3 rounded-xl hover:bg-gray-200 hover:text-[#a80f21]"
+        >
           Thanh toán sau
         </button>
         <button
