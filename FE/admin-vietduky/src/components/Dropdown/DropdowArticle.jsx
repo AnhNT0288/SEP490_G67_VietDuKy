@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { MdEdit, MdDelete } from "react-icons/md";
-import {GrView} from "react-icons/gr";
+import { GrView } from "react-icons/gr";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArticle, isOpen, setOpenDropdown }) {
+export default function DropdowArticle({ postId, onDeleteArticle, onEditArticle, isOpen, setOpenDropdown }) {
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
@@ -24,8 +24,8 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-
-            <button onClick={(e) => {
+            <button
+                onClick={(e) => {
                     e.stopPropagation();
                     setOpenDropdown(prev => (prev === postId ? null : postId));
                 }}
@@ -36,10 +36,10 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
 
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-md z-10">
-                    {/* Xem danh sách tour của chủ đề */}
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
+                            // 🛠 Nếu bạn sau này có xử lý "xem bài viết" thì thêm ở đây
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
@@ -47,10 +47,10 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
                         Xem bài viết
                     </button>
 
-                    {/* Cập nhật Chủ đề */}
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
+                            onEditArticle(); // 🛠 GỌI hàm sửa
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
@@ -58,10 +58,10 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
                         Cập nhật bài viết
                     </button>
 
-                    {/* Xóa Chủ đề */}
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
+                            onDeleteArticle(); // 🛠 GỌI hàm xóa
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left text-red-600"
                     >
@@ -70,7 +70,6 @@ export default function DropdownMenuTopic({ postId, onDeleteArticle, onEditArtic
                     </button>
                 </div>
             )}
-
         </div>
     );
 }

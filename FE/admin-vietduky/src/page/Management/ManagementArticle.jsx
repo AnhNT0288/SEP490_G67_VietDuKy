@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { LuSearch } from "react-icons/lu";
-import Layout from "../../layouts/LayoutManagement.jsx";
-import { getAllArticles } from "../../services/API/article.service.js";
-import DropdownMenuTopic from "../../components/Dropdown/DropdowArticle.jsx";
+import {deleteArticle, getAllArticles} from "../../services/API/article.service.js";
 import ModalAddArticle from "../../components/ModalManage/ModalAdd/ModalAddArticle.jsx";
+import DropdowArticle from "../../components/Dropdown/DropdowArticle.jsx";
+import {toast} from "react-toastify";
 
-export default function ManagementPost() {
+export default function ManagementArticle() {
     const [searchTerm, setSearchTerm] = useState("");
     const [posts, setPosts] = useState([]);
     const [selectedPosts, setSelectedPosts] = useState([]);
@@ -20,7 +20,6 @@ export default function ManagementPost() {
     const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
     const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
 
-    // 🔁 Đưa fetchPosts ra ngoài để tái sử dụng
     const fetchPosts = async () => {
         try {
             const res = await getAllArticles();
@@ -69,6 +68,19 @@ export default function ManagementPost() {
         setSelectAll(false);
     };
 
+    const handleDeleteArticle = async (postId) => {
+        if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+            try {
+                await deleteArticle(postId);
+                await fetchPosts(); // reload lại danh sách bài viết
+                setOpenDropdown(null);
+                toast.success("Đã xoá bài viết thành công!");
+            } catch (error) {
+                console.error("❌ Lỗi xoá bài viết:", error);
+                toast.error("Xoá bài viết thất bại!");
+            }
+        }
+    };
     return (
         <div title="Quản lý Bài Viết">
             <div className="p-4 bg-white rounded-md">
@@ -88,7 +100,7 @@ export default function ManagementPost() {
                     {selectedPosts.length > 0 && (
                         <button
                             className="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 transition"
-                            onClick={handleDeletePosts}
+                            onClick={handleDeleteArticle}
                         >
                             Xóa bài viết
                         </button>
@@ -150,11 +162,11 @@ export default function ManagementPost() {
                                 {post.status}
                             </td>
                             <td className="p-2 text-right">
-                                <DropdownMenuTopic
+                                <DropdowArticle
                                     postId={post.id}
                                     isOpen={openDropdown === post.id}
                                     setOpenDropdown={(id) => setOpenDropdown(id)}
-                                    onDeleteArticle={() => console.log("Xoá bài viết:", post.id)}
+                                    onDeleteArticle={() => handleDeleteArticle(post.id)}
                                     onEditArticle={() => console.log("Sửa bài viết:", post.id)}
                                 />
                             </td>

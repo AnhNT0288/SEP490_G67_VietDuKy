@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { LuSearch } from "react-icons/lu";
 import Layout from "../../layouts/LayoutManagement.jsx";
-import { getAllDirectories } from "../../services/API/directory.service.js";
+import {deleteDirectory, getAllDirectories} from "../../services/API/directory.service.js";
 import ModalAddDirectory from "../../components/ModalManage/ModalAdd/ModalAddDirectory.jsx";
 import DropdownMenuDirectory from "../../components/Dropdown/DropdownDirectory.jsx";
+import {toast} from "react-toastify";
 
 export default function ManagementDirectory() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -56,6 +57,18 @@ export default function ManagementDirectory() {
         setDirectories((prev) => prev.filter((item) => !selectedItems.includes(item.id)));
         setSelectedItems([]);
         setSelectAll(false);
+    };
+
+    const handleDeleteDirectory = async (id) => {
+        if (!confirm("Bạn có chắc chắn muốn xoá danh mục này không?")) return;
+        try {
+            await deleteDirectory(id);
+            toast.success("Xoá danh mục thành công!");
+            await fetchDirectories();
+        } catch (error) {
+            console.error("❌ Lỗi khi xoá danh mục:", error);
+            toast.error("Xoá danh mục thất bại. Vui lòng thử lại.");
+        }
     };
 
     return (
@@ -129,10 +142,7 @@ export default function ManagementDirectory() {
                                     isOpen={openDropdown === item.id}
                                     setOpenDropdown={(id) => setOpenDropdown(id)}
                                     onEdit={() => console.log("Sửa:", item.id)}
-                                    onDelete={() => {
-                                        setDirectories((prev) => prev.filter((x) => x.id !== item.id));
-                                        console.log("Xoá:", item.id);
-                                    }}
+                                    onDelete={() => handleDeleteDirectory(item.id)}
                                 />
 
                             </td>

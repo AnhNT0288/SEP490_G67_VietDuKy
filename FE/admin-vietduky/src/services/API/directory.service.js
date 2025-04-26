@@ -28,3 +28,13 @@ export function createDirectory(data) {
         },
     }).then((res) => res.data);
 }
+
+export function deleteDirectory(id) {
+    return restClient({
+        url: `directory/delete/${id}`,
+        method: "DELETE",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    }).then((res) => res.data);
+}

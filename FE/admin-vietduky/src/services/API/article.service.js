@@ -31,3 +31,12 @@ export function createArticle(data) {
         },
     }).then((res) => res.data);
 }
+export function deleteArticle(id) {
+    return restClient({
+        url: `article/delete/${id}`,
+        method: "DELETE",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    }).then((res) => res.data);
+}

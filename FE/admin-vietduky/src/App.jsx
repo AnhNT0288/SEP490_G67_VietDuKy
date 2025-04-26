@@ -18,7 +18,7 @@ import ManagementDiscount from "./page/Management/ManagementDiscount.jsx";
 import ManagementService from "./page/Management/ManagementService.jsx";
 import ManagementSaleProgram from "./page/Management/ManagementSaleProgram.jsx";
 import ManagementUserRole from "./page/Management/ManagementUser/ManagementUserRole.jsx";
-import ManagementPost from "./page/Management/ManagementPost.jsx";
+import ManagementArticle from "./page/Management/ManagementArticle.jsx";
 import ManagementStaff from "./page/Management/ManagementUser/ManagementStaff.jsx";
 import ManagementDirectory from "./page/Management/ManagementDirectory.jsx";
 import GoogleAuthCallback from "./components/GoogleAuthCallBack.jsx";
@@ -57,7 +57,7 @@ function App() {
           <Route path="/managementDiscount" element={<ManagementDiscount />} />
           <Route path="/managementService" element={<ManagementService />} />
           <Route path="/managementStaff" element={<ManagementStaff />} />
-          <Route path="/managementPost" element={<ManagementPost />} />
+          <Route path="/managementPost" element={<ManagementArticle />} />
           <Route path="/managementCategory" element={<ManagementDirectory />} />
           <Route path="/managementTheme" element={<ManagementTheme />} />
           <Route path="/managementSaleProgram" element={<ManagementSaleProgram />}/>
