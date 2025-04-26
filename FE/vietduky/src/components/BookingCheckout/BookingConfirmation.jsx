@@ -135,7 +135,7 @@ const BookingConfirmation = ({ bookingData }) => {
   useEffect(() => {
     if (isSuccessModalOpen) {
       const timer = setTimeout(() => {
-        navigate("/bookingHistory");
+        navigate("/bookingComplete");
       }, 5000);
   
       return () => clearTimeout(timer);
@@ -258,7 +258,7 @@ const BookingConfirmation = ({ bookingData }) => {
         booking={booking}
         onClose={() => {
           setIsSuccessModalOpen(false);
-          navigate("/bookingHistory");
+          navigate("/bookingComplete");
         }}
       />
     </>

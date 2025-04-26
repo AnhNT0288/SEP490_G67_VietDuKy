@@ -40,7 +40,7 @@ const BookingInfo = ({ bookingData }) => {
         </div>
         <div className="flex justify-between">
           <div className="text-gray-900 font-bold">Tình trạng:</div>
-          <div className="text-[#a80f21] font-bold">Booking của quý khách đã được chúng tôi xác nhận thành công</div>
+          <div className="text-[#a80f21] font-bold">Booking của quý khách đã được thêm vào danh sách và chờ thanh toán</div>
         </div>
         <div>
           <div className="flex justify-between">
