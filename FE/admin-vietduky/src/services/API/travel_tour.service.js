@@ -111,5 +111,18 @@ export async function getTravelToursByStaffAndEndLocation(staffId, endLocationId
     }
 }
 
+// Lấy danh sách Guide và Passenger theo travel tour ID
+export function getGuidesAndPassengersByTravelTourId(travelTourId) {
+    return restClient({
+        url: `guide-tour/passenger-guide/${travelTourId}`,
+        method: "GET",
+    })
+        .then((res) => res.data.data)
+        .catch((err) => {
+            console.error("Lỗi khi lấy guide/passenger theo tour:", err);
+            throw err;
+        });
+}
+
 
 

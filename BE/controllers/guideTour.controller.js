@@ -2047,7 +2047,7 @@ exports.getAvailableTravelGuidesForTourByLocation = async (req, res) => {
 
     // Lấy location_id từ TravelTour (start_location hoặc end_location)
     const locationIds = [
-      travelTour.Tour.start_location,
+      // travelTour.Tour.start_location,
       travelTour.Tour.end_location,
     ];
 

@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { assignGroupGuideToTour, getGuidesByTravelTourId, getTravelGuideByLocation } from "../../../services/API/guide_tour.service.js";
+import {
+    assignGroupGuideToTour,
+    getAvailableGuidesByTravelTourId,
+    getGuidesByTravelTourId,
+    getTravelGuideByLocation
+} from "../../../services/API/guide_tour.service.js";
 import {toast} from "react-toastify"; // Đảm bảo đã import đúng hàm này
 
 // eslint-disable-next-line react/prop-types
@@ -17,29 +22,29 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
     };
 
     // Fetch danh sách hướng dẫn viên khi có locationId
-    useEffect(() => {
-        const fetchGuides = async () => {
-            try {
-                const response = await getTravelGuideByLocation(locationId);
-                setGuides(response.data || []);
-            } catch (error) {
-                console.error("Lỗi khi lấy hướng dẫn viên:", error);
-            }
-        };
-
-        if (locationId) {
-            fetchGuides();
-        }
-    }, [locationId]);
+    // useEffect(() => {
+    //     const fetchGuides = async () => {
+    //         try {
+    //             const response = await getTravelGuideByLocation(locationId);
+    //             setGuides(response.data || []);
+    //         } catch (error) {
+    //             console.error("Lỗi khi lấy hướng dẫn viên:", error);
+    //         }
+    //     };
+    //
+    //     if (locationId) {
+    //         fetchGuides();
+    //     }
+    // }, [locationId]);
 
     useEffect(() => {
         const fetchAssignedGuides = async () => {
             try {
-                const response = await getGuidesByTravelTourId(travel_tour_id);
-                const data = await response;
-                console.log("Assigned Guides Data:", response);
-                
-                setAssignedGuides(data.map((guide) => guide.id));
+                const availableGuides = await getAvailableGuidesByTravelTourId(travel_tour_id);
+                console.log("Available Guides:", availableGuides);
+
+                setGuides(availableGuides);
+                setAssignedGuides(availableGuides.map((guide) => guide.id));
             } catch (error) {
                 console.error("Lỗi khi lấy hướng dẫn viên đã phân công:", error);
             }

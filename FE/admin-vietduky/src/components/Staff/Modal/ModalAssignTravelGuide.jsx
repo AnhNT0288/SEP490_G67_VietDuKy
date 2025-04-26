@@ -1,22 +1,84 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import {getGuidesByTravelTourId} from "../../../services/API/guide_tour.service.js";
+import {deleteAssignedGuide, getGuidesByTravelTourId} from "../../../services/API/guide_tour.service.js";
 import ModalAssignPassenger from "./ModalAssignPassenger.jsx";
 import ModalAssignGuide from "../../ModalManage/ModalAdd/ModalAssignGuide.jsx";
+import {toast} from "react-toastify";
+import {autoAssignPassengersToGuides} from "../../../services/API/passenger.service.js";
+import DropdownGuideActions from "../Dropdown/DropdownGuideActions.jsx";
+import ModalListPassengerIsAssigned from "./ModalListPassengerIsAssigned.jsx";
 
 // eslint-disable-next-line react/prop-types
-export default function ModalAssignTravelGuide({ tourId, onClose }) {
+export default function ModalAssignTravelGuide({ tour, onClose }) {
     const [tourInfo, setTourInfo] = useState(null);
     const [guides, setGuides] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedGuide, setSelectedGuide] = useState(null);
     const [openAssignGuideModal, setOpenAssignGuideModal] = useState(false);
+    const [openAutoAssignModal, setOpenAutoAssignModal] = useState(false);
+    const [numberPassenger, setNumberPassenger] = useState("");
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const [viewingGuide, setViewingGuide] = useState(null);
+
+    const tourId = tour.id; // tourId
+    const travelTourId = tour.id;
+// Khi ấn "Xem KH đã gán"
+    const handleViewAssignedPassengers = (guide) => {
+        setViewingGuide(guide);
+    };
+
+// Khi ấn "Xóa"
+    const handleDeleteGuide = async (travel_guide_id, travel_tour_id) => {
+        if (!window.confirm("Bạn có chắc chắn muốn xóa hướng dẫn viên này khỏi lịch trình?")) {
+            return;
+        }
+
+        try {
+            await deleteAssignedGuide(travel_guide_id, travel_tour_id);
+            toast.success("Xóa hướng dẫn viên thành công!");
+            setLoading(true);
+            getGuidesByTravelTourId(tourId)
+                .then((res) => {
+                    setTourInfo(res);
+                    setGuides(res?.guides || []);
+                })
+                .finally(() => setLoading(false));
+        } catch (error) {
+            toast.error("Có lỗi xảy ra khi xóa hướng dẫn viên!");
+            console.error("Lỗi khi xóa hướng dẫn viên:", error);
+        }
+    };
+
+    const handleAutoAssign = async () => {
+        if (!numberPassenger || Number(numberPassenger) <= 0) {
+            toast.error("Vui lòng nhập số lượng hợp lệ!");
+            return;
+        }
+
+        try {
+            const data = await autoAssignPassengersToGuides(tourId, Number(numberPassenger));
+            console.log("Response auto assign:", data);
+
+            toast.success("Phân công tự động thành công!");
+            setOpenAutoAssignModal(false);
+            setLoading(true);
+            getGuidesByTravelTourId(tourId)
+                .then((res) => {
+                    setTourInfo(res);
+                    setGuides(res?.guides || []);
+                })
+                .finally(() => setLoading(false));
+        } catch (error) {
+            console.error("Lỗi phân công tự động:", error);
+            toast.error("Có lỗi xảy ra!");
+        }
+    };
 
     useEffect(() => {
         getGuidesByTravelTourId(tourId)
             .then((res) => {
-                console.log("DATA 2:", res)
+                console.log("DATA:", res)
                 setTourInfo(res);
                 setGuides(res?.guides || []);
             })
@@ -32,6 +94,8 @@ export default function ModalAssignTravelGuide({ tourId, onClose }) {
         }
         return "Không rõ";
     };
+
+
 
     const filteredGuides = guides.filter((g) =>
         g.display_name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -124,9 +188,21 @@ export default function ModalAssignTravelGuide({ tourId, onClose }) {
                 <div className="w-[70%] p-6 flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-base font-semibold">Danh sách HDV</h2>
-                        <button className="bg-[#A31627] text-white px-3 py-2 rounded text-sm">
-                            Phân công tự động
-                        </button>
+                        <div>
+                            <button
+                                className="bg-[#A31627] text-white px-3 py-2 rounded-md text-sm m-2"
+                                onClick={() => setOpenAssignGuideModal(true)}
+                            >
+                                Thêm HDV
+                            </button>
+                            <button
+                                className="bg-[#A31627] text-white px-3 py-2 rounded text-sm"
+                                onClick={() => setOpenAutoAssignModal(true)}
+                            >
+                                Phân công tự động
+                            </button>
+                        </div>
+
                     </div>
 
                     <input
@@ -186,18 +262,16 @@ export default function ModalAssignTravelGuide({ tourId, onClose }) {
                                     <td className="p-2">{g.phone || "Chưa có"}</td>
                                     <td className="p-2">{g.customer_count || 0}</td>
                                     <td className="p-2">
-                                        <button
-                                            onClick={() => setSelectedGuide(g)}
-                                            className="text-blue-600 hover:underline text-sm"
-                                        >
-                                            Gán KH
-                                        </button>
-                                        <button
-                                            onClick={() => setSelectedGuide(g)}
-                                            className="text-red-600 hover:underline text-sm ml-2"
-                                        >
-                                            Xóa
-                                        </button>
+                                        <DropdownGuideActions
+                                            guide={g}
+                                            tourId={travelTourId}
+                                            isOpen={openDropdown === g.id}
+                                            setOpenDropdown={setOpenDropdown}
+                                            onAssignPassenger={(guide) => setSelectedGuide(guide)}
+                                            onViewPassengers={(guide) => handleViewAssignedPassengers(guide)}
+                                            onDeleteGuide={({ travel_guide_id, travel_tour_id }) => handleDeleteGuide(travel_guide_id, travel_tour_id)}
+                                        />
+
                                     </td>
                                 </tr>
                             ))}
@@ -238,6 +312,43 @@ export default function ModalAssignTravelGuide({ tourId, onClose }) {
                         }}
                     />
                 )}
+                {viewingGuide && (
+                    <ModalListPassengerIsAssigned
+                        guide={viewingGuide}
+                        travelTourId={tour.id}
+                        onClose={() => setViewingGuide(null)}
+                    />
+                )}
+
+                {openAutoAssignModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" onClick={() => setOpenAutoAssignModal(false)}>
+                        <div onClick={(e) => e.stopPropagation()} className="bg-white p-6 rounded-lg w-[400px] flex flex-col items-center">
+                            <h2 className="text-lg font-semibold mb-4">Phân công tự động</h2>
+                            <input
+                                type="number"
+                                value={numberPassenger}
+                                onChange={(e) => setNumberPassenger(e.target.value)}
+                                placeholder="Số lượng khách/HDV"
+                                className="border rounded-md px-3 py-2 w-full mb-4"
+                            />
+                            <div className="flex gap-4">
+                                <button
+                                    className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                                    onClick={() => setOpenAutoAssignModal(false)}
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    className="bg-red-700 text-white px-4 py-2 rounded-md"
+                                    onClick={handleAutoAssign}
+                                >
+                                    Xác nhận
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );

@@ -269,6 +269,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 exports.assignPassengersToTravelGuide = async (req, res) => {
     try {
         const {travel_guide_id} = req.params;
+        const {travel_tour_id} = req.body;
         const {passenger_ids} = req.body;
 
         if (

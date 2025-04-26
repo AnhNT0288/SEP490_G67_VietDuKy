@@ -29,7 +29,7 @@ export default function PageAssignedGuides() {
                     phonenumber: staff.phonenumber || "—"
                 });
             } catch (error) {
-                console.error("❌ Không thể tải dữ liệu:", error);
+                console.error("Không thể tải dữ liệu:", error);
             }
         };
 

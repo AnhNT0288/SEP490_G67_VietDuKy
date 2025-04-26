@@ -77,6 +77,22 @@ export function getGuidesByTravelTourId(travel_tour_id) {
             throw err;
         });
 }
+
+export function getAvailableGuidesByTravelTourId(travel_tour_id) {
+    return restClient({
+        url: `guide-tour/available-guides/location/${travel_tour_id}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then(res => res.data?.data || [])
+        .catch(err => {
+            console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên đã gán:", err.response?.data || err);
+            throw err;
+        });
+}
+
 // Lấy tất cả hướng dẫn viên
 export function getAllTravelGuides() {
     return restClient({
@@ -105,5 +121,15 @@ export function getTravelGuidesByStaffId(staffId) {
             console.error("❌ Lỗi khi lấy danh sách hướng dẫn viên của nhân viên:", err.response?.data || err);
             throw err;
         });
+}
+// Xóa hướng dẫn viên ra khỏi lịch trình tour
+export function deleteAssignedGuide(travel_guide_id, travel_tour_id) {
+    return restClient({
+        url: `guide-tour/delete/${travel_guide_id}?travel_tour_id=${travel_tour_id}`,
+        method: "DELETE",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    }).then(res => res.data);
 }
 

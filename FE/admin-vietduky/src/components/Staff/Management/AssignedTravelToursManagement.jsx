@@ -4,12 +4,14 @@ import DropdownAssignTravelGuide from "../Dropdown/DropdownAssigntravelGuide.jsx
 import { getTravelToursByStaffAndEndLocation } from "../../../services/API/travel_tour.service.js";
 import {getAssignedLocationsByStaffId} from "../../../services/API/staff.service.js";
 import ModalAssignTravelGuide from "../Modal/ModalAssignTravelGuide.jsx";
+import ModalListGuidesAndPassengersIsAssigned from "../Modal/ModalListGuidesAndPassengersIsAssigned.jsx";
 
 // eslint-disable-next-line react/prop-types
 export default function AssignedTravelToursManagement({ staffId }) {
     const [travelTours, setTravelTours] = useState([]);
     const [openDropdown, setOpenDropdown] = useState(null);
-
+    const [openViewGuidesModal, setOpenViewGuidesModal] = useState(false);
+    const [selectedTravelTourId, setSelectedTravelTourId] = useState(null);
     // Filters
     const [search, setSearch] = useState("");
     const [startLocation, setStartLocation] = useState("");
@@ -75,9 +77,14 @@ export default function AssignedTravelToursManagement({ staffId }) {
     const totalPages = Math.ceil(filteredTours.length / itemsPerPage);
 
     // Hàm mở modal gán hướng dẫn viên
-    const handleOpenAssignModal = (tourId) => {
-        setSelectedTour(tourId);
-        setOpenAssignModal(true); // Mở modal
+    const handleOpenAssignModal = (tour) => {
+        setSelectedTour(tour);
+        setOpenAssignModal(true);
+    };
+
+    const handleOpenViewGuidesModal = (tour) => {
+        setSelectedTravelTourId(tour.id);
+        setOpenViewGuidesModal(true);
     };
     return (
         <div className="bg-white p-4 rounded-md">
@@ -176,8 +183,8 @@ export default function AssignedTravelToursManagement({ staffId }) {
                                     travelTour={tour}
                                     isOpen={openDropdown === tour.id}
                                     setOpenDropdown={setOpenDropdown}
-                                    onAssignGuide={(t) => handleOpenAssignModal(t.id)} // Gọi hàm mở modal
-                                    onViewGuides={(t) => console.log("View guides:", t)}
+                                    onAssignGuide={(t) => handleOpenAssignModal(t)}
+                                    onViewGuides={(t) => handleOpenViewGuidesModal(t)}
                                 />
                             </td>
                         </tr>
@@ -195,8 +202,14 @@ export default function AssignedTravelToursManagement({ staffId }) {
             {/* Modal Gán hướng dẫn viên */}
             {openAssignModal && selectedTour && (
                 <ModalAssignTravelGuide
-                    tourId={selectedTour}
+                    tour={selectedTour}
                     onClose={() => setOpenAssignModal(false)}
+                />
+            )}
+            {openViewGuidesModal && selectedTravelTourId && (
+                <ModalListGuidesAndPassengersIsAssigned
+                    travelTourId={selectedTravelTourId}
+                    onClose={() => setOpenViewGuidesModal(false)}
                 />
             )}
             {/* Pagination */}
