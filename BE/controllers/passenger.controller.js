@@ -611,4 +611,22 @@ exports.getPassengerByTravelGuideId = async (req, res) => {
     }
 }
 
+exports.removePassengerGroup = async (req, res) => {
+    try {
+        const {passenger_id} = req.params;
+        const passengers = await Passenger.findByPk(passenger_id)
+        if(!passengers) {
+            return res.status(404).json({message: "Không tìm thấy hành khách!"});
+        }
+        passengers.group = null;
+        passengers.travel_guide_id = null;
+        await passengers.save();
+        res.status(200).json({message: "Xóa nhóm hành khách thành công!", data: passengers});
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi xóa nhóm hành khách!",
+            error: error.message,
+        });
+    }
+}
 

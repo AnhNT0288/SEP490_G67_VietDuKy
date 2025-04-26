@@ -87,4 +87,10 @@ router.get(
   // checkRoles(["admin", "staff"]),
   passengerController.getPassengerByTravelGuideId
 );
+router.delete(
+  "/remove-passenger-group/:passenger_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.removePassengerGroup
+);
 module.exports = router;
