@@ -102,7 +102,7 @@ router.get(
   GuideTourController.getGuideTourByTravelTourId
 );
 router.delete(
-  "/delete/:id",
+  "/delete/:travel_guide_id",
   // authenticateUser,
   // checkRoles("admin", "staff"),
   GuideTourController.deleteGuideTour

@@ -565,3 +565,68 @@ exports.removePassengersFromTravelGuide = async (req, res) => {
         });
     }
 };
+
+exports.getPassengerByTravelGuideId = async (req, res) => {
+    try {
+        const {travel_guide_id} = req.params;
+        const travel_tour_id = req.query.travel_tour_id;
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id, travel_tour_id}
+        })
+        if(!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        if(!guideTour.group) {
+            return res.status(404).json({message: "Hướng dẫn viên chưa được chia nhóm!"});
+        }
+        const travelGuide = await TravelGuide.findOne({
+            where: {id: travel_guide_id}
+        })
+        if(!travelGuide) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengers = await Passenger.findAll({
+            where: {booking_id: bookingIds, group: guideTour.group},
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                },
+            ],
+        });
+        res.status(200).json({
+            message: "Lấy danh sách hành khách thành công!",
+            data: passengers,
+            travelGuide: travelGuide,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy hành khách!",
+            error: error.message,
+        });
+    }
+}
+
+exports.removePassengerGroup = async (req, res) => {
+    try {
+        const {passenger_id} = req.params;
+        const passengers = await Passenger.findByPk(passenger_id)
+        if(!passengers) {
+            return res.status(404).json({message: "Không tìm thấy hành khách!"});
+        }
+        passengers.group = null;
+        passengers.travel_guide_id = null;
+        await passengers.save();
+        res.status(200).json({message: "Xóa nhóm hành khách thành công!", data: passengers});
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi xóa nhóm hành khách!",
+            error: error.message,
+        });
+    }
+}
+
