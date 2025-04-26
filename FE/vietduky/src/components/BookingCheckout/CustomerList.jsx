@@ -4,10 +4,15 @@ import { useEffect, useState } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 
-export default function CustomerList({ bookingData, travelTourData, setBookingData }) {
+export default function CustomerList({
+  bookingData,
+  travelTourData,
+  setBookingData,
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [passengerList, setPassengerList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [newPassenger, setNewPassenger] = useState({
     name: "",
     phone_number: "",
@@ -146,26 +151,26 @@ export default function CustomerList({ bookingData, travelTourData, setBookingDa
 
   const updateBookingInfo = (updatedPassengerList) => {
     const bookingId = Number(bookingData?.id);
-    
+
     if (!bookingId) {
       console.error("Không tìm thấy booking ID!");
       return;
     }
-  
+
     const summary = calculateBookingSummary(updatedPassengerList);
-  
+
     BookingService.updateBooking(bookingId, summary)
       .then(() => {
         console.log("Booking cập nhật thành công!");
-        setBookingData(prev => ({
+        setBookingData((prev) => ({
           ...prev,
           data: {
             ...prev.data,
             data: {
               ...prev.data.data,
               ...summary,
-            }
-          }
+            },
+          },
         }));
       })
       .catch((err) => {
@@ -179,10 +184,10 @@ export default function CustomerList({ bookingData, travelTourData, setBookingDa
     let number_toddler = 0;
     let number_newborn = 0;
     let total_cost = 0;
-  
+
     passengers.forEach((p, index) => {
       const { type } = calculateAgeAndType(p.birth_date);
-    
+
       if (type === "adult") {
         number_adult++;
         total_cost += travelTourData.price_tour;
@@ -195,13 +200,13 @@ export default function CustomerList({ bookingData, travelTourData, setBookingDa
       } else if (type === "infant") {
         number_newborn++;
       }
-  
+
       // Nếu có chọn phòng đơn
       if (p.singleRoom || p.single_room) {
         total_cost += 300000;
       }
     });
-  
+
     return {
       number_adult,
       number_children,
@@ -210,7 +215,15 @@ export default function CustomerList({ bookingData, travelTourData, setBookingDa
       total_cost,
     };
   };
-  
+
+  const filteredPassengers = passengerList.filter((passenger) => {
+    const lowerKeyword = searchTerm.toLowerCase();
+    return (
+      passenger.name.toLowerCase().includes(lowerKeyword) ||
+      passenger.phone_number.toLowerCase().includes(lowerKeyword)
+    );
+  });
+
   return (
     <div className="border border-gray-400 rounded-lg overflow-hidden">
       {/* Header */}
@@ -249,18 +262,20 @@ export default function CustomerList({ bookingData, travelTourData, setBookingDa
           <div className="flex justify-between mb-3">
             <input
               type="text"
-              placeholder="Tìm kiếm bằng từ khóa"
+              placeholder="Tìm kiếm bằng tên hoặc số điện thoại"
               className="border rounded px-3 py-1 w-1/3"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
             <div className="space-x-2">
-              <button className="px-3 py-1 border border-red-500 text-red-600 rounded hover:bg-red-100">
+              <button className="px-3 py-1 border bg-white border-red-500 text-red-600 rounded hover:bg-red-500 hover:text-white">
                 Xuất danh sách
               </button>
-              <button className="px-3 py-1 border border-red-500 text-red-600 rounded hover:bg-red-100">
+              <button className="px-3 py-1 border bg-white border-red-500 text-red-600 rounded hover:bg-red-500 hover:text-white">
                 Đăng tải danh sách
               </button>
               <button
-                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-3 py-1 bg-red-600 text-white border border-red-500 rounded hover:text-red-600 hover:bg-white"
                 onClick={() => setShowForm(!showForm)}
               >
                 {showForm ? "Ẩn" : "Thêm khách hàng"}
