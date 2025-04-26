@@ -875,6 +875,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         note: booking.note,
         booking_code: booking.booking_code,
       })),
+      passengers: passengersByGuide,
     };
 
     const message =

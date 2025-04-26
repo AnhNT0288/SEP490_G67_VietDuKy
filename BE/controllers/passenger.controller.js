@@ -365,14 +365,25 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
 exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
     try {
         const {travel_guide_id} = req.params;
+        const {travel_tour_id} = req.query;
 
         if (!travel_guide_id) {
             return res.status(400).json({message: "Thiếu travel_guide_id"});
         }
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id, travel_tour_id}
+        })
+        if(!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
 
         // Lấy danh sách hành khách theo travel_guide_id
         const passengers = await Passenger.findAll({
-            where: {travel_guide_id},
+            where: {booking_id: bookingIds, group: guideTour.group},
             include: [
                 {
                     model: Booking,
@@ -387,12 +398,6 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
                 },
             ],
         });
-
-        if (!passengers || passengers.length === 0) {
-            return res
-                .status(404)
-                .json({message: "Không tìm thấy hành khách nào!"});
-        }
 
         // Nhóm hành khách theo booking_id và tính tổng số người lớn, trẻ em
         const groupedPassengers = passengers.reduce((acc, passenger) => {
@@ -421,6 +426,7 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
         res.status(200).json({
             message: "Lấy danh sách hành khách thành công!",
             data: Object.values(groupedPassengers),
+            guideTour: guideTour,
         });
     } catch (error) {
         res.status(500).json({
