@@ -22,12 +22,32 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
     toddler_price: "",
   });
 
+  const formatNumber = (value) => {
+    if (!value) return "";
+    // Bỏ hết ký tự không phải số
+    const numberValue = value.toString().replace(/\D/g, "");
+    return Number(numberValue).toLocaleString("en-US");
+  };
+
+  const parseNumber = (formattedValue) => {
+    if (!formattedValue) return 0;
+    return parseInt(formattedValue.toString().replace(/,/g, ""), 10);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setTravelTourData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    if (["max_people", "price_tour", "children_price", "toddler_price"].includes(name)) {
+      setTravelTourData((prev) => ({
+        ...prev,
+        [name]: formatNumber(value),
+      }));
+    } else {
+      setTravelTourData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleDateChange = (date, field) => {
@@ -52,10 +72,10 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
       ...travelTourData,
       start_day: travelTourData.start_day.toISOString().split("T")[0],
       end_day: travelTourData.end_day.toISOString().split("T")[0],
-      max_people: parseInt(travelTourData.max_people, 10),
-      price_tour: parseFloat(travelTourData.price_tour),
-      children_price: travelTourData.children_price ? parseFloat(travelTourData.children_price) : 0,
-      toddler_price: travelTourData.toddler_price ? parseFloat(travelTourData.toddler_price) : 0,
+      max_people: parseNumber(travelTourData.max_people), // 👈 bỏ dấu , khi submit
+      price_tour: parseNumber(travelTourData.price_tour),
+      children_price: travelTourData.children_price ? parseNumber(travelTourData.children_price) : 0,
+      toddler_price: travelTourData.toddler_price ? parseNumber(travelTourData.toddler_price) : 0,
     };
 
 
@@ -176,7 +196,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
               Số lượng người <span className="text-red-500">*</span>
             </label>
             <input
-                type="number"
+                type="text"
                 name="max_people"
                 value={travelTourData.max_people}
                 onChange={handleChange}
@@ -189,7 +209,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
               Giá Travel Tour <span className="text-red-500">*</span>
             </label>
             <input
-                type="number"
+                type="text"
                 name="price_tour"
                 value={travelTourData.price_tour}
                 onChange={handleChange}
@@ -203,7 +223,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
               <div>
                 <label className="block mb-2 font-medium">Giá trẻ em</label>
                 <input
-                    type="number"
+                    type="text"
                     name="children_price"
                     value={travelTourData.children_price}
                     onChange={handleChange}
@@ -215,7 +235,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
               <div>
                 <label className="block mb-2 font-medium">Giá trẻ nhỏ</label>
                 <input
-                    type="number"
+                    type="text"
                     name="toddler_price"
                     value={travelTourData.toddler_price}
                     onChange={handleChange}
