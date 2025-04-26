@@ -2238,7 +2238,7 @@ exports.deleteGuideTour = async (req, res) => {
       }
     }
     await guideTour.destroy();
-    res.status(200).json({ message: "Xóa GuideTour thành công!" });
+    res.status(200).json({ message: "Xóa GuideTour thành công!", data: guideTour, removedPassengers: passengers });
   } catch (error) {
     console.error("Lỗi khi xóa GuideTour:", error);
     res.status(500).json({

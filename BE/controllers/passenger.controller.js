@@ -331,6 +331,8 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
             const maxGroup = anotherGuideTour.reduce((max, current) => {
                 return current.group > max ? current.group : max;
             }, 0);
+            console.log(maxGroup);
+            
             // Gán group mới bằng maxGroup + 1
             guideTour.group = maxGroup + 1;
             guideTour.save();
