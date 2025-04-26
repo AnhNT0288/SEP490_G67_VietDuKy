@@ -2208,3 +2208,42 @@ exports.getGuideTourByTravelTourId = async (req, res) => {
     });
   }
 };
+exports.deleteGuideTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const guideTour = await GuideTour.findByPk(id);
+    if (!guideTour) {
+      return res.status(404).json({ message: "Không tìm thấy GuideTour!" });
+    }
+    if(guideTour.group) {
+      const bookings = await Booking.findAll({
+        where: {
+          travel_tour_id: guideTour.travel_tour_id,
+        },
+      });
+      const passengers = await Passenger.findAll({
+        where: {
+          booking_id: {
+            [Op.in]: bookings.map((booking) => booking.id),
+          },
+          group: guideTour.group,
+        },
+      });
+      if (passengers.length > 0) {
+        passengers.forEach(async (passenger) => {
+          passenger.travel_guide_id = null;
+          passenger.group = null;
+          await passenger.save();
+        });
+      }
+    }
+    await guideTour.destroy();
+    res.status(200).json({ message: "Xóa GuideTour thành công!" });
+  } catch (error) {
+    console.error("Lỗi khi xóa GuideTour:", error);
+    res.status(500).json({
+      message: "Lỗi khi xóa GuideTour!",
+      error: error.message,
+    });
+  }
+}
