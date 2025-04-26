@@ -579,6 +579,12 @@ exports.getPassengerByTravelGuideId = async (req, res) => {
         if(!guideTour.group) {
             return res.status(404).json({message: "Hướng dẫn viên chưa được chia nhóm!"});
         }
+        const travelGuide = await TravelGuide.findOne({
+            where: {id: travel_guide_id}
+        })
+        if(!travelGuide) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
         const bookings = await Booking.findAll({
             where: {travel_tour_id}
         })
@@ -595,6 +601,7 @@ exports.getPassengerByTravelGuideId = async (req, res) => {
         res.status(200).json({
             message: "Lấy danh sách hành khách thành công!",
             data: passengers,
+            travelGuide: travelGuide,
         });
     } catch (error) {
         res.status(500).json({
