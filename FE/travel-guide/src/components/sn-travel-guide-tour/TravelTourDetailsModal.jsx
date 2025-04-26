@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { PencilIcon, XIcon } from "lucide-react";
-import {getPassengersByGuideId, getTravelTourDetailForGuide} from "../../services/API/guide-tour.service";
+import {
+  getPassengersByGuideId,
+  getTravelTourDetailForGuide,
+} from "../../services/API/guide-tour.service";
 import { formatDate } from "../../utils/dateUtil";
 import BookingListModal from "./BookingListModal";
 import BookingDetailsModal from "./BookingDetailsModal";
 
-const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
+const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
   const [travelTourDetail, setTravelTourDetail] = useState(null);
   const [booking, setBooking] = useState(null);
   const [openBookingListModal, setOpenBookingListModal] = useState(false);
@@ -15,27 +18,28 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
     onClose();
     setTravelTourDetail(null);
   };
-  useEffect(() => {
-    const fetchPassengers = async () => {
-      if (!guideId) return;
-      try {
-        const res = await getPassengersByGuideId(guideId, tourSelected?.travel_tour_id);
-        if (res?.data) {
-          setPassengerBookings(res.data);
-        }
-      } catch (err) {
-        console.error("Lỗi khi lấy danh sách hành khách:", err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchPassengers = async () => {
+  //     if (!guideId) return;
+  //     try {
+  //       const res = await getPassengersByGuideId(guideId, tourSelected?.travel_tour_id);
+  //       if (res?.data) {
+  //         setPassengerBookings(res.data);
+  //       }
+  //     } catch (err) {
+  //       console.error("Lỗi khi lấy danh sách hành khách:", err);
+  //     }
+  //   };
 
-    fetchPassengers();
-  }, [guideId]);
+  //   fetchPassengers();
+  // }, [guideId]);
 
   useEffect(() => {
     const fetchTravelTourDetail = async () => {
       if (tourSelected) {
         const response = await getTravelTourDetailForGuide(
-          tourSelected.travel_tour_id
+          tourSelected.travel_tour_id,
+          guideId
         );
         if (response.status === 200) {
           setTravelTourDetail(response.data.data);
@@ -46,6 +50,8 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
   }, [tourSelected]);
 
   if (!open) return null;
+
+  console.log("TravelTourDetail", travelTourDetail);
 
   return (
     <div className="fixed inset-0 z-10 bg-black/40 flex items-center justify-center">
@@ -196,9 +202,9 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold">Danh sách khách hàng được gán</h3>
                 <a
-                    href="#"
-                    className="text-red-600 text-sm"
-                    onClick={() => setOpenBookingListModal(true)}
+                  href="#"
+                  className="text-red-600 text-sm"
+                  onClick={() => setOpenBookingListModal(true)}
                 >
                   Xem tất cả danh sách &gt;
                 </a>
@@ -207,28 +213,28 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
               <div className="h-full">
                 <table className="w-full text-sm border mt-2">
                   <thead className="bg-gray-100 text-left">
-                  <tr>
-                    <th className="p-2">Tên khách</th>
-                    <th className="p-2">Ngày sinh</th>
-                    <th className="p-2">Giới tính</th>
-                    <th className="p-2">Số điện thoại</th>
-                    <th className="p-2">Độ tuổi</th>
-                    <th className="p-2">Phòng đơn</th>
-                  </tr>
+                    <tr>
+                      <th className="p-2">Tên khách</th>
+                      <th className="p-2">Ngày sinh</th>
+                      <th className="p-2">Giới tính</th>
+                      <th className="p-2">Số điện thoại</th>
+                      <th className="p-2">Độ tuổi</th>
+                      <th className="p-2">Phòng đơn</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  {passengerBookings?.flatMap((booking) =>
-                      booking.passengers?.map((p) => (
-                          <tr key={p.id} className="border-t">
-                            <td className="p-2">{p.name}</td>
-                            <td className="p-2">{p.birth_date}</td>
-                            <td className="p-2">{p.gender ? "Nam" : "Nữ"}</td>
-                            <td className="p-2">{p.phone_number}</td>
-                            <td></td>
-                            <td className="p-2">{p.single_room ? "Có" : "Không"}</td>
-                          </tr>
-                      ))
-                  )}
+                    {travelTourDetail?.passengers?.map((p) => (
+                      <tr key={p.id} className="border-t">
+                        <td className="p-2">{p.name}</td>
+                        <td className="p-2">{p.birth_date}</td>
+                        <td className="p-2">{p.gender ? "Nam" : "Nữ"}</td>
+                        <td className="p-2">{p.phone_number}</td>
+                        <td></td>
+                        <td className="p-2">
+                          {p.single_room ? "Có" : "Không"}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -275,7 +281,6 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
             {/*  </div>*/}
             {/*</div>*/}
           </div>
-
         </div>
 
         <div className="flex justify-end mt-4 gap-2">
@@ -289,7 +294,6 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
             Cập nhật
           </button> */}
         </div>
-
       </div>
       <BookingDetailsModal
         booking={booking}

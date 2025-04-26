@@ -8,11 +8,11 @@ import { useParams } from "react-router-dom";
 const DetailDynamicArticle = () => {
   const { id } = useParams();
   const [articleData, setArticleData] = useState(null);
-
+  
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await ArticleService.getAllArticles(id);
+        const response = await ArticleService.getArticleById(id);
         setArticleData(response.data.data);
       } catch (error) {
         console.error("Error fetching article:", error);
@@ -25,6 +25,9 @@ const DetailDynamicArticle = () => {
   if (!articleData) {
     return <div>Loading...</div>;
   }
+
+  console.log("Article data:", articleData);
+  
 
   return (
     <LayoutArticle sidebar={<SidebarArticle />}>

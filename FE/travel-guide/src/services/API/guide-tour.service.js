@@ -104,11 +104,14 @@ export const sendRequestTour = async (data) => {
   }
 };
 
-export const getTravelTourDetailForGuide = async (travelTourId) => {
+export const getTravelTourDetailForGuide = async (travelTourId, guideId) => {
   try {
     const response = await restClient({
       url: `guide-tour/travel-tour/${travelTourId}`,
       method: "GET",
+      params: {
+        travel_guide_id: guideId,
+      },
     });
     return response;
   } catch (error) {

@@ -32,6 +32,7 @@ import PhoneAuthen from "./components/AuthProviders/PhoneAuthen";
 import "../src/styles/responsive.css";
 import ModalPaymentSuccess from "./components/BookingCheckout/ModalBookingCheckout/ModalPaymentSuccess";
 import ModalSuccessPage from "./components/BookingCheckout/ModalBookingCheckout/test";
+import DetailDynamicArticle from "./page/ArticlePage/PostDynamicArticle/DetailDynamicArticle";
 
 function App() {
   const [directory, setDirectory] = useState([]);
@@ -100,7 +101,7 @@ function App() {
           element={<DetailPostExperience />}
         />
         <Route path={"/article/:alias"} element={<DynamicArticlePage />} />
-        <Route path={"/article/:id"} element={<DetailArticlePage />} />
+        <Route path={"/article/:alias/:id"} element={<DetailDynamicArticle />} />
 
         <Route path={"/calendar"} element={<Calendar />} />
         <Route path="/modalSuccess" element={<ModalSuccessPage />} />

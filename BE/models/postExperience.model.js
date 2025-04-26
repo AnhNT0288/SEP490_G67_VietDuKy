@@ -44,7 +44,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     {
       tableName: "post_experience",
-      timestamps: true,
+      timestamps: false,
     }
   );
   return PostExperience;
