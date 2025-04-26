@@ -146,7 +146,6 @@ exports.getCustomerProfile = async (req, res) => {
             "number_phone",
             "gender",
             "birth_date",
-            "payment_card_id",
           ], // Các trường của Customer
         },
       ],
