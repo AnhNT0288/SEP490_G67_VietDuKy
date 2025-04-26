@@ -73,8 +73,11 @@ exports.createFeedbackForTour = async (req, res) => {
 
     // Kiểm tra xem người dùng đã đặt tour này chưa
     const booking = await db.Booking.findOne({
-      where: { user_id, travel_tour_id: tour_id },
+      where: { user_id },
     });
+
+    console.log("Booking:", booking);
+    
 
     if (!booking) {
       return res

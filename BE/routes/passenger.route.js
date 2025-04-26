@@ -36,12 +36,12 @@ router.put(
   passengerController.updatePassenger
 );
 
-router.get(
-  "/travel-guide/:travel_guide_id",
-  // authenticateUser,
-  // checkRoles(["admin", "staff"]),
-  passengerController.getPassengersByTravelGuideId
-);
+// router.get(
+//   "/travel-guide/:travel_guide_id",
+//   // authenticateUser,
+//   // checkRoles(["admin", "staff"]),
+//   passengerController.getPassengersByTravelGuideId
+// );
 
 router.get(
   "/travel-tour/:travel_tour_id",
@@ -85,7 +85,7 @@ router.get(
   "/travel-guide/:travel_guide_id",
   // authenticateUser,
   // checkRoles(["admin", "staff"]),
-  passengerController.getPassengerByTravelGuideId
+  passengerController.getPassengerByTravelGuideId2
 );
 router.delete(
   "/remove-passenger-group/:passenger_id",

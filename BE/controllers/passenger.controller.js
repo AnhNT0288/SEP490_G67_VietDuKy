@@ -573,7 +573,7 @@ exports.removePassengersFromTravelGuide = async (req, res) => {
     }
 };
 
-exports.getPassengerByTravelGuideId = async (req, res) => {
+exports.getPassengerByTravelGuideId2 = async (req, res) => {
     try {
         const {travel_guide_id} = req.params;
         const travel_tour_id = req.query.travel_tour_id;
@@ -583,6 +583,7 @@ exports.getPassengerByTravelGuideId = async (req, res) => {
         if(!guideTour) {
             return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
         }
+        console.log(guideTour.group);
         if(!guideTour.group) {
             return res.status(404).json({message: "Hướng dẫn viên chưa được chia nhóm!"});
         }

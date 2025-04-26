@@ -131,6 +131,9 @@ const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
 
   if (!open) return null;
 
+  console.log("Booking detail", booking);
+  
+
   return (
     <div className="fixed inset-0 z-30 bg-black/40 flex items-center justify-center">
       <div className="bg-white w-[90%] h-[90vh] max-w-7xl rounded-2xl p-6 overflow-hidden shadow-xl flex flex-col">

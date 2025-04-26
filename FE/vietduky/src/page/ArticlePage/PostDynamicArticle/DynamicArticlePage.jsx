@@ -25,6 +25,9 @@ const DynamicArticlePage = () => {
     fetchDirectory();
   }, []);
 
+  // console.log("Directory data:", directory);
+  
+
   useEffect(() => {
     const fetchArticle = async () => {
       const directoryItem = directory.find(item => item.alias === alias);
@@ -76,7 +79,7 @@ const DynamicArticlePage = () => {
           {articles.map((article) => (
             <div key={article.id} className="space-y-2">
               <img
-                src={article.postEx_album ? JSON.parse(article.postEx_album)[0] : "/images/article-1.jpg"}
+                src={article.album_post ? article.album_post : "/images/article-1.jpg"}
                 alt="Article"
                 className="w-full rounded object-cover"
               />

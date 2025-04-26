@@ -12,6 +12,8 @@ const ContactForm = ({
   travelTourData,
   roomCost,
   setRoomCost,
+  assistance,
+  setAssistance,
 }) => {
   const [passengerData, setPassengerData] = useState([]);
 
@@ -184,6 +186,8 @@ const ContactForm = ({
         setRoomCost={setRoomCost}
         onPassengerDataChange={handlePassengerDataChange}
         setFormData={setFormData}
+        assistance={assistance}
+        setAssistance={setAssistance}
       />
       <div className="border-b border-[#b1b1b1]" />
       <div className="space-y-2">

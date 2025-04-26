@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 const ExpireTourCard = ({
   title,
+  image,
   duration,
   seatsLeft,
   start_day,
@@ -47,7 +48,7 @@ const ExpireTourCard = ({
       {/* Hình ảnh + Thời gian */}
       <div className="relative h-60 rounded-2xl overflow-hidden">
         <img
-          src="https://pos.nvncdn.com/d75ecc-146199/art/artCT/20230807_oG6YHK3q.jpeg"
+          src={ image || "https://pos.nvncdn.com/d75ecc-146199/art/artCT/20230807_oG6YHK3q.jpeg"}
           alt="Tour"
           className="w-full h-full object-cover rounded-2xl"
         />

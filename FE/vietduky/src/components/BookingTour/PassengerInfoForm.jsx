@@ -10,9 +10,11 @@ const PassengerInfoForm = ({
   setPassengers,
   roomCost,
   setRoomCost,
+  assistance,
+  setAssistance,
 }) => {
   const [passengerData, setPassengerData] = useState([]);
-  const [assistance, setAssistance] = useState(false);
+  
   const [touchedFields, setTouchedFields] = useState({});
   const [manualPassenger, setManualPassenger] = useState([false]);
   const validatePhoneNumber = (phone) => /^0\d{9,10}$/.test(phone);
@@ -23,36 +25,47 @@ const PassengerInfoForm = ({
     return date.getFullYear() >= 1900 && date <= new Date();
   };
 
-  const getPassengerErrors = (passenger) => {
-    const errors = {};
+  const handleAssistanceChange = (e) => {
+    setAssistance(e.target.checked);
+  };
 
+  console.log("assistance", assistance);
+  
+
+  const getPassengerErrors = (passenger) => {
+    if (assistance) return {}; // Nếu cần hỗ trợ thì bỏ qua kiểm tra, không lỗi
+  
+    const errors = {};
+  
     // Họ tên
     if (!passenger.name?.trim()) {
       errors.name = "Họ tên không được để trống";
     }
-
+  
     // Số điện thoại
-    if (!passenger.phone?.trim()) {
-      errors.phone = "Số điện thoại không được để trống";
-    } else if (!validatePhoneNumber(passenger.phone)) {
-      errors.phone =
-        "Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và dài 10–11 số)";
+    if (passenger.type === "adult") {
+      if (!passenger.phone?.trim()) {
+        errors.phone = "Số điện thoại không được để trống";
+      } else if (!validatePhoneNumber(passenger.phone)) {
+        errors.phone = "Số điện thoại không hợp lệ (phải bắt đầu bằng 0 và dài 10–11 số)";
+      }
     }
-
+  
     // Giới tính
     if (!passenger.gender) {
       errors.gender = "Vui lòng chọn giới tính";
     }
-
+  
     // Ngày sinh
     if (!passenger.birthdate) {
-      errors.birthdate = "Ngày sinh không được để trống";
+      errors.birthdate = "Ngày tháng năm sinh không được để trống";
     } else if (!isDateInRange(passenger.birthdate)) {
-      errors.birthdate = "Ngày sinh phải từ 1900 đến hiện tại";
+      errors.birthdate = "Năm sinh phải từ 1900 đến hiện tại";
     }
-
+  
     return errors;
   };
+  
 
   const markFieldTouched = (passengerId, field) => {
     setTouchedFields((prev) => ({
@@ -154,9 +167,7 @@ const PassengerInfoForm = ({
     setRoomCost(totalRoomCost); // Cập nhật roomCost
   };
 
-  const handleAssistanceChange = (e) => {
-    setAssistance(e.target.checked);
-  };
+  
 
   const calculateAge = (birthdate) => {
     const birth = new Date(birthdate);
@@ -259,7 +270,7 @@ const PassengerInfoForm = ({
       <h2 className="text-xl font-bold text-neutral-900">
         Thông tin hành khách
       </h2>
-      {/* <div className="p-4 bg-[#ffe8eb] rounded-lg flex items-center gap-2.5">
+      <div className="p-4 bg-[#ffe8eb] rounded-lg flex items-center gap-2.5">
         <input
           type="checkbox"
           name="assistance"
@@ -271,7 +282,7 @@ const PassengerInfoForm = ({
           Tôi cần được nhân viên tư vấn VietDuKy trợ giúp nhập thông tin đăng ký
           dịch vụ
         </span>
-      </div> */}
+      </div>
       <div className="border-b border-[#b1b1b1]" />
       <div className="w-full flex flex-row justify-end gap-4">
         <button
@@ -298,186 +309,199 @@ const PassengerInfoForm = ({
         </label>
       </div>
 
-      {Object.entries(groupedPassengers).map(([type, group]) => (
-        <div key={type} className="space-y-4">
-          <h3>
-            <span className="font-bold">{group.label}</span>{" "}
-            <span>({group.desc})</span>
-          </h3>
+      {!assistance &&
+        Object.entries(groupedPassengers).map(([type, group]) => (
+          <div key={type} className="space-y-4">
+            <h3>
+              <span className="font-bold">{group.label}</span>{" "}
+              <span>({group.desc})</span>
+            </h3>
 
-          {group.list.map((passenger, index) => {
-            const errors = getPassengerErrors(passenger);
+            {group.list.map((passenger, index) => {
+              const errors = getPassengerErrors(passenger);
 
-            return (
-              <div key={index} className="bg-white rounded-md">
-                <div className="grid grid-cols-5 gap-4 mt-2 items-start">
-                  {/* Họ tên */}
-                  <div className="border-r border-gray-300">
-                    <label className="text-sm font-semibold block mb-1">
-                      Họ tên
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={passenger.name}
-                      onChange={(e) =>
-                        handleChangeInput(passenger.id, "name", e.target.value)
-                      }
-                      onBlur={() => markFieldTouched(passenger.id, "name")}
-                      placeholder="Liên hệ"
-                      className="w-full p-2 rounded-md text-sm outline-none"
-                      required
-                    />
-                    {touchedFields[passenger.id]?.name && errors.name && (
-                      <p className="text-xs text-red-500 mt-1">{errors.name}</p>
-                    )}
-                  </div>
-
-                  {/* Điện thoại */}
-                  <div className="border-r border-gray-300">
-                    <label className="text-sm font-semibold block mb-1">
-                      Điện thoại
-                    </label>
-                    <input
-                      type="text"
-                      name="phone"
-                      value={passenger.phone}
-                      onChange={(e) =>
-                        handleChangeInput(
-                          passenger.id,
-                          "phone",
-                          e.target.value.replace(/\D/g, "")
-                        )
-                      }
-                      onBlur={() => markFieldTouched(passenger.id, "phone")}
-                      placeholder="Số điện thoại"
-                      className="w-full p-2 rounded-md text-sm outline-none"
-                    />
-                    {touchedFields[passenger.id]?.phone && errors.phone && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.phone}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Giới tính */}
-                  <div className="border-r border-gray-300">
-                    <label className="text-sm font-semibold block mb-1">
-                      Giới tính
-                    </label>
-                    <select
-                      name="gender"
-                      value={passenger.gender}
-                      onChange={(e) => {
-                        handleChangeInput(
-                          passenger.id,
-                          "gender",
-                          e.target.value
-                        );
-                        markFieldTouched(passenger.id, "gender");
-                      }}
-                      className={`w-full p-2 text-sm outline-none focus:border-black transition-all bg-transparent appearance-none pr-6 bg-no-repeat bg-right ${
-                        passenger.gender ? "text-black" : "text-gray-400"
-                      }`}
-                      style={{ appearance: "none" }}
-                      required
-                    >
-                      <option value="" disabled hidden>
-                        Chọn giới tính
-                      </option>
-                      <option value="true">Nam</option>
-                      <option value="false">Nữ</option>
-                    </select>
-                    {touchedFields[passenger.id]?.gender && errors.gender && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.gender}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Ngày sinh */}
-                  <div className="border-r border-gray-300">
-                    <label className="text-sm font-semibold block mb-1">
-                      Ngày sinh
-                    </label>
-                    <input
-                      type="text"
-                      name="birthdate"
-                      value={passenger.birthdate}
-                      onFocus={(e) => (e.target.type = "date")}
-                      onBlur={(e) => {
-                        e.target.type = "text";
-                        markFieldTouched(passenger.id, "birthdate");
-                      }}
-                      onChange={(e) =>
-                        handleChangeInput(
-                          passenger.id,
-                          "birthdate",
-                          e.target.value
-                        )
-                      }
-                      min="1900-01-01"
-                      max={new Date().toISOString().split("T")[0]}
-                      placeholder="Chọn ngày sinh"
-                      className="w-full p-2 text-sm outline-none"
-                    />
-                    {touchedFields[passenger.id]?.birthdate &&
-                      errors.birthdate && (
+              return (
+                <div key={index} className="bg-white rounded-md">
+                  <div className="grid grid-cols-5 gap-4 mt-2 items-start">
+                    {/* Họ tên */}
+                    <div className="border-r border-gray-300">
+                      <label className="text-sm font-semibold block mb-1">
+                        Họ tên
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={passenger.name}
+                        onChange={(e) =>
+                          handleChangeInput(
+                            passenger.id,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                        onBlur={() => markFieldTouched(passenger.id, "name")}
+                        placeholder="Liên hệ"
+                        className="w-full p-2 rounded-md text-sm outline-none"
+                        required
+                      />
+                      {touchedFields[passenger.id]?.name && errors.name && (
                         <p className="text-xs text-red-500 mt-1">
-                          {errors.birthdate}
+                          {errors.name}
                         </p>
                       )}
-                  </div>
-
-                  {/* Phòng đơn */}
-                  {type === "adult" && (
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Phòng đơn</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          name="singleRoom"
-                          checked={passenger.singleRoom}
-                          onChange={(e) =>
-                            handleChangeInput(
-                              passenger.id,
-                              "singleRoom",
-                              e.target.checked
-                            )
-                          }
-                          className="hidden"
-                          id={`singleRoomToggle-${passenger.id}`}
-                        />
-                        <label
-                          htmlFor={`singleRoomToggle-${passenger.id}`}
-                          className={`relative cursor-pointer w-10 h-5 rounded-full flex items-center transition-all ${
-                            passenger.singleRoom ? "bg-red-500" : "bg-gray-300"
-                          }`}
-                        >
-                          <span
-                            className={`absolute w-4 h-4 bg-white rounded-full transition-all ${
-                              passenger.singleRoom
-                                ? "translate-x-5"
-                                : "translate-x-0"
-                            }`}
-                          ></span>
-                        </label>
-                        <span
-                          className={`text-sm font-semibold ${
-                            passenger.singleRoom ? "text-red-500" : "text-black"
-                          }`}
-                        >
-                          240.000 ₫
-                        </span>
-                      </div>
                     </div>
-                  )}
+
+                    {/* Điện thoại */}
+                    <div className="border-r border-gray-300">
+                      <label className="text-sm font-semibold block mb-1">
+                        Điện thoại
+                      </label>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={passenger.phone}
+                        onChange={(e) =>
+                          handleChangeInput(
+                            passenger.id,
+                            "phone",
+                            e.target.value.replace(/\D/g, "")
+                          )
+                        }
+                        onBlur={() => markFieldTouched(passenger.id, "phone")}
+                        placeholder="Số điện thoại"
+                        className="w-full p-2 rounded-md text-sm outline-none"
+                      />
+                      {touchedFields[passenger.id]?.phone && errors.phone && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.phone}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Giới tính */}
+                    <div className="border-r border-gray-300">
+                      <label className="text-sm font-semibold block mb-1">
+                        Giới tính
+                      </label>
+                      <select
+                        name="gender"
+                        value={passenger.gender}
+                        onChange={(e) => {
+                          handleChangeInput(
+                            passenger.id,
+                            "gender",
+                            e.target.value
+                          );
+                          markFieldTouched(passenger.id, "gender");
+                        }}
+                        className={`w-full p-2 text-sm outline-none focus:border-black transition-all bg-transparent appearance-none pr-6 bg-no-repeat bg-right ${
+                          passenger.gender ? "text-black" : "text-gray-400"
+                        }`}
+                        style={{ appearance: "none" }}
+                        required
+                      >
+                        <option value="" disabled hidden>
+                          Chọn giới tính
+                        </option>
+                        <option value="true">Nam</option>
+                        <option value="false">Nữ</option>
+                      </select>
+                      {touchedFields[passenger.id]?.gender && errors.gender && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.gender}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Ngày sinh */}
+                    <div className="border-r border-gray-300">
+                      <label className="text-sm font-semibold block mb-1">
+                        Ngày sinh
+                      </label>
+                      <input
+                        type="text"
+                        name="birthdate"
+                        value={passenger.birthdate}
+                        onFocus={(e) => (e.target.type = "date")}
+                        onBlur={(e) => {
+                          e.target.type = "text";
+                          markFieldTouched(passenger.id, "birthdate");
+                        }}
+                        onChange={(e) =>
+                          handleChangeInput(
+                            passenger.id,
+                            "birthdate",
+                            e.target.value
+                          )
+                        }
+                        min="1900-01-01"
+                        max={new Date().toISOString().split("T")[0]}
+                        placeholder="Chọn ngày sinh"
+                        className="w-full p-2 text-sm outline-none"
+                      />
+                      {touchedFields[passenger.id]?.birthdate &&
+                        errors.birthdate && (
+                          <p className="text-xs text-red-500 mt-1">
+                            {errors.birthdate}
+                          </p>
+                        )}
+                    </div>
+
+                    {/* Phòng đơn */}
+                    {type === "adult" && (
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold">
+                          Phòng đơn
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            name="singleRoom"
+                            checked={passenger.singleRoom}
+                            onChange={(e) =>
+                              handleChangeInput(
+                                passenger.id,
+                                "singleRoom",
+                                e.target.checked
+                              )
+                            }
+                            className="hidden"
+                            id={`singleRoomToggle-${passenger.id}`}
+                          />
+                          <label
+                            htmlFor={`singleRoomToggle-${passenger.id}`}
+                            className={`relative cursor-pointer w-10 h-5 rounded-full flex items-center transition-all ${
+                              passenger.singleRoom
+                                ? "bg-red-500"
+                                : "bg-gray-300"
+                            }`}
+                          >
+                            <span
+                              className={`absolute w-4 h-4 bg-white rounded-full transition-all ${
+                                passenger.singleRoom
+                                  ? "translate-x-5"
+                                  : "translate-x-0"
+                              }`}
+                            ></span>
+                          </label>
+                          <span
+                            className={`text-sm font-semibold ${
+                              passenger.singleRoom
+                                ? "text-red-500"
+                                : "text-black"
+                            }`}
+                          >
+                            240.000 ₫
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      ))}
+              );
+            })}
+          </div>
+        ))}
     </div>
   );
 };
