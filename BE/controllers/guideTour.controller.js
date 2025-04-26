@@ -807,15 +807,14 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
     // Lấy danh sách hành khách đã được gán cho từng TravelGuide
     const passengersByGuide = await Passenger.findAll({
       where: {
-        travel_guide_id: {
-          [Op.ne]: null, // Chỉ lấy hành khách đã được gán cho TravelGuide
+        booking_id: {
+          [Op.in]: bookings.map((booking) => booking.id),
         },
       },
       include: [
         {
           model: Booking,
           as: "booking",
-          where: { travel_tour_id: travelTourId },
           attributes: ["id"],
         },
       ],
