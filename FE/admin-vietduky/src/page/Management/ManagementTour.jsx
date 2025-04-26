@@ -8,7 +8,7 @@ import ModalUpdateTour from "../../components/ModalManage/ModalUpdate/ModalUpdat
 import ModalManageActivity from "../../components/ModalManage/ModalList/ModalManageActivity.jsx";
 import { getTourById } from "../../services/API/tour.service";
 import ModalNoteList from "../../components/ModalManage/ModalList/ModalNoteList.jsx";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 export default function ManagementTour() {
   const [tours, setTours] = useState([]);
@@ -29,6 +29,7 @@ export default function ManagementTour() {
   const [selectedProgramTour, setSelectedProgramTour] = useState(null);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [noteTourId, setNoteTourId] = useState(null);
+  const [sortOrder, setSortOrder] = useState("newest");
 
   const handleOpenNoteTour = (tour) => {
     setNoteTourId(tour.id);
@@ -51,10 +52,13 @@ export default function ManagementTour() {
     try {
       const toursData = await getTours();
       if (Array.isArray(toursData)) {
-        setTours(toursData);
+        // Sắp xếp giảm dần theo id (id lớn hơn nghĩa là mới hơn)
+        const sortedTours = [...toursData].sort((a, b) => b.id - a.id);
+        setTours(sortedTours);
+
         const uniqueLocations = [
           ...new Set(
-            toursData
+            sortedTours
               .map((tour) => tour?.startLocation?.name_location)
               .filter(Boolean)
           ),
@@ -106,15 +110,18 @@ export default function ManagementTour() {
     }
   };
 
-  const filteredTours = tours.filter((tour) => {
-    if (location && tour?.startLocation?.name_location !== location)
-      return false;
+  const filteredTours = tours
+  .filter((tour) => {
+    if (location && tour?.startLocation?.name_location !== location) return false;
     const price = tour.price_tour;
     if (priceFilter === "low" && price >= 5_000_000) return false;
-    if (priceFilter === "medium" && (price < 5_000_000 || price > 10_000_000))
-      return false;
+    if (priceFilter === "medium" && (price < 5_000_000 || price > 10_000_000)) return false;
     if (priceFilter === "high" && price <= 10_000_000) return false;
     return true;
+  })
+  .sort((a, b) => {
+    if (sortOrder === "newest") return b.id - a.id;   // id lớn hơn => mới hơn
+    else return a.id - b.id;                           // id nhỏ hơn => cũ hơn
   });
 
   const totalPages = Math.ceil(filteredTours.length / toursPerPage);
@@ -140,6 +147,16 @@ export default function ManagementTour() {
             <button className="border border-red-700 text-red-700 hover:bg-red-300 px-4 py-2 rounded-md w-full sm:w-auto">
               Nhập danh sách chủ đề
             </button>
+          </div>
+          <div className="w-full sm:w-auto">
+            <select
+              className="px-4 py-2 border border-red-600 text-red-700 rounded-md w-full"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+            </select>
           </div>
           <div className="w-full sm:w-auto">
             <select
@@ -256,20 +273,14 @@ export default function ManagementTour() {
           <ModalAddTour
             onClose={toggleAddTourModal}
             onCreateSuccess={(newTour) => {
-              setTours((prev) => [...prev, newTour]);
+              setTours((prev) =>
+                [...prev, newTour].sort((a, b) => b.id - a.id)
+              ); // sort ngay khi thêm mới
               setIsAddTourModalOpen(false);
-              setSelectedProgramTour(newTour.id);
+              setSelectedProgramTour(newTour);
               setIsManagementProgramModalOpen(true);
               toast.success("Tạo Tour thành công!");
             }}
-          />
-        )}
-
-        {isManagementProgramModalOpen && (
-          <ModalManageActivity
-            tour={selectedTour}
-            onClose={() => setIsManagementProgramModalOpen(false)}
-            tours={tours}
           />
         )}
 

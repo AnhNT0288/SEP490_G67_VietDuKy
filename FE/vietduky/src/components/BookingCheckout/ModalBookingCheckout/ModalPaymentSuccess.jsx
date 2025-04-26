@@ -1,9 +1,30 @@
-// components/SuccessModal.jsx
+import { BookingService } from "@/services/API/booking.service";
+import { PaymentService } from "@/services/API/payment.service";
 import { CheckCircle2 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 
-const ModalPaymentSuccess = ({ isOpen, onClose }) => {
+const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
+  const [bookingData, setBookingData] = useState([]);
+  const [paymentInfo, setPaymentInfo] = useState([]);
+
+  useEffect(() => {
+    const fetchPaymentInfo = async () => {
+      try {
+        const response = await PaymentService.getPaymentByBookingId("42");
+        setPaymentInfo(response.data);
+      } catch (error) {
+        console.error("Error fetching payment info:", error);
+      }
+    };
+
+    fetchPaymentInfo();
+  });
+
+  console.log("BookingData:", booking);
+
+  console.log("Payment Info:", paymentInfo);
+
   return (
     <Modal
       isOpen={isOpen}

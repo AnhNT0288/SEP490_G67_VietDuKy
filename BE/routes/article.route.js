@@ -35,7 +35,6 @@ router.delete(
 );
 router.post(
   "/increment-views/:id",
-  authenticateUser,
   ArticleController.incrementViews
 );
 

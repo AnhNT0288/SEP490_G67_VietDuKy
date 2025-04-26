@@ -8,9 +8,9 @@ export const PaymentService = {
             data,
         });
     },
-    getPaymentByBookingId: (id) => {
+    getPaymentByBookingId: (bookingId) => {
         return restClient({
-            url: `payment/booking/${id}`,
+            url: `payment/booking/${bookingId}`,
             method: "GET",
         });
     },

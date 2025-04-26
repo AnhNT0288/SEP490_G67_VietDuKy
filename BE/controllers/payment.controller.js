@@ -99,6 +99,7 @@ exports.checkPayment = async (req, res) => {
 };
 exports.getPayment = async (req, res) => {
     const {paymentId} = req.body;
+    console.log("REQ BODY:", req.body);
     const payment = await Payment.findOne({
         where: {
             id: paymentId,
@@ -108,6 +109,8 @@ exports.getPayment = async (req, res) => {
 };
 exports.getPaymentByBookingId = async (req, res) => {
     const {bookingId} = req.body;
+    console.log("REQ BODY:", req.body);
+
     const payment = await Payment.findOne({
         where: {
             booking_id: bookingId,
@@ -117,6 +120,8 @@ exports.getPaymentByBookingId = async (req, res) => {
 };
 exports.getPaymentByCustomerId = async (req, res) => {
     const {customerId} = req.body;
+    console.log("REQ BODY:", req.body);
+    
     const payment = await Payment.findOne({
         where: {
             customer_id: customerId,

@@ -267,6 +267,7 @@ const BookingConfirmation = ({ bookingData }) => {
       {/* Modal thông báo thành công */}
       <ModalPaymentSuccess
         isOpen={isSuccessModalOpen}
+        booking={booking}
         onClose={() => {
           setIsSuccessModalOpen(false);
           navigate("/bookingHistory");

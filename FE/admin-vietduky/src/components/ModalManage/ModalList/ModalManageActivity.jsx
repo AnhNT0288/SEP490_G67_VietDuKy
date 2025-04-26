@@ -44,6 +44,9 @@ export default function ModalManageActivity({ tour, onClose }) {
     const [activities, setActivities] = useState([]);
     const [selectedActivity, setSelectedActivity] = useState(null);
 
+    console.log(tour);
+    
+
     useEffect(() => {
         // eslint-disable-next-line react/prop-types
         if (tour?.activities) {
