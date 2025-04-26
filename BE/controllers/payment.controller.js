@@ -43,7 +43,7 @@ exports.checkPayment = async (req, res) => {
                 const matches = value[1].toLowerCase().match(/start(.*?)end/i);
                 if (matches && paymentKey.toLowerCase() === matches[1].trim()) {
                     message = true;
-                    amount = parseInt(value[2], 10) * 1000000;
+                    amount = parseInt(value[2], 10) * 1000;
                 }
             });
 

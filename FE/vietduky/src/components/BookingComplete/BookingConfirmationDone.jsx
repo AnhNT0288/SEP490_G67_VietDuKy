@@ -5,12 +5,10 @@ import { TourService } from "@/services/API/tour.service";
 import { TravelTourService } from "@/services/API/travel_tour.service";
 import { formatTime } from "@/utils/dateUtil";
 import React, { useEffect, useState } from "react";
-import Modal from "react-modal";
-
-// Import Modal từ react-modal
-Modal.setAppElement("#root");
+import { useNavigate } from "react-router-dom";
 
 const BookingConfirmationDone = ({ bookingData }) => {
+  const navigate = useNavigate();
   const [booking, setBooking] = useState([]);
   const [travelTour, setTravelTour] = useState([]);
   const [tour, setTour] = useState([]);
@@ -31,11 +29,11 @@ const BookingConfirmationDone = ({ bookingData }) => {
           bookingData?.travel_tour_id
         );
         if (travelTourResponse?.data) {
-          setTravelTour(travelTourResponse.data);
+          setTravelTour(travelTourResponse.data.data);
 
           // Gọi tour chỉ khi travelTour đã được lấy thành công
           const tourResponse = await TourService.getTour(
-            travelTourResponse.data.tour_id
+            travelTourResponse.data.data.tour_id
           );
           if (tourResponse?.data) {
             setTour(tourResponse.data?.data);
@@ -49,6 +47,8 @@ const BookingConfirmationDone = ({ bookingData }) => {
     fetchData();
   }, [bookingData]);
 
+  // console.log("Tour:", tour);
+
   return (
     <>
       <div className="border border-[#b1b1b1] rounded-xl bg-white p-4 shadow-md ">
@@ -58,7 +58,7 @@ const BookingConfirmationDone = ({ bookingData }) => {
 
         <div className="w-full h-[150px] flex gap-6 rounded-md overflow-hidden mb-3">
           <img
-            src={tour?.image || "/placeholder.jpg"}
+            src={tour?.album?.[0] || "/placeholder.jpg"}
             alt={tour?.name_tour}
             className="w-2/5 h-full rounded-xl object-cover"
           />
@@ -134,6 +134,21 @@ const BookingConfirmationDone = ({ bookingData }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="flex gap-2 mt-4">
+        <button
+          onClick={() => navigate("/")}
+          className="flex-1 bg-white border border-[#a80f21] text-[#a80f21] font-bold py-3 rounded-xl hover:bg-gray-200 hover:text-[#a80f21]"
+        >
+          Về trang chủ
+        </button>
+        <button
+          onClick={() => navigate("/bookingHistory")}
+          className="flex-1 bg-[#a80f21] text-white font-bold py-2 rounded-xl border border-[#a80f21] hover:bg-gray-100 hover:text-[#a80f21]"
+        >
+          Xem lịch sử đặt tour
+        </button>
       </div>
     </>
   );

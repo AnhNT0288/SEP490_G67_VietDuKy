@@ -40,13 +40,13 @@ const ModalQRPayment = ({
                 <div className="flex flex-col gap-2">
                   <p className="text-zinc-500 text-sm font-semibold">Số tiền thanh toán</p>
                   <p className="text-red-800 text-lg font-semibold">
-                    {booking?.data?.total_cost.toLocaleString("vi-VN")} VND
+                    {booking?.total_cost?.toLocaleString("vi-VN")} VND
                   </p>
                 </div>
                 <div>
                   <p className="text-zinc-500 text-sm font-semibold">Giá trị đơn hàng</p>
                   <p className="text-zinc-900 text-lg font-semibold">
-                    {booking?.data?.total_cost.toLocaleString("vi-VN")} VND
+                    {booking?.total_cost?.toLocaleString("vi-VN")} VND
                   </p>
                 </div>
                 <div>
@@ -55,7 +55,7 @@ const ModalQRPayment = ({
                 </div>
                 <div>
                   <p className="text-zinc-500 text-sm font-semibold">Mã đơn hàng</p>
-                  <p className="text-zinc-900 text-lg font-semibold">{booking?.data?.booking_code}</p>
+                  <p className="text-zinc-900 text-lg font-semibold">{booking?.booking_code}</p>
                 </div>
                 <div>
                   <p className="text-zinc-500 text-sm font-semibold">Nhà cung cấp</p>

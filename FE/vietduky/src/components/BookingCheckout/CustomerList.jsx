@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 
-export default function CustomerList({ passengerData, bookingData }) {
+export default function CustomerList({ bookingData, travelTourData, setBookingData }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [passengerList, setPassengerList] = useState([]);
@@ -83,10 +83,9 @@ export default function CustomerList({ passengerData, bookingData }) {
       .then((response) => {
         if (response?.data) {
           // Cập nhật danh sách hành khách
-          setPassengerList((prev) => [...prev, response.data.data]);
-          // Cập nhật giá booking nếu cần
-          updateBookingPrice();
-          // Reset form sau khi thêm
+          const updatedPassengerList = [...passengerList, response.data.data];
+          setPassengerList(updatedPassengerList);
+          updateBookingInfo(updatedPassengerList);
           setNewPassenger({
             name: "",
             phone_number: "",
@@ -94,7 +93,7 @@ export default function CustomerList({ passengerData, bookingData }) {
             birth_date: "",
             passport_number: "",
             single_room: "false",
-            booking_id: bookingData?.id, // Đảm bảo booking_id được cập nhật
+            booking_id: bookingData?.id,
           });
         }
       })
@@ -115,15 +114,16 @@ export default function CustomerList({ passengerData, bookingData }) {
   };
 
   const handleSaveEdit = async (passengerId) => {
-    try {
-      await PassengerService.updatePassenger(passengerId, editForm);
-      setPassengerList((prev) =>
-        prev.map((p) => (p.id === passengerId ? { ...p, ...editForm } : p))
-      );
-      setEditingRowId(null);
-    } catch (error) {
-      console.error("Error updating passenger:", error);
-    }
+    PassengerService.updatePassenger(passengerId, editForm)
+      .then(() => {
+        const updatedPassengerList = passengerList.map((p) =>
+          p.id === passengerId ? { ...p, ...editForm } : p
+        );
+        setPassengerList(updatedPassengerList);
+        updateBookingInfo(updatedPassengerList);
+        setEditingRowId(null);
+      })
+      .catch((error) => console.error("Error updating passenger:", error));
   };
 
   const handleCancelEdit = () => {
@@ -134,34 +134,83 @@ export default function CustomerList({ passengerData, bookingData }) {
     if (confirm("Bạn có chắc chắn muốn xóa hành khách này?")) {
       PassengerService.deletePassenger(passengerId)
         .then(() => {
-          setPassengerList((prev) => prev.filter((p) => p.id !== passengerId));
+          const updatedPassengerList = passengerList.filter(
+            (p) => p.id !== passengerId
+          );
+          setPassengerList(updatedPassengerList);
+          updateBookingInfo(updatedPassengerList);
         })
-        .catch((error) => {
-          console.error("Error deleting passenger:", error);
-        });
+        .catch((error) => console.error("Error deleting passenger:", error));
     }
   };
 
-  // Hàm cập nhật giá booking
-  const updateBookingPrice = () => {
-    const newPrice = calculateNewPrice(); // Tính toán giá mới
-    BookingService.updateBooking({ id: bookingData.id, price: newPrice }) // Cập nhật giá
+  const updateBookingInfo = (updatedPassengerList) => {
+    const bookingId = Number(bookingData?.id);
+    
+    if (!bookingId) {
+      console.error("Không tìm thấy booking ID!");
+      return;
+    }
+  
+    const summary = calculateBookingSummary(updatedPassengerList);
+  
+    BookingService.updateBooking(bookingId, summary)
       .then(() => {
-        console.log("Booking price updated successfully.");
+        console.log("Booking cập nhật thành công!");
+        setBookingData(prev => ({
+          ...prev,
+          data: {
+            ...prev.data,
+            data: {
+              ...prev.data.data,
+              ...summary,
+            }
+          }
+        }));
       })
-      .catch((error) => {
-        console.error("Error updating booking price:", error);
+      .catch((err) => {
+        console.error("Lỗi update booking:", err);
       });
   };
 
-  // Hàm tính toán giá mới dựa trên số lượng hành khách và giá từ travelTour
-  const calculateNewPrice = () => {
-    const pricePerPassenger = travelTourData.price; // Lấy giá từ travelTour
-    return passengerList.length * pricePerPassenger; // Tính tổng giá
+  const calculateBookingSummary = (passengers) => {
+    let number_adult = 0;
+    let number_children = 0;
+    let number_toddler = 0;
+    let number_newborn = 0;
+    let total_cost = 0;
+  
+    passengers.forEach((p, index) => {
+      const { type } = calculateAgeAndType(p.birth_date);
+    
+      if (type === "adult") {
+        number_adult++;
+        total_cost += travelTourData.price_tour;
+      } else if (type === "child") {
+        number_children++;
+        total_cost += travelTourData.children_price;
+      } else if (type === "toddler") {
+        number_toddler++;
+        total_cost += travelTourData.toddler_price;
+      } else if (type === "infant") {
+        number_newborn++;
+      }
+  
+      // Nếu có chọn phòng đơn
+      if (p.singleRoom || p.single_room) {
+        total_cost += 300000;
+      }
+    });
+  
+    return {
+      number_adult,
+      number_children,
+      number_toddler,
+      number_newborn,
+      total_cost,
+    };
   };
-
-  // console.log();
-
+  
   return (
     <div className="border border-gray-400 rounded-lg overflow-hidden">
       {/* Header */}

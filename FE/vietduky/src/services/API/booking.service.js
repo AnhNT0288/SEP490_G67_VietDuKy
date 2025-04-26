@@ -32,7 +32,7 @@ export const BookingService = {
         });
       },
       
-    updateBooking: (data, id) => {
+    updateBooking: (id, data) => {
         return restClient({
             url: `booking/update/${id}`,
             method: "PUT",

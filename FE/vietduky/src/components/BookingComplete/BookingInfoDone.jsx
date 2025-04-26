@@ -1,13 +1,15 @@
 import { formatDate } from '@/utils/dateUtil';
 import React from 'react';
 
-const BookingInfoDone = ({ bookingData }) => {
+const BookingInfoDone = ({ bookingData, paymentData }) => {
   const getPaymentDeadline = (bookingDate) => {
     const bookingDateObj = new Date(bookingDate);
     const paymentDeadline = new Date(bookingDateObj);
     paymentDeadline.setDate(bookingDateObj.getDate() + 15);
     return paymentDeadline.toLocaleDateString("vi-VN");
   };
+
+  const isPaid = paymentData?.amount > 0;
 
   return (
     <div className="p-6 bg-[#f8f8f8] rounded-lg border border-gray-300 shadow-md">
@@ -25,33 +27,39 @@ const BookingInfoDone = ({ bookingData }) => {
         </div>
         <div className="flex justify-between">
           <div className="text-gray-900 font-bold">Trị giá booking:</div>
-          <div className="text-gray-900 font-bold">{bookingData?.total_cost.toLocaleString("vi-VN", {
+          <div className="text-gray-900 font-bold">{bookingData?.total_cost?.toLocaleString("vi-VN", {
             style: "currency",
             currency: "VND",
           }) || "0 ₫"}</div>
         </div>
-        {/* <div className="flex justify-between">
-          <div className="text-gray-900 font-bold">Hình thức thanh toán:</div>
-          <div className="text-[#a80f21] font-bold cursor-pointer">Thay đổi hình thức thanh toán</div>
-        </div> */}
         <div className="flex justify-between">
           <div className="text-gray-900 font-bold">Số tiền đã thanh toán:</div>
-          <div className="text-gray-900 font-bold">0 ₫</div>
+          <div className="text-gray-900 font-bold">{paymentData?.amount?.toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }) || "0 ₫"}</div>
         </div>
         <div className="flex justify-between">
           <div className="text-gray-900 font-bold">Tình trạng:</div>
-          <div className="text-[#a80f21] font-bold">Booking của quý khách đã được chúng tôi xác nhận thành công</div>
-        </div>
-        <div>
-          <div className="flex justify-between">
-            <div className="text-gray-900 font-bold">Thời hạn thanh toán:</div>
-            <div>
-              <span className="text-[#a80f21] font-bold">{getPaymentDeadline(bookingData?.booking_date)}</span>
-              <span className="text-gray-900 font-bold"> -</span>
-            </div>
+          <div className="text-[#a80f21] font-bold">
+            {isPaid
+              ? "Booking của quý khách đã thanh toán thành công"
+              : "Quý khách đã chọn thanh toán sau, vui lòng thanh toán trước thời hạn"}
           </div>
-          <div className="text-gray-600 text-sm mt-1">(Theo giờ Việt Nam. Booking sẽ tự động hủy nếu quá thời hạn thanh toán trên)</div>
         </div>
+
+        {!isPaid && (
+          <div>
+            <div className="flex justify-between">
+              <div className="text-gray-900 font-bold">Thời hạn thanh toán:</div>
+              <div>
+                <span className="text-[#a80f21] font-bold">{getPaymentDeadline(bookingData?.booking_date)}</span>
+                <span className="text-gray-900 font-bold"> -</span>
+              </div>
+            </div>
+            <div className="text-gray-600 text-sm mt-1">(Theo giờ Việt Nam. Booking sẽ tự động hủy nếu quá thời hạn thanh toán trên)</div>
+          </div>
+        )}
       </div>
     </div>
   );
