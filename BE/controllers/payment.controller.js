@@ -24,12 +24,12 @@ exports.checkPayment = async (req, res) => {
                 message: "Không có bookingId",
             });
         }
-        if (!customerId) {  
+        if (!customerId) {
             return res.status(400).json({
                 message: "Không có customerId",
             });
         }
-        
+
 
         const response = await axios.get(url);
 
@@ -108,23 +108,23 @@ exports.getPayment = async (req, res) => {
     return res.status(200).json({message: "OK", data: payment});
 };
 exports.getPaymentByBookingId = async (req, res) => {
-    const {bookingId} = req.body;
+    const {id} = req.params;
     console.log("REQ BODY:", req.body);
 
     const payment = await Payment.findOne({
         where: {
-            booking_id: bookingId,
+            booking_id: id,
         },
     });
     return res.status(200).json({message: "OK", data: payment});
 };
 exports.getPaymentByCustomerId = async (req, res) => {
-    const {customerId} = req.body;
+    const {id} = req.params;
     console.log("REQ BODY:", req.body);
-    
+
     const payment = await Payment.findOne({
         where: {
-            customer_id: customerId,
+            customer_id: id,
         },
     });
     return res.status(200).json({message: "OK", data: payment});
