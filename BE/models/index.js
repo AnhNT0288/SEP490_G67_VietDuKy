@@ -44,7 +44,6 @@ const PostExperience = require("./postExperience.model.js")(
     sequelize,
     Sequelize
 );
-const PaymentCard = require("./paymentCard.model.js")(sequelize, Sequelize);
 const Payment = require("./payment.model.js")(sequelize, Sequelize);
 
 //Article
@@ -123,10 +122,6 @@ VehicleBooking.belongsTo(Vehicle, {foreignKey: "vehicle_id"});
 //User/Customer
 User.hasOne(Customer, {foreignKey: "user_id"});
 Customer.belongsTo(User, {foreignKey: "user_id"});
-
-//Customer/PaymentCard
-Customer.hasMany(PaymentCard, {foreignKey: "customer_id"});
-PaymentCard.belongsTo(Customer, {foreignKey: "customer_id"});
 
 
 //Feedback/User
@@ -214,8 +209,8 @@ Role.hasMany(User, {foreignKey: "role_id"});
 User.belongsTo(Role, {foreignKey: "role_id", as: "role"});
 
 //PostExperience/User
-User.hasMany(PostExperience, {foreignKey: "id"});
-PostExperience.belongsTo(User, {foreignKey: "id", as: "user"});
+User.hasMany(PostExperience, {foreignKey: "user_id"});
+PostExperience.belongsTo(User, {foreignKey: "user_id", as: "user"});
 
 
 //DepartureSchedule/Booking
@@ -363,7 +358,6 @@ db.VehicleBooking = VehicleBooking;
 
 db.Customer = Customer;
 db.PostExperience = PostExperience;
-db.PaymentCard = PaymentCard;
 db.Payment = Payment;
 
 
