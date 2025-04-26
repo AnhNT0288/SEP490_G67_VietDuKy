@@ -120,8 +120,8 @@ export default function ManagementTour() {
     return true;
   })
   .sort((a, b) => {
-    if (sortOrder === "newest") return b.id - a.id;   // id lớn hơn => mới hơn
-    else return a.id - b.id;                           // id nhỏ hơn => cũ hơn
+    if (sortOrder === "newest") return b.id - a.id;
+    else return a.id - b.id;
   });
 
   const totalPages = Math.ceil(filteredTours.length / toursPerPage);
@@ -273,14 +273,14 @@ export default function ManagementTour() {
           <ModalAddTour
             onClose={toggleAddTourModal}
             onCreateSuccess={(newTour) => {
-              setTours((prev) =>
-                [...prev, newTour].sort((a, b) => b.id - a.id)
-              ); // sort ngay khi thêm mới
+              fetchTours().then(() => {
+                setSelectedProgramTour(newTour);
+                setIsManagementProgramModalOpen(true);
+              });
               setIsAddTourModalOpen(false);
-              setSelectedProgramTour(newTour);
-              setIsManagementProgramModalOpen(true);
               toast.success("Tạo Tour thành công!");
             }}
+            
           />
         )}
 

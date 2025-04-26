@@ -34,7 +34,7 @@ export const BookingService = {
       
     updateBooking: (data, id) => {
         return restClient({
-            url: `booking/${id}`,
+            url: `booking/update/${id}`,
             method: "PUT",
             data,
             headers: {

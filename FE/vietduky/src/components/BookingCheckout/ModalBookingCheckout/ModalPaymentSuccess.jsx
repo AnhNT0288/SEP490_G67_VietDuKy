@@ -11,19 +11,19 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
   useEffect(() => {
     const fetchPaymentInfo = async () => {
       try {
-        const response = await PaymentService.getPaymentByBookingId("42");
-        setPaymentInfo(response.data);
+        const response = await PaymentService.getAllPayment();
+        setPaymentInfo(response.data.data);
       } catch (error) {
         console.error("Error fetching payment info:", error);
       }
     };
 
     fetchPaymentInfo();
-  });
+  }, []);
 
-  console.log("BookingData:", booking);
+  // console.log("BookingData:", booking);
 
-  console.log("Payment Info:", paymentInfo);
+  // console.log("Payment Info:", paymentInfo);
 
   return (
     <Modal
@@ -47,15 +47,15 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
         <div className="text-left text-sm text-gray-700 space-y-2">
           <div>
             <span className="font-medium">Mã hóa đơn:</span>{" "}
-            {/* {paymentInfo.invoiceCode || "250306110713_250306JVPEEC"} */}
+            {/* {paymentInfo.transactionCode || "250306110713_250306JVPEEC"} */}
           </div>
           <div>
             <span className="font-medium">Thời gian thanh toán:</span>{" "}
-            {/* {paymentInfo.paidAt || "06-03-2025, 23:50:16"} */}
+            {/* {paymentInfo.createAt || "06-03-2025, 23:50:16"} */}
           </div>
           <div>
-            <span className="font-medium">Phương thức thanh toán:</span>{" "}
-            {/* {paymentInfo.method || "Quét mã QR"} */}
+            <span className="font-medium">Phương thức thanh toán:</span> Quét mã
+            QR
           </div>
           <div>
             <span className="font-medium">Tên người gửi:</span>{" "}

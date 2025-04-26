@@ -559,7 +559,7 @@ exports.createBooking = async (req, res) => {
 exports.updateBooking = async (req, res) => {
     try {
         const bookingId = req.params.id;
-        const {name, phone, email, address, note, passengers} = req.body;
+        const {name, phone, email, address, total_cost, note, passengers} = req.body;
 
         const booking = await Booking.findByPk(bookingId);
         if (!booking) {
@@ -569,6 +569,7 @@ exports.updateBooking = async (req, res) => {
         if (phone) booking.phone = phone;
         if (email) booking.email = email;
         if (address) booking.address = address;
+        if (total_cost) booking.total_cost = total_cost;
         if (note) booking.note = note;
         if (passengers && passengers.length > 0) {
             const existingPassengers = await Passenger.findAll({

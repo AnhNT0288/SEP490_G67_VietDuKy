@@ -13,14 +13,15 @@ exports.createPassenger = async (req, res) => {
             phone_number,
             passport_number,
             booking_id,
+            single_room,
         } = req.body;
 
         if (
             !name ||
             !birth_date ||
             !gender ||
-            !phone_number ||
-            !passport_number ||
+            // !phone_number ||
+            // !passport_number ||
             !booking_id
         ) {
             return res
@@ -42,6 +43,7 @@ exports.createPassenger = async (req, res) => {
             phone_number,
             passport_number,
             booking_id,
+            single_room,
         });
 
         res.status(201).json({

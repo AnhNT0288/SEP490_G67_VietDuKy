@@ -25,14 +25,14 @@ router.get(
 router.delete(
   "/:id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.deletePassenger
 );
 
 router.put(
   "/:id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.updatePassenger
 );
 
