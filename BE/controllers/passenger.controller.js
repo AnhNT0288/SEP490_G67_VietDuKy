@@ -288,7 +288,12 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 .status(404)
                 .json({message: "Không tìm thấy hướng dẫn viên!"});
         }
-
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id: travel_guide_id, travel_tour_id: travel_tour_id}
+        })
+        if (!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
         // Kiểm tra và lấy danh sách Passenger
         const passengers = await Passenger.findAll({
             where: {id: passenger_ids},
@@ -317,21 +322,31 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 })),
             });
         }
-
+        const anotherGuideTour = await db.GuideTour.findAll({
+            where: {travel_tour_id: travel_tour_id}
+        })
         // Tìm group lớn nhất hiện có của travel_guide_id và tăng lên 1
-        const maxGroup = await Passenger.max("group", {
-            where: {travel_guide_id},
-        });
-        const newGroup = (maxGroup || 0) + 1;
+        if (!guideTour.group) {
+            // Tìm group lớn nhất trong danh sách anotherGuideTour
+            const maxGroup = anotherGuideTour.reduce((max, current) => {
+                return current.group > max ? current.group : max;
+            }, 0);
+            console.log(maxGroup);
+            
+            // Gán group mới bằng maxGroup + 1
+            guideTour.group = maxGroup + 1;
+            guideTour.save();
+        }
 
         // Gộp tất cả hành khách vào một nhóm và gán travel_guide_id
         await Promise.all(
             passengers.map((passenger) => {
                 passenger.travel_guide_id = travel_guide_id;
-                passenger.group = newGroup;
+                passenger.group = guideTour.group;
                 return passenger.save();
             })
         );
+        
 
         res.status(200).json({
             message: "Phân công hành khách cho hướng dẫn viên thành công!",

@@ -491,7 +491,6 @@ exports.createBooking = async (req, res) => {
             voucher_id,
             booking_code
         });
-
         // Xử lý danh sách passenger nếu có
         if (passengersArray && passengersArray.length > 0) {
             // Kiểm tra số lượng passenger có khớp với số lượng người đã đăng ký không
@@ -508,6 +507,9 @@ exports.createBooking = async (req, res) => {
             }
             travelTour.current_people +=
                 number_adult + number_children + number_toddler;
+            if (travelTour.current_people >= travelTour.max_people) {
+                travelTour.active = false;
+            }
             await travelTour.save();
 
             // Tạo danh sách passenger

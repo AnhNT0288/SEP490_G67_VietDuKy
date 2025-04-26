@@ -101,4 +101,10 @@ router.get(
   // checkRoles("admin", "staff"),
   GuideTourController.getGuideTourByTravelTourId
 );
+router.delete(
+  "/delete/:id",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  GuideTourController.deleteGuideTour
+);
 module.exports = router;
