@@ -323,7 +323,7 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
             });
         }
         const anotherGuideTour = await db.GuideTour.findAll({
-            where: {travel_guide_id: travel_guide_id}
+            where: {travel_tour_id: travel_tour_id}
         })
         // Tìm group lớn nhất hiện có của travel_guide_id và tăng lên 1
         if (!guideTour.group) {
