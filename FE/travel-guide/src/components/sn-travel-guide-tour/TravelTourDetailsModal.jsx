@@ -19,9 +19,9 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
     const fetchPassengers = async () => {
       if (!guideId) return;
       try {
-        const res = await getPassengersByGuideId(guideId);
+        const res = await getPassengersByGuideId(guideId, tourSelected?.travel_tour_id);
         if (res?.data) {
-          setPassengerBookings(res.data); // res.data là array như bạn đã gửi
+          setPassengerBookings(res.data);
         }
       } catch (err) {
         console.error("Lỗi khi lấy danh sách hành khách:", err);
@@ -44,8 +44,6 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId  }) => {
     };
     fetchTravelTourDetail();
   }, [tourSelected]);
-
-  // console.log("TravelTourDetail", travelTourDetail);
 
   if (!open) return null;
 

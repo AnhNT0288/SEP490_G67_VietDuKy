@@ -115,9 +115,9 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     const start = new Date(tour.start_day);
     const end = new Date(tour.end_day);
 
-    if (today < start) return "upcoming";       // sắp khởi hành
-    if (today >= start && today <= end) return "ongoing"; // đang diễn ra
-    if (today > end) return "completed";        // đã hoàn thành
+    if (today < start) return "upcoming";
+    if (today >= start && today <= end) return "ongoing";
+    if (today > end) return "completed";
 
     return "unknown";
   };
