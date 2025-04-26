@@ -34,20 +34,6 @@ const BookingConfirmation = ({ bookingData }) => {
     return `${randomLetters}${timestamp}`;
   };
 
-  // const createQrSrc = () => {
-  //   const key = generateAddInfo();
-  //   const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=${
-  //     bookingData?.total_cost
-  //   }&addInfo=start${key}end&accountName=VietDuKy`;
-  //   setPaymentKey(key);
-  //   setQrSrc(src);
-  // };
-
-  // console.log("paymentData:", paymentData);
-  // console.log("qrSrc:", qrSrc);
-
-  // console.log("bookingData:", bookingData);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,7 +42,7 @@ const BookingConfirmation = ({ bookingData }) => {
           bookingData?.id
         );
         if (bookingResponse?.data) {
-          setBooking(bookingResponse.data);
+          setBooking(bookingResponse.data.data);
         }
 
         // Lấy thông tin travel tour
@@ -82,11 +68,13 @@ const BookingConfirmation = ({ bookingData }) => {
     fetchData();
   }, [bookingData]);
 
+  console.log("Booking:", booking);
+  
   const handleOpenModal = () => {
     const key = generateAddInfo();
     setPaymentKey(key);
 
-    const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=10000&addInfo=start${key}end&accountName=VietDuKy`;
+    const src = `https://img.vietqr.io/image/mbbank-6868610102002-compact2.jpg?amount=${booking.total_cost}&addInfo=start${key}end&accountName=VietDuKy`;
     setQrSrc(src);
 
     setIsQRModalOpen(true);
@@ -165,7 +153,7 @@ const BookingConfirmation = ({ bookingData }) => {
 
         <div className="w-full h-[150px] flex gap-6 rounded-md overflow-hidden mb-3">
           <img
-            src={tour?.image || "/placeholder.jpg"}
+            src={tour?.album?.[0] || "/placeholder.jpg"}
             alt={tour?.name_tour}
             className="w-2/5 h-full rounded-xl object-cover"
           />

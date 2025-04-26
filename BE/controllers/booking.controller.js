@@ -559,17 +559,21 @@ exports.createBooking = async (req, res) => {
 exports.updateBooking = async (req, res) => {
     try {
         const bookingId = req.params.id;
-        const {name, phone, email, address, total_cost, note, passengers} = req.body;
+        const {name, phone, email, address, total_cost, note, number_adult, number_children, number_toddler, number_newborn, passengers} = req.body;
 
         const booking = await Booking.findByPk(bookingId);
         if (!booking) {
-            return res.status(200).json({message: "Booking not found!"});
+            return res.status(404).json({message: "Booking not found!"});
         }
         if (name) booking.name = name;
         if (phone) booking.phone = phone;
         if (email) booking.email = email;
         if (address) booking.address = address;
         if (total_cost) booking.total_cost = total_cost;
+        if (number_adult) booking.number_adult = number_adult;
+        if (number_children) booking.number_children = number_children;
+        if (number_toddler) booking.number_toddler = number_toddler;
+        if (number_newborn) booking.number_newborn = number_newborn;
         if (note) booking.note = note;
         if (passengers && passengers.length > 0) {
             const existingPassengers = await Passenger.findAll({
