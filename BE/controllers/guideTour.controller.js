@@ -798,15 +798,15 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         },
       ],
     });
+    // Lấy danh sách booking của tour
+    const bookings = await Booking.findAll({
+      where: { travel_tour_id: travelTourId },
+    });
     if (travel_guide_id) {
       const guideTour = await GuideTour.findOne({
         where: {travel_guide_id, travel_tour_id: travelTourId}
       })
   
-      // Lấy danh sách booking của tour
-      const bookings = await Booking.findAll({
-        where: { travel_tour_id: travelTourId },
-      });
   
       // Lấy danh sách hành khách đã được gán cho từng TravelGuide
       const passengersByGuide = await Passenger.findAll({
@@ -837,7 +837,6 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
     } else {
       passengerCountByGuide = {};
       passengersByGuide = [];
-      bookings = [];
     }
 
     // Format lại dữ liệu trả về
@@ -2040,6 +2039,7 @@ exports.updateTravelGuideGroup = async (req, res) => {
 exports.getAvailableTravelGuidesForTourByLocation = async (req, res) => {
   try {
     const { travel_tour_id } = req.params;
+    const { staff_id } = req.query;
 
     // Kiểm tra TravelTour có tồn tại không
     const travelTour = await TravelTour.findByPk(travel_tour_id, {
@@ -2063,6 +2063,9 @@ exports.getAvailableTravelGuidesForTourByLocation = async (req, res) => {
 
     // Lấy danh sách tất cả TravelGuide thuộc các location của TravelTour
     let allTravelGuides = await TravelGuide.findAll({
+      where: {
+        staff_id: staff_id,
+      },
       include: [
         {
           model: db.TravelGuideLocation,

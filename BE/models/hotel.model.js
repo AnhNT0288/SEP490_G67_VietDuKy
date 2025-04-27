@@ -19,6 +19,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      location_id: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: true,
+      },
     },
     {
       tableName: "hotel",

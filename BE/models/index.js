@@ -88,8 +88,8 @@ const StaffLocation = require("./staffLocation.model.js")(sequelize, Sequelize);
 Booking.hasMany(Payment, {foreignKey: "booking_id"});
 Payment.belongsTo(Booking, {foreignKey: "booking_id"});
 //Payment/Customer
-Customer.hasMany(Payment, {foreignKey: "customer_id"});
-Payment.belongsTo(Customer, {foreignKey: "customer_id"});
+// Customer.hasMany(Payment, {foreignKey: "customer_id"});
+// Payment.belongsTo(Customer, {foreignKey: "customer_id"});
 
 // User/Booking
 User.hasMany(Booking, {foreignKey: "user_id"});
@@ -108,8 +108,12 @@ Booking.hasMany(HotelBooking, {foreignKey: "booking_id"});
 HotelBooking.belongsTo(Booking, {foreignKey: "booking_id"});
 
 //Hotel/HotelBooking
-Hotel.hasMany(HotelBooking, {foreignKey: "hotel_id"});
-HotelBooking.belongsTo(Hotel, {foreignKey: "hotel_id"});
+// Hotel.hasMany(HotelBooking, {foreignKey: "hotel_id"});
+// HotelBooking.belongsTo(Hotel, {foreignKey: "hotel_id"});
+
+//HotelBooking/Hotel
+HotelBooking.hasOne(Hotel, {foreignKey: "hotel_id"});
+Hotel.belongsTo(HotelBooking, {foreignKey: "hotel_id"});
 
 //Booking/VehicleBooking
 Booking.hasMany(VehicleBooking, {foreignKey: "booking_id"});
@@ -127,6 +131,19 @@ Customer.belongsTo(User, {foreignKey: "user_id"});
 //Feedback/User
 User.hasMany(Feedback, {foreignKey: "user_id"});
 Feedback.belongsTo(User, {foreignKey: "user_id", as: "user"});
+
+//Hotel/Location
+// Location.hasMany(Hotel, {foreignKey: "location_id"});
+// Hotel.belongsTo(Location, {foreignKey: "location_id"});
+
+//Location/Hotel
+// Location.hasMany(Hotel, {foreignKey: "location_id"});
+// Hotel.belongsTo(Location, {foreignKey: "location_id"});
+
+
+//Hotel/Location
+Hotel.hasOne(Location, {foreignKey: "location_id"});
+Location.belongsTo(Hotel, {foreignKey: "location_id"});
 
 //Feedback/TravelGuide
 TravelGuide.hasMany(Feedback, {foreignKey: "travel_guide_id"});
