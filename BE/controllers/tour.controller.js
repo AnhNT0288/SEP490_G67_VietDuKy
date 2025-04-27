@@ -89,6 +89,7 @@ exports.getTourById = async (req, res) => {
                 },
                 {
                     model: TourActivities,
+                    as: "tourActivities",
                     attributes: ["id", "day", "title", "description", "detail", "image"],
                     order: [["day", "ASC"]],
                 },

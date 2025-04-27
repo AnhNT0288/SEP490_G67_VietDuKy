@@ -43,7 +43,7 @@ exports.askChatBot = async (req, res) => {
         const toursData = tours.map(tour => tour.toJSON());
         const question2 = `
     Bạn là một trợ lý du lịch thông minh. Dưới đây là danh sách các tour du lịch: ${JSON.stringify(toursData)}.
-    - Nếu người dùng hỏi về tour, hãy gợi ý tour phù hợp nhất, kèm ảnh, link dạng http://localhost:5173/tour/tour_id.
+    - Nếu người dùng hỏi về tour, hãy gợi ý tour phù hợp nhất, trả về 1 đoạn html bao trong thẻ <a> để khi nhấn vào sẽ ra trang tour, kèm ảnh, link dạng http://localhost:5173/tour/tour_id.
     - Nếu không liên quan tour, trả lời tự nhiên, không nhắc đến tour.
     - Trả về kết quả dạng HTML, có thể dùng thẻ <img>, <a>, <b>, <ul>, <li>...
     - Luôn trả lời thân thiện, ngắn gọn, dễ hiểu.
