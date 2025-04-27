@@ -72,4 +72,16 @@ exports.deleteHotel = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
-
+exports.getHotelByLocation = async (req, res) => {
+    try {
+        const { location_id } = req.params;
+        const location = await Location.findByPk(location_id);
+        if (!location) {
+            return res.status(404).json({ message: "Không tìm thấy vị trí" });
+        }
+        const hotel = await Hotel.findAll({ where: { location_id }, include: [{ model: Location, attributes: ['name_location'] }] });
+        res.status(200).json({ message: "Khách sạn đã được lấy thành công", data: hotel });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}

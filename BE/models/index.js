@@ -111,9 +111,9 @@ Booking.belongsTo(User, {foreignKey: "user_id"});
 // RestaurantBooking.hasMany(Restaurant, {foreignKey: "restaurant_id"});
 // Restaurant.belongsTo(RestaurantBooking, {foreignKey: "restaurant_id"});
 
-//Restaurant/Location
-Restaurant.hasOne(Location, {foreignKey: "location_id"});
-Location.belongsTo(Restaurant, {foreignKey: "location_id"});
+//Location/Restaurant
+Location.hasMany(Restaurant, {foreignKey: "location_id"});
+Restaurant.belongsTo(Location, {foreignKey: "location_id"});
 
 //Booking/HotelBooking
 // Booking.hasMany(HotelBooking, {foreignKey: "booking_id"});
@@ -123,9 +123,9 @@ Location.belongsTo(Restaurant, {foreignKey: "location_id"});
 // HotelBooking.hasMany(Booking, {foreignKey: "booking_id"});
 // Booking.belongsTo(HotelBooking, {foreignKey: "booking_id"});
 
-//Hotel/Location
-Hotel.hasOne(Location, {foreignKey: "location_id"});
-Location.belongsTo(Hotel, {foreignKey: "location_id"});
+//Location/Hotel
+Location.hasMany(Hotel, {foreignKey: "location_id"});
+Hotel.belongsTo(Location, {foreignKey: "location_id"});
 
 // //Booking/HotelBooking
 // Booking.hasMany(HotelBooking, {foreignKey: "booking_id"});
