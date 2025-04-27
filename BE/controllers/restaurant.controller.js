@@ -28,7 +28,6 @@ exports.getRestaurant = async (req, res) => {
       include: [
         {
           model: db.Location,
-          as: "location",
           attributes: ["id", "name_location"],
         },
       ],
