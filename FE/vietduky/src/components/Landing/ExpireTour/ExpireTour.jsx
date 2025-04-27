@@ -50,7 +50,7 @@ export default function ExpireTour() {
                 originalPrice={`${Number(
                   item.travelTour?.price_tour
                 ).toLocaleString()} VNĐ`}
-                discountPrice={(item.programDiscount?.price_discount?.toLocaleString()) || "NaN"}
+                discountPrice={(item?.price_discount?.toLocaleString()) || "NaN"}
                 onClick={() => navigate(`/tour/${item.travelTour?.Tour?.id}`, {
                   state: {
                     selectedDate: formatDate(item.travelTour?.start_day),
@@ -59,6 +59,7 @@ export default function ExpireTour() {
                       value: item.programDiscount?.discount_value,
                       percent: item.programDiscount?.percent_discount,
                     },
+                    discountList: discountTours,
                   }
                 })}
               />
