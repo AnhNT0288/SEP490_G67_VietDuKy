@@ -27,7 +27,7 @@ exports.askChatBot = async (req, res) => {
         });
         const tours = await db.Tour.findAll(
         );
-        const question2 = 'Bạn là một trợ lý thông minh tìm các tour du lịch, hãy trả lời câu hỏi của người dùng dựa trên nội dung của danh sách tour du lịch sau: ' + JSON.stringify(tours) + '. Hãy đưa ra gợi ý cho người dùng về tour du lịch phù hợp nhất, đính kèm ảnh và link của tour du lịch theo dạng http://localhost:5173/tour/tour_id. Câu hỏi của người dùng là: ' + question;
+        const question2 = 'Bạn là một trợ lý thông minh tìm các tour du lịch, hãy trả lời câu hỏi của người dùng dựa trên nội dung của danh sách tour du lịch sau: ' + JSON.stringify(tours) + '. Hãy đưa ra gợi ý cho người dùng về tour du lịch phù hợp nhất, đính kèm ảnh và link của tour du lịch theo dạng http://localhost:5173/tour/tour_id. Trả về cho tôi dạng html. Câu hỏi của người dùng là: ' + question;
         // Gửi câu hỏi đến Gemini AI
         const result = await chatSession.sendMessage(question2);
         const text = await result.response.text(); // Lấy text từ response
