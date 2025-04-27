@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "react-quill/dist/quill.snow.css";
 import TextEditor from "@/lib/TextEditor";
 
-export default function ModalAddSharePost({ isOpen, onClose }) {
+export default function ModalAddSharePost({ isOpen, onClose, onAddSuccess }) {
   const [form, setForm] = useState({
     user_id: JSON.parse(localStorage.getItem("user"))?.id || "",
     title_post: "",
@@ -36,22 +36,28 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
       formData.append("name_post", form.name_post);
       formData.append("description_post", form.description_post);
       formData.append("post_date", form.post_date);
-
-      // Append each selected file to formData
+  
       selectedFiles.forEach((file) => {
         formData.append("postEx_album", file);
       });
-
-      await PostExperienceService.createPostExperience(formData);
+  
+      const response = await PostExperienceService.createPostExperience(formData);
+      const newPost = response.data.data; // 🔥 lấy bài viết mới được tạo
+  
       toast.success("Bài viết đã được thêm, vui lòng chờ duyệt!");
+  
+      if (onAddSuccess) {
+        onAddSuccess(newPost); // 🔥 gọi callback để cập nhật bên ngoài
+      }
     } catch (error) {
       toast.error("Lỗi khi thêm bài viết!");
       console.error("Lỗi khi đăng bài viết:", error);
     } finally {
       resetForm();
-      onClose(); 
+      onClose();
     }
   };
+  
 
   const resetForm = () => {
     setForm({

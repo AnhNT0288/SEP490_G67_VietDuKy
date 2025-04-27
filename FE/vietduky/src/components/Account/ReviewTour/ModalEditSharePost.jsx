@@ -4,10 +4,10 @@ import { toast } from "react-toastify";
 import "react-quill/dist/quill.snow.css";
 import TextEditor from "@/lib/TextEditor";
 
-export default function ModalEditSharePost({ isOpen, onClose, post }) {
+export default function ModalEditSharePost({ isOpen, onClose, post, onUpdateSuccess }) {
   const [form, setForm] = useState({
     title_post: "",
-    slug: "",
+    name_post: "",
     description_post: "",
     post_date: new Date().toISOString(),
   });
@@ -19,12 +19,25 @@ export default function ModalEditSharePost({ isOpen, onClose, post }) {
     if (isOpen && post) {
       setForm({
         title_post: post.title_post,
-        slug: post.slug,
+        name_post: post.name_post,
         description_post: post.description_post,
         post_date: post.post_date,
       });
-      setPreviewImages([]); // Reset preview images if needed
-      setSelectedFiles([]); // Reset selected files if needed
+
+      // Nếu có album ảnh trong post
+      if (post.postEx_album) {
+        try {
+          const parsedAlbum = JSON.parse(post.postEx_album);
+          setPreviewImages(parsedAlbum || []);
+        } catch (error) {
+          console.error("Error parsing album:", error);
+          setPreviewImages([]);
+        }
+      } else {
+        setPreviewImages([]);
+      }
+
+      setSelectedFiles([]);
     }
   }, [isOpen, post]);
 
@@ -44,25 +57,37 @@ export default function ModalEditSharePost({ isOpen, onClose, post }) {
     try {
       const formData = new FormData();
       formData.append("title_post", form.title_post);
-      formData.append("slug", form.slug);
+      formData.append("name_post", form.name_post);
       formData.append("description_post", form.description_post);
       formData.append("post_date", form.post_date);
-
-      // Append each selected file to formData
-      selectedFiles.forEach((file) => {
-        formData.append("postEx_album", file);
+  
+      previewImages.forEach((url) => {
+        formData.append("old_album[]", url);
       });
-
-      await PostExperienceService.updatePostExperience(post.id, formData);
+      selectedFiles.forEach((file) => {
+        formData.append("new_album", file);
+      });
+  
+      const res = await PostExperienceService.updatePostExperience(post.id, formData);
+  
+      // gọi callback sau khi update thành công
+      if (onUpdateSuccess) {
+        onUpdateSuccess(res.data.data); // hoặc res.data nếu API trả đúng updated post
+      }
+  
       toast.success("Bài viết đã được cập nhật thành công!");
     } catch (error) {
       toast.error("Lỗi khi cập nhật bài viết!");
       console.error("Lỗi khi cập nhật bài viết:", error);
     } finally {
-      onClose();
       setPreviewImages([]);
       setSelectedFiles([]);
     }
+  };
+  
+
+  const handleRemoveImage = (index) => {
+    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   if (!isOpen) return null;
@@ -88,8 +113,8 @@ export default function ModalEditSharePost({ isOpen, onClose, post }) {
               <label className="text-sm font-medium">* Tên bài viết</label>
               <input
                 type="text"
-                name="title_post"
-                value={form.title_post}
+                name="name_post"
+                value={form.name_post}
                 onChange={handleChange}
                 className="w-full mt-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
                 placeholder="Nhập tên bài viết"
@@ -97,34 +122,45 @@ export default function ModalEditSharePost({ isOpen, onClose, post }) {
             </div>
 
             <div>
-              <label className="text-sm font-medium">* Đường dẫn</label>
+              <label className="text-sm font-medium">* Tiêu đề bài viết</label>
               <input
                 type="text"
-                name="slug"
-                value={form.slug}
+                name="title_post"
+                value={form.title_post}
                 onChange={handleChange}
                 className="w-full mt-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
-                placeholder="Đường dẫn"
+                placeholder="Nhập tiêu đề bài viết"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1">Tập tin đính kèm</label>
+              <label className="text-sm font-medium mb-1">
+                Tập tin đính kèm
+              </label>
               <div
                 className="w-full h-40 border-2 border-dashed rounded flex items-center justify-center text-gray-400 hover:border-red-600 hover:text-red-600 cursor-pointer transition"
-                onClick={() => document.getElementById("hiddenFileInput").click()}
+                onClick={() =>
+                  document.getElementById("hiddenFileInput").click()
+                }
               >
                 {previewImages.length === 0 ? (
                   <span>Click để chọn ảnh</span>
                 ) : (
                   <div className="flex overflow-x-auto space-x-2 p-2">
                     {previewImages.map((url, index) => (
-                      <img
-                        key={index}
-                        src={url}
-                        alt={`Preview ${index}`}
-                        className="w-24 h-24 object-cover border rounded shadow"
-                      />
+                      <div key={index} className="relative">
+                        <img
+                          src={url}
+                          alt={`Preview ${index}`}
+                          className="w-24 h-24 object-cover border rounded shadow"
+                        />
+                        <button
+                          onClick={() => handleRemoveImage(index)}
+                          className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                        >
+                          ×
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -146,7 +182,9 @@ export default function ModalEditSharePost({ isOpen, onClose, post }) {
             <div className="flex-1 flex flex-col overflow-hidden">
               <TextEditor
                 value={form.description_post}
-                onChange={(value) => setForm((prev) => ({ ...prev, description_post: value }))}
+                onChange={(value) =>
+                  setForm((prev) => ({ ...prev, description_post: value }))
+                }
               />
             </div>
           </div>

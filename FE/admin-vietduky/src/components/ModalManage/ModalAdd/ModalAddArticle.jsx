@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 export default function ModalAddArticle({ onClose, onCreated }) {
   const [previewImage, setPreviewImage] = useState(null);
   const [form, setForm] = useState({
-    // alias: "",
+    article_name: "",   // <-- Thêm field mới
     article_title: "",
     directory_id: "",
     album_post: "",
@@ -18,26 +18,6 @@ export default function ModalAddArticle({ onClose, onCreated }) {
     true_active: false,
   });
   const [directories, setDirectories] = useState([]);
-  function generateSlug(str) {
-    return str
-      .toLowerCase()
-      .replace(/đ/g, "d")
-      .replace(/ă|ắ|ằ|ẵ|ẳ|ặ/g, "a")
-      .replace(/â|ấ|ầ|ẫ|ẩ|ậ/g, "a")
-      .replace(/á|à|ả|ã|ạ/g, "a")
-      .replace(/ê|ế|ề|ễ|ể|ệ/g, "e")
-      .replace(/é|è|ẻ|ẽ|ẹ/g, "e")
-      .replace(/ô|ố|ồ|ỗ|ổ|ộ/g, "o")
-      .replace(/ơ|ớ|ờ|ỡ|ở|ợ/g, "o")
-      .replace(/ó|ò|ỏ|õ|ọ/g, "o")
-      .replace(/ư|ứ|ừ|ữ|ử|ự/g, "u")
-      .replace(/ú|ù|ủ|ũ|ụ/g, "u")
-      .replace(/í|ì|ỉ|ĩ|ị/g, "i")
-      .replace(/ý|ỳ|ỷ|ỹ|ỵ/g, "y")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim()
-      .replace(/\s+/g, "-");
-  }
 
   useEffect(() => {
     const fetchDirectories = async () => {
@@ -48,24 +28,15 @@ export default function ModalAddArticle({ onClose, onCreated }) {
         console.error("❌ Lỗi khi lấy danh mục:", err);
       }
     };
-
     fetchDirectories();
   }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => {
-      const updated = {
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      };
-
-      if (name === "alias") {
-        updated.slug = generateSlug(value);
-      }
-
-      return updated;
-    });
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleEditorChange = (value) => {
@@ -88,14 +59,13 @@ export default function ModalAddArticle({ onClose, onCreated }) {
     e.preventDefault();
 
     const formData = new FormData();
-    // formData.append("alias", form.alias);
-    // formData.append("slug", form.slug);
+    formData.append("article_name", form.article_name);   // <-- Thêm khi gửi
     formData.append("article_title", form.article_title);
     formData.append("description", form.description);
     formData.append("directory_id", form.directory_id);
+
     const storedUser = localStorage.getItem("user");
     const userId = storedUser ? JSON.parse(storedUser).id : null;
-
     if (!userId) {
       toast.error("Không tìm thấy user_id trong localStorage");
       return;
@@ -123,6 +93,9 @@ export default function ModalAddArticle({ onClose, onCreated }) {
     }
   };
 
+  console.log("form", form);
+  
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50"
@@ -144,8 +117,8 @@ export default function ModalAddArticle({ onClose, onCreated }) {
               </label>
               <input
                 type="text"
-                name="article_title"
-                value={form.article_title}
+                name="article_name"
+                value={form.article_name}
                 onChange={handleChange}
                 className="w-full border p-2 rounded mb-4"
                 placeholder="Nhập tên bài viết"
@@ -153,15 +126,15 @@ export default function ModalAddArticle({ onClose, onCreated }) {
               />
 
               <label className="block font-medium mb-2">
-                <span className="text-red-500">*</span> Đường dẫn{" "}
+                <span className="text-red-500">*</span> Tiêu đề bài viết
               </label>
               <input
                 type="text"
-                name="slug"
-                value={form.slug}
+                name="article_title"
+                value={form.article_title}
                 onChange={handleChange}
                 className="w-full border p-2 rounded mb-4"
-                placeholder="duong-dan"
+                placeholder="Nhập tiêu đề bài viết"
                 required
               />
 
@@ -183,7 +156,7 @@ export default function ModalAddArticle({ onClose, onCreated }) {
                 ))}
               </select>
 
-              <label className="block font-medium mb-2">Ảnh bìa (URL)</label>
+              <label className="block font-medium mb-2">Ảnh bìa</label>
               <div
                 className="w-full h-36 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center text-center bg-gray-50 text-gray-600 cursor-pointer hover:bg-gray-100 transition"
                 onClick={() => document.getElementById("fileInput")?.click()}
@@ -269,7 +242,7 @@ export default function ModalAddArticle({ onClose, onCreated }) {
             </div>
 
             {/* Right Column */}
-            <div className="w-3/5 ">
+            <div className="w-3/5">
               <label className="block font-medium mb-2">Mô tả chi tiết</label>
               <TextEditor
                 className="min-h-[300px]"

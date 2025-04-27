@@ -40,3 +40,23 @@ export function deleteArticle(id) {
         },
     }).then((res) => res.data);
 }
+export function updateArticle(id, data) {
+    return restClient({
+        url: `article/update/${id}`,
+        method: "PUT",
+        data,
+        headers: {
+            "Content-Type": "multipart/form-data",
+            ...getAuthHeaders(),
+        },
+    }).then((res) => res.data);
+}
+export function getArticleById(id) {
+    return restClient({
+        url: `article/detail/${id}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    }).then((res) => res.data);
+}

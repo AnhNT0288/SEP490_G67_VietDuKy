@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { FaThumbsUp } from "react-icons/fa";
 import { FaStar } from "react-icons/fa6";
 import { FiEdit2, FiExternalLink } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const statusMap = {
   pending: { text: "Đang chờ duyệt bài", color: "text-blue-500" },
@@ -16,11 +17,13 @@ const statusMap = {
 };
 
 export default function ReviewTour() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("review");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [sharedPosts, setSharedPosts] = useState([]);
+  const [postSelected, setPostSelected] = useState(null);
   const user = JSON.parse(localStorage.getItem("user")) || null;
 
   useEffect(() => {
@@ -94,6 +97,10 @@ export default function ReviewTour() {
       <ModalAddSharePost
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
+        onAddSuccess={(newPost) => {
+          setSharedPosts((prev) => [newPost, ...prev]);
+          setShowAddModal(false); // sau khi thêm xong thì tự động đóng modal
+        }}
       />
 
       {/* Tabs */}
@@ -246,7 +253,7 @@ export default function ReviewTour() {
 
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-red-600 mb-2">
-                    {post.title_post}
+                    {post.name_post}
                   </h3>
 
                   <div className="text-sm text-gray-600 flex flex-wrap gap-4 mb-1">
@@ -267,26 +274,41 @@ export default function ReviewTour() {
 
                 {/* Icons */}
                 <div className="flex items-center justify-center gap-3 pr-2 text-gray-500">
-                  <button onClick={() => setShowEditModal(true)}>
-                    <FiEdit2
-                      className="cursor-pointer hover:text-blue-500"
-                      title="Sửa bài viết"
-                    />
+                  <button
+                    onClick={() => {
+                      setPostSelected(post); // chọn đúng bài viết
+                      setShowEditModal(true); // mở modal
+                    }}
+                  >
+                    <FiEdit2 title="Sửa bài viết" />
                   </button>
-                  <ModalEditSharePost
-                    isOpen={showEditModal}
-                    post={post}
-                    onClose={() => setShowEditModal(false)}
-                  />
                   <FiExternalLink
                     className="cursor-pointer hover:text-blue-500"
                     title="Xem bài viết"
+                    onClick={() =>
+                      navigate(`/article/post-experience/${post.id}`)
+                    }
                   />
                 </div>
               </div>
             </div>
           );
         })}
+      <ModalEditSharePost
+        isOpen={showEditModal}
+        post={postSelected}
+        onClose={() => {
+          setShowEditModal(false);
+          setPostSelected(null);
+        }}
+        onUpdateSuccess={(updatedPost) => {
+          setSharedPosts((prev) =>
+            prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+          );
+          setShowEditModal(false);
+          setPostSelected(null);
+        }}
+      />
     </div>
   );
 }
