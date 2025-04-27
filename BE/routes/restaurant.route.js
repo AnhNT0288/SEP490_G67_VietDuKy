@@ -12,5 +12,6 @@ router.get("/", restaurantController.getRestaurant);
 router.get("/:id", restaurantController.getRestaurantById);
 router.put("/:id", restaurantController.updateRestaurant);
 router.delete("/:id", restaurantController.deleteRestaurant);
+router.get("/location/:location_id", restaurantController.getRestaurantByLocation);
 
 module.exports = router;
