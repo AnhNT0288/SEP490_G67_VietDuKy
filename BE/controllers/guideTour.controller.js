@@ -798,41 +798,47 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         },
       ],
     });
-    const guideTour = await GuideTour.findOne({
-      where: {travel_guide_id, travel_tour_id: travelTourId}
-    })
-
-    // Lấy danh sách booking của tour
-    const bookings = await Booking.findAll({
-      where: { travel_tour_id: travelTourId },
-    });
-
-    // Lấy danh sách hành khách đã được gán cho từng TravelGuide
-    const passengersByGuide = await Passenger.findAll({
-      where: {
-        booking_id: {
-          [Op.in]: bookings.map((booking) => booking.id),
+    if (travel_guide_id) {
+      const guideTour = await GuideTour.findOne({
+        where: {travel_guide_id, travel_tour_id: travelTourId}
+      })
+  
+      // Lấy danh sách booking của tour
+      const bookings = await Booking.findAll({
+        where: { travel_tour_id: travelTourId },
+      });
+  
+      // Lấy danh sách hành khách đã được gán cho từng TravelGuide
+      const passengersByGuide = await Passenger.findAll({
+        where: {
+          booking_id: {
+            [Op.in]: bookings.map((booking) => booking.id),
+          },
+          group: guideTour.group,
         },
-        group: guideTour.group,
-      },
-      include: [
-        {
-          model: Booking,
-          as: "booking",
-          attributes: ["id"],
-        },
-      ],
-    });
-
-    // Nhóm hành khách theo TravelGuide
-    const passengerCountByGuide = passengersByGuide.reduce((acc, passenger) => {
-      const guideId = passenger.travel_guide_id;
-      if (!acc[guideId]) {
-        acc[guideId] = 0;
-      }
-      acc[guideId]++;
-      return acc;
-    }, {});
+        include: [
+          {
+            model: Booking,
+            as: "booking",
+            attributes: ["id"],
+          },
+        ],
+      });
+  
+      // Nhóm hành khách theo TravelGuide
+      const passengerCountByGuide = passengersByGuide.reduce((acc, passenger) => {
+        const guideId = passenger.travel_guide_id;
+        if (!acc[guideId]) {
+          acc[guideId] = 0;
+        }
+        acc[guideId]++;
+        return acc;
+      }, {});
+    } else {
+      passengerCountByGuide = {};
+      passengersByGuide = [];
+      bookings = [];
+    }
 
     // Format lại dữ liệu trả về
     const formattedTravelTour = {
