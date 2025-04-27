@@ -25,9 +25,30 @@ exports.askChatBot = async (req, res) => {
             generationConfig,
             history: [],
         });
-        const tours = await db.Tour.findAll(
-        );
-        const question2 = 'Bạn là một trợ lý thông minh tìm các tour du lịch, hãy trả lời câu hỏi của người dùng dựa trên nội dung của danh sách tour du lịch sau: ' + JSON.stringify(tours) + '. Hãy đưa ra gợi ý cho người dùng về tour du lịch phù hợp nhất, đính kèm ảnh và link của tour du lịch theo dạng http://localhost:5173/tour/tour_id. Trả về cho tôi dạng html. Câu hỏi của người dùng là: ' + question;
+        const tours = await db.Tour.findAll({
+            include: [
+                {
+                    model: db.TourActivities,
+                    as: "tourActivities",
+                    attributes: ["id", "title", "description", "detail", "image"],
+                },
+                {
+                    model: db.Location,
+                    as: "startLocation",
+                    attributes: ["id", "name_location"],
+                },
+            ],
+            attributes: ['id', 'name_tour', 'activity_description', 'album']
+        });
+        const toursData = tours.map(tour => tour.toJSON());
+        const question2 = `
+    Bạn là một trợ lý du lịch thông minh. Dưới đây là danh sách các tour du lịch: ${JSON.stringify(toursData)}.
+    - Nếu người dùng hỏi về tour, hãy gợi ý tour phù hợp nhất, kèm ảnh, link dạng http://localhost:5173/tour/tour_id.
+    - Nếu không liên quan tour, trả lời tự nhiên, không nhắc đến tour.
+    - Trả về kết quả dạng HTML, có thể dùng thẻ <img>, <a>, <b>, <ul>, <li>...
+    - Luôn trả lời thân thiện, ngắn gọn, dễ hiểu.
+    Câu hỏi của người dùng: ${question}
+  `;
         // Gửi câu hỏi đến Gemini AI
         const result = await chatSession.sendMessage(question2);
         const text = await result.response.text(); // Lấy text từ response
@@ -37,6 +58,7 @@ exports.askChatBot = async (req, res) => {
         res.json({
             message: "OK",
             data: text,
+            toursData: toursData,
         });
     } catch (error) {
         res.status(500).json({

@@ -20,7 +20,7 @@ module.exports = (sequelize, Sequelize) => {
                 allowNull: false,
             },
             location_id: {
-                type: Sequelize.INTEGER.UNSIGNED,
+                type: Sequelize.INTEGER,
                 allowNull: false,
             },
         },
