@@ -9,15 +9,15 @@ module.exports = (sequelize, Sequelize) => {
       },
       name_hotel: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       address_hotel: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       phone_number: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
     },
     {
