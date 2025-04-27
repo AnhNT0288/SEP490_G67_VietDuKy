@@ -8,7 +8,7 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
   const [form, setForm] = useState({
     user_id: JSON.parse(localStorage.getItem("user"))?.id || "",
     title_post: "",
-    slug: "",
+    name_post: "",
     description_post: "",
     post_date: new Date().toISOString(),
   });
@@ -33,7 +33,7 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
       const formData = new FormData();
       formData.append("user_id", form.user_id);
       formData.append("title_post", form.title_post);
-      formData.append("slug", form.slug);
+      formData.append("name_post", form.name_post);
       formData.append("description_post", form.description_post);
       formData.append("post_date", form.post_date);
 
@@ -57,7 +57,7 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
     setForm({
       user_id: JSON.parse(localStorage.getItem("user"))?.id || "",
       title_post: "",
-      slug: "",
+      name_post: "",
       description_post: "",
       post_date: new Date().toISOString(),
     });
@@ -96,8 +96,8 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
               <label className="text-sm font-medium">* Tên bài viết</label>
               <input
                 type="text"
-                name="title_post"
-                value={form.title_post}
+                name="name_post"
+                value={form.name_post}
                 onChange={handleChange}
                 className="w-full mt-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
                 placeholder="Nhập tên bài viết"
@@ -105,14 +105,14 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
             </div>
 
             <div>
-              <label className="text-sm font-medium">* Đường dẫn</label>
+              <label className="text-sm font-medium">* Tiêu đề bài viết</label>
               <input
                 type="text"
-                name="slug"
-                value={form.slug}
+                name="title_post"
+                value={form.title_post}
                 onChange={handleChange}
                 className="w-full mt-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
-                placeholder="Đường dẫn"
+                placeholder="Nhập tiêu đề bài viết"
               />
             </div>
 

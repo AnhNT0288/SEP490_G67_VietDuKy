@@ -15,12 +15,6 @@ module.exports = (sequelize, Sequelize) => {
       email: {
         type: Sequelize.STRING,
         allowNull: true,
-        indexes: [
-          {
-            unique: true,
-            fields: ["email"], // Đảm bảo không tạo index trùng lặp
-          },
-        ],
         validate: {
           isEmail: true,
         },
@@ -31,27 +25,15 @@ module.exports = (sequelize, Sequelize) => {
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: true, // Google user không cần mật khẩu
+        allowNull: true,
       },
       googleId: {
         type: Sequelize.STRING,
-        allowNull: true, // Chỉ dùng cho Google login
-        indexes: [
-          {
-            unique: true,
-            fields: ["googleId"], // Đảm bảo không tạo nhiều index trùng lặp
-          },
-        ],
+        allowNull: true,
       },
       facebookId: {
         type: Sequelize.STRING,
-        allowNull: true, // Chỉ dùng cho Facebook login
-        indexes: [
-          {
-            unique: true,
-            fields: ["facebookId"], // Đảm bảo không tạo nhiều index trùng lặp
-          },
-        ],
+        allowNull: true,
       },
       avatar: {
         type: Sequelize.TEXT,
@@ -74,6 +56,20 @@ module.exports = (sequelize, Sequelize) => {
     {
       tableName: "user",
       timestamps: false,
+      indexes: [
+        {
+          unique: true,
+          fields: ["email"],
+        },
+        {
+          unique: true,
+          fields: ["googleId"],
+        },
+        {
+          unique: true,
+          fields: ["facebookId"],
+        },
+      ],
     }
   );
 };

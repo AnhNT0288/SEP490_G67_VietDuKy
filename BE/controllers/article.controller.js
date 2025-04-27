@@ -148,7 +148,7 @@ const removeVietnameseTones = (str) => {
 //Thêm một bài viết mới
 exports.createArticle = async (req, res) => {
   try {
-    const { directory_id, user_id, article_title, description } = req.body;
+    const { directory_id, user_id, article_name, article_title, description } = req.body;
 
     const album_post =
       req.files && req.files.length > 0
@@ -167,6 +167,7 @@ exports.createArticle = async (req, res) => {
     const data = {
       directory_id,
       user_id,
+      article_name,
       article_title,
       alias,
       album_post,
@@ -194,6 +195,7 @@ exports.updateArticle = async (req, res) => {
     const {
       directory_id,
       user_id,
+      article_name,
       article_title,
       description,
       true_featured,
@@ -215,6 +217,7 @@ exports.updateArticle = async (req, res) => {
 
     if (directory_id !== undefined) article.directory_id = directory_id;
     if (user_id !== undefined) article.user_id = user_id;
+    if (article_name !== undefined) article.article_name = article_name;
     if (album_post !== null) article.album_post = album_post;
     if (description !== undefined) article.description = description;
     if (true_featured !== undefined) article.true_featured = true_featured;

@@ -2,9 +2,10 @@ import SidebarArticle from "@/components/Article/SidebarArticle/SidebarArticle";
 import LayoutArticle from "@/layouts/LayoutArticle";
 import { PostExperienceService } from "@/services/API/post_experience.service";
 import React, { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const PostExperiencePage = () => {
+  const navigate = useNavigate();
   const [postExperiences, setPostExperiences] = useState([]);
 
   useEffect(() => {
@@ -47,8 +48,9 @@ const PostExperiencePage = () => {
                     ? JSON.parse(article.postEx_album)[0]
                     : "/images/article-1.jpg"
                 }
+                onClick={() => navigate(`/article/post-experience/${article.id}`)}
                 alt="Article"
-                className="w-full rounded object-cover"
+                className="w-full h-64 rounded object-cover cursor-pointer"
               />
               <h3 className="font-semibold text-base">
                 <NavLink

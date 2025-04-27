@@ -34,7 +34,7 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: 1,
       },
       description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       views: {
@@ -49,6 +49,10 @@ module.exports = (sequelize, Sequelize) => {
       article_title: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      article_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
     },
     {
