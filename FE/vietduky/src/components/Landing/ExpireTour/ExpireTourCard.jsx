@@ -11,9 +11,15 @@ const ExpireTourCard = ({
   end_day,
   originalPrice,
   discountPrice,
-  onClick
+  onClick,
 }) => {
-  const [timeLeft, setTimeLeft] = useState(3600); // 1 giờ = 3600 giây
+  const calculateInitialTimeLeft = () => {
+    const startTime = new Date(start_day).getTime();
+    const now = new Date().getTime();
+    return Math.max(Math.floor((startTime - now) / 1000), 0);
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateInitialTimeLeft());
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -48,7 +54,10 @@ const ExpireTourCard = ({
       {/* Hình ảnh + Thời gian */}
       <div className="relative h-60 rounded-2xl overflow-hidden">
         <img
-          src={ image || "https://pos.nvncdn.com/d75ecc-146199/art/artCT/20230807_oG6YHK3q.jpeg"}
+          src={
+            image ||
+            "https://pos.nvncdn.com/d75ecc-146199/art/artCT/20230807_oG6YHK3q.jpeg"
+          }
           alt="Tour"
           className="w-full h-full object-cover rounded-2xl"
         />

@@ -14,6 +14,7 @@ const TourBooking = ({
   travelTour,
   roomCost,
   assistance,
+  discountInfo,
 }) => {
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
@@ -34,7 +35,8 @@ const TourBooking = ({
     }
     if (passenger.type === "adult") {
       if (!validatePhoneNumber(passenger.phone_number)) {
-        errors.phone = "Số điện thoại không hợp lệ (chỉ kiểm tra với người lớn)";
+        errors.phone =
+          "Số điện thoại không hợp lệ (chỉ kiểm tra với người lớn)";
       }
     }
     if (!passenger.gender) {
@@ -117,7 +119,7 @@ const TourBooking = ({
       toast.error("Danh sách hành khách không hợp lệ!");
       return;
     }
-  
+
     if (!assistance && !isAllPassengerValid(formData.passengers)) {
       toast.error("Vui lòng kiểm tra lại thông tin hành khách!");
       return;
@@ -139,11 +141,13 @@ const TourBooking = ({
     }
   };
 
+  const adultPrice =
+    discountInfo?.priceDiscount || travelTourData?.price_tour || 0;
   const totalPrice =
-    formData?.number_adult * travelTourData?.price_tour +
-      formData?.number_children * travelTourData?.children_price +
-      formData?.number_toddler * travelTourData?.toddler_price +
-      roomCost || 0;
+    formData?.number_adult * adultPrice +
+    formData?.number_children * (travelTourData?.children_price || 0) +
+    formData?.number_toddler * (travelTourData?.toddler_price || 0) +
+    (roomCost || 0);
 
   // console.log("Tổng tiền:", totalPrice);
 
@@ -280,10 +284,14 @@ const TourBooking = ({
                   <span>Người lớn</span>
                   <span>
                     {formData.number_adult} x{" "}
-                    {travelTourData?.price_tour?.toLocaleString("vi-VN", {
+                    {(
+                      discountInfo?.priceDiscount ||
+                      travelTourData?.price_tour ||
+                      0
+                    ).toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
-                    }) || "0 ₫"}
+                    })}
                   </span>
                 </div>
               )}

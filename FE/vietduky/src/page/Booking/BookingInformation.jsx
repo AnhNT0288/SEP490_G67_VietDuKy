@@ -12,9 +12,10 @@ export default function BookingTour() {
   const user = StorageService.getUser();
   const [assistance, setAssistance] = useState(false);
   const [travelTourData, setTravelTourData] = useState([]);
-  const { selectedTours, id } = location.state || {
+  const { selectedTours, id, discountInfo } = location.state || {
     selectedTours: [],
     id: null,
+    discountInfo: null,
   };
   const [passengers, setPassengers] = useState({
     adult: 1,
@@ -68,14 +69,26 @@ export default function BookingTour() {
   useEffect(() => {
     const fetchTravelTour = async () => {
       try {
-        setTravelTourData(selectedTours);
+        if (selectedTours.length > 0) {
+          // Nếu có discountInfo thì cập nhật giá tour luôn
+          let updatedTours = selectedTours.map((tour) => {
+            if (discountInfo) {
+              return {
+                ...tour,
+                price_tour: discountInfo.priceDiscount, // Gán giá discount vào price_tour
+              };
+            }
+            return tour;
+          });
+          setTravelTourData(updatedTours);
+        }
       } catch (error) {
         console.error("Error fetching travel tour:", error);
       }
     };
-
+  
     fetchTravelTour();
-  }, []);
+  }, [selectedTours, discountInfo]);
 
   return (
     <LayoutBookingTour title="Đặt tour">
@@ -107,6 +120,7 @@ export default function BookingTour() {
             travelTour={selectedTours}
             roomCost={roomCost}
             assistance={assistance}
+            discountInfo={discountInfo} 
           />
         </div>
       </div>

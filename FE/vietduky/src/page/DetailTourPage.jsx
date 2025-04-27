@@ -17,6 +17,7 @@ import { useLocation, useParams } from "react-router-dom";
 export default function DetailTourPage() {
   const { id } = useParams();
   const location = useLocation();
+  const discountList = location.state?.discountList || [];
   const initialSelectedDate = location.state?.selectedDate;
   const [tours, setTours] = useState([]);
 
@@ -69,7 +70,7 @@ export default function DetailTourPage() {
 
           {/* Bảng giá và Lịch trình */}
           <div className="col-span-4">
-            <Calendar id={id} initialSelectedDate={initialSelectedDate} />
+            <Calendar id={id} initialSelectedDate={initialSelectedDate} discountList={discountList} />
           </div>
         </div>
 
