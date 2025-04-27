@@ -35,12 +35,13 @@ export default function ModalListGuidesAndPassengersIsAssigned({ travelTourId, o
                     {loading ? (
                         <p className="text-center">Đang tải dữ liệu...</p>
                     ) : groups.length === 0 ? (
-                        <p className="text-center text-gray-500">Đôi khi không có nhóm nào cả.</p>
+                        <p className="text-center text-gray-500">Không có nhóm nào cả.</p>
                     ) : (
                         groups.map((group, index) => (
+
                             <div key={index} className="mb-8">
                                 <h3 className="text-lg font-semibold mb-2">
-                                    {group.group === "ungrouped" ? "Chưa phân nhóm" : `Nhóm ${group.group}`}
+                                    {group.group === "ungrouped" ? "" : `Nhóm ${group.group}`}
                                 </h3>
 
                                 {group.guides.length > 0 ? (
@@ -101,8 +102,12 @@ export default function ModalListGuidesAndPassengersIsAssigned({ travelTourId, o
                                                                 {group.passengers.map((p) => (
                                                                     <tr key={p.id} className="border-t">
                                                                         <td className="p-2">{p.name || "-"}</td>
-                                                                        <td className="p-2">{p.birth_date ? format(new Date(p.birth_date), "dd/MM/yyyy") : "-"}</td>
-                                                                        <td className="p-2">{p.gender ? "Nam" : "Nữ"}</td>
+                                                                        <td className="p-2">
+                                                                            {p.birth_date && !isNaN(new Date(p.birth_date))
+                                                                                ? format(new Date(p.birth_date), "dd/MM/yyyy")
+                                                                                : "-"
+                                                                            }
+                                                                        </td>                                                                        <td className="p-2">{p.gender ? "Nam" : "Nữ"}</td>
                                                                         <td className="p-2">{p.phone_number || "-"}</td>
                                                                     </tr>
                                                                 ))}
@@ -117,7 +122,7 @@ export default function ModalListGuidesAndPassengersIsAssigned({ travelTourId, o
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-gray-500">Không có hướng dẫn viên.</p>
+                                    <p className="text-gray-500"></p>
                                 )}
                             </div>
                         ))

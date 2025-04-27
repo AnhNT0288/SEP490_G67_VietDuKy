@@ -26,7 +26,7 @@ import SidebarStaff from "./components/Sidebar/SidebarStaff.jsx";
 import RoleBasedRoute from "./components/RoleBasedRoute.jsx";
 import PageAssignedGuides from "./components/Staff/PageAssignedGuides.jsx";
 import StaffTourGuideManagement from "./components/Staff/Management/StaffTourGuideManagement.jsx";
-import AssignedTravelToursManagement from "./components/Staff/Management/AssignedTravelToursManagement.jsx";
+import IsBookingTravelToursManagement from "./components/Staff/Management/IsBookingTravelToursManagement.jsx";
 import LoginPage from "./page/Authentication/LoginPage.jsx";
 import ForgotPasswordFlow from "./page/Authentication/ForgotPasswordFlow.jsx";
 import ManagementLastMinuteDeals from "./page/Management/ManagementLastMinuteDeals.jsx";
@@ -63,7 +63,7 @@ function App() {
           <Route path="/managementSaleProgram" element={<ManagementSaleProgram />}/>
           <Route path="/staff/:id/assigned-guides" element={<PageAssignedGuides />}/>
           <Route path="/managementStaffTourGuide" element={<StaffTourGuideManagement />}/>
-          <Route path="/managementTourForStaff" element={<AssignedTravelToursManagement />}/>
+          <Route path="/managementTourForStaff" element={<IsBookingTravelToursManagement />}/>
           <Route path="/managementLastMinuteDeals" element={<ManagementLastMinuteDeals />}/>
         </Route>
 

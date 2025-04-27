@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { format, isAfter, isBefore, isSameDay } from "date-fns";
-import DropdownAssignTravelGuide from "../Dropdown/DropdownAssigntravelGuide.jsx";
+import DropdownTourIsBooking from "../Dropdown/DropdownTourIsBooking.jsx";
 import { getTravelToursByStaffAndEndLocation } from "../../../services/API/travel_tour.service.js";
 import {getAssignedLocationsByStaffId} from "../../../services/API/staff.service.js";
 import ModalAssignTravelGuide from "../Modal/ModalAssignTravelGuide.jsx";
 import ModalListGuidesAndPassengersIsAssigned from "../Modal/ModalListGuidesAndPassengersIsAssigned.jsx";
 
 // eslint-disable-next-line react/prop-types
-export default function AssignedTravelToursManagement({ staffId }) {
+export default function IsBookingTravelToursManagement({ staffId }) {
     const [travelTours, setTravelTours] = useState([]);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [openViewGuidesModal, setOpenViewGuidesModal] = useState(false);
@@ -34,7 +34,7 @@ export default function AssignedTravelToursManagement({ staffId }) {
         getTravelToursByStaffAndEndLocation(resolvedStaffId)
             .then((tours) => {
                 console.log("Tours retrieved:", tours);
-                setTravelTours(tours); // Set fetched tours to state
+                setTravelTours(tours);
             })
             .catch((error) => {
                 console.error("Error fetching tours:", error);
@@ -179,7 +179,7 @@ export default function AssignedTravelToursManagement({ staffId }) {
                             <td className="p-2">{format(new Date(tour.start_day), "dd/MM/yyyy")}</td>
                             <td className="p-2">{format(new Date(tour.end_day), "dd/MM/yyyy")}</td>
                             <td className="p-2 text-right relative">
-                                <DropdownAssignTravelGuide
+                                <DropdownTourIsBooking
                                     travelTour={tour}
                                     isOpen={openDropdown === tour.id}
                                     setOpenDropdown={setOpenDropdown}
@@ -204,6 +204,7 @@ export default function AssignedTravelToursManagement({ staffId }) {
                 <ModalAssignTravelGuide
                     tour={selectedTour}
                     onClose={() => setOpenAssignModal(false)}
+                    staffId={resolvedStaffId}
                 />
             )}
             {openViewGuidesModal && selectedTravelTourId && (

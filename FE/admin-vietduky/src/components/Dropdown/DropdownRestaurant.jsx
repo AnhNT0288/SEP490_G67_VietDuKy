@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { FaUserPlus, FaUsers } from "react-icons/fa";
+import { MdEdit, MdDelete } from "react-icons/md";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownAssignTravelGuide({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides }) {
+export default function DropdownRestaurant({ restaurantId, onEditRestaurant, onDeleteRestaurant, isOpen, setOpenDropdown }) {
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
@@ -26,7 +26,7 @@ export default function DropdownAssignTravelGuide({ travelTour, isOpen, setOpenD
             <button
                 onClick={(e) => {
                     e.stopPropagation();
-                    setOpenDropdown((prev) => (prev === travelTour.id ? null : travelTour.id));
+                    setOpenDropdown(prev => (prev === restaurantId ? null : restaurantId));
                 }}
                 className="p-2"
             >
@@ -34,26 +34,27 @@ export default function DropdownAssignTravelGuide({ travelTour, isOpen, setOpenD
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white shadow-md rounded-md z-10">
+                <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md z-10">
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
-                            onAssignGuide(travelTour); // Gọi hàm mở modal
+                            onEditRestaurant(); // Gọi hàm cập nhật nhà hàng
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
-                        <FaUserPlus className="mr-2" />
-                        Gán hướng dẫn viên
+                        <MdEdit className="mr-2 text-gray-700" />
+                        Cập nhật
                     </button>
+
                     <button
                         onClick={() => {
                             setOpenDropdown(null);
-                            onViewGuides(travelTour);
+                            onDeleteRestaurant(); // Gọi hàm xoá nhà hàng
                         }}
-                        className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
+                        className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left text-red-600"
                     >
-                        <FaUsers className="mr-2" />
-                        Xem hướng dẫn viên đã gán
+                        <MdDelete className="mr-2" />
+                        Xóa
                     </button>
                 </div>
             )}
