@@ -15,55 +15,183 @@ const generationConfig = {
     maxOutputTokens: 8192,
     responseMimeType: "text/plain",
 };
+const tourKeywords = ["tour", "đi đâu", "du lịch", "chuyến đi", "đặt tour"];
 
-exports.askChatBot = async (req, res) => {
-    try {
-        const {question} = req.body;
-
-        // Bắt đầu phiên chat
-        const chatSession = model.startChat({
-            generationConfig,
-            history: [],
-        });
-        const tours = await db.Tour.findAll({
-            include: [
-                {
-                    model: db.TourActivities,
-                    as: "tourActivities",
-                    attributes: ["id", "title", "description", "detail", "image"],
-                },
-                {
-                    model: db.Location,
-                    as: "startLocation",
-                    attributes: ["id", "name_location"],
-                },
-            ],
-            attributes: ['id', 'name_tour', 'activity_description', 'album']
-        });
-        const toursData = tours.map(tour => tour.toJSON());
-        const question2 = `
-    Bạn là một trợ lý du lịch thông minh. Dưới đây là danh sách các tour du lịch: ${JSON.stringify(toursData)}.
-    - Nếu người dùng hỏi về tour, hãy gợi ý tour phù hợp nhất, trả về 1 đoạn html bao trong thẻ <a> để khi nhấn vào sẽ ra trang tour, kèm ảnh, link dạng http://localhost:5173/tour/tour_id.
-    - Nếu không liên quan tour, trả lời tự nhiên, không nhắc đến tour.
-    - Trả về kết quả dạng HTML, có thể dùng thẻ <img>, <a>, <b>, <ul>, <li>...
-    - Luôn trả lời thân thiện, ngắn gọn, dễ hiểu.
-    Câu hỏi của người dùng: ${question}
-  `;
-        // Gửi câu hỏi đến Gemini AI
-        const result = await chatSession.sendMessage(question2);
-        const text = await result.response.text(); // Lấy text từ response
-
-        console.log(text);
-
-        res.json({
-            message: "OK",
-            data: text,
-            toursData: toursData,
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Error asking!",
-            error: error.message,
-        });
+const containsTourKeyword = (question) => {
+    const lowerQuestion = question.toLowerCase();
+    return tourKeywords.some(keyword => lowerQuestion.includes(keyword));
+  };
+  // Danh sách từ khóa + điểm
+const tourKeywordScores = [
+    { keyword: "tour", score: 5 },
+    { keyword: "đi đâu", score: 4 },
+    { keyword: "du lịch", score: 5 },
+    { keyword: "chuyến đi", score: 3 },
+    { keyword: "đặt tour", score: 5 },
+    { keyword: "gợi ý chuyến đi", score: 4 },
+    { keyword: "nên đi đâu", score: 4 },
+    { keyword: "chương trình tham quan", score: 3 },
+    { keyword: "địa điểm du lịch", score: 4 },
+  ];
+  
+  // Hàm tính tổng điểm
+  const calculateTourScore = (question) => {
+    const lowerQuestion = question.toLowerCase();
+    let totalScore = 0;
+    for (const { keyword, score } of tourKeywordScores) {
+      if (lowerQuestion.includes(keyword)) {
+        totalScore += score;
+      }
     }
-};
+    return totalScore;
+  };
+  exports.askChatBot = async (req, res) => {
+    try {
+      const { question } = req.body;
+      const chatSession = model.startChat({
+        generationConfig,
+        history: [],
+      });
+  
+      const score = calculateTourScore(question);
+      const threshold = 5; // Ngưỡng: nếu điểm >= 5 thì xem như câu hỏi liên quan tour
+  
+      let prompt = "";
+  
+      if (score >= threshold) {
+        // Liên quan tour => gửi toursData
+        const tours = await db.Tour.findAll({
+          include: [
+            {
+              model: db.TourActivities,
+              as: "tourActivities",
+              attributes: ["id", "title", "description", "detail", "image"],
+            },
+            {
+              model: db.Location,
+              as: "startLocation",
+              attributes: ["id", "name_location"],
+            },
+          ],
+          attributes: ['id', 'name_tour', 'activity_description', 'album']
+        });
+  
+        const toursData = tours.map(tour => ({
+          id: tour.id,
+          name: tour.name_tour,
+          startLocation: tour.startLocation?.name_location,
+          album: tour.album ? JSON.parse(tour.album)[0] : null, 
+        }));
+  
+        prompt = `
+          Bạn là trợ lý du lịch thông minh. Dưới đây là danh sách các tour: ${JSON.stringify(toursData)}.
+  
+          Yêu cầu:
+          - Nếu người dùng hỏi về tour, hãy gợi ý 1 hoặc nhiều tour phù hợp nhất.
+          - Với mỗi tour gợi ý, tạo HTML gồm: <div> chứa <img> ảnh đầu tiên, <b>tên tour</b> và <a>link http://localhost:5173/tour/{id}.
+          - Chỉ trả về HTML thuần, không viết thêm giới thiệu dài dòng.
+          - Thân thiện, ngắn gọn.
+  
+          Câu hỏi: "${question}"
+        `;
+      } else {
+        // Không liên quan tour => chỉ prompt nhẹ nhàng
+        prompt = `
+          Bạn là một trợ lý du lịch thông minh.
+  
+          Trả lời câu hỏi của người dùng ngắn gọn, thân thiện, dưới dạng HTML (<b>, <i>, <ul>, <li>...).
+          
+          Câu hỏi: "${question}"
+        `;
+      }
+  
+      const result = await chatSession.sendMessage(prompt);
+      const text = await result.response.text();
+  
+      res.json({
+        message: "OK",
+        data: text,
+        score: score,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error asking!",
+        error: error.message,
+      });
+    }
+  };
+  
+
+// exports.askChatBot = async (req, res) => {
+//     try {
+//       const { question } = req.body;
+  
+//       const chatSession = model.startChat({
+//         generationConfig,
+//         history: [],
+//       });
+  
+//       let prompt = "";
+  
+//       if (containsTourKeyword(question)) {
+//         // Nếu câu hỏi liên quan tour => lấy toursData
+//         const tours = await db.Tour.findAll({
+//           include: [
+//             {
+//               model: db.TourActivities,
+//               as: "tourActivities",
+//               attributes: ["id", "title", "description", "detail", "image"],
+//             },
+//             {
+//               model: db.Location,
+//               as: "startLocation",
+//               attributes: ["id", "name_location"],
+//             },
+//           ],
+//           attributes: ['id', 'name_tour', 'activity_description', 'album']
+//         });
+//         const toursData = tours.map(tour => ({
+//           id: tour.id,
+//           name: tour.name_tour,
+//           startLocation: tour.startLocation?.name_location,
+//           album: tour.album ? JSON.parse(tour.album)[0] : null, 
+//         }));
+  
+//         prompt = `
+//           Bạn là trợ lý du lịch thông minh. Dưới đây là danh sách các tour: ${JSON.stringify(toursData)}.
+  
+//           Yêu cầu:
+//           - Nếu người dùng hỏi về tour, hãy gợi ý 1 hoặc nhiều tour phù hợp nhất.
+//           - Với mỗi tour gợi ý, tạo HTML gồm: <div> chứa <img> ảnh đầu tiên, <b>tên tour</b> và <a>link http://localhost:5173/tour/{id}.
+//           - Chỉ trả về HTML thuần, không viết thêm chữ giới thiệu.
+//           - Thân thiện, ngắn gọn.
+  
+//           Câu hỏi: "${question}"
+//         `;
+//       } else {
+//         // Nếu không liên quan tour => prompt đơn giản
+//         prompt = `
+//           Bạn là một trợ lý du lịch thông minh.
+  
+//           Trả lời câu hỏi của người dùng ngắn gọn, thân thiện, dễ hiểu, dưới dạng HTML thuần (<b>, <i>, <ul>, <li>, ...).
+          
+//           Câu hỏi: "${question}"
+//         `;
+//       }
+  
+//       // Gửi câu hỏi đến Gemini
+//       const result = await chatSession.sendMessage(prompt);
+//       const text = await result.response.text();
+  
+//       res.json({
+//         message: "OK",
+//         data: text,
+//       });
+//     } catch (error) {
+//       res.status(500).json({
+//         message: "Error asking!",
+//         error: error.message,
+//       });
+//     }
+//   };
+  
