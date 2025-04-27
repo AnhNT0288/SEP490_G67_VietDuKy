@@ -9,17 +9,17 @@ const {
 
 router.get(
   "/:booking_id",
-  authenticateUser,
+  // authenticateUser,
   hotelBookingController.getHotelBookingsByBookingId
 );
 router.post(
   "/create",
-  authenticateUser,
+  // authenticateUser,
   hotelBookingController.addHotelToBooking
 );
 router.delete(
   "/cancel/:id",
-  authenticateUser,
+  // authenticateUser,
   hotelBookingController.cancelBookingHotelById
 );
 
