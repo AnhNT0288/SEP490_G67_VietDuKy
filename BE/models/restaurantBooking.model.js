@@ -8,11 +8,11 @@ module.exports = (sequelize, Sequelize) => {
         autoIncrement: true,
       },
       booking_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
       },
       restaurant_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
       },
       meal: {
