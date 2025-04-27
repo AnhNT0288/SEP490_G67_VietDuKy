@@ -49,7 +49,7 @@ export default function UpcomingBookingCard({ booking }) {
           {/* Ảnh tour */}
           <div className="w-32 h-24 overflow-hidden rounded">
             <img
-              src={booking.travel_tour.image} // Đảm bảo trường image tồn tại trong travel_tour
+              src={booking.travel_tour?.Tour?.album?.[0]} // Đảm bảo trường image tồn tại trong travel_tour
               alt="Tour"
               className="w-full h-full object-cover"
             />

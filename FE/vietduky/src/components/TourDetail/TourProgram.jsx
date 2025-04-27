@@ -10,7 +10,7 @@ export default function TourProgram({ id }) {
   useEffect(() => {
     TourService.getTour(id)
       .then((response) => {
-        const tourActivities = response.data.data.activities || [];
+        const tourActivities = response.data.data.tourActivities || [];
         setActivities(tourActivities);
       })
       .catch((error) => console.error("Error fetching tour data:", error));

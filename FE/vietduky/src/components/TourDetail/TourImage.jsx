@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { TourService } from "@/services/API/tour.service";
 import { useParams } from "react-router-dom";
-
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Thumbs, FreeMode } from "swiper/modules";
+import { Navigation, Thumbs, FreeMode, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/thumbs";
@@ -31,7 +30,6 @@ export default function TourImage({ id }) {
   const displayAlbum = album.length > 0 ? album : [fallbackImage];
 
   // console.log("Album", album);
-  
 
   return (
     <div className="w-full">
@@ -41,12 +39,21 @@ export default function TourImage({ id }) {
         spaceBetween={10}
         navigation={true}
         thumbs={{ swiper: thumbsSwiper }}
-        modules={[FreeMode, Navigation, Thumbs]}
+        autoplay={{
+          delay: 3000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        }}
+        modules={[FreeMode, Navigation, Thumbs, Autoplay]}
         className="mb-4 rounded-lg overflow-hidden h-[580px] transition-all"
       >
         {displayAlbum.map((url, index) => (
           <SwiperSlide key={index}>
-            <img src={url || "/Image/Overlay+Shadow.png"} alt={`Tour Image ${index}`} className="w-full object-contain" />
+            <img
+              src={url || "/Image/Overlay+Shadow.png"}
+              alt={`Tour Image ${index}`}
+              className="w-full object-contain"
+            />
           </SwiperSlide>
         ))}
       </Swiper>

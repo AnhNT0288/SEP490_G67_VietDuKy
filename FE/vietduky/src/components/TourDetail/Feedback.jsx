@@ -5,6 +5,10 @@ import { AiOutlineLike } from "react-icons/ai";
 import { toast } from "react-toastify";
 
 export default function Feedback({ id }) {
+  const userId = useMemo(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    return storedUser?.id || null;
+  }, []);
   const [selectedFilter, setSelectedFilter] = useState("Tất cả");
   const [feedbacks, setFeedbacks] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
@@ -142,7 +146,13 @@ export default function Feedback({ id }) {
       setFeedbacks((prevFeedbacks) =>
         prevFeedbacks.map((fb) =>
           fb.feedback_id === feedbackId
-            ? { ...fb, totalLikes } // Cập nhật số lượt like
+            ? {
+                ...fb,
+                totalLikes,
+                likes: fb.likes?.includes(userId)
+                  ? fb.likes.filter((uid) => uid !== userId) // nếu userId đã tồn tại → bỏ ra
+                  : [...(fb.likes || []), userId], // chưa có userId → thêm vào
+              }
             : fb
         )
       );
@@ -259,14 +269,16 @@ export default function Feedback({ id }) {
                       <AiOutlineLike />
                     </span>
                     <span>
-                      {likePosts.includes(fb.feedback_id)
-                        ? `Bạn và ${
-                            fb.totalLikes - 1
-                          } người thấy điều này hữu ích`
+                      {fb.likes?.includes(userId)
+                        ? fb.totalLikes > 1
+                          ? `Bạn và ${
+                              fb.totalLikes - 1
+                            } người khác thấy điều này hữu ích`
+                          : `Bạn thấy điều này hữu ích`
                         : `${fb.totalLikes} người thấy điều này hữu ích`}
                     </span>
                   </div>
-                </div>s
+                </div>
               </div>
             </div>
           ))

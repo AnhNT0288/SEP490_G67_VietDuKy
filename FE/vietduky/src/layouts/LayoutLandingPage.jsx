@@ -18,11 +18,15 @@ import Slider from "react-slick"; // Import the slider component
 import "slick-carousel/slick/slick.css"; // Import slick CSS
 import "slick-carousel/slick/slick-theme.css"; // Import slick theme CSS
 import { FaArrowAltCircleUp } from "react-icons/fa";
+import { IoChatbubblesOutline } from "react-icons/io5";
+import { IoMdArrowDropup } from "react-icons/io";
+import ChatBot from "@/components/ChatBot/ChatBot";
 
 export default function LayoutLandingPage() {
   const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
   const [showButton, setShowButton] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -137,11 +141,12 @@ export default function LayoutLandingPage() {
       {showButton && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 font-bold rounded-full transition-all duration-300 z-50"
+          className="fixed bottom-6 right-6 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full shadow-lg transition-all duration-300 z-50"
         >
-          <FaArrowAltCircleUp className="w-12 h-12 text-red-500 hover:text-red-800" />
+          <IoMdArrowDropup className="w-9 h-9 text-white hover:text-red-800" />
         </button>
       )}
+      {/* <ChatBot /> */}
     </div>
   );
 }

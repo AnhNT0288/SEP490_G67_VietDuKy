@@ -33,6 +33,7 @@ import "../src/styles/responsive.css";
 import ModalPaymentSuccess from "./components/BookingCheckout/ModalBookingCheckout/ModalPaymentSuccess";
 import ModalSuccessPage from "./components/BookingCheckout/ModalBookingCheckout/test";
 import DetailDynamicArticle from "./page/ArticlePage/PostDynamicArticle/DetailDynamicArticle";
+import ChatBot from "./components/ChatBot/ChatBot";
 
 function App() {
   const [directory, setDirectory] = useState([]);
@@ -106,6 +107,7 @@ function App() {
         <Route path={"/calendar"} element={<Calendar />} />
         <Route path="/modalSuccess" element={<ModalSuccessPage />} />
       </Routes>
+      <ChatBot />
     </BrowserRouter>
   );
 }

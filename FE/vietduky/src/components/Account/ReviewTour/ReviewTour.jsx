@@ -2,6 +2,7 @@ import ModalAddSharePost from "./ModalAddSharePost";
 import ModalEditSharePost from "./ModalEditSharePost";
 import Icons from "@/components/Icons/Icon";
 import { FeedbackService } from "@/services/API/feedback.service";
+import { LikeService } from "@/services/API/like.service";
 import { PostExperienceService } from "@/services/API/post_experience.service";
 import { formatDate } from "@/utils/dateUtil";
 import { useEffect, useState } from "react";
@@ -25,12 +26,34 @@ export default function ReviewTour() {
   const [sharedPosts, setSharedPosts] = useState([]);
   const [postSelected, setPostSelected] = useState(null);
   const user = JSON.parse(localStorage.getItem("user")) || null;
+  const [likesMap, setLikesMap] = useState({});
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const response = await FeedbackService.getFeedbackByUserId(user?.id);
-        setReviews(response.data.data);
+        const feedbacks = response.data.data || [];
+        setReviews(feedbacks);
+
+        const likesPromises = feedbacks.map((review) =>
+          LikeService.totalLikeFeedback(review.feedback_id)
+            .then((res) => ({
+              feedbackId: review.feedback_id,
+              likes: res.data.count,
+            }))
+            .catch((err) => {
+              console.error("Lỗi lấy lượt thích:", err);
+              return { feedbackId: review.feedback_id, likes: 0 };
+            })
+        );
+
+        const likesResults = await Promise.all(likesPromises);
+
+        const likesData = {};
+        likesResults.forEach(({ feedbackId, likes }) => {
+          likesData[feedbackId] = likes;
+        });
+        setLikesMap(likesData);
       } catch (error) {
         console.error("Error fetching reviews:", error);
       }
@@ -218,7 +241,7 @@ export default function ReviewTour() {
               {/* Like */}
               <div className="flex items-center text-sm text-gray-500">
                 <FaThumbsUp className="mr-2" />
-                {review.likes} người thấy điều này hữu ích
+                {likesMap[review.feedback_id] ?? 0} người thấy điều này hữu ích
               </div>
             </div>
           );
