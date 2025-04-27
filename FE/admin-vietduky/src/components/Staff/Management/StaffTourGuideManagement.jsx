@@ -16,7 +16,7 @@ export default function StaffTourGuideManagement() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const guideList = await getAssignedTravelGuidesByStaffId(id); // <-- dùng API mới
+                const guideList = await getAssignedTravelGuidesByStaffId(id);
                 setGuides(guideList);
                 setCurrentPage(1);
 

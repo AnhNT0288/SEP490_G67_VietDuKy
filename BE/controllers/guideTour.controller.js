@@ -803,7 +803,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
       where: { travel_tour_id: travelTourId },
     });
     if (travel_guide_id) {
-      const guideTour = await GuideTour.findOne({
+      const guideTourDetail = await GuideTour.findOne({
         where: {travel_guide_id, travel_tour_id: travelTourId}
       })
   
@@ -814,7 +814,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
           booking_id: {
             [Op.in]: bookings.map((booking) => booking.id),
           },
-          group: guideTour.group,
+          group: guideTourDetail.group,
         },
         include: [
           {
@@ -838,7 +838,23 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
       passengerCountByGuide = {};
       passengersByGuide = [];
     }
-
+    const formatedGuideTour = guideTours.map((guideTour) => {
+      if (!guideTour.travelGuide) {
+        return null;
+      }
+      return {
+        id: guideTour.travelGuide.id,
+        gender: guideTour.travelGuide.gender_guide,
+        first_name: guideTour.travelGuide.first_name,
+        last_name: guideTour.travelGuide.last_name,
+        email: guideTour.travelGuide.email,
+        phone: guideTour.travelGuide.number_phone,
+        address: guideTour.travelGuide.address,
+        avatar: guideTour.travelGuide.user?.avatar || null,
+        display_name: guideTour.travelGuide.user?.displayName || null,
+        passenger_count: passengerCountByGuide[guideTour.travelGuide.id] || 0,
+      };
+    }).filter(guide => guide !== null);
     // Format lại dữ liệu trả về
     const formattedTravelTour = {
       id: travelTour.id,
@@ -856,18 +872,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
         start_location: travelTour.Tour.startLocation,
         end_location: travelTour.Tour.endLocation,
       },
-      guides: guideTours.map((guideTour) => ({
-        id: guideTour.travelGuide.id,
-        gender: guideTour.travelGuide.gender_guide,
-        first_name: guideTour.travelGuide.first_name,
-        last_name: guideTour.travelGuide.last_name,
-        email: guideTour.travelGuide.email,
-        phone: guideTour.travelGuide.number_phone,
-        address: guideTour.travelGuide.address,
-        avatar: guideTour.travelGuide.user.avatar,
-        display_name: guideTour.travelGuide.user.displayName,
-        passenger_count: passengerCountByGuide[guideTour.travelGuide.id] || 0,
-      })),
+      guides: formatedGuideTour,
       bookings: bookings.map((booking) => ({
         id: booking.id,
         status: booking.status,

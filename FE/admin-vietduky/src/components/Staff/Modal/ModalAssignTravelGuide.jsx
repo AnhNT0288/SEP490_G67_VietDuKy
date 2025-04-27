@@ -9,7 +9,7 @@ import DropdownGuideActions from "../Dropdown/DropdownGuideActions.jsx";
 import ModalListPassengerIsAssigned from "./ModalListPassengerIsAssigned.jsx";
 
 // eslint-disable-next-line react/prop-types
-export default function ModalAssignTravelGuide({ tour, onClose }) {
+export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
     const [tourInfo, setTourInfo] = useState(null);
     const [guides, setGuides] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -301,6 +301,7 @@ export default function ModalAssignTravelGuide({ tour, onClose }) {
                     <ModalAssignGuide
                         locationId={tourInfo?.tour?.start_location?.id}
                         travel_tour_id={tourId}
+                        staffId={staffId}
                         onClose={() => setOpenAssignGuideModal(false)}
                         onAssignSuccess={() => {
                             setOpenAssignGuideModal(false);
