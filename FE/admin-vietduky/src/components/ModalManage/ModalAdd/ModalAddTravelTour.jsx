@@ -169,7 +169,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
               </div>
 
               <div>
-                <label className="block mb-2 font-medium">Giờ bắt đầu đóng cổng</label>
+                <label className="block mb-2 font-medium">Giờ bắt đầu về </label>
                 <input
                     type="time"
                     name="start_time_close"
@@ -180,7 +180,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
               </div>
 
               <div>
-                <label className="block mb-2 font-medium">Giờ kết thúc đóng cổng</label>
+                <label className="block mb-2 font-medium">Giờ kết thúc về</label>
                 <input
                     type="time"
                     name="end_time_close"

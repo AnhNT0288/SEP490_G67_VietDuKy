@@ -123,6 +123,32 @@ export function getGuidesAndPassengersByTravelTourId(travelTourId) {
             throw err;
         });
 }
+// Lấy chi tiết Travel Tour theo ID
+export function getTravelTourById(id) {
+    return restClient({
+        url: `travel-tour/${id}`,
+        method: "GET",
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Lỗi API lấy chi tiết hành trình:", error);
+            throw error;
+        });
+}
+
+// Cập nhật Travel Tour theo ID
+export function updateTravelTour(id, data) {
+    return restClient({
+        url: `travel-tour/update/${id}`,
+        method: "PUT",
+        data,
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Lỗi API cập nhật hành trình:", error);
+            throw error;
+        });
+}
 
 
 

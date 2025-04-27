@@ -13,6 +13,7 @@ import CalendarTravelTour from "../ModalCalendar/CalendarTravelTour.jsx";
 import DropdownMenuTravelTour from "../../Dropdown/DropdowMenuTravelTour.jsx";
 import ModalManageGuideForTravelTour from "./ModalManageGuideForTravelTour.jsx";
 import {toast} from "react-toastify";
+import ModalUpdateTravelTour from "../ModalUpdate/ModalUpdateTravelTour.jsx";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
@@ -25,6 +26,8 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
   const [selectedTravelTourId, setSelectedTravelTourId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [isListGuideModalOpen, setIsListGuideModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [editTravelTourId, setEditTravelTourId] = useState(null);
 
   const handleAddTravelTour = () => {
     setIsAddTravelTourModalOpen(true);
@@ -102,11 +105,11 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
 
     try {
       await closeTravelTour(id);
-      toast.success("✅ Đã đóng lịch khởi hành thành công.");
+      toast.success("Đã đóng lịch khởi hành thành công.");
       const response = await getTravelTourByTourId(tourId);
       setTravelTours(response.data || []);
     } catch (error) {
-      toast.error("❌ Đóng lịch khởi hành thất bại.", error);
+      toast.error("Đóng lịch khởi hành thất bại.", error);
     }
   };
 
@@ -124,6 +127,12 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
 
   const toggleDropdown = (id) => {
     setOpenDropdown(openDropdown === id ? null : id);
+  };
+
+  const handleEditTravelTour = (id) => {
+    setEditTravelTourId(id);
+    setIsUpdateModalOpen(true);
+    setOpenDropdown(null);
   };
 
   const handleWrapperClick = () => {
@@ -301,7 +310,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                                       {openDropdown === index && (
                                           <div ref={dropdownRef}>
                                             <DropdownMenuTravelTour
-                                                onEdit={() => {}}
+                                                onEdit={() => handleEditTravelTour(travelTour.id)}
                                                 onLock={() => handleCloseTravelTour(travelTour.id)}
                                                 onDelete={() => handleDeleteTravelTour(index)}
                                                 onAssignGuide={() => handleAssignGuide(travelTour)}
@@ -322,6 +331,13 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                               onClose={() => setIsListGuideModalOpen(false)}
                           />
                       )}
+                      {isUpdateModalOpen && (
+                          <ModalUpdateTravelTour
+                              travelTourId={editTravelTourId}
+                              onClose={() => setIsUpdateModalOpen(false)}
+                              onUpdateSuccess={handleAddTravelTourSuccess}
+                          />
+                      )}
                     </div>
                 )
             ) : (
@@ -331,6 +347,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                     tours={tours}
                 />
             )}
+
           </div>
         </div>
       </div>
