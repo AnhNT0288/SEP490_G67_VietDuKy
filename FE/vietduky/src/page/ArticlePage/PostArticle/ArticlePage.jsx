@@ -8,6 +8,7 @@ const ArticlePage = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
   const [highlightArticle, setHighlightArticle] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -15,17 +16,23 @@ const ArticlePage = () => {
         const response = await ArticleService.getAllArticles();
         const allArticles = response.data.data;
 
-        if (allArticles.length > 0) {
-          const randomIndex = Math.floor(Math.random() * allArticles.length);
-          const selectedArticle = allArticles[randomIndex];
+        // 1. Lọc bài viết active
+        const activeArticles = allArticles.filter(article => article.true_active === 1);
 
+        // 2. Lọc bài featured
+        const featuredArticles = activeArticles
+          .filter(article => article.true_featured === 1)
+          .sort((a, b) => new Date(b.article_date) - new Date(a.article_date)); // 🎯 Mới nhất trước
+
+        if (featuredArticles.length > 0) {
+          const selectedArticle = featuredArticles[0]; // 🎯 lấy bài mới nhất
           setHighlightArticle(selectedArticle);
 
-          // Bỏ bài viết đã chọn ra khỏi danh sách
-          const remainingArticles = allArticles.filter(
-            (article) => article.id !== selectedArticle.id
-          );
+          // 3. Các bài còn lại (không trùng bài featured)
+          const remainingArticles = activeArticles.filter(article => article.id !== selectedArticle.id);
           setArticles(remainingArticles);
+        } else {
+          setArticles(activeArticles);
         }
       } catch (error) {
         console.error("Error fetching articles:", error);
@@ -44,7 +51,7 @@ const ArticlePage = () => {
   };
 
   const handleArticleClick = (id) => {
-    handleIncrementViewCount(id); // Tăng lượt xem khi nhấp vào bài viết
+    handleIncrementViewCount(id);
   };
 
   const getFirstImage = (album_post) => {
@@ -58,15 +65,14 @@ const ArticlePage = () => {
     }
   };
 
-  console.log("Articles data:", articles);
+  const filteredArticles = articles.filter(article =>
+    article.article_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <LayoutArticle sidebar={<SidebarArticle />}>
-      {/* <p className="text-sm text-gray-500 mb-2">
-                Việt Du Ký &gt; Blog &gt; Muôn màu
-              </p> */}
+    <LayoutArticle sidebar={<SidebarArticle setSearchTerm={setSearchTerm} />}>
       <div className="space-y-6">
-        {/* Bài viết nổi bật (lấy ngẫu nhiên) */}
+        {/* Bài viết nổi bật */}
         {highlightArticle && (
           <div className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold mb-2">
@@ -80,13 +86,11 @@ const ArticlePage = () => {
             <div className="flex flex-col lg:flex-row gap-4 border-b pb-6">
               <img
                 onClick={() =>
-                  navigate(
-                    `/article/${highlightArticle?.directory?.alias}/${highlightArticle.id}`
-                  )
+                  navigate(`/article/${highlightArticle?.directory?.alias}/${highlightArticle.id}`)
                 }
                 src={getFirstImage(highlightArticle.album_post)}
                 alt="Highlight Article"
-                className="w-full lg:w-1/3 rounded object-cover"
+                className="w-full h-64 lg:w-1/3 rounded object-cover cursor-pointer"
               />
               <div className="flex-1">
                 <p className="text-lg italic text-gray-700 mb-4">
@@ -94,9 +98,7 @@ const ArticlePage = () => {
                 </p>
                 <button
                   onClick={() =>
-                    navigate(
-                      `/article/${highlightArticle?.directory?.alias}/${highlightArticle.id}`
-                    )
+                    navigate(`/article/${highlightArticle?.directory?.alias}/${highlightArticle.id}`)
                   }
                   className="bg-red-600 text-white text-sm px-4 py-2 rounded hover:bg-red-700 transition"
                 >
@@ -109,17 +111,15 @@ const ArticlePage = () => {
 
         {/* Các bài viết còn lại */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {articles.map((article) => (
+          {filteredArticles.map((article) => (
             <div key={article.id} className="space-y-2">
               <img
                 onClick={() =>
-                  navigate(
-                    `/article/${article?.directory?.alias}/${article.id}`
-                  )
+                  navigate(`/article/${article?.directory?.alias}/${article.id}`)
                 }
                 src={getFirstImage(article.album_post)}
                 alt="Article"
-                className="w-full rounded object-cover"
+                className="w-full h-64 rounded object-cover cursor-pointer"
               />
               <h3 className="font-semibold text-base">
                 <NavLink
@@ -131,8 +131,7 @@ const ArticlePage = () => {
                 </NavLink>
               </h3>
               <div className="text-xs text-gray-500">
-                {new Date(article.article_date).toLocaleDateString()}{" "}
-                &nbsp;|&nbsp; {article.views} lượt xem{" "}
+                {new Date(article.article_date).toLocaleDateString()} &nbsp;|&nbsp; {article.views} lượt xem
               </div>
               <p className="text-sm text-gray-600">{article.article_title}</p>
               <button className="text-sm bg-blue-600 text-white px-3 py-1 mt-2 rounded hover:bg-blue-700">

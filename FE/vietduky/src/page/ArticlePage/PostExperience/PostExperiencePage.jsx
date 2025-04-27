@@ -7,6 +7,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 const PostExperiencePage = () => {
   const navigate = useNavigate();
   const [postExperiences, setPostExperiences] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔥 thêm biến searchTerm
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -30,17 +31,25 @@ const PostExperiencePage = () => {
   };
 
   const handleArticleClick = (id) => {
-    handleIncrementViewCount(id); // Tăng lượt xem khi nhấp vào bài viết
+    handleIncrementViewCount(id);
   };
 
-  console.log("Articles data:", postExperiences);
+  const handleShare = (article) => {
+    const articleUrl = `${window.location.origin}/article/post-experience/${article.id}`;
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}`;
+    window.open(facebookShareUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const filteredArticles = postExperiences.filter(article =>
+    article.title_post.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <LayoutArticle sidebar={<SidebarArticle />}>
+    <LayoutArticle sidebar={<SidebarArticle setSearchTerm={setSearchTerm} />}>
       <div className="space-y-6">
-        {/* Hai bài viết kế tiếp */}
+        {/* Các bài viết trải nghiệm */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {postExperiences.map((article) => (
+          {filteredArticles.map((article) => (
             <div key={article.id} className="space-y-2">
               <img
                 src={
@@ -62,20 +71,13 @@ const PostExperiencePage = () => {
                 </NavLink>
               </h3>
               <div className="text-xs text-gray-500">
-                {new Date(article.post_date).toLocaleDateString()} &nbsp;|&nbsp;{" "}
-                {article.views} lượt xem {/* Hiển thị số lượt xem */}
+                {new Date(article.post_date).toLocaleDateString()} &nbsp;|&nbsp; {article.views} lượt xem
               </div>
-              <p
-                className="text-sm text-gray-600"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    article.description_post ||
-                    "Bài viết này chưa có nội dung.",
-                }}
+              <p className="text-sm text-gray-600">{article.title_post}</p>
+              <button
+                onClick={() => handleShare(article)}
+                className="text-sm bg-blue-600 text-white px-3 py-1 mt-2 rounded hover:bg-blue-700"
               >
-                {/* {article.description_post} */}
-              </p>
-              <button className="text-sm bg-blue-600 text-white px-3 py-1 mt-2 rounded hover:bg-blue-700">
                 Chia sẻ
               </button>
             </div>

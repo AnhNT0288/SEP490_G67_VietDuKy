@@ -7,10 +7,11 @@ import SidebarArticle from "@/components/Article/SidebarArticle/SidebarArticle";
 
 const DynamicArticlePage = () => {
   const { alias } = useParams(); // Lấy alias từ URL
-  const [articles, setArticles] = useState(null);
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [directory, setDirectory] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchDirectory = async () => {
@@ -69,6 +70,20 @@ const DynamicArticlePage = () => {
     handleIncrementViewCount(id); // Tăng lượt xem khi nhấp vào bài viết
   };
 
+  const filteredArticles = articles
+  ?.filter((article) => article.true_active === 1) 
+  .filter((article) =>
+    article.article_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleShare = (article) => {
+    const articleUrl = `${window.location.origin}/article/${article?.directory?.alias}/${article.id}`;
+  
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}`;
+  
+    window.open(facebookShareUrl, "_blank", "noopener,noreferrer");
+  };
+
   if (loading) {
     return <div>Đang tải...</div>;
   }
@@ -84,11 +99,11 @@ const DynamicArticlePage = () => {
   console.log("Articles data:", articles);
 
   return (
-    <LayoutArticle sidebar={<SidebarArticle />}>
+    <LayoutArticle sidebar={<SidebarArticle setSearchTerm={setSearchTerm} />}>
       <div className="space-y-6">
         {/* Hai bài viết kế tiếp */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {articles.map((article) => {
+          {filteredArticles?.map((article) => {
             const album =
               typeof article.album_post === "string"
                 ? JSON.parse(article.album_post)
@@ -102,7 +117,7 @@ const DynamicArticlePage = () => {
                 <img
                   src={imageUrl}
                   alt="Article"
-                  className="w-full rounded object-cover"
+                  className="w-full h-64 rounded object-cover"
                 />
                 <h3 className="font-semibold text-base">
                   <NavLink
@@ -118,10 +133,11 @@ const DynamicArticlePage = () => {
                   &nbsp;|&nbsp; {article.views} lượt xem{" "}
                   {/* Hiển thị số lượt xem */}
                 </div>
-                <p className="text-sm text-gray-600">
-                  {article.article_title}
-                </p>
-                <button className="text-sm bg-blue-600 text-white px-3 py-1 mt-2 rounded hover:bg-blue-700">
+                <p className="text-sm text-gray-600">{article.article_title}</p>
+                <button
+                  className="text-sm bg-blue-600 text-white px-3 py-1 mt-2 rounded hover:bg-blue-700"
+                  onClick={() => handleShare(article)}
+                >
                   Chia sẻ
                 </button>
               </div>
