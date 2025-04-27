@@ -80,7 +80,7 @@ const tourKeywordScores = [
           id: tour.id,
           name: tour.name_tour,
           startLocation: tour.startLocation?.name_location,
-          album: tour.album ? JSON.parse(tour.album)[0] : null, 
+          album: tour.album ? tour.album[0] : null, 
         }));
   
         prompt = `
@@ -89,7 +89,7 @@ const tourKeywordScores = [
           Yêu cầu:
           - Nếu người dùng hỏi về tour, hãy gợi ý 1 hoặc nhiều tour phù hợp nhất.
           - Với mỗi tour gợi ý, tạo HTML gồm: <div> chứa <img> ảnh đầu tiên, <b>tên tour</b> và <a>link http://localhost:5173/tour/{id}.
-          - Chỉ trả về HTML thuần, không viết thêm giới thiệu dài dòng.
+          - Chỉ trả về HTML thuần, không có mấy kí tự lỗi như kiểu 3 dấu backtick để đầu và cuối response, không viết thêm giới thiệu dài dòng.
           - Thân thiện, ngắn gọn.
   
           Câu hỏi: "${question}"
