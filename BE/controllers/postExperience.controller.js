@@ -88,7 +88,7 @@ const removeVietnameseTones = (str) => {
 // Tạo bài viết trải nghiệm mới
 exports.createPostExperience = async (req, res) => {
   try {
-    const { user_id, title_post, description_post, post_date } = req.body;
+    const { user_id, name_post, title_post, description_post, post_date } = req.body;
     const postEx_album =
       req.files && req.files.length > 0
         ? JSON.stringify(req.files.map((file) => file.path))
@@ -112,6 +112,7 @@ exports.createPostExperience = async (req, res) => {
     const newPostExperience = await PostExperience.create({
       user_id,
       title_post,
+      name_post,
       description_post,
       post_date,
       postEx_album,
@@ -134,7 +135,7 @@ exports.createPostExperience = async (req, res) => {
 exports.updatePostExperience = async (req, res) => {
   try {
     const postId = req.params.id;
-    const { title_post, description_post, post_date } = req.body;
+    const { title_post, name_post, description_post, post_date } = req.body;
     const postEx_album =
       req.files && req.files.length > 0
         ? JSON.stringify(req.files.map((file) => file.path))
@@ -160,6 +161,8 @@ exports.updatePostExperience = async (req, res) => {
         strict: true,
       });
     }
+    if (name_post != undefined)
+      postExperience.name_post = name_post || postExperience.name_post;
     if (description_post != undefined)
       postExperience.description_post =
         description_post || postExperience.description_post;

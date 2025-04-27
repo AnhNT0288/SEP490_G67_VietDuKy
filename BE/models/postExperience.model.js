@@ -12,6 +12,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      name_post: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       title_post: {
         type: Sequelize.STRING,
         allowNull: false,

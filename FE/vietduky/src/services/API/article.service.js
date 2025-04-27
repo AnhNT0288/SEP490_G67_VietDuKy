@@ -27,10 +27,16 @@ export const ArticleService = {
         })
     },
     login: (data) => {
-            return restClient({
-                url: "auth/login",
-                method: "POST",
-                data
-            });
-        },
+        return restClient({
+            url: "auth/login",
+            method: "POST",
+            data
+        });
+    },
+    incrementViews: (id) => {
+        return restClient({
+            url: `article/increment-views/${id}`,
+            method: "POST",
+        });
+    }
 };

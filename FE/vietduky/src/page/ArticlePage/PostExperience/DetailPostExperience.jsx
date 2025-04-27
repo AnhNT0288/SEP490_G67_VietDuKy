@@ -31,24 +31,24 @@ const DetailPostExperience = () => {
     <LayoutArticle sidebar={<SidebarArticle />}>
       <div className="prose max-w-none">
         {/* Breadcrumbs */}
-        <div className="text-sm text-gray-500 mb-2">
+        <div className="text-sm text-gray-500 mb-6">
           <NavLink to="/article" className="hover:underline">
-            Home
+            Bài viết
           </NavLink>{" "}
-          &gt;
+          &gt;{" "}
           <NavLink to="/article/post-experience" className="hover:underline">
             {" "}
             Bài viết chia sẻ
           </NavLink>{" "}
-          &gt;
+          &gt;{" "}
           <span className="text-gray-900 font-medium">
-            {articleData.title_post}
+            {articleData.name_post}
           </span>
         </div>
 
         {/* Title */}
         <h1 className="text-2xl font-bold text-gray-900">
-          {articleData.title_post}
+          {articleData.name_post}
         </h1>
 
         {/* Metadata */}
@@ -60,9 +60,8 @@ const DetailPostExperience = () => {
         </div>
 
         {/* Sub heading */}
-        <p className="italic font-medium text-gray-700">
-          Giờ đây, việc tiết kiệm tiền cho những chuyến đi sẽ không còn là một
-          điều bất khả thi nữa.
+        <p className="italic text-lg font-medium text-zinc-900">
+          {articleData.title_post}
         </p>
 
         {/* Tag */}
@@ -83,17 +82,6 @@ const DetailPostExperience = () => {
                 "Bài viết này chưa có nội dung.",
             }}
           ></div>
-
-          {/* Images */}
-          {articleData.postEx_album &&
-            JSON.parse(articleData.postEx_album).map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`Ảnh minh họa ${index + 1}`}
-                className="w-full rounded-md shadow"
-              />
-            ))}
         </div>
       </div>
     </LayoutArticle>
