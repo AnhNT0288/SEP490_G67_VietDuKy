@@ -203,85 +203,100 @@ export default function Feedback({ id }) {
       {/* Nội dung đánh giá */}
       <div className="mt-6 space-y-6">
         {visibleFeedbacks.length > 0 ? (
-          visibleFeedbacks.map((fb) => (
-            <div
-              key={fb.feedback_id}
-              style={{
-                boxShadow: "inset 0 2px 8px rgba(99, 102, 241, 0.2)",
-              }}
-              className="flex gap-3 p-4 rounded-lg inset-shadow-sm inset-shadow-indigo-500/50"
-            >
-              <img
-                src={
-                  fb.user?.avatar || "https://i.pravatar.cc/40?u=" + fb.user?.id
-                }
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div className="flex-1">
-                <p className="font-bold">{fb.user?.displayName}</p>
-                <p className="text-gray-500 text-sm">
-                  {getRelativeDateText(fb.feedback_date)}
-                </p>
+          visibleFeedbacks.map((fb) => {
+            console.log(fb);
 
-                <div className="flex items-center mb-2">
-                  <div className="text-yellow-400 text-lg">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <span key={i}>{i <= fb.rating ? "★" : "☆"}</span>
-                    ))}
-                  </div>
-                  <span
-                    className={`ml-2 text-sm font-medium 
-                    }`}
-                  >
-                    {getRecommendationText(fb.rating)}
-                  </span>
-                </div>
+            return (
+              <div
+                key={fb.feedback_id}
+                style={{
+                  boxShadow: "inset 0 2px 8px rgba(99, 102, 241, 0.2)",
+                }}
+                className="flex gap-3 p-4 rounded-lg inset-shadow-sm inset-shadow-indigo-500/50"
+              >
+                <img
+                  src={
+                    fb.user?.avatar ||
+                    "https://i.pravatar.cc/40?u=" + fb.user?.id
+                  }
+                  alt="User Avatar"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <p className="font-bold">{fb.user?.displayName}</p>
+                  <p className="text-gray-500 text-sm">
+                    {getRelativeDateText(fb.feedback_date)}
+                  </p>
 
-                <p className="text-gray-700 text-sm">
-                  {fb.description_feedback}
-                </p>
-
-                {/* Ảnh đính kèm nếu có */}
-                {fb.feedback_album && Array.isArray(fb.feedback_album) && (
-                  <div className="mt-3 flex gap-2 flex-wrap">
-                    {fb.feedback_album.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`Feedback ${idx}`}
-                        className="w-20 h-20 object-cover rounded-md"
-                      />
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-3 text-gray-600 text-sm">
-                  <div className="flex items-center gap-2 cursor-pointer">
+                  <div className="flex items-center mb-2">
+                    <div className="text-yellow-400 text-lg">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <span key={i}>{i <= fb.rating ? "★" : "☆"}</span>
+                      ))}
+                    </div>
                     <span
-                      onClick={() => handleToggleLike(fb.feedback_id)}
-                      className={`text-lg ${
-                        likePosts.includes(fb.feedback_id)
-                          ? "text-blue-600"
-                          : "text-gray-400"
-                      }`}
+                      className={`ml-2 text-sm font-medium 
+                    }`}
                     >
-                      <AiOutlineLike />
+                      {getRecommendationText(fb.rating)}
                     </span>
-                    <span>
-                      {fb.likes?.includes(userId)
-                        ? fb.totalLikes > 1
-                          ? `Bạn và ${
-                              fb.totalLikes - 1
-                            } người khác thấy điều này hữu ích`
-                          : `Bạn thấy điều này hữu ích`
-                        : `${fb.totalLikes} người thấy điều này hữu ích`}
-                    </span>
+                  </div>
+
+                  <p className="text-gray-700 text-sm">
+                    {fb.description_feedback}
+                  </p>
+
+                  {/* Ảnh đính kèm nếu có */}
+                  {fb.feedback_album &&
+                    (() => {
+                      let album = [];
+                      try {
+                        album = JSON.parse(fb.feedback_album); // Parse từ chuỗi thành array
+                      } catch (error) {
+                        album = []; // Nếu lỗi (không phải JSON) thì để rỗng
+                      }
+
+                      return Array.isArray(album) && album.length > 0 ? (
+                        <div className="mt-3 flex gap-2 flex-wrap">
+                          {album.map((img, idx) => (
+                            <img
+                              key={idx}
+                              src={img}
+                              alt={`Feedback Image ${idx}`}
+                              className="w-20 h-20 object-cover rounded-md"
+                            />
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
+
+                  <div className="mt-3 text-gray-600 text-sm">
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <span
+                        onClick={() => handleToggleLike(fb.feedback_id)}
+                        className={`text-lg ${
+                          likePosts.includes(fb.feedback_id)
+                            ? "text-blue-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        <AiOutlineLike />
+                      </span>
+                      <span>
+                        {fb.likes?.includes(userId)
+                          ? fb.totalLikes > 1
+                            ? `Bạn và ${
+                                fb.totalLikes - 1
+                              } người khác thấy điều này hữu ích`
+                            : `Bạn thấy điều này hữu ích`
+                          : `${fb.totalLikes} người thấy điều này hữu ích`}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p className="text-gray-500 text-center">Chưa có đánh giá.</p>
         )}

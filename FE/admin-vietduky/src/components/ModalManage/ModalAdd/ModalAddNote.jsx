@@ -3,7 +3,7 @@ import { createTourNote } from "../../../services/API/note.service.js";
 import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
-export default function ModalAddNote({ tourId, onClose }) {
+export default function ModalAddNote({ tourId, onClose, usedTabs = [] }) {
     const [tab, setTab] = useState("");
     const [description, setDescription] = useState("");
 
@@ -16,6 +16,8 @@ export default function ModalAddNote({ tourId, onClose }) {
         "Lưu ý",
         "Hướng dẫn viên",
     ];
+
+    const availableTabs = tabOptions.filter((option) => !usedTabs.includes(option));
 
     const handleCreate = async () => {
         if (!tab || !description.trim()) {
@@ -48,7 +50,7 @@ export default function ModalAddNote({ tourId, onClose }) {
                         onChange={(e) => setTab(e.target.value)}
                     >
                         <option value="" disabled>Chọn tiêu đề</option>
-                        {tabOptions.map((option) => (
+                        {availableTabs.map((option) => (
                             <option key={option} value={option}>{option}</option>
                         ))}
                     </select>
@@ -76,3 +78,4 @@ export default function ModalAddNote({ tourId, onClose }) {
         </div>
     );
 }
+

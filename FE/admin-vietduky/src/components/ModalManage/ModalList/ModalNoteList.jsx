@@ -30,6 +30,8 @@ export default function ModalNoteList({ tourId, onClose }) {
         (note.description || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const usedTabs = notes.map((note) => note.tab); // 👉 lấy ra các tab đã dùng
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center px-4">
             <div className="bg-white rounded-xl shadow-lg w-3/5 h-3/5 overflow-y-auto p-6 relative flex flex-col">
@@ -56,36 +58,37 @@ export default function ModalNoteList({ tourId, onClose }) {
 
                 <table className="w-full border-collapse">
                     <thead>
-                    <tr className="text-left border-b">
-                        <th className="p-2">Tiêu đề</th>
-                        <th className="p-2">Nội dung lưu ý</th>
-                        <th className="p-2 text-center">Thao tác</th>
-                    </tr>
+                        <tr className="text-left border-b">
+                            <th className="p-2">Tiêu đề</th>
+                            <th className="p-2">Nội dung lưu ý</th>
+                            <th className="p-2 text-center">Thao tác</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {filteredNotes.length > 0 ? (
-                        filteredNotes.map((note) => (
-                            <tr key={note.id}>
-                                <td className="p-2">{note.tab || "(Không có tiêu đề)"}</td>
-                                <td className="p-2">{note.description}</td>
-                                <td className="p-2 text-center">
-                                    <button><RiDeleteBinLine /></button>
+                        {filteredNotes.length > 0 ? (
+                            filteredNotes.map((note) => (
+                                <tr key={note.id}>
+                                    <td className="p-2">{note.tab || "(Không có tiêu đề)"}</td>
+                                    <td className="p-2">{note.description}</td>
+                                    <td className="p-2 text-center">
+                                        <button><RiDeleteBinLine /></button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className="text-center py-4 text-gray-500">
+                                    Không có thông tin lưu ý nào cho tour này.
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="3" className="text-center py-4 text-gray-500">
-                                Không có thông tin lưu ý nào cho tour này.
-                            </td>
-                        </tr>
-                    )}
+                        )}
                     </tbody>
                 </table>
 
                 {isAddModalOpen && (
                     <ModalAddNote
                         tourId={tourId}
+                        usedTabs={usedTabs} // ⭐ TRUYỀN usedTabs vào ModalAddNote
                         onClose={() => {
                             setIsAddModalOpen(false);
                             setTimeout(fetchNotes, 200); // Delay nhẹ giúp backend ghi xong
