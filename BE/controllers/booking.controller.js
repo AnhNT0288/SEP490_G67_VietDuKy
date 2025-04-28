@@ -248,15 +248,15 @@ exports.getAllBookings = async (req, res) => {
                 //         },
                 //     ],
                 // },
-                {
-                    model: HotelBooking,
-                    include: [
-                        {
-                            model: Hotel,
-                            attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
-                        },
-                    ],
-                },
+                // {
+                //     model: HotelBooking,
+                //     include: [
+                //         {
+                //             model: Hotel,
+                //             attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
+                //         },
+                //     ],
+                // },
                 {
                     model: VehicleBooking,
                     include: [
@@ -307,15 +307,15 @@ exports.getBookingById = async (req, res) => {
                 //         },
                 //     ],
                 // },
-                {
-                    model: HotelBooking,
-                    include: [
-                        {
-                            model: Hotel,
-                            attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
-                        },
-                    ],
-                },
+                // {
+                //     model: HotelBooking,
+                //     include: [
+                //         {
+                //             model: Hotel,
+                //             attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
+                //         },
+                //     ],
+                // },
                 {
                     model: VehicleBooking,
                     include: [
@@ -682,15 +682,15 @@ exports.getLatestBooking = async (req, res) => {
                 //         },
                 //     ],
                 // },
-                {
-                    model: HotelBooking,
-                    include: [
-                        {
-                            model: Hotel,
-                            attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
-                        },
-                    ],
-                },
+                // {
+                //     model: HotelBooking,
+                //     include: [
+                //         {
+                //             model: Hotel,
+                //             attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
+                //         },
+                //     ],
+                // },
                 {
                     model: VehicleBooking,
                     include: [
