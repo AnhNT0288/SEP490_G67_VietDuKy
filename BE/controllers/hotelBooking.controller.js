@@ -2,6 +2,9 @@ const db = require("../models");
 const HotelBooking = db.HotelBooking;
 const Hotel = db.Hotel;
 const Booking = db.Booking;
+const TravelTour = db.TravelTour;
+const Op = db.Sequelize.Op;
+const Passenger = db.Passenger;
 
 // Lấy thông tin các khách sạn đã được đặt cho một booking
 exports.getHotelBookingsByBookingId = async (req, res) => {
@@ -92,3 +95,38 @@ exports.cancelBookingHotelById = async (req, res) => {
     });
   }
 };
+exports.getHotelBookingByTravelTour = async (req, res) => {
+  try {
+    const { travel_tour_id } = req.params;
+    const travelTour = await TravelTour.findByPk(travel_tour_id);
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy tour" });
+    }
+    const bookings = await Booking.findAll({ where: { travel_tour_id: travelTour.id } });
+
+    const bookingIds = bookings.map(booking => booking.id);
+    const hotelBooking = await HotelBooking.findAll(
+      { where: { 
+        booking_id: { [Op.in]: bookingIds } 
+      },
+        include: [
+          { model: Hotel },
+          { model: Booking,
+            include: [
+              { model: Passenger,
+                as: "passengers"
+              },
+            ],
+          },
+        ],
+      }
+    );
+    res.status(200).json({
+      message: "Khách sạn đã được lấy thành công",
+      data: hotelBooking,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+

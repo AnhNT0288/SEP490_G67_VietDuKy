@@ -22,5 +22,5 @@ router.delete(
   // authenticateUser,
   hotelBookingController.cancelBookingHotelById
 );
-
+router.get("/travel-tour/:travel_tour_id", hotelBookingController.getHotelBookingByTravelTour);
 module.exports = router;
