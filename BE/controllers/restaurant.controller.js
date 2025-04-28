@@ -2,6 +2,10 @@ const db = require("../models");
 const RestaurantBooking = db.RestaurantBooking;
 const Restaurant = db.Restaurant;
 const Booking = db.Booking;
+const TravelTour = db.TravelTour;
+const Tour = db.Tour;
+const Location = db.Location;
+
 
 exports.createRestaurant = async (req, res) => {
   try {
@@ -105,5 +109,21 @@ exports.deleteRestaurant = async (req, res) => {
   }
 };
 
-
+exports.getRestaurantByTravelTour = async (req, res) => {
+  try {
+      const { travel_tour_id } = req.params;
+      const travelTour = await TravelTour.findByPk(travel_tour_id);
+      if (!travelTour) {
+          return res.status(404).json({ message: "Không tìm thấy tour" });
+      }
+      const tour = await Tour.findByPk(travelTour.tour_id);
+      if (!tour) {
+          return res.status(404).json({ message: "Không tìm thấy tour" });
+      }
+      const restaurant = await Restaurant.findAll({ where: { location_id: tour.end_location }, include: [{ model: Location, attributes: ['name_location'] }] });
+      res.status(200).json({ message: "Nhà hàng đã được lấy thành công", data: restaurant });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+}
 

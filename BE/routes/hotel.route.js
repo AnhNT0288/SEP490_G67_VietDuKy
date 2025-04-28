@@ -13,5 +13,6 @@ router.get("/:id", hotelController.getHotelById);
 router.put("/:id", hotelController.updateHotel);
 router.delete("/:id", hotelController.deleteHotel);
 router.get("/location/:location_id", hotelController.getHotelByLocation);
+router.get("/travel-tour/:travel_tour_id", hotelController.getHotelByTravelTour);
 
 module.exports = router;
