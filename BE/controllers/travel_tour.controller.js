@@ -788,6 +788,7 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
       name: travelTour.Tour?.name_tour || null,
       start_day: travelTour.start_day,
       end_day: travelTour.end_day,
+      price_tour: travelTour.price_tour,
       max_people: travelTour.max_people,
       current_people: travelTour.current_people,
       start_location: travelTour.Tour?.startLocation || null,
