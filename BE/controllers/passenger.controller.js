@@ -192,7 +192,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 
         // Tìm tất cả các booking liên quan đến travel_tour_id
         const bookings = await Booking.findAll({
-            where: {travel_tour_id},
+            where: {travel_tour_id, status: 2},
             attributes: ["id", "number_adult", "number_children", "travel_tour_id"], // Lấy thông tin cần thiết
         });
 

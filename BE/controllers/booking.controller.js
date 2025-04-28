@@ -810,3 +810,22 @@ exports.getBookingByTravelTourId = async (req, res) => {
         });
     }
 };
+exports.getBookingByBookingCode = async (req, res) => {
+    try {
+        const bookingCode = req.body.booking_code;
+        const booking = await Booking.findOne({where: {booking_code: bookingCode}});
+        if (!booking) {
+            return res.status(200).json({message: "Không tìm thấy booking!"});
+        }
+        res.status(200).json({
+            message: "Lấy booking thành công!",
+            data: booking,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy booking!",
+            error: error.message,
+        });
+    }
+};
+

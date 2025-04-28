@@ -19,6 +19,10 @@ router.get(
     // authenticateUser,
     BookingController.getBookingById
 );
+router.post(
+    "/code",
+    BookingController.getBookingByBookingCode
+);
 // router.post(
 //   "/create",
 //   authenticateUser,
