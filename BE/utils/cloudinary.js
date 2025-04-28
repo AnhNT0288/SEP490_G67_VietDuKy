@@ -21,7 +21,6 @@ const createStorage = (folder) =>
 // Middleware Multer cho từng loại ảnh
 const uploadAvatar = multer({ storage: createStorage("avatars") });
 const uploadTourImage = multer({ storage: createStorage("tourImage") });
-const uploadVoucher = multer({ storage: createStorage("vouchers") });
 const uploadLocation = multer({ storage: createStorage("locations") });
 const uploadTourActivities = multer({
   storage: createStorage("tour_activities"),
@@ -37,7 +36,6 @@ module.exports = {
   cloudinary,
   uploadAvatar,
   uploadTourImage,
-  uploadVoucher,
   uploadLocation,
   uploadTourActivities,
   uploadAlbumPost,
