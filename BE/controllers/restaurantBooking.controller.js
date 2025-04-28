@@ -2,6 +2,10 @@ const db = require("../models");
 const RestaurantBooking = db.RestaurantBooking;
 const Restaurant = db.Restaurant;
 const Booking = db.Booking;
+const TravelTour = db.TravelTour;
+const Op = db.Sequelize.Op;
+const Passenger = db.Passenger;
+
 
 // Lấy thông tin các nhà hàng đã được đặt cho một booking
 exports.getRestaurantBookingsByBookingId = async (req, res) => {
@@ -122,3 +126,34 @@ exports.getRestaurantBookingByRestaurantId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getRestaurantBookingByTravelTour = async (req, res) => {
+  try {
+    const { travel_tour_id } = req.params;
+    const travelTour = await TravelTour.findByPk(travel_tour_id);
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy tour" });
+    }
+    const bookings = await Booking.findAll({ where: { travel_tour_id: travelTour.id } });
+    const bookingIds = bookings.map(booking => booking.id);
+    const restaurantBooking = await RestaurantBooking.findAll(
+      { where: { 
+        booking_id: { [Op.in]: bookingIds } 
+      },
+        include: [
+          { model: Restaurant },
+          { model: Booking,
+            include: [
+              { model: Passenger,
+                as: "passengers"
+              },
+            ],
+          },
+        ],
+      }
+    );
+    res.status(200).json({ message: "Lấy thông tin đặt bàn nhà hàng thành công", data: restaurantBooking });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}

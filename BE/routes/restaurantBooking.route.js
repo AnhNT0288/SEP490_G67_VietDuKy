@@ -29,6 +29,10 @@ router.get(
   "/restaurant/:id",
   restaurantBookingController.getRestaurantBookingByRestaurantId
 );
+router.get(
+  "/travel-tour/:travel_tour_id",
+  restaurantBookingController.getRestaurantBookingByTravelTour
+);
 
 
 module.exports = router;
