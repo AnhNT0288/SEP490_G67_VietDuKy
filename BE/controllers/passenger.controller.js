@@ -185,7 +185,7 @@ exports.getPassengersByTravelGuideId = async (req, res) => {
 exports.getPassengersByTravelTourId = async (req, res) => {
     try {
         const {travel_tour_id} = req.params;
-        const {assigned} = req.query;
+        const {assigned} = req.query ? req.query.assigned : false;
 
         if (!travel_tour_id) {
             return res.status(400).json({message: "Thiếu travel_tour_id"});
