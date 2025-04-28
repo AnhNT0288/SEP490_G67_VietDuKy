@@ -326,7 +326,7 @@ const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
                             {isTourDisabled
                               ? "Tour đã đủ người"
                               : `Giá: ${(
-                                  parseFloat(tourDates[dateStr]) * 1000
+                                  parseFloat(tourDates[dateStr]) * 1000000
                                 ).toLocaleString("vi-VN")} VNĐ`}
                           </p>
                         </div>
