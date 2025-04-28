@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { FaUserPlus, FaUsers } from "react-icons/fa";
+import { FaUserPlus, FaUsers, FaConciergeBell } from "react-icons/fa"; // Thêm icon dịch vụ
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides }) {
+export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides, onAssignService }) {
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const widthDropdown = 224;
 
@@ -53,6 +53,7 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
                             <FaUserPlus className="mr-2" />
                             Gán hướng dẫn viên
                         </button>
+
                         <button
                             onClick={() => {
                                 setOpenDropdown(null);
@@ -63,6 +64,19 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
                             <FaUsers className="mr-2" />
                             Xem danh sách HDV & KH
                         </button>
+
+                        {/* Thêm nút Gán dịch vụ */}
+                        <button
+                            onClick={() => {
+                                setOpenDropdown(null);
+                                onAssignService(travelTour);
+                            }}
+                            className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
+                        >
+                            <FaConciergeBell className="mr-2" />
+                            Gán dịch vụ
+                        </button>
+
                     </div>,
                     document.body
                 )

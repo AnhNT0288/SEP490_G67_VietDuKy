@@ -71,3 +71,54 @@ export function updateHotel(hotelId, data) {
             throw err;
         });
 }
+// Lấy danh sách tất cả khách sạn của 1 tour
+export function getHotelsByTravelTourId(tourId) {
+    return restClient({
+        url: `hotel-booking/travel-tour/${tourId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy khách sạn theo tour:", err.response?.data || err);
+            throw err;
+        });
+}
+
+// Lấy danh sách khách sạn theo 1 booking
+export function getHotelsByBookingId(bookingId) {
+    return restClient({
+        url: `hotel-booking/${bookingId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy khách sạn theo booking:", err.response?.data || err);
+            throw err;
+        });
+}
+// Thêm khách sạn vào booking
+export function assignHotelToBooking(bookingId, hotelId) {
+    return restClient({
+        url: "hotel-booking/create",
+        method: "POST",
+        data: {
+            booking_id: bookingId,
+            hotel_id: hotelId,
+        },
+        headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi gán khách sạn vào booking:", err.response?.data || err);
+            throw err;
+        });
+}

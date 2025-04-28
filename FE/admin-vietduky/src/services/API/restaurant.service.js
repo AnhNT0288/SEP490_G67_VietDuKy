@@ -88,3 +88,35 @@ export function updateRestaurant(restaurantId, data) {
             throw err;
         });
 }
+
+// Lấy danh sách tất cả nhà hàng của 1 tour
+export function getRestaurantsByTravelTourId(tourId) {
+    return restClient({
+        url: `restaurant-booking/travel-tour/${tourId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy khách sạn theo tour:", err.response?.data || err);
+            throw err;
+        });
+}
+
+// Lấy danh sách khách sạn theo 1 booking
+export function getRestaurantsByBookingId(bookingId) {
+    return restClient({
+        url: `restaurant-booking/${bookingId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy khách sạn theo booking:", err.response?.data || err);
+            throw err;
+        });
+}

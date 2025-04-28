@@ -3,7 +3,7 @@ import { LuSearch } from "react-icons/lu";
 import {getAssignedTravelGuidesByStaffId} from "../../../services/API/staff.service.js";
 import {getUserById} from "../../../services/API/user.service.js";
 
-export default function StaffTourGuideManagement() {
+export default function TourGuideManagement() {
     const user = JSON.parse(localStorage.getItem("user"));
     const id = user?.id;
 

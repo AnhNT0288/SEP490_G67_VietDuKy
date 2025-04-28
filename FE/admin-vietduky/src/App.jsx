@@ -25,7 +25,7 @@ import GoogleAuthCallback from "./components/GoogleAuthCallBack.jsx";
 import SidebarStaff from "./components/Sidebar/SidebarStaff.jsx";
 import RoleBasedRoute from "./components/RoleBasedRoute.jsx";
 import PageAssignedGuides from "./components/Staff/PageAssignedGuides.jsx";
-import StaffTourGuideManagement from "./components/Staff/Management/StaffTourGuideManagement.jsx";
+import TourGuideManagement from "./components/Staff/Management/TourGuideManagement.jsx";
 import IsBookingTravelToursManagement from "./components/Staff/Management/IsBookingTravelToursManagement.jsx";
 import LoginPage from "./page/Authentication/LoginPage.jsx";
 import ForgotPasswordFlow from "./page/Authentication/ForgotPasswordFlow.jsx";
@@ -62,7 +62,7 @@ function App() {
           <Route path="/managementTheme" element={<ManagementTheme />} />
           <Route path="/managementSaleProgram" element={<ManagementSaleProgram />}/>
           <Route path="/staff/:id/assigned-guides" element={<PageAssignedGuides />}/>
-          <Route path="/managementStaffTourGuide" element={<StaffTourGuideManagement />}/>
+          <Route path="/managementStaffTourGuide" element={<TourGuideManagement />}/>
           <Route path="/managementTourForStaff" element={<IsBookingTravelToursManagement />}/>
           <Route path="/managementLastMinuteDeals" element={<ManagementLastMinuteDeals />}/>
         </Route>

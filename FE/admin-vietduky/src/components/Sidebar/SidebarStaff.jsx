@@ -36,7 +36,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
         {
             id: 4,
             name: "Quản lý Tour có Booking",
-            icon: Icons.RestaurantIcon,
+            icon: Icons.TravelTourIcon,
             path: "/managementTourForStaff",
         },
         {

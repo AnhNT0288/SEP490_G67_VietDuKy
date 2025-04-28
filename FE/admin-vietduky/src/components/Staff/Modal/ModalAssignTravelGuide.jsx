@@ -78,7 +78,7 @@ export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
     useEffect(() => {
         getGuidesByTravelTourId(tourId)
             .then((res) => {
-                console.log("DATA:", res)
+                console.log("DATA2:", res)
                 setTourInfo(res);
                 setGuides(res?.guides || []);
             })
