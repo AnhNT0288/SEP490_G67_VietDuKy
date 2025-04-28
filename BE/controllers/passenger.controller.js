@@ -185,6 +185,7 @@ exports.getPassengersByTravelGuideId = async (req, res) => {
 exports.getPassengersByTravelTourId = async (req, res) => {
     try {
         const {travel_tour_id} = req.params;
+        const {assigned} = req.query;
 
         if (!travel_tour_id) {
             return res.status(400).json({message: "Thiếu travel_tour_id"});
@@ -204,6 +205,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
         const bookingIds = bookings.map((booking) => booking.id);
 
         // Tìm tất cả hành khách liên quan đến các booking_id
+        if (assigned == false) {
         const passengers = await Passenger.findAll({
             where: {
                 booking_id: bookingIds,
@@ -223,6 +225,24 @@ exports.getPassengersByTravelTourId = async (req, res) => {
                 },
             ],
         });
+        } else {
+            const passengers = await Passenger.findAll({
+                where: {booking_id: bookingIds},
+                include: [
+                    {
+                        model: Booking,
+                        as: "booking",
+                        attributes: [
+                            "id",
+                            "number_adult",
+                            "number_children",
+                            "travel_tour_id",
+                            "booking_code",
+                        ],
+                    },
+                ],
+            });
+        }
 
         if (!passengers || passengers.length === 0) {
             return res

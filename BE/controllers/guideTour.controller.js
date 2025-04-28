@@ -976,7 +976,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
 
     if (!bookings || bookings.length === 0) {
       return res
-        .status(200)
+        .status(500)
         .json({ message: "Không tìm thấy booking cho tour này!" });
     }
 
