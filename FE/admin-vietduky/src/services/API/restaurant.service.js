@@ -6,7 +6,6 @@ function getAuthHeaders() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// Fetch all restaurants
 export function getAllRestaurants() {
     return restClient({
         url: "restaurant",
@@ -15,14 +14,13 @@ export function getAllRestaurants() {
             ...getAuthHeaders(),
         },
     })
-        .then((res) => res.data.data) // lấy luôn mảng data cho đúng
+        .then((res) => res.data.data)
         .catch((err) => {
             console.error("❌ Lỗi khi lấy danh sách nhà hàng:", err.response?.data || err);
             throw err;
         });
 }
 
-// Fetch a single restaurant by ID
 export function getRestaurantById(restaurantId) {
     return restClient({
         url: `restaurant/${restaurantId}`,
@@ -38,7 +36,6 @@ export function getRestaurantById(restaurantId) {
         });
 }
 
-// Create a new restaurant
 export function createRestaurant(data) {
     return restClient({
         url: "restaurant/create",
@@ -56,7 +53,6 @@ export function createRestaurant(data) {
         });
 }
 
-// Xóa nhà hàng
 export function deleteRestaurant(restaurantId) {
     return restClient({
         url: `restaurant/${restaurantId}`,
@@ -71,7 +67,7 @@ export function deleteRestaurant(restaurantId) {
             throw err;
         });
 }
-// Update a restaurant
+
 export function updateRestaurant(restaurantId, data) {
     return restClient({
         url: `restaurant/${restaurantId}`,
@@ -89,7 +85,6 @@ export function updateRestaurant(restaurantId, data) {
         });
 }
 
-// Lấy danh sách tất cả nhà hàng của 1 tour
 export function getRestaurantsByTravelTourId(tourId) {
     return restClient({
         url: `restaurant-booking/travel-tour/${tourId}`,
@@ -105,7 +100,6 @@ export function getRestaurantsByTravelTourId(tourId) {
         });
 }
 
-// Lấy danh sách khách sạn theo 1 booking
 export function getRestaurantsByBookingId(bookingId) {
     return restClient({
         url: `restaurant-booking/${bookingId}`,

@@ -30,6 +30,7 @@ import IsBookingTravelToursManagement from "./components/Staff/Management/IsBook
 import LoginPage from "./page/Authentication/LoginPage.jsx";
 import ForgotPasswordFlow from "./page/Authentication/ForgotPasswordFlow.jsx";
 import ManagementLastMinuteDeals from "./page/Management/ManagementLastMinuteDeals.jsx";
+import Dashboard from "./page/Management/Dashboard.jsx";
 // import RegisterPage from "./page/Authentication/RegisterPage.jsx";
 
 Modal.setAppElement("#root");
@@ -52,6 +53,7 @@ function App() {
         {/*<Route path={'/forgot-password'}/>*/}
 
         <Route element={<RoleBasedRoute allowedRoles={["admin", "staff"]} />}>
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/managementLocation" element={<ManagementLocation />} />
           <Route path="/managementTour" element={<ManagementTour />} />
           <Route path="/managementDiscount" element={<ManagementDiscount />} />

@@ -6,7 +6,6 @@ function getAuthHeaders() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// Fetch all hotels
 export function getAllHotels() {
     return restClient({
         url: "hotel",
@@ -54,7 +53,6 @@ export function deleteHotel(hotelId) {
         });
 }
 
-// Update a hotel
 export function updateHotel(hotelId, data) {
     return restClient({
         url: `hotel/${hotelId}`,
@@ -71,7 +69,7 @@ export function updateHotel(hotelId, data) {
             throw err;
         });
 }
-// Lấy danh sách tất cả khách sạn của 1 tour
+
 export function getHotelsByTravelTourId(tourId) {
     return restClient({
         url: `hotel-booking/travel-tour/${tourId}`,
@@ -87,7 +85,6 @@ export function getHotelsByTravelTourId(tourId) {
         });
 }
 
-// Lấy danh sách khách sạn theo 1 booking
 export function getHotelsByBookingId(bookingId) {
     return restClient({
         url: `hotel-booking/${bookingId}`,
@@ -102,7 +99,7 @@ export function getHotelsByBookingId(bookingId) {
             throw err;
         });
 }
-// Thêm khách sạn vào booking
+
 export function assignHotelToBooking(bookingId, hotelId) {
     return restClient({
         url: "hotel-booking/create",
