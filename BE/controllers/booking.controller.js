@@ -234,20 +234,20 @@ exports.getAllBookings = async (req, res) => {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
                 },
-                {
-                    model: RestaurantBooking,
-                    include: [
-                        {
-                            model: Restaurant,
-                            attributes: [
-                                "id",
-                                "name_restaurant",
-                                "address_restaurant",
-                                "phone_number",
-                            ],
-                        },
-                    ],
-                },
+                // {
+                //     model: RestaurantBooking,
+                //     include: [
+                //         {
+                //             model: Restaurant,
+                //             attributes: [
+                //                 "id",
+                //                 "name_restaurant",
+                //                 "address_restaurant",
+                //                 "phone_number",
+                //             ],
+                //         },
+                //     ],
+                // },
                 {
                     model: HotelBooking,
                     include: [
@@ -293,20 +293,20 @@ exports.getBookingById = async (req, res) => {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
                 },
-                {
-                    model: RestaurantBooking,
-                    include: [
-                        {
-                            model: Restaurant,
-                            attributes: [
-                                "id",
-                                "name_restaurant",
-                                "address_restaurant",
-                                "phone_number",
-                            ],
-                        },
-                    ],
-                },
+                // {
+                //     model: RestaurantBooking,
+                //     include: [
+                //         {
+                //             model: Restaurant,
+                //             attributes: [
+                //                 "id",
+                //                 "name_restaurant",
+                //                 "address_restaurant",
+                //                 "phone_number",
+                //             ],
+                //         },
+                //     ],
+                // },
                 {
                     model: HotelBooking,
                     include: [
@@ -668,20 +668,20 @@ exports.getLatestBooking = async (req, res) => {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
                 },
-                {
-                    model: RestaurantBooking,
-                    include: [
-                        {
-                            model: Restaurant,
-                            attributes: [
-                                "id",
-                                "name_restaurant",
-                                "address_restaurant",
-                                "phone_number",
-                            ],
-                        },
-                    ],
-                },
+                // {
+                //     model: RestaurantBooking,
+                //     include: [
+                //         {
+                //             model: Restaurant,
+                //             attributes: [
+                //                 "id",
+                //                 "name_restaurant",
+                //                 "address_restaurant",
+                //                 "phone_number",
+                //             ],
+                //         },
+                //     ],
+                // },
                 {
                     model: HotelBooking,
                     include: [
