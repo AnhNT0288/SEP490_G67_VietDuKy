@@ -12,7 +12,7 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
   const [travelTourDetail, setTravelTourDetail] = useState(null);
   const [booking, setBooking] = useState(null);
   const [openBookingListModal, setOpenBookingListModal] = useState(false);
-  const [passengerBookings, setPassengerBookings] = useState([]);
+  const [passengerBookings, setPassengerBookings] = useState([]);  
 
   const handleClose = () => {
     onClose();
@@ -37,6 +37,9 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
   useEffect(() => {
     const fetchTravelTourDetail = async () => {
       if (tourSelected) {
+        // console.log("TourSelected", tourSelected);
+        // console.log("GuideIdSend", guideId);
+        
         const response = await getTravelTourDetailForGuide(
           tourSelected.travel_tour_id,
           guideId

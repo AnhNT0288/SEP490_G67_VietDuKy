@@ -53,21 +53,18 @@ const InstructionSchedule = () => {
     if (matchedGuide) {
       setTravelGuideId(matchedGuide.id);
     }
-  }, [travelGuides, userId]);
-
-  console.log("travelGuideId", travelGuideId);
-  
+  }, [travelGuides, userId]);  
 
   useEffect(() => {
     const fetchTours = async () => {
-      if (!travelGuideId) {
-        console.warn("⛔ travelGuideId is null or undefined. Không gọi API.");
+      if (!userId) {
+        console.warn("⛔ userId is null or undefined. Không gọi API.");
         return;
       }
 
       setLoading(true);
       try {
-        const response = await getGuideTourByUserId(travelGuideId, {
+        const response = await getGuideTourByUserId(userId, {
           ...pagination,
           name_tour: search,
           start_location_id: startLocation,
@@ -93,7 +90,7 @@ const InstructionSchedule = () => {
     };
 
     fetchTours();
-  }, [search, startLocation, endLocation, pagination, tab, travelGuideId, startDate]);
+  }, [search, startLocation, endLocation, pagination, tab, userId, startDate]);
 
   // Reset về trang 1 mỗi khi filter thay đổi
   useEffect(() => {

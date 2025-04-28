@@ -450,11 +450,11 @@ exports.getLocationsByStaff = async (req, res) => {
       ],
     });
 
-    if (staffLocations.length === 0) {
-      return res.status(404).json({
-        message: "Không tìm thấy địa điểm nào được gán cho Staff này!",
-      });
-    }
+    // if (staffLocations.length === 0) {
+    //   return res.status(404).json({
+    //     message: "Không tìm thấy địa điểm nào được gán cho Staff này!",
+    //   });
+    // }
 
     res.status(200).json({
       message: "Lấy danh sách địa điểm thành công!",

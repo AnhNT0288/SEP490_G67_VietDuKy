@@ -116,6 +116,8 @@ export const getTravelTourDetailForGuide = async (travelTourId, guideId) => {
     return response;
   } catch (error) {
     console.error("Lỗi khi lấy chi tiết tour:", error);
+    console.log(guideId);
+    
     throw error;
   }
 };

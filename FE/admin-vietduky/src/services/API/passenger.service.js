@@ -6,6 +6,9 @@ export function getPassengersByTravelTourId(tourId) {
     return restClient({
         url: `passenger/travel-tour/${tourId}`,
         method: "GET",
+        params: {
+            assigned: true,
+        }
     })
         .then((response) => response.data.data)
         .catch((error) => {
