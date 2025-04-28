@@ -205,28 +205,29 @@ exports.getPassengersByTravelTourId = async (req, res) => {
         const bookingIds = bookings.map((booking) => booking.id);
 
         // Tìm tất cả hành khách liên quan đến các booking_id
+        let passengers;
         if (assigned == false) {
-        const passengers = await Passenger.findAll({
-            where: {
-                booking_id: bookingIds,
-                group: null
-            },
-            include: [
-                {
-                    model: Booking,
-                    as: "booking",
-                    attributes: [
-                        "id",
-                        "number_adult",
-                        "number_children",
-                        "travel_tour_id",
-                        "booking_code",
-                    ],
+            passengers = await Passenger.findAll({
+                where: {
+                    booking_id: bookingIds,
+                    group: null
                 },
-            ],
-        });
+                include: [
+                    {
+                        model: Booking,
+                        as: "booking",
+                        attributes: [
+                            "id",
+                            "number_adult",
+                            "number_children",
+                            "travel_tour_id",
+                            "booking_code",
+                        ],
+                    },
+                ],
+            });
         } else {
-            const passengers = await Passenger.findAll({
+            passengers = await Passenger.findAll({
                 where: {booking_id: bookingIds},
                 include: [
                     {
