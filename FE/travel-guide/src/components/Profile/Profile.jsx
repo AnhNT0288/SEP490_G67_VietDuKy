@@ -132,8 +132,16 @@ export default function Profile() {
                       {user.email}
                     </p>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-gray-700 text-white flex items-center justify-center font-bold text-lg">
-                    {user.displayName?.charAt(0)?.toUpperCase() || "U"}
+                  <div className="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-lg overflow-hidden">
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt="Avatar"
+                        className="w-10 h-10 object-cover"
+                      />
+                    ) : (
+                      user.displayName?.charAt(0)?.toUpperCase() || "U"
+                    )}
                   </div>
                 </div>
               </div>
