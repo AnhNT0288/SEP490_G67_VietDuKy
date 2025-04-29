@@ -34,15 +34,15 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       icon: Icons.RestaurantIcon,
       path: "/managementRestaurant",
     },
-    {
-      id: 5,
-      name: "Quản lý phương tiện",
-      icon: Icons.VehicleIcon,
-      subItems: [
-        { id: 501, name: "Loại phương tiện" },
-        { id: 502, name: "Phương tiện" },
-      ],
-    },
+    // {
+    //   id: 5,
+    //   name: "Quản lý phương tiện",
+    //   icon: Icons.VehicleIcon,
+    //   subItems: [
+    //     { id: 501, name: "Loại phương tiện" },
+    //     { id: 502, name: "Phương tiện" },
+    //   ],
+    // },
     {
       id: 6,
       name: "Quản lý khuyến mãi",

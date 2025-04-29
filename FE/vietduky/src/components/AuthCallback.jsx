@@ -1,9 +1,10 @@
 import { StorageService } from "@/services/storage/StorageService";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -21,13 +22,16 @@ const AuthCallback = () => {
       localStorage.setItem("access_token", accessToken);
       localStorage.setItem("refresh_token", refreshToken);
       StorageService.setUser(user);
+
+      // Điều hướng về trang trước đó nếu có
+      const from = location.state?.from || "/";
       setTimeout(() => {
-        navigate("/");
+        navigate(from);
       }, 100);
     } else {
       navigate("/login");
     }
-  }, [navigate]);
+  }, [navigate, location]);
 
   return <div>Đang xử lý đăng nhập...</div>;
 };
