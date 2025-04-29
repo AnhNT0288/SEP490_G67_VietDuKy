@@ -83,7 +83,7 @@ export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
               <hr className="my-1" />
               <button
                 className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate("/account/profile")}
               >
                 Xem hồ sơ
               </button>

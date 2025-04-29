@@ -262,25 +262,59 @@ exports.getUsersByRoleId = async (req, res) => {
   }
 };
 
+exports.getStaffProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; // Lấy user_id từ token
+
+    // Tìm user và bao gồm thông tin StaffProfile (nếu có)
+    const user = await User.findOne({
+      where: { id: userId },
+      attributes: ["id", "email", "displayName", "avatar"], // Các trường từ User
+      include: [
+        {
+          model: StaffProfile,
+          attributes: ["id", "phone", "date_of_birth", "gender"], // Các trường của StaffProfile
+        },
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
+
+    return res.json(user); // Trả về toàn bộ thông tin User + StaffProfile
+  } catch (error) {
+    console.error("Lỗi khi lấy profile:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
 //Cập nhật thông tin StaffProfile
 exports.updateStaffProfile = async (req, res) => {
   try {
-    const { user_id } = req.params; // ID của user
-    const { phone, date_of_birth, gender } = req.body;
+    const userId = req.user.id; // Lấy user_id từ token
+    const { phone, date_of_birth, gender, displayName } = req.body; // Lấy thêm displayName
 
-    // Kiểm tra xem user có phải là Staff không
-    const user = await User.findByPk(user_id);
-    if (!user || user.role_id !== 2) {
-      return res.status(400).json({ message: "Người dùng không phải Staff!" });
+    // Tìm user
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại!" });
+    }
+
+    // Nếu có displayName, cập nhật luôn vào User
+    if (displayName !== undefined) {
+      user.displayName = displayName;
+      await user.save(); // Lưu lại user
     }
 
     // Tìm hoặc tạo StaffProfile
     const [profile, created] = await StaffProfile.findOrCreate({
-      where: { user_id },
+      where: { user_id: userId },
       defaults: { phone, date_of_birth, gender },
     });
 
-    // Nếu profile đã tồn tại, cập nhật thông tin
+    // Nếu profile đã tồn tại, cập nhật
     if (!created) {
       if (phone !== undefined) profile.phone = phone;
       if (date_of_birth !== undefined) profile.date_of_birth = date_of_birth;
@@ -288,17 +322,32 @@ exports.updateStaffProfile = async (req, res) => {
       await profile.save();
     }
 
+    // Lấy lại User + StaffProfile sau khi cập nhật
+    const updatedUser = await User.findOne({
+      where: { id: userId },
+      attributes: ["id", "email", "displayName", "avatar"],
+      include: [
+        {
+          model: StaffProfile,
+          attributes: ["id", "phone", "date_of_birth", "gender"],
+        },
+      ],
+    });
+
     res.status(200).json({
       message: "Cập nhật thông tin cá nhân thành công!",
-      data: profile,
+      data: updatedUser,
     });
   } catch (error) {
+    console.error("Lỗi khi cập nhật profile:", error);
     res.status(500).json({
       message: "Lỗi khi cập nhật thông tin cá nhân!",
       error: error.message,
     });
   }
 };
+
+
 
 //Gán địa điểm cho Staff
 exports.assignLocationsToStaff = async (req, res) => {

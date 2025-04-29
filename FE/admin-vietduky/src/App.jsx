@@ -11,7 +11,6 @@ import ManagementRestaurant from "./page/Management/ManagementRestaurant.jsx";
 import ManagementVehicle from "./page/Management/ManagementVehicle.jsx";
 import ModalManageTravelTour from "./components/ModalManage/ModalList/ModalManageTravelTour.jsx";
 import PrivateRoute from "./components/PrivateRouter.jsx";
-import Profile from "./components/Profile.jsx";
 import Calendar from "./components/Calendar/Calendar.jsx";
 import ManagementTheme from "./page/Management/ManagementTopic.jsx";
 import ManagementDiscount from "./page/Management/ManagementDiscount.jsx";
@@ -31,6 +30,7 @@ import LoginPage from "./page/Authentication/LoginPage.jsx";
 import ForgotPasswordFlow from "./page/Authentication/ForgotPasswordFlow.jsx";
 import ManagementLastMinuteDeals from "./page/Management/ManagementLastMinuteDeals.jsx";
 import Dashboard from "./page/Management/Dashboard.jsx";
+import Profile from "./components/Profile/Profile.jsx";
 // import RegisterPage from "./page/Authentication/RegisterPage.jsx";
 
 Modal.setAppElement("#root");

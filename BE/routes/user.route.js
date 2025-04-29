@@ -66,6 +66,13 @@ router.get(
   userController.getUsersByRoleId
 );
 
+router.get(
+  "/staff-profile/:user_id",
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
+  userController.getStaffProfile
+);
+
 router.put(
   "/staff-profile/:user_id",
   authenticateUser,
