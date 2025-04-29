@@ -34,6 +34,7 @@ const TourInfoRouter = require("./tour_info.route");
 const statisticRoutes = require("./statistic.routes");
 const RestaurantRouter = require("./restaurant.route");
 const HotelRouter = require("./hotel.route");
+const VehicleRouter = require("./vehicle.route");
 
 router.use("/auth", AuthRouter);
 router.use("/tour", TourRouter);
@@ -69,4 +70,5 @@ router.use("/tour-info", TourInfoRouter);
 router.use("/statistic", statisticRoutes);
 router.use("/restaurant", RestaurantRouter);
 router.use("/hotel", HotelRouter);
+router.use("/vehicle", VehicleRouter);
 module.exports = router;

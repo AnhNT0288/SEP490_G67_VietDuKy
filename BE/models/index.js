@@ -126,6 +126,10 @@ Restaurant.belongsTo(Location, { foreignKey: "location_id" });
 Location.hasMany(Hotel, { foreignKey: "location_id" });
 Hotel.belongsTo(Location, { foreignKey: "location_id" });
 
+//Location/Vehicle
+Location.hasMany(Vehicle, { foreignKey: "location_id" });
+Vehicle.belongsTo(Location, { foreignKey: "location_id" });
+
 //Booking/HotelBooking
 Booking.hasMany(HotelBooking, { foreignKey: "booking_id" });
 HotelBooking.belongsTo(Booking, { foreignKey: "booking_id" });

@@ -93,4 +93,10 @@ router.delete(
   // checkRoles(["admin", "staff"]),
   passengerController.removePassengerGroup
 );
+router.get(
+  "/service-assigned/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.getPassengerServiceAssigned
+);
 module.exports = router;
