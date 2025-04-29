@@ -22,3 +22,9 @@ export function getUserById(id) {
             throw err;
         });
 }
+export function updateUserStatus(id) {
+    return restClient({
+        url: `user/status/${id}`,
+        method: "PUT",
+    });
+}

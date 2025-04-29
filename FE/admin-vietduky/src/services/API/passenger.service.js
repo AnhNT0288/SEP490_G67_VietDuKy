@@ -4,7 +4,7 @@ import restClient from "../restClient";
 // Lấy danh sách hành khách theo tour ID (grouped theo booking)
 export function getPassengersByTravelTourId(tourId) {
     return restClient({
-        url: `passenger/travel-tour/${tourId}`,
+        url: `passenger/travel-tour/${tourId}?assigned=true`,
         method: "GET",
         params: {
             assigned: true,

@@ -16,13 +16,11 @@ import ImportExcelButton from "./ImportExcelButton";
 import UpdateCustomerInfoModal from "./UpdateCustomerInfoModal";
 const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
   const [search, setSearch] = useState("");
-  const [openAddCustomerInfoModal, setOpenAddCustomerInfoModal] =
-    useState(false);
+  const [openAddCustomerInfoModal, setOpenAddCustomerInfoModal] = useState(false);
   const [bookingDetail, setBookingDetail] = useState(null);
   const [openDeleteCustomerModal, setOpenDeleteCustomerModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
-  const [openUpdateCustomerInfoModal, setOpenUpdateCustomerInfoModal] =
-    useState(false);
+  const [openUpdateCustomerInfoModal, setOpenUpdateCustomerInfoModal] = useState(false);
   const [customerToUpdate, setCustomerToUpdate] = useState(null);
   const [updateInfoCustomer, setUpdateInfoCustomer] = useState({
     name: "",

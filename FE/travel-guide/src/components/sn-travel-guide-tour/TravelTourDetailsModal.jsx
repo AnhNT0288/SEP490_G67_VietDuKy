@@ -60,7 +60,7 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
     <div className="fixed inset-0 z-10 bg-black/40 flex items-center justify-center">
       <div className="bg-white w-[90%] h-[85vh] max-w-6xl rounded-2xl p-6 overflow-hidden shadow-xl flex flex-col">
         <div className="flex justify-between items-start mb-4">
-          <h2 className="text-xl font-semibold">Danh sách lịch trình</h2>
+          <h2 className="text-xl font-semibold">Thông tin lịch khởi hành</h2>
           <button
             className="text-gray-500 hover:text-black"
             onClick={handleClose}
@@ -69,14 +69,11 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1">
           {/* Left column */}
           <div className="space-y-4 col-span-4">
             <div>
-              <h3 className="text-sm text-gray-500 mb-1 font-medium">
-                Thông tin lịch khởi hành
-              </h3>
-              <p className="font-semibold">
+              <p className=" text-red">
                 {travelTourDetail?.tour?.name_tour}
               </p>
             </div>

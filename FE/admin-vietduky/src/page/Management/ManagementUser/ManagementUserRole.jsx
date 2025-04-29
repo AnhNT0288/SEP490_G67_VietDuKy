@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { LuSearch } from "react-icons/lu";
-import Layout from "../../../layouts/LayoutManagement";
 import ModalAddUser from "../../../components/ModalManage/ModalUser/ModalAddUser.jsx";
 import { getAllAccounts } from "../../../services/API/accounts.services";
 import DropdownMenuUser from "../../../components/Dropdown/DropdownMenuUser.jsx";
 import ModalUpdateUser from "../../../components/ModalManage/ModalUpdate/ModalUpdateUser.jsx";
+import {updateUserStatus} from "../../../services/API/user.service.js";
 
 export default function ManagementUserRole() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +30,6 @@ export default function ManagementUserRole() {
         fetchUsers();
     }, []);
 
-
     const filteredUsers = Array.isArray(users)
         ? users.filter((user) =>
             (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -43,12 +42,17 @@ export default function ManagementUserRole() {
     const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-    const toggleAddTourModal = () => {
-        setIsAddTourModalOpen(!isAddTourModalOpen);
+    const handleLockAccount = async (user) => {
+        try {
+            await updateUserStatus(user.id);
+            await fetchUsers(); // Load lại danh sách
+        } catch (error) {
+            console.error("Failed to update user status:", error);
+        }
     };
 
-    const handleLockAccount = (userId) => {
-        console.log(`Locking account for user: ${userId}`);
+    const toggleAddTourModal = () => {
+        setIsAddTourModalOpen(!isAddTourModalOpen);
     };
 
     const handleEditUser = (user) => {
@@ -106,9 +110,9 @@ export default function ManagementUserRole() {
                                     {user.role_id === 1
                                         ? "Khách hàng"
                                         : user.role_id === 2
-                                            ? "Staff"
+                                            ? "Nhân viên"
                                             : user.role_id === 3
-                                                ? "Admin"
+                                                ? "Quản trị viên"
                                                 : user.role_id === 4
                                                     ? "Hướng dẫn viên"
                                                     : "Unknown"}

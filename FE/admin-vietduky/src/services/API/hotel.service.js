@@ -100,6 +100,23 @@ export function getHotelsByBookingId(bookingId) {
         });
 }
 
+// Lấy danh sách khách sạn khả dụng theo Tour
+export function getAvailableHotelsByTravelTourId(tourId) {
+    return restClient({
+        url: `hotel/travel-tour/${tourId}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi lấy khách sạn khả dụng theo tour:", err.response?.data || err);
+            throw err;
+        });
+}
+
+// Gán khách sạn vào Booking
 export function assignHotelToBooking(bookingId, hotelId) {
     return restClient({
         url: "hotel-booking/create",
@@ -116,6 +133,22 @@ export function assignHotelToBooking(bookingId, hotelId) {
         .then((res) => res.data)
         .catch((err) => {
             console.error("❌ Lỗi khi gán khách sạn vào booking:", err.response?.data || err);
+            throw err;
+        });
+}
+
+// Hủy gán khách sạn cho booking
+export function cancelAssignHotel(hotelBookingId) {
+    return restClient({
+        url: `hotel-booking/cancel/${hotelBookingId}`,
+        method: "DELETE",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    })
+        .then((res) => res.data)
+        .catch((err) => {
+            console.error("❌ Lỗi khi hủy gán khách sạn:", err.response?.data || err);
             throw err;
         });
 }
