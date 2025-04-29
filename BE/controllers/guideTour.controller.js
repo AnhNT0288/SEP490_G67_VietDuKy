@@ -755,6 +755,8 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
   try {
     const { travelTourId } = req.params;
     const {travel_guide_id} = req.query;
+    let passengerCountByGuide = {};
+    let passengersByGuide = [];
     // Lấy thông tin tour du lịch
     const travelTour = await TravelTour.findOne({
       where: { id: travelTourId },
