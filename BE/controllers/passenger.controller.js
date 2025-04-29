@@ -2,6 +2,12 @@ const db = require("../models");
 const Passenger = db.Passenger;
 const Booking = db.Booking;
 const TravelGuide = db.TravelGuide;
+const TravelTour = db.TravelTour;
+const HotelBooking = db.HotelBooking;
+const Hotel = db.Hotel;
+const RestaurantBooking = db.RestaurantBooking;
+const Restaurant = db.Restaurant;
+
 
 // Tạo hành khách mới
 exports.createPassenger = async (req, res) => {
@@ -658,4 +664,64 @@ exports.removePassengerGroup = async (req, res) => {
         });
     }
 }
+exports.getPassengerServiceAssigned = async (req, res) => {
+    try {
+        const {travel_tour_id} = req.params;
+        const {travel_guide_id} = req.query;
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id, travel_tour_id}
+        })
+        if(!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        const travelTour = await TravelTour.findOne({
+            where: {id: travel_tour_id}
+        })
+        if(!travelTour) {
+            return res.status(404).json({message: "Không tìm thấy tour du lịch!"});
+        }
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengers = await Passenger.findAll({
+            where: {booking_id: bookingIds, group: guideTour.group},
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                    include: [
+                        {
+                            model: HotelBooking,
+                            include: [
+                                {
+                                    model: Hotel,
+                                    as: "Hotel",
+                                }
+                            ]
+                        },
+                        {
+                            model: RestaurantBooking,
+                            include: [
+                                {
+                                    model: Restaurant,
+                                    as: "Restaurant",
+                                }
+                            ]
+                        }
+                    ],
+                },
+            ],
+        })
+        res.status(200).json({
+            message: "Lấy danh sách hành khách thành công!",
+            data: passengers,
+        });
 
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy danh sách hành khách!",
+            error: error.message,
+        });
+    }
+}
