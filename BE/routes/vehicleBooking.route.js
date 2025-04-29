@@ -9,18 +9,29 @@ const {
 
 router.get(
   "/:booking_id",
-  authenticateUser,
+  // authenticateUser,
   vehicleBookingController.getVehicleBookingsByBookingId
 );
 router.post(
   "/create",
-  authenticateUser,
+  // authenticateUser,
   vehicleBookingController.addVehicleToBooking
 );
 router.delete(
   "/cancel/:id",
-  authenticateUser,
+  // authenticateUser,
   vehicleBookingController.cancelVehicleBookingById
 );
+router.get(
+  "/vehicle/:vehicle_id",
+  // authenticateUser,
+  vehicleBookingController.getVehicleBookingByVehicleId
+);
+router.get(
+  "/travel-tour/:travel_tour_id",
+  // authenticateUser,
+  vehicleBookingController.getVehicleBookingByTravelTour
+);
+
 
 module.exports = router;

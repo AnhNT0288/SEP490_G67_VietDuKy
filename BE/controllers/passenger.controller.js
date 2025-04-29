@@ -7,6 +7,8 @@ const HotelBooking = db.HotelBooking;
 const Hotel = db.Hotel;
 const RestaurantBooking = db.RestaurantBooking;
 const Restaurant = db.Restaurant;
+const VehicleBooking = db.VehicleBooking;
+const Vehicle = db.Vehicle;
 
 
 // Tạo hành khách mới
@@ -706,6 +708,15 @@ exports.getPassengerServiceAssigned = async (req, res) => {
                                 {
                                     model: Restaurant,
                                     as: "Restaurant",
+                                }
+                            ]
+                        },
+                        {
+                            model: VehicleBooking,
+                            include: [
+                                {
+                                    model: Vehicle,
+                                    as: "Vehicle",
                                 }
                             ]
                         }
