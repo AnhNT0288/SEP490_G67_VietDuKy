@@ -7,6 +7,7 @@ const Service = db.Service;
 const User = db.User;
 const Feedback = db.Feedback;
 const Passenger = db.Passenger;
+const TravelGuide = db.TravelGuide;
 
 exports.getDashboardStats = async (req, res) => {
     try {
@@ -68,26 +69,144 @@ exports.getDashboardStats = async (req, res) => {
 
         // Top 4 Tour được yêu thích
         const topTours = await Tour.findAll({
-            include: [{
-                model: Feedback,
-                attributes: []
-            }],
+            include: [
+                {
+                    model: Feedback,
+                    as: 'feedback',
+                    attributes: ['rating', 'description_feedback', 'feedback_album']
+                },
+                {
+                    model: db.TravelTour,
+                    as: 'TravelTours',
+                    attributes: ['id', 'start_day', 'end_day', 'status']
+                }
+            ],
             attributes: [
                 'id',
                 'name_tour',
                 'code_tour',
+                'album',
+                'rating_tour',
+                [db.Sequelize.fn('COUNT', db.Sequelize.fn('DISTINCT', db.Sequelize.col('TravelTours.id'))), 'travel_tour_count'],
+                [db.Sequelize.fn('COUNT', db.Sequelize.fn('DISTINCT', db.Sequelize.col('feedback.feedback_id'))), 'feedback_count'],
             ],
             group: ['Tour.id'],
-            limit: 4
+            order: [['rating_tour', 'DESC']],
+            limit: 4,
+            subQuery: false
+        });
+
+        // 4 Tour có rating thấp nhất
+        const lowestRatedTours = await Tour.findAll({
+            include: [
+                {
+                    model: Feedback,
+                    as: 'feedback',
+                    attributes: ['rating', 'description_feedback', 'feedback_album']
+                },
+                {
+                    model: db.TravelTour,
+                    as: 'TravelTours',
+                    attributes: ['id', 'start_day', 'end_day', 'status']
+                }
+            ],
+            attributes: [
+                'id',
+                'name_tour',
+                'code_tour',
+                'album',
+                'rating_tour',
+                [db.Sequelize.fn('COUNT', db.Sequelize.fn('DISTINCT', db.Sequelize.col('TravelTours.id'))), 'travel_tour_count'],
+                [db.Sequelize.fn('COUNT', db.Sequelize.fn('DISTINCT', db.Sequelize.col('feedback.feedback_id'))), 'feedback_count'],
+            ],
+            group: ['Tour.id'],
+            order: [['rating_tour', 'ASC']],
+            limit: 4,
+            subQuery: false
+        });
+
+        // Format lại dữ liệu trả về
+        const formattedTopTours = topTours.map(tour => {
+            const tourData = tour.get({ plain: true });
+            return {
+                ...tourData,
+                travel_tour_count: parseInt(tourData.travel_tour_count),
+                feedback_count: parseInt(tourData.feedback_count),
+                feedbacks: tour.feedback.map(feedback => ({
+                    rating: feedback.rating,
+                    description: feedback.description_feedback,
+                    album: feedback.feedback_album ? JSON.parse(feedback.feedback_album) : []
+                }))
+            };
+        });
+
+        const formattedLowestRatedTours = lowestRatedTours.map(tour => {
+            const tourData = tour.get({ plain: true });
+            return {
+                ...tourData,
+                travel_tour_count: parseInt(tourData.travel_tour_count),
+                feedback_count: parseInt(tourData.feedback_count),
+                feedbacks: tour.feedback.map(feedback => ({
+                    rating: feedback.rating,
+                    description: feedback.description_feedback,
+                    album: feedback.feedback_album ? JSON.parse(feedback.feedback_album) : []
+                }))
+            };
         });
 
         // Danh sách Hướng dẫn viên và đánh giá
-        const guides = await User.findAll({
-            where: {
-                role_id: 4 // Giả sử role_id = 4 là hướng dẫn viên
-            },
-            group: ['User.id']
+        const guides = await TravelGuide.findAll({
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'displayName', 'email', 'avatar']
+                },
+                {
+                    model: Feedback,
+                    as: 'Feedbacks',
+                    attributes: ['feedback_id', 'rating', 'description_feedback', 'feedback_album']
+                },
+                {
+                    model: db.GuideTour,
+                    as: 'GuideTours',
+                    where: {
+                        status: 1
+                    },
+                    required: false
+                }
+            ],
+            attributes: [
+                'id',
+                'first_name',
+                'last_name',
+                'email',
+                'number_phone',
+                'gender_guide',
+                [db.Sequelize.fn('COUNT', db.Sequelize.col('GuideTours.id')), 'approved_tour_count'],
+                [db.Sequelize.fn('AVG', db.Sequelize.col('Feedbacks.rating')), 'average_rating']
+            ],
+            group: ['TravelGuide.id', 'user.id'],
+            order: [[db.Sequelize.literal('approved_tour_count'), 'DESC']],
+            limit: 4,
+            subQuery: false
         });
+
+        // Format lại dữ liệu guides
+        const formattedGuides = guides.map(guide => {
+            const guideData = guide.get({ plain: true });
+            return {
+                ...guideData,
+                approved_tour_count: parseInt(guideData.approved_tour_count) || 0,
+                average_rating: parseFloat(guideData.average_rating) || 0,
+                feedbacks: guide.Feedbacks.map(feedback => ({
+                    rating: feedback.rating,
+                    description: feedback.description_feedback,
+                    album: feedback.feedback_album ? JSON.parse(feedback.feedback_album) : []
+                }))
+            };
+        });
+
         const feedbacks = await Feedback.findAll({
             include: [{
                 model: Tour,
@@ -104,8 +223,9 @@ exports.getDashboardStats = async (req, res) => {
                 total_bookings: totalBookings,
                 total_customers: totalCustomers,
                 monthly_stats: monthlyStats,
-                top_tours: topTours,
-                guides: guides,
+                top_tours: formattedTopTours,
+                lowest_rated_tours: formattedLowestRatedTours,
+                guides: formattedGuides,
                 feedbacks: feedbacks
             }
         });
