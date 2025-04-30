@@ -54,8 +54,13 @@ exports.getFeedbackByUser = async (req, res) => {
 // Tạo feedback cho Tour
 exports.createFeedbackForTour = async (req, res) => {
   try {
-    const { user_id, tour_id, description_feedback, rating, feedback_date } =
-      req.body;
+    const {
+      user_id,
+      tour_id,
+      description_feedback,
+      rating_tour,
+      feedback_date,
+    } = req.body;
     const feedback_album =
       req.files && req.files.length > 0
         ? JSON.stringify(req.files.map((file) => file.path))
@@ -76,17 +81,16 @@ exports.createFeedbackForTour = async (req, res) => {
       where: { user_id },
     });
 
-    console.log("Booking:", booking);
-    
-
     if (!booking) {
       return res
         .status(403)
         .json({ message: "Bạn chưa đặt tour này, không thể feedback!" });
     }
-    // Kiểm tra nếu không có rating, mặc định cho rating = 5
-    const feedbackRating = rating || 5;
 
+    // Kiểm tra nếu không có rating, mặc định cho rating = 5
+    const feedbackRating = rating_tour || 5;
+
+    // Tạo feedback mới
     const newFeedback = await Feedback.create({
       user_id,
       tour_id,
@@ -95,6 +99,24 @@ exports.createFeedbackForTour = async (req, res) => {
       feedback_date,
       feedback_album,
     });
+
+    // Lấy tất cả feedback của tour để tính trung bình cộng rating
+    const tourFeedbacks = await Feedback.findAll({
+      where: { tour_id },
+    });
+
+    const totalRating = tourFeedbacks.reduce(
+      (sum, feedback) => sum + (feedback.rating || 0),
+      0
+    );
+    const averageRating =
+      tourFeedbacks.length > 0
+        ? (totalRating / tourFeedbacks.length).toFixed(1)
+        : 0;
+
+    // Cập nhật trường rating_tour của tour
+    tour.rating_tour = averageRating;
+    await tour.save();
 
     res.status(201).json({
       message: "Tạo feedback cho tour thành công!",
@@ -145,12 +167,10 @@ exports.createFeedbackForTravelGuide = async (req, res) => {
     });
 
     if (!booking) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Bạn chưa đặt tour có liên quan đến hướng dẫn viên này, không thể feedback!",
-        });
+      return res.status(403).json({
+        message:
+          "Bạn chưa đặt tour có liên quan đến hướng dẫn viên này, không thể feedback!",
+      });
     }
 
     // Kiểm tra nếu không có rating, mặc định cho rating = 5
@@ -193,13 +213,13 @@ exports.updateFeedback = async (req, res) => {
     }
 
     // Cập nhật các trường thông tin trong feedback
-    if (description_feedback != undefined)
+    if (description_feedback !== undefined)
       feedback.description_feedback =
         description_feedback || feedback.description_feedback;
-    if (rating != undefined) feedback.rating = rating || feedback.rating;
-    if (feedback_date != undefined)
+    if (rating !== undefined) feedback.rating = rating || feedback.rating;
+    if (feedback_date !== undefined)
       feedback.feedback_date = feedback_date || feedback.feedback_date;
-    if (feedback_album != undefined)
+    if (feedback_album !== undefined)
       feedback.feedback_album = feedback_album || feedback.feedback_album;
     await feedback.save();
 

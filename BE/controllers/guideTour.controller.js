@@ -2280,3 +2280,150 @@ exports.deleteGuideTour = async (req, res) => {
     });
   }
 }
+exports.getGuideTourStatistics = async (req, res) => {
+  try {
+    const { travel_guide_id } = req.params;
+    const { month } = req.query;
+
+    // Xử lý tháng hiện tại và tháng trước
+    const currentMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    
+    // Tính toán tháng trước
+    const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const previousYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+
+    // Lấy tất cả guide tour của tháng hiện tại
+    const currentMonthGuideTours = await GuideTour.findAll({
+      where: { travel_guide_id },
+      include: [{
+        model: db.TravelTour,
+        as: 'travelTour',
+        where: {
+          [db.Sequelize.Op.and]: [
+            db.Sequelize.where(
+              db.Sequelize.fn('MONTH', db.Sequelize.col('travelTour.start_day')),
+              currentMonth
+            ),
+            db.Sequelize.where(
+              db.Sequelize.fn('YEAR', db.Sequelize.col('travelTour.start_day')),
+              currentYear
+            )
+          ]
+        },
+        include: [{
+          model: db.Tour,
+          as: 'Tour'
+        }]
+      }]
+    });
+
+    // Lấy tất cả guide tour của tháng trước
+    const previousMonthGuideTours = await GuideTour.findAll({
+      where: { travel_guide_id },
+      include: [{
+        model: db.TravelTour,
+        as: 'travelTour',
+        where: {
+          [db.Sequelize.Op.and]: [
+            db.Sequelize.where(
+              db.Sequelize.fn('MONTH', db.Sequelize.col('travelTour.start_day')),
+              previousMonth
+            ),
+            db.Sequelize.where(
+              db.Sequelize.fn('YEAR', db.Sequelize.col('travelTour.start_day')),
+              previousYear
+            )
+          ]
+        },
+        include: [{
+          model: db.Tour,
+          as: 'Tour'
+        }]
+      }]
+    });
+
+    // Hàm tính toán thống kê cho một tháng
+    const calculateStatistics = (guideTours) => {
+      const stats = {
+        ongoing: 0,
+        completed: 0,
+        pending: 0,
+        cancelled: 0,
+        totalCustomers: 0
+      };
+
+      guideTours.forEach(guideTour => {
+        if (guideTour.status === 0) {
+          stats.pending++;
+        }
+        
+        if (guideTour.travelTour) {
+          switch (guideTour.travelTour.status) {
+            case 0:
+            case 1:
+              stats.ongoing++;
+              break;
+            case 2:
+              stats.completed++;
+              stats.totalCustomers += guideTour.travelTour.current_people || 0;
+              break;
+            case 3:
+              stats.cancelled++;
+              break;
+          }
+        }
+      });
+
+      return stats;
+    };
+
+    // Tính toán thống kê cho cả hai tháng
+    const currentStats = calculateStatistics(currentMonthGuideTours);
+    const previousStats = calculateStatistics(previousMonthGuideTours);
+
+    // Tính toán sự chênh lệch
+    const comparison = {
+      ongoingCompare: currentStats.ongoing - previousStats.ongoing,
+      completedCompare: currentStats.completed - previousStats.completed,
+      pendingCompare: currentStats.pending - previousStats.pending,
+      cancelledCompare: currentStats.cancelled - previousStats.cancelled,
+      customersCompare: currentStats.totalCustomers - previousStats.totalCustomers
+    };
+
+    res.status(200).json({ 
+      message: "Lấy thống kê GuideTour thành công", 
+      data: {
+        currentSchedule: currentStats.ongoing,
+        completedSchedule: currentStats.completed,
+        pendingSchedule: currentStats.pending,
+        cancelledSchedule: currentStats.cancelled,
+        totalCustomers: currentStats.totalCustomers,
+        // Thêm thông tin so sánh
+        comparison: {
+          currentScheduleCompare: comparison.ongoingCompare,
+          completedScheduleCompare: comparison.completedCompare,
+          pendingScheduleCompare: comparison.pendingCompare,
+          cancelledScheduleCompare: comparison.cancelledCompare,
+          totalCustomersCompare: comparison.customersCompare
+        },
+        // Thêm thông tin tháng
+        monthInfo: {
+          currentMonth: currentMonth,
+          currentYear: currentYear,
+          previousMonth: previousMonth,
+          previousYear: previousYear
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Lỗi khi lấy thống kê GuideTour:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy thống kê GuideTour!",
+      error: error.message,
+    });
+  }
+};
+
+

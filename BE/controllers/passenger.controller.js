@@ -214,7 +214,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 
         // Tìm tất cả hành khách liên quan đến các booking_id
         let passengers;
-        if (assigned == false) {
+        if (assigned === false) {
             passengers = await Passenger.findAll({
                 where: {
                     booking_id: bookingIds,
@@ -362,7 +362,7 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 return current.group > max ? current.group : max;
             }, 0);
             console.log(maxGroup);
-            
+
             // Gán group mới bằng maxGroup + 1
             guideTour.group = maxGroup + 1;
             guideTour.save();
@@ -376,7 +376,7 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 return passenger.save();
             })
         );
-        
+
 
         res.status(200).json({
             message: "Phân công hành khách cho hướng dẫn viên thành công!",
@@ -402,7 +402,7 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
         const guideTour = await db.GuideTour.findOne({
             where: {travel_guide_id, travel_tour_id}
         })
-        if(!guideTour) {
+        if (!guideTour) {
             return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
         }
         const bookings = await Booking.findAll({
@@ -609,17 +609,17 @@ exports.getPassengerByTravelGuideId2 = async (req, res) => {
         const guideTour = await db.GuideTour.findOne({
             where: {travel_guide_id, travel_tour_id}
         })
-        if(!guideTour) {
+        if (!guideTour) {
             return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
         }
         console.log(guideTour.group);
-        if(!guideTour.group) {
+        if (!guideTour.group) {
             return res.status(404).json({message: "Hướng dẫn viên chưa được chia nhóm!"});
         }
         const travelGuide = await TravelGuide.findOne({
             where: {id: travel_guide_id}
         })
-        if(!travelGuide) {
+        if (!travelGuide) {
             return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
         }
         const bookings = await Booking.findAll({
@@ -652,7 +652,7 @@ exports.removePassengerGroup = async (req, res) => {
     try {
         const {passenger_id} = req.params;
         const passengers = await Passenger.findByPk(passenger_id)
-        if(!passengers) {
+        if (!passengers) {
             return res.status(404).json({message: "Không tìm thấy hành khách!"});
         }
         passengers.group = null;
@@ -673,13 +673,13 @@ exports.getPassengerServiceAssigned = async (req, res) => {
         const guideTour = await db.GuideTour.findOne({
             where: {travel_guide_id, travel_tour_id}
         })
-        if(!guideTour) {
+        if (!guideTour) {
             return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
         }
         const travelTour = await TravelTour.findOne({
             where: {id: travel_tour_id}
         })
-        if(!travelTour) {
+        if (!travelTour) {
             return res.status(404).json({message: "Không tìm thấy tour du lịch!"});
         }
         const bookings = await Booking.findAll({
