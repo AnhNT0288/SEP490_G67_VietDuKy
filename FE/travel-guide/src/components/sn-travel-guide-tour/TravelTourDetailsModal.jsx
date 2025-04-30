@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { XIcon } from "lucide-react";
-import {
-  getPassengersByGuideId,
-  getTravelTourDetailForGuide,
-} from "../../services/API/guide-tour.service";
+import {getPassengersByGuideId, getServiceForGuide, getTravelTourDetailForGuide,} from "../../services/API/guide-tour.service";
 import { formatDate } from "../../utils/dateUtil";
 import BookingListModal from "./BookingListModal";
 import BookingDetailsModal from "./BookingDetailsModal";
@@ -12,45 +9,103 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
   const [travelTourDetail, setTravelTourDetail] = useState(null);
   const [booking, setBooking] = useState(null);
   const [openBookingListModal, setOpenBookingListModal] = useState(false);
-  const [passengerBookings, setPassengerBookings] = useState([]);  
+  const [passengers, setPassengers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [hotels, setHotels] = useState([]);
+  const [restaurants, setRestaurants] = useState([]);
+  const [serviceAssignments, setServiceAssignments] = useState([]);
+  const [tab, setTab] = useState("hotel");
 
   const handleClose = () => {
     onClose();
     setTravelTourDetail(null);
   };
-  // useEffect(() => {
-  //   const fetchPassengers = async () => {
-  //     if (!guideId) return;
-  //     try {
-  //       const res = await getPassengersByGuideId(guideId, tourSelected?.travel_tour_id);
-  //       if (res?.data) {
-  //         setPassengerBookings(res.data);
-  //       }
-  //     } catch (err) {
-  //       console.error("Lỗi khi lấy danh sách hành khách:", err);
-  //     }
-  //   };
-
-  //   fetchPassengers();
-  // }, [guideId]);
 
   useEffect(() => {
-    const fetchTravelTourDetail = async () => {
+    const fetchTravelTourDetailAndPassengers = async () => {
       if (tourSelected) {
-        // console.log("TourSelected", tourSelected);
-        // console.log("GuideIdSend", guideId);
-        
-        const response = await getTravelTourDetailForGuide(
-          tourSelected.travel_tour_id,
-          guideId
-        );
-        if (response.status === 200) {
-          setTravelTourDetail(response.data.data);
+        setLoading(true);
+        try {
+          const resDetail = await getTravelTourDetailForGuide(
+              tourSelected.travel_tour_id,
+              guideId
+          );
+          if (resDetail.status === 200) {
+            setTravelTourDetail(resDetail.data.data);
+          }
+
+          const res = await getPassengersByGuideId(
+              guideId,
+              tourSelected.travel_tour_id
+          );
+
+          const bookings = res.data || [];
+
+          const passengersArray = bookings.flatMap((bookingItem) => {
+            const passengerList = bookingItem.passengers || [];
+            const bookingInfo = bookingItem.booking || {};
+            return passengerList.map((passenger) => ({
+              ...passenger,
+              booking: bookingInfo,
+            }));
+          });
+
+          // console.log("Mapped Passengers:", passengersArray);
+          setPassengers(passengersArray);
+
+          const hotels = passengersArray.flatMap((passenger) =>
+              passenger.booking?.HotelBookings?.map((hb) => hb.Hotel) || []
+          );
+
+          const restaurants = passengersArray.flatMap((passenger) =>
+              passenger.booking?.RestaurantBookings?.map((rb) => rb.Restaurant) || []
+          );
+          setHotels(hotels);
+          setRestaurants(restaurants);
+
+
+        } catch (error) {
+          console.error("Lỗi khi fetch detail, passenger và services", error);
+        } finally {
+          setLoading(false);
         }
       }
     };
-    fetchTravelTourDetail();
-  }, [tourSelected]);
+
+    fetchTravelTourDetailAndPassengers();
+  }, [tourSelected, guideId]);
+  useEffect(() => {
+    const fetchServiceAssignments = async () => {
+      if (tourSelected) {
+        try {
+          const res = await getServiceForGuide(
+              tourSelected.travel_tour_id,
+              guideId
+          );
+          if (res.status === 200) {
+            setServiceAssignments(res.data.data);
+
+          }
+        } catch (error) {
+          console.error("Lỗi khi fetch service assignments", error);
+        }
+      }
+    };
+
+    fetchServiceAssignments();
+  }, [tourSelected,guideId]);
+  console.log('data111111',serviceAssignments)
+  console.log("Hotel",hotels);
+  const getAge = (birthDateStr) => {
+    const birthDate = new Date(birthDateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
 
   if (!open) return null;
 
@@ -73,7 +128,7 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
           {/* Left column */}
           <div className="space-y-4 col-span-4">
             <div>
-              <p className=" text-red">
+              <p className="text-red-600 text-sm">
                 {travelTourDetail?.tour?.name_tour}
               </p>
             </div>
@@ -132,11 +187,7 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
                 </label>
                 <input
                   className="input w-full border rounded-md p-1"
-                  value={
-                    travelTourDetail?.current_people ||
-                    0 + "/" + travelTourDetail?.max_people ||
-                    0
-                  }
+                  value={travelTourDetail?.current_people || 0 + "/" + travelTourDetail?.max_people || 0}
                   disabled
                 />
               </div>
@@ -162,6 +213,80 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
                 value={travelTourDetail?.note}
               />
             </div>
+
+            {/* Tabs */}
+            <div className="mt-4">
+              <div className="flex gap-6 border-b pb-2 mb-4">
+                <button
+                    className={`pb-2 ${tab === 'hotel' ? 'text-red-600 border-b-2 border-red-600' : 'text-gray-600'}`}
+                    onClick={() => setTab('hotel')}
+                >
+                  Khách sạn
+                </button>
+                <button
+                    className={`pb-2 ${tab === 'restaurant' ? 'text-red-600 border-b-2 border-red-600' : 'text-gray-600'}`}
+                    onClick={() => setTab('restaurant')}
+                >
+                  Nhà hàng
+                </button>
+                <button
+                    className={`pb-2 ${tab === 'car' ? 'text-red-600 border-b-2 border-red-600' : 'text-gray-600'}`}
+                    onClick={() => setTab('car')}
+                >
+                  Xe
+                </button>
+              </div>
+
+              {/* Nội dung theo tab */}
+              <div className="space-y-2 max-h-[230px] overflow-y-auto">
+                {tab === 'hotel' && (
+                    <div className="space-y-3">
+                      {serviceAssignments.map((passenger, idx) => {
+                        const hotelName = passenger.booking?.HotelBookings?.[0]?.Hotel?.name_hotel;
+                        return (
+                            <div key={idx} className="p-3 border rounded shadow-sm text-sm flex">
+                              <p><span>{passenger.name}  -</span></p>
+                              <p> {hotelName || 'Chưa gán'}</p>
+                            </div>
+                        );
+                      })}
+                    </div>
+                )}
+
+                {tab === 'restaurant' && (
+                    <div className="space-y-3">
+                      {serviceAssignments.map((passenger, idx) => {
+                        const restaurantName = passenger.booking?.RestaurantBookings?.[0]?.Restaurant?.name_restaurant;
+                        return (
+                            <div key={idx} className="p-3 border rounded shadow-sm text-sm flex">
+                              <p><span>{passenger.name}  -</span></p>
+                              <p> {restaurantName || 'Chưa gán'}</p>
+                            </div>
+                        );
+                      })}
+                    </div>
+                )}
+
+                {tab === 'car' && (
+                    <div className="space-y-3">
+                      {serviceAssignments.map((passenger, idx) => {
+                        const carName = passenger.booking?.VehicleBookings?.[0]?.Vehicle?.name_vehicle;
+                        const plate = passenger.booking?.VehicleBookings?.[0]?.Vehicle?.plate_number;
+                        return (
+                            <div key={idx} className="p-3 border rounded shadow-sm text-sm flex flex-col">
+                              <span className="font-medium">{passenger.name}</span>
+                              <span>
+                                {carName ? `${carName} - Biển số: ${plate || "?"}` : "Chưa gán"}
+                              </span>
+                            </div>
+                        );
+                      })}
+                    </div>
+                )}
+
+              </div>
+            </div>
+
           </div>
 
           {/* Right column */}
@@ -182,18 +307,33 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {travelTourDetail?.guides?.map((guide) => (
-                    <tr key={guide.id}>
-                      <td className="p-2">
-                        {guide.last_name} {guide.first_name}
-                      </td>
-                      <td className="p-2">
-                        {guide.gender === "male" ? "Nam" : "Nữ"}
-                      </td>
-                      <td className="p-2">{guide.email}</td>
-                      <td className="p-2">{guide.phone}</td>
-                    </tr>
-                  ))}
+                {travelTourDetail?.guides?.map((guide) => {
+                  const isValidName = (name) =>
+                      typeof name === "string" && name.trim().toUpperCase() !== "N/A";
+
+                  const fullName = [
+                    isValidName(guide.last_name) ? guide.last_name : "",
+                    isValidName(guide.first_name) ? guide.first_name : "",
+                  ]
+                      .filter(Boolean)
+                      .join(" ");
+
+                  return (
+                      <tr key={guide.id}>
+                        <td
+                            className={`p-2 ${guide.id === guideId ? "text-red-700 font-semibold" : ""}`}
+                        >
+                          {fullName}
+                          {guide.id === guideId && " (Bạn)"}
+                        </td>
+                        <td className="p-2">
+                          {guide.gender === "male" ? "Nam" : guide.gender === "female" ? "Nữ" : ""}
+                        </td>
+                        <td className="p-2">{guide.email || ""}</td>
+                        <td className="p-2">{guide.phone || ""}</td>
+                      </tr>
+                  );
+                })}
                 </tbody>
               </table>
             </div>
@@ -223,18 +363,24 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {travelTourDetail?.passengers?.map((p) => (
-                      <tr key={p.id} className="border-t">
-                        <td className="p-2">{p.name}</td>
-                        <td className="p-2">{p.birth_date}</td>
-                        <td className="p-2">{p.gender ? "Nam" : "Nữ"}</td>
-                        <td className="p-2">{p.phone_number}</td>
-                        <td></td>
-                        <td className="p-2">
-                          {p.single_room ? "Có" : "Không"}
+                  {passengers?.length > 0 ? (
+                      passengers.map((p) => (
+                          <tr key={p.id} className="border-t">
+                            <td className="p-2">{p.name}</td>
+                            <td className="p-2">{formatDate(p.birth_date)}</td>
+                            <td className="p-2">{p.gender ? "Nam" : "Nữ"}</td>
+                            <td className="p-2">{p.phone_number}</td>
+                            <td className="p-2">{getAge(p.birth_date)}</td>
+                            <td className="p-2">{p.single_room === true ? "Có" : "Không"}</td>
+                          </tr>
+                      ))
+                  ) : (
+                      <tr>
+                        <td className="p-2 text-center" colSpan={6}>
+                          Không có hành khách được gán
                         </td>
                       </tr>
-                    ))}
+                  )}
                   </tbody>
                 </table>
               </div>
@@ -290,9 +436,6 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
           >
             Hủy
           </button>
-          {/* <button className="btn bg-red-600 text-white rounded-md px-4 py-2 text-sm">
-            Cập nhật
-          </button> */}
         </div>
       </div>
       <BookingDetailsModal

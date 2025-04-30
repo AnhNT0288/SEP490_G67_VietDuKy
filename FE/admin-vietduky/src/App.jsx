@@ -67,6 +67,8 @@ function App() {
           <Route path="/managementStaffTourGuide" element={<TourGuideManagement />}/>
           <Route path="/managementTourForStaff" element={<IsBookingTravelToursManagement />}/>
           <Route path="/managementLastMinuteDeals" element={<ManagementLastMinuteDeals />}/>
+          <Route path="/managementVehicle" element={<ManagementVehicle />}/>
+
         </Route>
 
         {/* Admin-only routes */}

@@ -121,6 +121,25 @@ export const getTravelTourDetailForGuide = async (travelTourId, guideId) => {
     throw error;
   }
 };
+
+export const getServiceForGuide = async (travelTourId, guideId) => {
+  try {
+    const response = await restClient({
+      url: `passenger/service-assigned/${travelTourId}`,
+      method: "GET",
+      params: {
+        travel_guide_id: guideId,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết tour:", error);
+    console.log(guideId);
+
+    throw error;
+  }
+};
+
 // Lấy danh sách hành khách được gán cho hướng dẫn viên
 export const getPassengersByGuideId = async (guideId, travelTourId) => {
   try {
