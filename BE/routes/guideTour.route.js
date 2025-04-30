@@ -12,7 +12,7 @@ router.get("/:id", GuideTourController.getGuideTours);
 router.post(
   "/create",
   authenticateUser,
-  authenticateAdmin,
+  checkRoles(["admin", "staff", "tour_guide"]),
   GuideTourController.addGuideToTour
 );
 
