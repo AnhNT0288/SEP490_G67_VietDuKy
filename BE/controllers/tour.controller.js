@@ -111,7 +111,7 @@ exports.getTourById = async (req, res) => {
                 message: "Không tìm thấy tour!",
             });
         }
-        const tourInfo = await TourInfo.findAll({ where: { tour_id: tour.id } });   
+        const tourInfo = await TourInfo.findAll({where: {tour_id: tour.id}});
         const {rows: tours} = await Tour.findAndCountAll({
             where: {
                 [Op.or]: [
@@ -442,7 +442,6 @@ exports.createTour = async (req, res) => {
             name_tour,
             price_tour,
             day_number,
-            rating_tour,
             activity_description,
             start_location,
             end_location,
@@ -488,7 +487,6 @@ exports.createTour = async (req, res) => {
             !name_tour ||
             !price_tour ||
             !day_number ||
-            !rating_tour ||
             !activity_description ||
             !start_location ||
             !end_location ||
@@ -524,7 +522,7 @@ exports.createTour = async (req, res) => {
             name_tour,
             price_tour: Number(price_tour),
             day_number: Number(day_number),
-            rating_tour: Number(rating_tour),
+            rating_tour: null,
             activity_description,
             album,
             start_location: Number(start_location),
@@ -613,56 +611,56 @@ exports.updateTourById = async (req, res) => {
         if (!tour) {
             return res.status(404).json({message: "Tour không tồn tại!"});
         }
-    if (req.body.removed_urls) {
-      try {
-        const removedUrls = JSON.parse(req.body.removed_urls);
-        if (Array.isArray(removedUrls)) {
-          const currentAlbum = JSON.parse(tour.album || "[]");
+        if (req.body.removed_urls) {
+            try {
+                const removedUrls = JSON.parse(req.body.removed_urls);
+                if (Array.isArray(removedUrls)) {
+                    const currentAlbum = JSON.parse(tour.album || "[]");
 
-          // Lọc ra ảnh còn lại
-          const updatedAlbum = currentAlbum.filter(
-              (url) => !removedUrls.includes(url)
-          );
+                    // Lọc ra ảnh còn lại
+                    const updatedAlbum = currentAlbum.filter(
+                        (url) => !removedUrls.includes(url)
+                    );
 
-          tour.album = JSON.stringify(updatedAlbum);
+                    tour.album = JSON.stringify(updatedAlbum);
+                }
+            } catch (err) {
+                console.error("Lỗi parse removed_urls:", err);
+            }
         }
-      } catch (err) {
-        console.error("Lỗi parse removed_urls:", err);
-      }
-    }
 
-    if (!tour) {
-      return res.status(404).json({ message: "Tour không tồn tại!" });
-    }
+        if (!tour) {
+            return res.status(404).json({message: "Tour không tồn tại!"});
+        }
 
         const album =
             req.files && req.files.length > 0
                 ? JSON.stringify(req.files.map((file) => file.path))
                 : null;
 
-    if (req.body.type_id !== undefined) tour.type_id = req.body.type_id;
-    if (req.body.service_id !== undefined)
-      tour.service_id = req.body.service_id;
-    if (req.body.name_tour !== undefined) tour.name_tour = req.body.name_tour;
-    if (req.body.price_tour !== undefined)
-      tour.price_tour = req.body.price_tour;
-    if (req.body.day_number !== undefined)
-      tour.day_number = req.body.day_number;
-    if (req.body.rating_tour !== undefined)
-      tour.rating_tour = req.body.rating_tour;
-    if (req.body.activity_description !== undefined)
-      tour.activity_description = req.body.activity_description;
-    if (req.body.start_location !== undefined)
-      tour.start_location = req.body.start_location;
-    if (req.body.end_location !== undefined)
-      tour.end_location = req.body.end_location;
-    if (req.body.available_month !== undefined)
-      tour.available_month = req.body.available_month;
-    if (req.files && req.files.length > 0) {
-      tour.album = album;
-    }
-    if (req.body.service_ids !== undefined && req.body.service_ids.length > 0) {
-      const serviceIds = req.body.service_ids; // Lấy danh sách service_id từ request
+        if (req.body.type_id !== undefined) tour.type_id = req.body.type_id;
+        if (req.body.service_id !== undefined)
+            tour.service_id = req.body.service_id;
+        if (req.body.name_tour !== undefined) tour.name_tour = req.body.name_tour;
+        if (req.body.price_tour !== undefined)
+            tour.price_tour = req.body.price_tour;
+        if (req.body.day_number !== undefined)
+            tour.day_number = req.body.day_number;
+        if (req.body.rating_tour !== undefined)
+            tour.rating_tour = req.body.rating_tour;
+        if (req.body.activity_description !== undefined)
+            tour.activity_description = req.body.activity_description;
+        if (req.body.start_location !== undefined)
+            tour.start_location = req.body.start_location;
+        if (req.body.end_location !== undefined)
+            tour.end_location = req.body.end_location;
+        if (req.body.available_month !== undefined)
+            tour.available_month = req.body.available_month;
+        if (req.files && req.files.length > 0) {
+            tour.album = album;
+        }
+        if (req.body.service_ids !== undefined && req.body.service_ids.length > 0) {
+            const serviceIds = req.body.service_ids; // Lấy danh sách service_id từ request
 
             // Tìm tất cả services có trong database dựa trên danh sách serviceIds
             const services = await Service.findAll({
@@ -735,7 +733,7 @@ exports.updateTourById = async (req, res) => {
             error: error,
         });
         console.log("Error:", error);
-        
+
     }
 };
 

@@ -107,4 +107,10 @@ router.delete(
   // checkRoles("admin", "staff"),
   GuideTourController.deleteGuideTour
 );
+router.get(
+  "/statistics/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  GuideTourController.getGuideTourStatistics
+);
 module.exports = router;
