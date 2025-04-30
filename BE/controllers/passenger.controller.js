@@ -9,7 +9,6 @@ const RestaurantBooking = db.RestaurantBooking;
 const Restaurant = db.Restaurant;
 const VehicleBooking = db.VehicleBooking;
 const Vehicle = db.Vehicle;
-const {Op} = require("sequelize");
 
 // Tạo hành khách mới
 exports.createPassenger = async (req, res) => {
@@ -139,11 +138,11 @@ exports.updatePassenger = async (req, res) => {
                 .json({message: "Không tìm thấy hành khách với id được cung cấp"});
         }
 
-        if (name != undefined) passenger.name = name;
-        if (birth_date != undefined) passenger.birth_date = birth_date;
-        if (gender != undefined) passenger.gender = gender;
-        if (phone_number != undefined) passenger.phone_number = phone_number;
-        if (passport_number != undefined)
+        if (name !== undefined) passenger.name = name;
+        if (birth_date !== undefined) passenger.birth_date = birth_date;
+        if (gender !== undefined) passenger.gender = gender;
+        if (phone_number !== undefined) passenger.phone_number = phone_number;
+        if (passport_number !== undefined)
             passenger.passport_number = passport_number;
 
         await passenger.save();
