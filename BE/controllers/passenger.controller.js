@@ -9,7 +9,7 @@ const RestaurantBooking = db.RestaurantBooking;
 const Restaurant = db.Restaurant;
 const VehicleBooking = db.VehicleBooking;
 const Vehicle = db.Vehicle;
-
+const {Op} = require("sequelize");
 
 // Tạo hành khách mới
 exports.createPassenger = async (req, res) => {
@@ -193,8 +193,8 @@ exports.getPassengersByTravelGuideId = async (req, res) => {
 exports.getPassengersByTravelTourId = async (req, res) => {
     try {
         const {travel_tour_id} = req.params;
-        const {assigned} = req.query ? req.query.assigned : false;
-
+        const {assigned} = req.query ? req.query : false;
+        console.log(assigned)
         if (!travel_tour_id) {
             return res.status(400).json({message: "Thiếu travel_tour_id"});
         }
@@ -217,8 +217,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
         if (assigned === false) {
             passengers = await Passenger.findAll({
                 where: {
-                    booking_id: bookingIds,
-                    group: null
+                    booking_id: bookingIds
                 },
                 include: [
                     {
@@ -236,7 +235,10 @@ exports.getPassengersByTravelTourId = async (req, res) => {
             });
         } else {
             passengers = await Passenger.findAll({
-                where: {booking_id: bookingIds},
+                where: {
+                    booking_id: bookingIds,
+                    group: null
+                },
                 include: [
                     {
                         model: Booking,
