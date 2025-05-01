@@ -2425,5 +2425,35 @@ exports.getGuideTourStatistics = async (req, res) => {
     });
   }
 };
+exports.getPendingGuideTour = async (req, res) => {
+  try {
+    const pendingGuideTours = await GuideTour.findAll({
+      where: { status: 0 },
+      include: [{
+        model: TravelTour,
+        as: 'travelTour',
+        include: [{
+          model: Tour,
+          as: 'Tour',
+        }],
+      },
+      {
+        model: TravelGuide,
+        as: 'travelGuide',
+      }
+    ],
+    });
+    res.status(200).json({ message: "Lấy danh sách GuideTour chờ thành công!", data: pendingGuideTours });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách GuideTour chờ:", error);
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách GuideTour chờ!",
+      error: error.message,
+    });
+  }
+};
+
+
+
 
 

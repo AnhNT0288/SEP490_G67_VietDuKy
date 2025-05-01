@@ -469,6 +469,10 @@ exports.getListTravelTourForGuide = async (req, res) => {
       travelTourWhereCondition.start_day = {
         [Op.gte]: new Date(start_day),
       };
+    } else {
+      travelTourWhereCondition.start_day = {
+        [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
+      };
     }
 
     const offset = (page - 1) * limit;

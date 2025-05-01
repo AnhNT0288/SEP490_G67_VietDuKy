@@ -8,6 +8,12 @@ const {
   checkRoles,
 } = require("../middleware/authMiddleware");
 
+router.get(
+  "/pending",
+  // authenticateUser,
+  // checkRoles("admin", "staff"),
+  GuideTourController.getPendingGuideTour
+);
 router.get("/:id", GuideTourController.getGuideTours);
 router.post(
   "/create",
@@ -15,6 +21,7 @@ router.post(
   checkRoles(["admin", "staff", "tour_guide"]),
   GuideTourController.addGuideToTour
 );
+
 
 router.put(
   "/approve/:id",
