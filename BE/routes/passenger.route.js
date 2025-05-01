@@ -99,4 +99,10 @@ router.get(
   // checkRoles(["admin", "staff"]),
   passengerController.getPassengerServiceAssigned
 );
+router.get(
+  "/export-excel/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.exportExcel
+);
 module.exports = router;

@@ -9,6 +9,7 @@ const RestaurantBooking = db.RestaurantBooking;
 const Restaurant = db.Restaurant;
 const VehicleBooking = db.VehicleBooking;
 const Vehicle = db.Vehicle;
+const ExcelJS = require('exceljs');
 
 // Tạo hành khách mới
 exports.createPassenger = async (req, res) => {
@@ -737,3 +738,71 @@ exports.getPassengerServiceAssigned = async (req, res) => {
         });
     }
 }
+exports.exportExcel = async (req, res) => {
+    try {
+        const { travel_tour_id } = req.params;
+        const { travel_guide_id } = req.query;
+
+        const guideTour = await db.GuideTour.findOne({
+            where: { travel_guide_id, travel_tour_id }
+        })
+        if (!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+
+        const bookings = await Booking.findAll({
+            where: { travel_tour_id }
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengers = await Passenger.findAll({
+            where: { booking_id: bookingIds, group: guideTour.group },
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                },
+            ],
+        })
+        if (!passengers) {
+            return res.status(404).json({message: "Không tìm thấy hành khách!"});
+        }   
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Danh sách hành khách');
+
+        worksheet.columns = [
+            { header: 'Họ tên', key: 'name', width: 20 },
+            { header: 'Ngày sinh', key: 'birth_date', width: 20 },
+            { header: 'Giới tính', key: 'gender', width: 10 },
+            { header: 'Số điện thoại', key: 'phone_number', width: 20 },
+            { header: 'Mã đơn hàng', key: 'booking_code', width: 30 },
+            { header: 'Số Phòng', width: 20 },
+            { header: 'Ghi chú', width: 20 },
+        ];
+
+        passengers.forEach((passenger) => {
+            worksheet.addRow([
+                passenger.name,
+                passenger.birth_date,
+                passenger.gender ? 'Nam' : 'Nữ',
+                passenger.phone_number,
+                passenger.booking.booking_code
+            ]);
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); 
+        res.setHeader('Content-Disposition', 'attachment; filename=Danh_sach_hanh_khach.xlsx');
+
+        return workbook.xlsx.write(res).then(() => {
+            res.status(200).end();
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi xuất file Excel!",
+            error: error.message,
+        });
+    }
+}
+
+
+

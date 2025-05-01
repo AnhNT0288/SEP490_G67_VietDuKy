@@ -54,81 +54,81 @@ exports.getFeedbackByUser = async (req, res) => {
 
 // Tạo feedback cho Tour
 exports.createFeedbackForTour = async (req, res) => {
-  try {
-    const {
-      user_id,
-      tour_id,
-      description_feedback,
-      rating_tour,
-      feedback_date,
-    } = req.body;
-    const feedback_album =
-      req.files && req.files.length > 0
-        ? JSON.stringify(req.files.map((file) => file.path))
-        : null;
+    try {
+        const {
+            user_id,
+            tour_id,
+            description_feedback,
+            rating,
+            feedback_date,
+        } = req.body;
+        const feedback_album =
+            req.files && req.files.length > 0
+                ? JSON.stringify(req.files.map((file) => file.path))
+                : null;
 
-    const user = await User.findByPk(user_id);
-    if (!user) {
-      return res.status(404).json({ message: "Người dùng không tồn tại!" });
+        const user = await User.findByPk(user_id);
+        if (!user) {
+            return res.status(404).json({message: "Người dùng không tồn tại!"});
+        }
+
+        const tour = await Tour.findByPk(tour_id);
+        if (!tour) {
+            return res.status(404).json({message: "Tour không tồn tại!"});
+        }
+
+        // Kiểm tra xem người dùng đã đặt tour này chưa
+        const booking = await db.Booking.findOne({
+            where: {user_id},
+        });
+
+        if (!booking) {
+            return res
+                .status(403)
+                .json({message: "Bạn chưa đặt tour này, không thể feedback!"});
+        }
+
+        // Kiểm tra nếu không có rating, mặc định cho rating = 5
+        const feedbackRating = rating || 5;
+
+        // Tạo feedback mới
+        const newFeedback = await Feedback.create({
+            user_id,
+            tour_id,
+            description_feedback,
+            rating: feedbackRating,
+            feedback_date,
+            feedback_album,
+        });
+
+        // Lấy tất cả feedback của tour để tính trung bình cộng rating
+        const tourFeedbacks = await Feedback.findAll({
+            where: {tour_id},
+        });
+
+        const totalRating = tourFeedbacks.reduce(
+            (sum, feedback) => sum + (feedback.rating || 0),
+            0
+        );
+        const averageRating =
+            tourFeedbacks.length > 0
+                ? (totalRating / tourFeedbacks.length).toFixed(1)
+                : 0;
+
+        // Cập nhật trường rating_tour của tour
+        tour.rating_tour = averageRating;
+        await tour.save();
+
+        res.status(201).json({
+            message: "Tạo feedback cho tour thành công!",
+            data: newFeedback,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi tạo feedback cho tour",
+            error: error.message,
+        });
     }
-
-    const tour = await Tour.findByPk(tour_id);
-    if (!tour) {
-      return res.status(404).json({ message: "Tour không tồn tại!" });
-    }
-
-    // Kiểm tra xem người dùng đã đặt tour này chưa
-    const booking = await db.Booking.findOne({
-      where: { user_id },
-    });
-
-    if (!booking) {
-      return res
-        .status(403)
-        .json({ message: "Bạn chưa đặt tour này, không thể feedback!" });
-    }
-
-    // Kiểm tra nếu không có rating, mặc định cho rating = 5
-    const feedbackRating = rating_tour || 5;
-
-    // Tạo feedback mới
-    const newFeedback = await Feedback.create({
-      user_id,
-      tour_id,
-      description_feedback,
-      rating: feedbackRating,
-      feedback_date,
-      feedback_album,
-    });
-
-    // Lấy tất cả feedback của tour để tính trung bình cộng rating
-    const tourFeedbacks = await Feedback.findAll({
-      where: { tour_id },
-    });
-
-    const totalRating = tourFeedbacks.reduce(
-      (sum, feedback) => sum + (feedback.rating || 0),
-      0
-    );
-    const averageRating =
-      tourFeedbacks.length > 0
-        ? (totalRating / tourFeedbacks.length).toFixed(1)
-        : 0;
-
-    // Cập nhật trường rating_tour của tour
-    tour.rating_tour = averageRating;
-    await tour.save();
-
-    res.status(201).json({
-      message: "Tạo feedback cho tour thành công!",
-      data: newFeedback,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi tạo feedback cho tour",
-      error: error.message,
-    });
-  }
 };
 
 // Tạo feedback cho Travel Guide
