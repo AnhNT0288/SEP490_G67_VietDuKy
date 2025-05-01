@@ -95,6 +95,7 @@ exports.getTourById = async (req, res) => {
                 },
                 {
                     model: Feedback,
+                    as: "feedback",
                     attributes: ["rating", "description_feedback", "feedback_date"],
                     include: [
                         {
