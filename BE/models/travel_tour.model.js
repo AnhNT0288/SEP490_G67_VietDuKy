@@ -40,7 +40,7 @@ module.exports = (sequelize, Sequelize) => {
                 allowNull: true,
             },
             status: {
-                type: Sequelize.INTEGER, // 0: Chưa có người nhận, 1: Đã có người nhận, 2: Đã hoàn thành, 3: Đã hủy
+                type: Sequelize.INTEGER, // 0: Chưa phân công, 1: Đã phân công, 2: Đã hoàn thành, 3: Đã hủy
                 allowNull: true,
             },
             active: {
