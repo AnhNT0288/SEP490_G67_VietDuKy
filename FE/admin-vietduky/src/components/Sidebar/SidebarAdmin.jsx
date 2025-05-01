@@ -23,6 +23,12 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       ],
     },
     {
+      id: 10,
+      name: "Quản lý yêu cầu",
+      icon: Icons.PromotionIcon,
+      path: "/managementRequestAssignTour",
+    },
+    {
       id: 3,
       name: "Quản lý khách sạn",
       icon: Icons.HotelIcon,
@@ -38,26 +44,28 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       id: 5,
       name: "Quản lý phương tiện",
       icon: Icons.VehicleIcon,
-      path: "/managementVehicle",
+      path: "/managementVehicle"
     },
-    {
-      id: 6,
-      name: "Quản lý khuyến mãi",
-      icon: Icons.PromotionIcon,
-      subItems: [
-        {
-          id: 601,
-          name: "Chương trình triết khấu",
-          path: "/managementSaleProgram",
-        },
-        { id: 602, name: "Mã giảm giá", path: "/managementDiscount" },
-        {
-          id: 603,
-          name: "Ưu đãi phút chót",
-          path: "/managementLastMinuteDeals",
-        },
-      ],
-    },
+    // {
+    //   id: 6,
+    //   name: "Quản lý khuyến mãi",
+    //   icon: Icons.PromotionIcon,
+    //   subItems: [
+    //     {
+    //       id: 601,
+    //       name: "Chương trình triết khấu",
+    //       path: "/managementSaleProgram"
+    //     },
+    //     { id: 602,
+    //       name: "Mã giảm giá",
+    //       path: "/managementDiscount"
+    //     },
+    //     { id: 603,
+    //       name: "Ưu đãi phút chót",
+    //       path: "/managementLastMinuteDeals"
+    //     },
+    //   ],
+    // },
     {
       id: 7,
       name: "Quản lý dịch vụ",
@@ -84,12 +92,6 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
         { id: 901, name: "Nhân viên", path: "/managementStaff" },
         { id: 902, name: "Phân quyền", path: "/managementUserRole" },
       ],
-    },
-    {
-      id: 10,
-      name: "Yêu cầu duyệt",
-      icon: Icons.SystemConfigIcon,
-      subItems: [{ id: 1001, name: "Duyệt nhận Tour", path: "/managementAprovalTour" }],
     },
   ];
 

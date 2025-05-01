@@ -11,7 +11,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
     const location = useLocation();
 
     const menuItems = [
-        { id: 1, name: "Thống kê", icon: Icons.Sidebar, path: "/#" },
+        { id: 1, name: "Thống kê", icon: Icons.Sidebar, path: "/dashboard" },
         {
             id: 2,
             name: "Quản lý Tour",
@@ -35,30 +35,54 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
         },
         {
             id: 4,
+            name: "Quản lý yêu cầu",
+            icon: Icons.PromotionIcon,
+            path: "/managementRequestAssignTour",
+        },
+        {
+            id: 5,
+            name: "Quản lý khách sạn",
+            icon: Icons.HotelIcon,
+            path: "/managementHotel",
+        },
+        {
+            id: 6,
+            name: "Quản lý nhà hàng",
+            icon: Icons.RestaurantIcon,
+            path: "/managementRestaurant",
+        },
+        {
+            id: 7,
+            name: "Quản lý phương tiện",
+            icon: Icons.VehicleIcon,
+            path: "/managementVehicle"
+        },
+        {
+            id: 8,
             name: "Quản lý Tour có Booking",
             icon: Icons.TravelTourIcon,
             path: "/managementTourForStaff",
         },
-        {
-            id: 6,
-            name: "Quản lý khuyến mãi",
-            icon: Icons.PromotionIcon,
-            subItems: [
-                { id: 601, name: "Chương trình triết khấu", path: "/managementSaleProgram" },
-                { id: 602, name: "Mã giảm giá", path: "/managementDiscount" },
-            ],
-        },
-        { id: 7, name: "Quản lý dịch vụ", icon: Icons.ServiceIcon, path: "/managementService" },
+        // {
+        //     id: 6,
+        //     name: "Quản lý khuyến mãi",
+        //     icon: Icons.PromotionIcon,
+        //     subItems: [
+        //         { id: 601, name: "Chương trình triết khấu", path: "/managementSaleProgram" },
+        //         { id: 602, name: "Mã giảm giá", path: "/managementDiscount" },
+        //     ],
+        // },
+        { id: 9, name: "Quản lý dịch vụ", icon: Icons.ServiceIcon, path: "/managementService" },
     ];
 
     const systemItems = [
         {
-            id: 8,
+            id: 10,
             name: "Quản lý tin tức",
             icon: Icons.SystemConfigIcon,
             subItems: [
-                { id: 801, name: "Danh mục", path: "/managementCategory" },
-                { id: 802, name: "Bài viết", path: "/managementPost" },
+                { id: 1001, name: "Danh mục", path: "/managementCategory" },
+                { id: 1002, name: "Bài viết", path: "/managementPost" },
             ],
         },
         // {

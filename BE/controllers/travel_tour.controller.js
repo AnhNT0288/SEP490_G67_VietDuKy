@@ -768,7 +768,7 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
           model: Tour,
           as: "Tour",
           where: {
-            end_location: { [Sequelize.Op.in]: locationIds }, // end_location từ bảng Tour
+            end_location: { [Sequelize.Op.in]: locationIds },
           },
           include: [
             {
@@ -796,6 +796,7 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
     const formattedTravelTours = travelTours.map((travelTour) => ({
       id: travelTour.id,
       name: travelTour.Tour?.name_tour || null,
+      status: travelTour.status,
       start_day: travelTour.start_day,
       end_day: travelTour.end_day,
       price_tour: travelTour.price_tour,

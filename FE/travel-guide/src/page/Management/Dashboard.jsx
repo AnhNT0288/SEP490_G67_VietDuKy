@@ -7,6 +7,7 @@ import Feedback from "../../components/sn-dashboard/Feedback";
 
 const Dashboard = () => {
   const [travelTours, setTravelTours] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   const DEFAULT_FEEDBACKS = [
     { id: 1, tour_name: "Tour 1", time: "2024-01-01", content: "Nội dung đánh giá", rating: 5, status: "Chưa xử lý" },
@@ -17,14 +18,12 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
-    // Sau khi đăng nhập lưu user info ở đâu thì get ra rồi truyền user id vào đây
-    const userId = JSON.parse(localStorage.getItem("user")).id ;
-    console.log("userId", userId);
-    
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?.id;
+    setUserId(userId);
 
     const fetchTravelTours = async () => {
       try {
-        const userId = JSON.parse(localStorage.getItem("user")).id;
         const response = await getGuideTourByUserId(userId);
         if (response.data) {
           setTravelTours(response.data.items);
@@ -35,14 +34,15 @@ const Dashboard = () => {
         console.log(error);
       }
     };
-    fetchTravelTours();
+
+    if (userId) fetchTravelTours();
     return () => setTravelTours([]);
   }, []);
 
   return (
       <LayoutManagement>
         <div className="h-full w-full px-4 sm:px-6 lg:px-8 py-4 flex flex-col gap-6">
-          <StaticSection />
+          {userId && <StaticSection guideId={userId} />}
           <div className="w-full flex flex-col gap-3">
             <h3 className="text-xl sm:text-2xl font-bold">Thống kê chi tiết</h3>
             <CalendarTravelTour travelTours={travelTours} />

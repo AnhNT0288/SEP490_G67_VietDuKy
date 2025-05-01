@@ -2234,10 +2234,10 @@ exports.getGuideTourByTravelTourId = async (req, res) => {
 };
 exports.deleteGuideTour = async (req, res) => {
   try {
-    const { travel_guide_id } = req.params;
-    const { travel_tour_id } = req.query;
+    const {travel_guide_id} = req.params;
+    const {travel_tour_id} = req.query;
     const guideTour = await GuideTour.findOne({
-      where: { travel_guide_id, travel_tour_id },
+      where: {travel_guide_id, travel_tour_id},
       include: [
         {
           model: TravelGuide,
@@ -2250,7 +2250,7 @@ exports.deleteGuideTour = async (req, res) => {
       ],
     });
     if (!guideTour) {
-      return res.status(404).json({ message: "Không tìm thấy GuideTour!" });
+      return res.status(404).json({message: "Không tìm thấy GuideTour!"});
     }
     if (guideTour.group) {
       const bookings = await Booking.findAll({
@@ -2276,16 +2276,14 @@ exports.deleteGuideTour = async (req, res) => {
     }
     await guideTour.destroy();
     res
-      .status(200)
-      .json({ message: "Xóa GuideTour thành công!", data: guideTour });
+        .status(200)
+        .json({message: "Xóa GuideTour thành công!", data: guideTour});
   } catch (error) {
     console.error("Lỗi khi xóa GuideTour:", error);
     res.status(500).json({
       message: "Lỗi khi xóa GuideTour!",
       error: error.message,
     });
-  }
-
 };
 
 }

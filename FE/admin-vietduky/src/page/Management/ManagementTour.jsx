@@ -52,7 +52,6 @@ export default function ManagementTour() {
     try {
       const toursData = await getTours();
       if (Array.isArray(toursData)) {
-        // Sắp xếp giảm dần theo id (id lớn hơn nghĩa là mới hơn)
         const sortedTours = [...toursData].sort((a, b) => b.id - a.id);
         setTours(sortedTours);
 

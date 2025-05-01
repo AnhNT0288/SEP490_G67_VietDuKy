@@ -1,4 +1,3 @@
-// ModalAssignPassenger.jsx
 import React, { useEffect, useState } from "react";
 import {assignPassengersToGuide, getPassengersByTravelTourId} from "../../../services/API/passenger.service.js";
 import {SlArrowDown, SlArrowUp} from "react-icons/sl";

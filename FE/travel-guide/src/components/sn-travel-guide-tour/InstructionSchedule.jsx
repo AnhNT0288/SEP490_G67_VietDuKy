@@ -69,7 +69,7 @@ const InstructionSchedule = () => {
           name_tour: search,
           start_location_id: startLocation,
           end_location_id: endLocation,
-          start_day: startDate, // ✅ Thêm lọc ngày khởi hành
+          start_day: startDate,
           status: tab !== "all" && tab !== 1 ? tab : null,
           upcoming: tab === 1 ? true : false,
         });
@@ -92,7 +92,6 @@ const InstructionSchedule = () => {
     fetchTours();
   }, [search, startLocation, endLocation, pagination, tab, userId, startDate]);
 
-  // Reset về trang 1 mỗi khi filter thay đổi
   useEffect(() => {
     setPagination(prev => ({ ...prev, page: 1 }));
   }, [search, startLocation, endLocation, startDate, tab]);

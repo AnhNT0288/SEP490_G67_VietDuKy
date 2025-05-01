@@ -156,4 +156,17 @@ export const getPassengersByGuideId = async (guideId, travelTourId) => {
     throw error;
   }
 };
-
+// Lấy thống kê tour theo hướng dẫn viên
+export const getGuideTourStatistics = async (guideId, params = {}) => {
+  try {
+    const response = await restClient({
+      url: `guide-tour/statistics/${guideId}`,
+      method: "GET",
+      params: clearParams(params),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy thống kê tour:", error);
+    throw error;
+  }
+};

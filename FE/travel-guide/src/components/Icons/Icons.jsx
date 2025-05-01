@@ -1,4 +1,3 @@
-import React from "react";
 import Plane from "../../assets/plane.svg";
 import Logo from "../../assets/logo.svg";
 import VietDuKy from "../../assets/VIỆT DU KÝ.svg";

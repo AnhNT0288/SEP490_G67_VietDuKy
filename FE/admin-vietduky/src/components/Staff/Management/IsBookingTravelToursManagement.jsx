@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { format, isAfter, isBefore, isSameDay } from "date-fns";
 import DropdownTourIsBooking from "../Dropdown/DropdownTourIsBooking.jsx";
-import { getTravelToursByStaffAndEndLocation } from "../../../services/API/travel_tour.service.js";
+import {getTravelToursByStaffAndEndLocation, updateTravelTour} from "../../../services/API/travel_tour.service.js";
 import {getAssignedLocationsByStaffId} from "../../../services/API/staff.service.js";
 import ModalAssignTravelGuide from "../Modal/ModalAssignTravelGuide.jsx";
 import ModalListGuidesAndPassengersIsAssigned from "../Modal/ModalListGuidesAndPassengersIsAssigned.jsx";
 import ModalAddServiceForTravelTourIsBooking from "../Modal/ModalAddServiceForTravelTourIsBooking.jsx";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function IsBookingTravelToursManagement({ staffId }) {
@@ -82,6 +83,23 @@ export default function IsBookingTravelToursManagement({ staffId }) {
     const handleOpenAssignModal = (tour) => {
         setSelectedTour(tour);
         setOpenAssignModal(true);
+    };
+
+    const handleMarkAssigned = async (tour) => {
+        try {
+            const newStatus = tour.status === 1 ? 0 : 1;
+            const updatedTour = { ...tour, status: newStatus };
+            await updateTravelTour(tour.id, updatedTour);
+
+            setTravelTours((prev) =>
+                prev.map((t) => (t.id === tour.id ? { ...t, status: newStatus } : t))
+            );
+
+            toast.success(`Trạng thái đã chuyển thành: ${newStatus === 1 ? "Đã phân công" : "Chưa phân công"}`);
+        } catch (error) {
+            console.error("❌ Lỗi khi cập nhật trạng thái:", error);
+            toast.error("Cập nhật trạng thái thất bại");
+        }
     };
 
     const handleOpenViewGuidesModal = (tour) => {
@@ -175,6 +193,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                         <th className="p-2">Điểm đến</th>
                         <th className="p-2">Ngày khởi hành</th>
                         <th className="p-2">Ngày về</th>
+                        <th className="p-2 text-center">Trạng thái</th> {/* Thêm cột này */}
                         <th className="p-2 text-right">Thao tác</th>
                     </tr>
                     </thead>
@@ -186,6 +205,13 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                             <td className="p-2">{tour.end_location?.name_location}</td>
                             <td className="p-2">{format(new Date(tour.start_day), "dd/MM/yyyy")}</td>
                             <td className="p-2">{format(new Date(tour.end_day), "dd/MM/yyyy")}</td>
+                            <td
+                                className={`p-2 text-center font-medium ${
+                                    tour.status === 1 ? "text-green-600" : "text-red-600"
+                                }`}
+                            >
+                                {tour.status === 1 ? "Đã phân công" : "Chưa phân công"}
+                            </td>
                             <td className="p-2 text-right relative">
                                 <DropdownTourIsBooking
                                     travelTour={tour}
@@ -194,6 +220,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                                     onAssignGuide={(t) => handleOpenAssignModal(t)}
                                     onViewGuides={(t) => handleOpenViewGuidesModal(t)}
                                     onAssignService={(t) => handleOpenAssignServiceModal(t)}
+                                    onMarkAssigned={handleMarkAssigned}
                                 />
                             </td>
                         </tr>
