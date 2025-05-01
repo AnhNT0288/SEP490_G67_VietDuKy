@@ -24,7 +24,7 @@ const TravelTourPending = () => {
     limit: 10,
   });
   const [travelGuides, setTravelGuides] = useState([]);
-  const [travelGuideId, setTravelGuideId] = useState(null);
+  const [travelGuideId, setTravelGuideId] = useState(null);  
 
   useEffect(() => {
     const fetchTravelGuides = async () => {
@@ -59,7 +59,7 @@ const TravelTourPending = () => {
       if (!travelGuideId) return;
 
       try {
-        const response = await getGuideTourByUserId(travelGuideId, {
+        const response = await getGuideTourByUserId(userId, {
           ...pagination,
           name_tour: search,
           start_location_id: startLocation,

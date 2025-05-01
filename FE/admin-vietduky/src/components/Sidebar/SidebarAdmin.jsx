@@ -38,7 +38,7 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       id: 5,
       name: "Quản lý phương tiện",
       icon: Icons.VehicleIcon,
-      path: "/managementVehicle"
+      path: "/managementVehicle",
     },
     {
       id: 6,
@@ -48,15 +48,13 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
         {
           id: 601,
           name: "Chương trình triết khấu",
-          path: "/managementSaleProgram"
+          path: "/managementSaleProgram",
         },
-        { id: 602,
-          name: "Mã giảm giá",
-          path: "/managementDiscount"
-        },
-        { id: 603,
+        { id: 602, name: "Mã giảm giá", path: "/managementDiscount" },
+        {
+          id: 603,
           name: "Ưu đãi phút chót",
-          path: "/managementLastMinuteDeals"
+          path: "/managementLastMinuteDeals",
         },
       ],
     },
@@ -86,6 +84,12 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
         { id: 901, name: "Nhân viên", path: "/managementStaff" },
         { id: 902, name: "Phân quyền", path: "/managementUserRole" },
       ],
+    },
+    {
+      id: 10,
+      name: "Yêu cầu duyệt",
+      icon: Icons.SystemConfigIcon,
+      subItems: [{ id: 1001, name: "Duyệt nhận Tour", path: "/managementAprovalTour" }],
     },
   ];
 
@@ -127,13 +131,25 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       >
         Menu
       </button>
-      <a href="/" className="flex justify-center">
+      <a href="/" className="flex mt-4 mb-6">
         <img
-          src="/Image/Logo.png"
+          src={Icons.Logo}
           alt="Viet Du Ky"
-          width={isCollapsed ? 50 : 175}
-          height={isCollapsed ? 50 : 125}
-          className="transition-all duration-300"
+          width={isCollapsed ? 50 : 50}
+          height={isCollapsed ? 25 : 25}
+          className={`transition-all duration-300 ${
+            isCollapsed ? "opacity-100" : "opacity-100"
+          }`}
+        />
+        <img
+          src={Icons.VietDuKy}
+          alt="Viet Du Ky"
+          width={isCollapsed ? 0 : 100}
+          height={isCollapsed ? 0 : 25}
+          className={`transition-all duration-300 ${
+            isCollapsed ? "opacity-0" : "opacity-100"
+          }`}
+          style={{ marginLeft: isCollapsed ? 0 : "10px" }}
         />
       </a>
 

@@ -42,7 +42,7 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
         <h2 className="text-xl font-bold text-green-600 mb-2">
           Thanh toán thành công!
         </h2>
-        <p className="text-2xl font-extrabold text-black mb-4">
+        {/* <p className="text-2xl font-extrabold text-black mb-4">
           {Number(paymentInfo?.amount || 0).toLocaleString("vi-VN")} VND
         </p>
 
@@ -70,7 +70,7 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
           <div>
             <span className="font-medium">Phí giao dịch:</span> 0 VND
           </div>
-        </div>
+        </div> */}
 
         <button
           onClick={onClose}
