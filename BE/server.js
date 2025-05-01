@@ -57,3 +57,6 @@ server.listen(port, () => {
         console.error("❌ Database sync error:", error);
     }
 })();
+
+// Export app và server để sử dụng trong các test case
+module.exports = { app, server };
