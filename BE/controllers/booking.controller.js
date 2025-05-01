@@ -82,7 +82,7 @@ const sendConfirmationEmail = (userEmail, bookingDetails) => {
   const formattedEndTimeClose = formatTime(end_time_close);
 
   const mailOptions = {
-    from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+    from: '"Việt Du Ký" <vietduky.service@gmail.com>',
     to: userEmail,
     subject: "Xác nhận đặt tour",
     html: `

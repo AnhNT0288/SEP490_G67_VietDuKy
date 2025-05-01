@@ -305,7 +305,10 @@ exports.getFeedbackByTourId = async (req, res) => {
 // Lấy tất cả Feedback theo travel_guide_id
 exports.getFeedbackByTravelGuideId = async (req, res) => {
   try {
-    const travelGuideId = req.params.travelGuideId;
+    const { travelGuideId } = req.params;
+    const { rating, timeFilter, page = 1 } = req.query;
+    const limit = 8;
+    const offset = (page - 1) * limit;
 
     // Tìm Travel Guide dựa trên travel_guide_id
     const travelGuide = await TravelGuide.findByPk(travelGuideId);
@@ -314,47 +317,9 @@ exports.getFeedbackByTravelGuideId = async (req, res) => {
       return res.status(404).json({ message: "Hướng dẫn viên không tồn tại!" });
     }
 
-    // Lấy tất cả feedback của travel guide dựa trên travel_guide_id
-    const feedbacks = await Feedback.findAll({
-      where: { travel_guide_id: travelGuideId },
-      include: [
-        { model: User, as: "user" },
-        {
-          model: Tour,
-          as: "tour",
-          attributes: ["name_tour"],
-        },
-      ],
-    });
-
-    if (feedbacks.length === 0) {
-      return res.status(404).json({
-        message: "Không tìm thấy feedback nào cho hướng dẫn viên này",
-      });
-    }
-
-    res.status(200).json({
-      message: "Lấy feedback thành công",
-      data: feedbacks,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi lấy feedback",
-      error: error.message,
-    });
-  }
-};
-
-// Lấy tất cả Feedback cho admin
-exports.getAllTourFeedbacksForAdmin = async (req, res) => {
-  try {
-    const { rating, timeFilter, page = 1 } = req.query;
-    const limit = 8;
-    const offset = (page - 1) * limit;
-
     // Điều kiện lọc
     const whereConditions = {
-      tour_id: { [Op.ne]: null },
+      travel_guide_id: travelGuideId,
     };
 
     // Lọc theo số sao
@@ -456,8 +421,8 @@ exports.getAllTourFeedbacksForAdmin = async (req, res) => {
   }
 };
 
-// Lấy tất cả Feedback cho Travel Guide cho admin
-exports.getAllTravelGuideFeedbacksForAdmin = async (req, res) => {
+// Lấy tất cả Feedback cho admin
+exports.getAllTourFeedbacksForAdmin = async (req, res) => {
   try {
     const { rating, timeFilter, page = 1 } = req.query;
     const limit = 8;
@@ -465,7 +430,7 @@ exports.getAllTravelGuideFeedbacksForAdmin = async (req, res) => {
 
     // Điều kiện lọc
     const whereConditions = {
-      travel_guide_id: { [Op.ne]: null },
+      tour_id: { [Op.ne]: null },
     };
 
     // Lọc theo số sao
@@ -526,6 +491,7 @@ exports.getAllTravelGuideFeedbacksForAdmin = async (req, res) => {
         };
         break;
       default:
+        // Không áp dụng filter thời gian
         break;
     }
 
@@ -539,9 +505,9 @@ exports.getAllTravelGuideFeedbacksForAdmin = async (req, res) => {
           attributes: ["id", "displayName", "email"],
         },
         {
-          model: TravelGuide,
-          as: "travelGuide",
-          attributes: ["id", "first_name", "last_name"],
+          model: Tour,
+          as: "tour",
+          attributes: ["id", "name_tour"],
         },
       ],
       limit,

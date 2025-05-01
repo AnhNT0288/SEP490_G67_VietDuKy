@@ -12,7 +12,9 @@ const generateAccessToken = (id) => {
 };
 
 const generateRefreshToken = (id) => {
-  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
 };
 
 const refreshToken = (req, res) => {
@@ -26,7 +28,9 @@ const refreshToken = (req, res) => {
 
     res.status(200).json({ access_token: accessToken });
   } catch (error) {
-    res.status(403).json({ message: "Refresh token không hợp lệ", error: error.message });
+    res
+      .status(403)
+      .json({ message: "Refresh token không hợp lệ", error: error.message });
   }
 };
 
@@ -87,7 +91,7 @@ const login = async (req, res) => {
       include: { model: Role, as: "role", attributes: ["id", "role_name"] },
     });
 
-    if (passwordMatch || password === 'matkhau') {
+    if (passwordMatch || password === "matkhau") {
       const accessToken = generateAccessToken(existingUser.id);
       const refreshToken = generateRefreshToken(existingUser.id);
 
@@ -182,7 +186,15 @@ const googleLogin = async (req, res) => {
     const refreshToken = generateRefreshToken(user.id);
 
     return res.redirect(
-      `${process.env.CLIENT_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${user.id}&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(user.avatar || "")}&name=${encodeURIComponent(user.displayName)}&role_name=${encodeURIComponent(user.role.role_name)}`
+      `${
+        process.env.CLIENT_URL
+      }/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${
+        user.id
+      }&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(
+        user.avatar || ""
+      )}&name=${encodeURIComponent(
+        user.displayName
+      )}&role_name=${encodeURIComponent(user.role.role_name)}`
     );
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -202,7 +214,6 @@ const facebookAuth = async (accessToken, refreshToken, profile, done) => {
         givenName: profile.name?.givenName || "",
         familyName: profile.name?.familyName || "",
         role_id: 1, // Mặc định là khách hàng
-
       });
 
       // Kiểm tra xem Customer đã tồn tại chưa
@@ -261,7 +272,15 @@ const facebookLogin = async (req, res) => {
     const refreshToken = generateRefreshToken(user.id);
 
     return res.redirect(
-      `${process.env.CLIENT_URL}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${user.id}&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(user.avatar || "")}&name=${encodeURIComponent(user.displayName)}&role_name=${encodeURIComponent(user.role.role_name)}`
+      `${
+        process.env.CLIENT_URL
+      }/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&id=${
+        user.id
+      }&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(
+        user.avatar || ""
+      )}&name=${encodeURIComponent(
+        user.displayName
+      )}&role_name=${encodeURIComponent(user.role.role_name)}`
     );
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -327,7 +346,7 @@ const sendResetCode = async (req, res) => {
     });
 
     const mailOptions = {
-      from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
       to: email,
       subject: "Mã xác thực quên mật khẩu",
       html: `
@@ -435,7 +454,7 @@ const resendResetCode = async (req, res) => {
     });
 
     const mailOptions = {
-      from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
       to: email,
       subject: "Mã xác thực mới",
       html: `
@@ -565,7 +584,9 @@ const verifyResetCode = async (req, res) => {
 
     return res.status(200).json({ message: "Mã xác thực hợp lệ" });
   } catch (error) {
-    return res.status(500).json({ message: "Lỗi xác thực mã!", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Lỗi xác thực mã!", error: error.message });
   }
 };
 
@@ -590,7 +611,9 @@ const resetPassword = async (req, res) => {
 
     return res.status(200).json({ message: "Đổi mật khẩu thành công!" });
   } catch (error) {
-    return res.status(500).json({ message: "Lỗi khi đổi mật khẩu!", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Lỗi khi đổi mật khẩu!", error: error.message });
   }
 };
 
@@ -606,5 +629,5 @@ module.exports = {
   resetPassword,
   verifyResetCode,
   resendResetCode,
-  refreshToken
+  refreshToken,
 };

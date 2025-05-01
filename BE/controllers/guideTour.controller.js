@@ -68,7 +68,7 @@ const sendAdminEmailRequestTravelTour = async (travelGuide, travelTour) => {
     const adminEmails = adminUsers.map((admin) => admin.email);
 
     const mailOptions = {
-      from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
       to: adminEmails, // Gửi đến tất cả admin
       subject: "Yêu cầu tham gia Tour du lịch mới",
       html: `
@@ -343,7 +343,7 @@ exports.approveGuideTour = async (req, res) => {
 
     // Gửi email thông báo cho TravelGuide
     const mailOptions = {
-      from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
       to: travelGuide.email, // Email của TravelGuide
       subject: "Yêu cầu tham gia Tour du lịch đã được chấp nhận",
       html: `
@@ -500,7 +500,7 @@ exports.rejectGuideTour = async (req, res) => {
 
     // Gửi email thông báo cho TravelGuide
     const mailOptions = {
-      from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
       to: travelGuide.email, // Email của TravelGuide
       subject: "Yêu cầu tham gia Tour du lịch đã bị từ chối",
       html: `
@@ -754,7 +754,7 @@ exports.getGuideTourByUserId = async (req, res) => {
 exports.getTravelTourDetailForGuide = async (req, res) => {
   try {
     const { travelTourId } = req.params;
-    const {travel_guide_id} = req.query;
+    const { travel_guide_id } = req.query;
     let passengerCountByGuide = {};
     let passengersByGuide = [];
     // Lấy thông tin tour du lịch
@@ -806,10 +806,9 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
     });
     if (travel_guide_id) {
       const guideTourDetail = await GuideTour.findOne({
-        where: {travel_guide_id, travel_tour_id: travelTourId}
-      })
-  
-  
+        where: { travel_guide_id, travel_tour_id: travelTourId },
+      });
+
       // Lấy danh sách hành khách đã được gán cho từng TravelGuide
       const passengersByGuide = await Passenger.findAll({
         where: {
@@ -826,37 +825,42 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
           },
         ],
       });
-  
+
       // Nhóm hành khách theo TravelGuide
-      const passengerCountByGuide = passengersByGuide.reduce((acc, passenger) => {
-        const guideId = passenger.travel_guide_id;
-        if (!acc[guideId]) {
-          acc[guideId] = 0;
-        }
-        acc[guideId]++;
-        return acc;
-      }, {});
+      const passengerCountByGuide = passengersByGuide.reduce(
+        (acc, passenger) => {
+          const guideId = passenger.travel_guide_id;
+          if (!acc[guideId]) {
+            acc[guideId] = 0;
+          }
+          acc[guideId]++;
+          return acc;
+        },
+        {}
+      );
     } else {
       passengerCountByGuide = {};
       passengersByGuide = [];
     }
-    const formatedGuideTour = guideTours.map((guideTour) => {
-      if (!guideTour.travelGuide) {
-        return null;
-      }
-      return {
-        id: guideTour.travelGuide.id,
-        gender: guideTour.travelGuide.gender_guide,
-        first_name: guideTour.travelGuide.first_name,
-        last_name: guideTour.travelGuide.last_name,
-        email: guideTour.travelGuide.email,
-        phone: guideTour.travelGuide.number_phone,
-        address: guideTour.travelGuide.address,
-        avatar: guideTour.travelGuide.user?.avatar || null,
-        display_name: guideTour.travelGuide.user?.displayName || null,
-        passenger_count: passengerCountByGuide[guideTour.travelGuide.id] || 0,
-      };
-    }).filter(guide => guide !== null);
+    const formatedGuideTour = guideTours
+      .map((guideTour) => {
+        if (!guideTour.travelGuide) {
+          return null;
+        }
+        return {
+          id: guideTour.travelGuide.id,
+          gender: guideTour.travelGuide.gender_guide,
+          first_name: guideTour.travelGuide.first_name,
+          last_name: guideTour.travelGuide.last_name,
+          email: guideTour.travelGuide.email,
+          phone: guideTour.travelGuide.number_phone,
+          address: guideTour.travelGuide.address,
+          avatar: guideTour.travelGuide.user?.avatar || null,
+          display_name: guideTour.travelGuide.user?.displayName || null,
+          passenger_count: passengerCountByGuide[guideTour.travelGuide.id] || 0,
+        };
+      })
+      .filter((guide) => guide !== null);
     // Format lại dữ liệu trả về
     const formattedTravelTour = {
       id: travelTour.id,
@@ -1290,7 +1294,7 @@ exports.assignMoreTravelGuideToTravelTour = async (req, res) => {
 
     // Gửi email thông báo cho TravelGuide
     const mailOptions = {
-      from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
       to: travelGuide.email, // Email của TravelGuide
       subject: "Thông báo phân công Tour du lịch",
       html: `
@@ -1558,7 +1562,7 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
     // Gửi email thông báo cho từng TravelGuide
     for (const guide of travelGuides) {
       const mailOptions = {
-        from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+        from: '"Việt Du Ký" <vietduky.service@gmail.com>',
         to: guide.email, // Email của TravelGuide
         subject: "Thông báo phân công Tour du lịch",
         html: `
@@ -1755,7 +1759,7 @@ exports.unassignTravelGuidesToTravelTour = async (req, res) => {
     for (const guideTour of guideTours) {
       const { travelGuide } = guideTour;
       const mailOptions = {
-        from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+        from: '"Việt Du Ký" <vietduky.service@gmail.com>',
         to: travelGuide.email, // Email của TravelGuide
         subject: "Thông báo hủy phân công Tour du lịch",
         html: `
@@ -2248,7 +2252,7 @@ exports.deleteGuideTour = async (req, res) => {
     if (!guideTour) {
       return res.status(404).json({ message: "Không tìm thấy GuideTour!" });
     }
-    if(guideTour.group) {
+    if (guideTour.group) {
       const bookings = await Booking.findAll({
         where: {
           travel_tour_id: guideTour.travel_tour_id,
@@ -2271,7 +2275,9 @@ exports.deleteGuideTour = async (req, res) => {
       }
     }
     await guideTour.destroy();
-    res.status(200).json({ message: "Xóa GuideTour thành công!", data: guideTour});
+    res
+      .status(200)
+      .json({ message: "Xóa GuideTour thành công!", data: guideTour });
   } catch (error) {
     console.error("Lỗi khi xóa GuideTour:", error);
     res.status(500).json({
@@ -2279,6 +2285,9 @@ exports.deleteGuideTour = async (req, res) => {
       error: error.message,
     });
   }
+
+};
+
 }
 exports.getGuideTourStatistics = async (req, res) => {
   try {
