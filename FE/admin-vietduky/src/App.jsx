@@ -31,6 +31,7 @@ import ForgotPasswordFlow from "./page/Authentication/ForgotPasswordFlow.jsx";
 import ManagementLastMinuteDeals from "./page/Management/ManagementLastMinuteDeals.jsx";
 import Dashboard from "./page/Management/Dashboard.jsx";
 import Profile from "./components/Profile/Profile.jsx";
+import ManagementAprovalTour from "./page/Management/ManagementAprovalTour.jsx";
 // import RegisterPage from "./page/Authentication/RegisterPage.jsx";
 
 Modal.setAppElement("#root");
@@ -67,6 +68,8 @@ function App() {
           <Route path="/managementStaffTourGuide" element={<TourGuideManagement />}/>
           <Route path="/managementTourForStaff" element={<IsBookingTravelToursManagement />}/>
           <Route path="/managementLastMinuteDeals" element={<ManagementLastMinuteDeals />}/>
+          <Route path="/managementVehicle" element={<ManagementVehicle />}/>
+
         </Route>
 
         {/* Admin-only routes */}
@@ -82,6 +85,7 @@ function App() {
           />
           <Route path="/managementVehicle" element={<ManagementVehicle />} />
           <Route path="/managementUserRole" element={<ManagementUserRole />} />
+          <Route path="/managementAprovalTour" element={<ManagementAprovalTour />} />
         </Route>
 
         <Route path={"/modalL"} element={<ModalManageTravelTour />} />

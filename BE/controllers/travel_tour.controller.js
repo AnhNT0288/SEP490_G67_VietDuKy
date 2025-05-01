@@ -324,12 +324,15 @@ exports.updateTravelTour = async (req, res) => {
       end_day,
       price_tour,
       max_people,
+      current_people,
       start_time_depart,
       end_time_depart,
       start_time_close,
       end_time_close,
       children_price,
       toddler_price,
+      status,
+      active,
     } = req.body;
 
     // Validate thời gian khởi hành và kết thúc
@@ -379,6 +382,7 @@ exports.updateTravelTour = async (req, res) => {
     if (end_day !== undefined) travelTour.end_day = end_day;
     if (price_tour !== undefined) travelTour.price_tour = price_tour;
     if (max_people !== undefined) travelTour.max_people = max_people;
+    if (current_people !== undefined) travelTour.current_people = current_people;
     if (start_time_depart !== undefined)
       travelTour.start_time_depart = start_time_depart;
     if (end_time_depart !== undefined)
@@ -390,6 +394,8 @@ exports.updateTravelTour = async (req, res) => {
     if (children_price !== undefined)
       travelTour.children_price = children_price;
     if (toddler_price !== undefined) travelTour.toddler_price = toddler_price;
+    if (status !== undefined) travelTour.status = status;
+    if (active !== undefined) travelTour.active = active;
     await travelTour.save();
     res.json({
       message: "Cập nhật tour du lịch thành công!",
@@ -468,6 +474,10 @@ exports.getListTravelTourForGuide = async (req, res) => {
     if (start_day) {
       travelTourWhereCondition.start_day = {
         [Op.gte]: new Date(start_day),
+      };
+    } else {
+      travelTourWhereCondition.start_day = {
+        [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
       };
     }
 

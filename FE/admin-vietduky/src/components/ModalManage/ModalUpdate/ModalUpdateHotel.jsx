@@ -18,7 +18,7 @@ export default function ModalUpdateHotel({ onClose, onUpdateSuccess, hotelData }
             setHotelName(hotelData.name_hotel || "");
             setLocationHotel(hotelData.address_hotel || "");
             setHotline(hotelData.phone_number || "");
-            setLocationId(hotelData.location_id || ""); // lấy sẵn location_id
+            setLocationId(hotelData.location_id || "");
         }
     }, [hotelData]);
 

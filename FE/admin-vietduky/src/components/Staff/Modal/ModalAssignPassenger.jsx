@@ -82,7 +82,6 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
 
         try {
             const res = await assignPassengersToGuide(guide.id, tourId, passengerIds);
-            //                             👆 thêm tourId vào đây
 
             if (res.message?.includes("Một số hành khách")) {
                 const conflictedNames = res.data?.map((p) => p.name).join(", ");

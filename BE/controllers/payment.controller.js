@@ -8,9 +8,9 @@ exports.checkPayment = async (req, res) => {
     const {paymentKey} = req.body;
     const {bookingId} = req.body;
     const {customerId} = req.body;
-    const sheetId = "1wCUrhNZfbT0UbjgCwtAlm2JFoYatEHhtGKpInL7-I-s";
+    const sheetId = "1w3jFPsqXk0aPqYGFieCDeHiArUwcj9hpzIdjsl1vEz0";
     const apiKey = process.env.GOOGLE_API;
-    const range = "Casso!A2:F100";
+    const range = "payment!A2:F100";
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
     console.log(url);
     try {

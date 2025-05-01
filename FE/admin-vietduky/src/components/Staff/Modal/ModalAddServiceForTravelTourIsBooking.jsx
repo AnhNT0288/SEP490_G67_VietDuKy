@@ -4,7 +4,7 @@ import { getPassengersByTravelTourId } from "../../../services/API/passenger.ser
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import HotelList from "./TabService/HotelList.jsx";
 import RestaurantList from "./TabService/RestaurantList.jsx";
-import CarList from "./TabService/CarList.jsx";
+import VehicleList from "./TabService/VehicleList.jsx";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddServiceForTravelTourIsBooking({ tour, onClose }) {
@@ -220,7 +220,7 @@ export default function ModalAddServiceForTravelTourIsBooking({ tour, onClose })
                             <RestaurantList tourId={tour.id} selectedBookingIds={selectedBookingIds} />
                         )}
                         {tab === 'car' && (
-                            <CarList tourId={tour.id} />
+                            <VehicleList tourId={tour.id} selectedBookingIds={selectedBookingIds} />
                         )}
                     </div>
 
