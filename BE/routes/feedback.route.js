@@ -53,12 +53,4 @@ router.get(
   // checkRoles(["admin"]),
   feedbackController.getAllTourFeedbacksForAdmin
 );
-
-router.get(
-  "/admin/travel-guide-feedbacks",
-  // authenticateUser,
-  // checkRoles(["admin"]),
-  feedbackController.getAllTravelGuideFeedbacksForAdmin
-);
-
 module.exports = router;
