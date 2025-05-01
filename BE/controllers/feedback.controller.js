@@ -3,6 +3,7 @@ const Feedback = db.Feedback;
 const Tour = db.Tour;
 const User = db.User;
 const TravelGuide = db.TravelGuide;
+const { Op } = require("sequelize");
 
 // Lấy tất cả Feedback theo user_id
 exports.getFeedbackByUser = async (req, res) => {
@@ -339,6 +340,227 @@ exports.getFeedbackByTravelGuideId = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Lỗi khi lấy feedback",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy tất cả Feedback cho admin
+exports.getAllTourFeedbacksForAdmin = async (req, res) => {
+  try {
+    const { rating, timeFilter, page = 1 } = req.query;
+    const limit = 8;
+    const offset = (page - 1) * limit;
+
+    // Điều kiện lọc
+    const whereConditions = {
+      tour_id: { [Op.ne]: null },
+    };
+
+    // Lọc theo số sao
+    if (rating) {
+      whereConditions.rating = rating;
+    }
+
+    // Lọc theo thời gian
+    const now = new Date();
+    switch (timeFilter) {
+      case "today":
+        whereConditions.feedback_date = {
+          [Op.eq]: now.toISOString().split("T")[0],
+        };
+        break;
+      case "this_week":
+        const startOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 1)
+        ); // Bắt đầu tuần
+        const endOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 7)
+        ); // Kết thúc tuần
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfWeek.toISOString().split("T")[0],
+            endOfWeek.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "this_month":
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfMonth.toISOString().split("T")[0],
+            endOfMonth.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "last_3_months":
+        const threeMonthsAgo = new Date(
+          now.getFullYear(),
+          now.getMonth() - 3,
+          now.getDate()
+        );
+        whereConditions.feedback_date = {
+          [Op.gte]: threeMonthsAgo.toISOString().split("T")[0],
+        };
+        break;
+      case "this_year":
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfYear.toISOString().split("T")[0],
+            endOfYear.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      default:
+        // Không áp dụng filter thời gian
+        break;
+    }
+
+    // Lấy danh sách feedback
+    const feedbacks = await Feedback.findAndCountAll({
+      where: whereConditions,
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "displayName", "email"],
+        },
+        {
+          model: Tour,
+          as: "tour",
+          attributes: ["id", "name_tour"],
+        },
+      ],
+      limit,
+      offset,
+      order: [["feedback_date", "DESC"]],
+    });
+
+    res.status(200).json({
+      message: "Lấy danh sách feedback thành công",
+      data: feedbacks.rows,
+      pagination: {
+        totalItems: feedbacks.count,
+        currentPage: parseInt(page, 10),
+        totalPages: Math.ceil(feedbacks.count / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách feedback",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy tất cả Feedback cho Travel Guide cho admin
+exports.getAllTravelGuideFeedbacksForAdmin = async (req, res) => {
+  try {
+    const { rating, timeFilter, page = 1 } = req.query;
+    const limit = 8;
+    const offset = (page - 1) * limit;
+
+    // Điều kiện lọc
+    const whereConditions = {
+      travel_guide_id: { [Op.ne]: null },
+    };
+
+    // Lọc theo số sao
+    if (rating) {
+      whereConditions.rating = rating;
+    }
+
+    // Lọc theo thời gian
+    const now = new Date();
+    switch (timeFilter) {
+      case "today":
+        whereConditions.feedback_date = {
+          [Op.eq]: now.toISOString().split("T")[0],
+        };
+        break;
+      case "this_week":
+        const startOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 1)
+        ); // Bắt đầu tuần
+        const endOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 7)
+        ); // Kết thúc tuần
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfWeek.toISOString().split("T")[0],
+            endOfWeek.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "this_month":
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfMonth.toISOString().split("T")[0],
+            endOfMonth.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "last_3_months":
+        const threeMonthsAgo = new Date(
+          now.getFullYear(),
+          now.getMonth() - 3,
+          now.getDate()
+        );
+        whereConditions.feedback_date = {
+          [Op.gte]: threeMonthsAgo.toISOString().split("T")[0],
+        };
+        break;
+      case "this_year":
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfYear.toISOString().split("T")[0],
+            endOfYear.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      default:
+        break;
+    }
+
+    // Lấy danh sách feedback
+    const feedbacks = await Feedback.findAndCountAll({
+      where: whereConditions,
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "displayName", "email"],
+        },
+        {
+          model: TravelGuide,
+          as: "travelGuide",
+          attributes: ["id", "first_name", "last_name"],
+        },
+      ],
+      limit,
+      offset,
+      order: [["feedback_date", "DESC"]],
+    });
+
+    res.status(200).json({
+      message: "Lấy danh sách feedback thành công",
+      data: feedbacks.rows,
+      pagination: {
+        totalItems: feedbacks.count,
+        currentPage: parseInt(page, 10),
+        totalPages: Math.ceil(feedbacks.count / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách feedback",
       error: error.message,
     });
   }
