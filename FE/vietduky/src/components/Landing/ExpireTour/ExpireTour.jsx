@@ -35,35 +35,44 @@ export default function ExpireTour() {
         </div>
         <div className="flex flex-wrap justify-between gap-12 items-center mt-6 mx-auto">
           {Array.isArray(discountTours) &&
-            discountTours.map((item) => (
-              <ExpireTourCard
-                key={item.id}
-                image={item.travelTour?.Tour?.album?.[0]}
-                title={item.travelTour?.Tour?.name_tour}
-                duration={`${item.travelTour?.Tour?.day_number} ngày`}
-                seatsLeft={
-                  item.travelTour?.max_people -
-                  (item.travelTour?.current_people || 0)
-                }
-                start_day={item.travelTour?.start_day}
-                end_day={item.travelTour?.end_day}
-                originalPrice={`${Number(
-                  item.travelTour?.price_tour
-                ).toLocaleString()} VNĐ`}
-                discountPrice={(item?.price_discount?.toLocaleString()) || "NaN"}
-                onClick={() => navigate(`/tour/${item.travelTour?.Tour?.id}`, {
-                  state: {
-                    selectedDate: formatDate(item.travelTour?.start_day),
-                    discountInfo: {
-                      discountId: item.id,
-                      value: item.programDiscount?.discount_value,
-                      percent: item.programDiscount?.percent_discount,
-                    },
-                    discountList: discountTours,
+            discountTours
+              .filter(
+                (item) =>
+                  new Date(item.travelTour?.start_day).getTime() > Date.now()
+              )
+              .map((item) => (
+                <ExpireTourCard
+                  key={item.id}
+                  image={item.travelTour?.Tour?.album?.[0]}
+                  title={item.travelTour?.Tour?.name_tour}
+                  duration={`${item.travelTour?.Tour?.day_number} ngày`}
+                  seatsLeft={
+                    item.travelTour?.max_people -
+                    (item.travelTour?.current_people || 0)
                   }
-                })}
-              />
-            ))}
+                  start_day={item.travelTour?.start_day}
+                  end_day={item.travelTour?.end_day}
+                  originalPrice={`${Number(
+                    item.travelTour?.price_tour
+                  ).toLocaleString()} VNĐ`}
+                  discountPrice={
+                    item?.price_discount?.toLocaleString() || "NaN"
+                  }
+                  onClick={() =>
+                    navigate(`/tour/${item.travelTour?.Tour?.id}`, {
+                      state: {
+                        selectedDate: formatDate(item.travelTour?.start_day),
+                        discountInfo: {
+                          discountId: item.id,
+                          value: item.programDiscount?.discount_value,
+                          percent: item.programDiscount?.percent_discount,
+                        },
+                        discountList: discountTours,
+                      },
+                    })
+                  }
+                />
+              ))}
         </div>
         <div className="text-center mt-9">
           <button

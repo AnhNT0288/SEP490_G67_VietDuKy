@@ -53,8 +53,7 @@ const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
         const formattedTourDates = tour.reduce((acc, tour) => {
           if (tour.start_day) {
             const dateStr = dayjs(tour.start_day).format("YYYY-MM-DD");
-            acc[dateStr] =
-              (tour.price_tour / 1000).toLocaleString("vi-VN") + "k";
+            acc[dateStr] = tour.price_tour;
           }
           return acc;
         }, {});
@@ -103,6 +102,12 @@ const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
     }
   }, [selectedDate]);
 
+  const formatShortPrice = (price) => {
+    if (!price || isNaN(price)) return "";
+
+    return (price / 1000).toLocaleString() + "k";
+  };
+
   const startOfMonth = currentDate.startOf("month");
   const startDay = startOfMonth.day();
   const totalDays = 42;
@@ -147,21 +152,22 @@ const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
       toast.error("Vui lòng chọn ngày khởi hành trước khi đặt tour.");
       return;
     }
-  
+
     const selectedTours = travelTourData.filter(
       (tour) => selectedDate === dayjs(tour.start_day).format("YYYY-MM-DD")
     );
-  
+
     if (selectedTours.length === 0) {
       toast.error("Không tìm thấy tour nào phù hợp.");
       return;
     }
-  
+
     // ✨ Tìm discount ứng với selectedDate
     const discount = discountList.find(
-      (d) => dayjs(d.travelTour?.start_day).format("YYYY-MM-DD") === selectedDate
+      (d) =>
+        dayjs(d.travelTour?.start_day).format("YYYY-MM-DD") === selectedDate
     );
-  
+
     // ✨ Điều hướng, kèm discountInfo nếu có
     navigate("/booking/" + id, {
       state: {
@@ -178,7 +184,6 @@ const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
       },
     });
   };
-  
 
   // console.log("travel Tour", travelTourData);
   // console.log("tour date", tourDates)
@@ -304,10 +309,8 @@ const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
                       {isTourDate && (
                         <span className="text-xs font-normal mt-1">
                           {discount
-                            ? (discount.price_discount / 1000).toLocaleString(
-                                "vi-VN"
-                              ) + "k"
-                            : (tourDates[dateStr])}
+                            ? formatShortPrice(discount.price_discount)
+                            : formatShortPrice(tourDates[dateStr])}
                         </span>
                       )}
                       {hoveredDate === dateStr && isTourDate && (
@@ -325,9 +328,13 @@ const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
                           <p>
                             {isTourDisabled
                               ? "Tour đã đủ người"
-                              : `Giá: ${(
-                                  parseFloat(tourDates[dateStr]) * 1000
-                                ).toLocaleString("vi-VN")} VNĐ`}
+                              : discount
+                              ? `Giá: ${discount.price_discount.toLocaleString(
+                                  "vi-VN"
+                                )} VNĐ`
+                              : `Giá: ${tourDates[dateStr].toLocaleString(
+                                  "vi-VN"
+                                )} VNĐ`}
                           </p>
                         </div>
                       )}
