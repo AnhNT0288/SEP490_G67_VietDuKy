@@ -18,7 +18,7 @@ router.get(
 router.get(
   "/:id",
   authenticateUser,
-  checkRoles([ "admin", "staff", "customer", "tour_guide",]),
+  checkRoles(["admin", "staff", "customer", "tour_guide"]),
   userController.getUserById
 );
 router.post(
@@ -62,7 +62,7 @@ router.post(
 router.get(
   "/role/:role_id",
   authenticateUser,
-    checkRoles(["admin"]),
+  checkRoles(["admin"]),
   userController.getUsersByRoleId
 );
 
@@ -107,5 +107,7 @@ router.delete(
   checkRoles(["admin", "staff"]),
   userController.deleteLocationFromStaff
 );
+
+router.post("/contact-advice", authenticateUser, userController.contactAdvice);
 
 module.exports = router;
