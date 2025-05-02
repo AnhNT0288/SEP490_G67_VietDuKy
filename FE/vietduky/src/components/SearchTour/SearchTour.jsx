@@ -53,7 +53,7 @@ export default function SearchTour() {
   return (
     <div className="relative">
       {/* Background Image */}
-      <div className="relative w-full h-[500px] overflow-hidden rounded-b-[48px]">
+      <div className=" w-full h-[500px] overflow-hidden rounded-b-[48px]">
         <img
           src={Banner}
           alt="Background"
@@ -112,7 +112,7 @@ export default function SearchTour() {
 
               {/* Điểm khởi hành */}
               <div
-                className="relative col-span-1 sm:col-span-2"
+                className="relative  col-span-1 sm:col-span-2"
                 ref={dropdownRef}
               >
                 <div
@@ -133,7 +133,7 @@ export default function SearchTour() {
                   </div>
                 </div>
                 {isOpen && (
-                  <div className="absolute left-0 top-full mt-1 w-full border rounded bg-white shadow-md z-50">
+                  <div className="absolute left-0 top-full mt-1 w-full max-h-60 overflow-y-auto border rounded bg-white shadow-md z-50">
                     {locations.map((location) => (
                       <div
                         key={location.id}

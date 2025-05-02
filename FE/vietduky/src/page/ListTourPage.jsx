@@ -187,7 +187,7 @@ export default function ListTour() {
             <TourFilter
               locations={locations}
               typeTours={tourTypes}
-              activeTopics={topics}
+              activeTopics={activeTopics}
               onFilter={handleFilter}
               initialDeparture={location.state?.departure || "Tất cả"}
               initialDate={location.state?.date || ""}

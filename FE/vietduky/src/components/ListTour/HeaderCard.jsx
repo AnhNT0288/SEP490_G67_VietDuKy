@@ -131,7 +131,7 @@ export default function HeaderCard({ onSearch }) {
                   </div>
                 </div>
                 {isOpen && (
-                  <div className="absolute left-0 top-full mt-1 w-full border rounded bg-white shadow-md z-10">
+                  <div className="absolute left-0 top-full mt-1 w-full max-h-60 overflow-y-auto border rounded bg-white shadow-md z-10">
                     {locations.map((location) => (
                       <div
                         key={location.id}
