@@ -18,6 +18,16 @@ const ContactForm = ({
   const [passengerData, setPassengerData] = useState([]);
 
   useEffect(() => {
+    if (assistance) {
+      setPassengerData([]);
+      setFormData((prev) => ({
+        ...prev,
+        passengers: [],
+      }));
+    }
+  }, [assistance]);
+
+  useEffect(() => {
     const adults = passengerData.filter((p) => p.type === "adult").length;
     const children = passengerData.filter((p) => p.type === "children").length;
     const toddlers = passengerData.filter((p) => p.type === "toddler").length;
@@ -34,10 +44,9 @@ const ContactForm = ({
     }));
   }, [passengers, passengerData, travelTourData]);
 
-  // console.log("Dữ liệu booking", formData);
+  console.log("Dữ liệu booking", formData);
   // console.log("Hành khách đã chọn:", passengerData);
   // console.log("Giá phòng đơn", roomCost);
-  
 
   const handlePassengerDataChange = (data) => {
     // console.log("Received new passengerData:", data);
@@ -73,9 +82,9 @@ const ContactForm = ({
       [type]: Math.max(0, prev[type] + increment),
     }));
   };
-  
+
   console.log("Passenger data:", passengerData);
-  
+
   // console.log("Hành khách", passengers);
 
   return (
@@ -134,9 +143,7 @@ const ContactForm = ({
           />
         </div>
         <div>
-          <label className="block font-bold">
-            Địa chỉ
-          </label>
+          <label className="block font-bold">Địa chỉ</label>
           <input
             type="text"
             name="address"
@@ -179,16 +186,18 @@ const ContactForm = ({
         ))}
       </div>
 
-      <PassengerInfoForm
-        passengers={passengers}
-        setPassengers={setPassengers}
-        roomCost={roomCost}
-        setRoomCost={setRoomCost}
-        onPassengerDataChange={handlePassengerDataChange}
-        setFormData={setFormData}
-        assistance={assistance}
-        setAssistance={setAssistance}
-      />
+      {!assistance && (
+        <PassengerInfoForm
+          passengers={passengers}
+          setPassengers={setPassengers}
+          roomCost={roomCost}
+          setRoomCost={setRoomCost}
+          onPassengerDataChange={handlePassengerDataChange}
+          setFormData={setFormData}
+          assistance={assistance}
+          setAssistance={setAssistance}
+        />
+      )}
       <div className="border-b border-[#b1b1b1]" />
       <div className="space-y-2">
         <h3 className="text-xl font-bold">Ghi chú</h3>

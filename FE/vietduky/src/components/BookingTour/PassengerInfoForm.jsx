@@ -31,9 +31,8 @@ const PassengerInfoForm = ({
 
   console.log("assistance", assistance);
   
-
   const getPassengerErrors = (passenger) => {
-    if (assistance) return {}; // Nếu cần hỗ trợ thì bỏ qua kiểm tra, không lỗi
+    if (assistance) return {};
   
     const errors = {};
   
