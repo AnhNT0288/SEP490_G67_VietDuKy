@@ -28,7 +28,9 @@ export default function TourProgram({ id }) {
   return (
     <div className="col-span-2 bg-white shadow-lg bg-opacity-20 p-4 rounded-lg mt-4 border border-gray-300">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl text-neutral-700 font-bold">Chương trình tour</h2>
+        <h2 className="text-2xl text-neutral-700 font-bold">
+          Chương trình tour
+        </h2>
         <button
           onClick={handleToggleViewAll}
           className="text-neutral-700 font-medium hover:underline"
@@ -66,7 +68,9 @@ export default function TourProgram({ id }) {
 
                     {/* Thông tin chính */}
                     <div className="flex-1 relative">
-                      <p className="absolute -top-6 text-gray-500 text-sm">{item.title}</p>
+                      <p className="absolute -top-6 text-gray-500 text-sm">
+                        {item.title}
+                      </p>
                       <p className="font-semibold text-gray-800">
                         {item.description}
                       </p>
@@ -88,9 +92,12 @@ export default function TourProgram({ id }) {
 
                 {/* Detail chỉ hiển thị khi mở */}
                 {isOpen && (
-                  <div className="px-4 pb-4 text-sm text-gray-600">
-                    {item.detail}
-                  </div>
+                  <div
+                    className="px-4 pb-4 text-sm text-gray-600"
+                    dangerouslySetInnerHTML={{
+                      __html: item.detail || "Chưa có mô tả.",
+                    }}
+                  />
                 )}
               </div>
             );
