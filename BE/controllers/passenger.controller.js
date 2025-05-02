@@ -787,7 +787,8 @@ exports.exportExcel = async (req, res) => {
                 passenger.birth_date,
                 passenger.gender ? 'Nam' : 'Nữ',
                 passenger.phone_number,
-                passenger.booking.booking_code
+                passenger.booking.booking_code,
+                passenger.single_room ? 'Có' : 'Không',
             ]);
         });
 
