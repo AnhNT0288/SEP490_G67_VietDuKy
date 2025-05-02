@@ -776,6 +776,7 @@ exports.exportExcel = async (req, res) => {
             { header: 'Giới tính', key: 'gender', width: 10 },
             { header: 'Số điện thoại', key: 'phone_number', width: 20 },
             { header: 'Mã đơn hàng', key: 'booking_code', width: 30 },
+            { header: 'Phòng đơn', width: 10 },
             { header: 'Số Phòng', width: 20 },
             { header: 'Ghi chú', width: 20 },
         ];
@@ -786,7 +787,8 @@ exports.exportExcel = async (req, res) => {
                 passenger.birth_date,
                 passenger.gender ? 'Nam' : 'Nữ',
                 passenger.phone_number,
-                passenger.booking.booking_code
+                passenger.booking.booking_code,
+                passenger.single_room ? 'Có' : 'Không',
             ]);
         });
 
