@@ -12,7 +12,7 @@ export default function Feedback({ id }) {
   const [selectedFilter, setSelectedFilter] = useState("Tất cả");
   const [feedbacks, setFeedbacks] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
-  const filters = ["Tất cả", "Chỉ có hình ảnh", "4.0+", "3.0+", "2.0+", "1.0+"];
+  const filters = ["Tất cả", "Chỉ có hình ảnh", "4.0", "3.0", "2.0", "1.0"];
   const [likePosts, setLikePosts] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
 
@@ -43,33 +43,60 @@ export default function Feedback({ id }) {
     fetchFeedbacks();
   }, [id]);
 
+  // const filteredFeedbacks = useMemo(() => {
+  //   switch (selectedFilter) {
+  //     case "Chỉ có hình ảnh":
+  //       return feedbacks.filter(
+  //         (fb) =>
+  //           fb.feedback_album.length > 0 &&
+  //           (!fb.description_feedback || fb.description_feedback.trim() === "")
+  //       );
+  //     case "4.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 4);
+  //     case "3.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 3);
+  //     case "2.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 2);
+  //     case "1.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 1);
+  //     default:
+  //       return feedbacks;
+  //   }
+  // }, [feedbacks, selectedFilter]);
+
   const filteredFeedbacks = useMemo(() => {
-    switch (selectedFilter) {
-      case "Chỉ có hình ảnh":
-        return feedbacks.filter(
-          (fb) =>
-            Array.isArray(fb.feedback_album) && fb.feedback_album.length > 0
-        );
-      case "4.0+":
-        return feedbacks.filter((fb) => fb.rating >= 4);
-      case "3.0+":
-        return feedbacks.filter((fb) => fb.rating >= 3);
-      case "2.0+":
-        return feedbacks.filter((fb) => fb.rating >= 2);
-      case "1.0+":
-        return feedbacks.filter((fb) => fb.rating >= 1);
-      default:
-        return feedbacks;
+    if (selectedFilter === "Tất cả") {
+      return feedbacks;
     }
+
+    if (selectedFilter === "Chỉ có hình ảnh") {
+      return feedbacks.filter(
+        (fb) =>
+          fb.feedback_album.length > 0 &&
+          (!fb.description_feedback || fb.description_feedback.trim() === "")
+      );
+    }
+
+    // Nếu filter là rating (1.0, 2.0, v.v)
+    const ratingFilter = parseFloat(selectedFilter);
+    if (!isNaN(ratingFilter)) {
+      return feedbacks.filter((fb) => fb.rating === ratingFilter);
+    }
+
+    return feedbacks;
   }, [feedbacks, selectedFilter]);
 
   const visibleFeedbacks = filteredFeedbacks.slice(0, visibleCount);
 
-  const totalRating = filteredFeedbacks.reduce((sum, fb) => sum + fb.rating, 0);
+  // const totalRating = filteredFeedbacks.reduce((sum, fb) => sum + fb.rating, 0);
+  // const averageRating =
+  //   filteredFeedbacks.length > 0
+  //     ? (totalRating / filteredFeedbacks.length).toFixed(1)
+  //     : 0;
+
+  const totalRating = feedbacks.reduce((sum, fb) => sum + fb.rating, 0);
   const averageRating =
-    filteredFeedbacks.length > 0
-      ? (totalRating / filteredFeedbacks.length).toFixed(1)
-      : 0;
+    feedbacks.length > 0 ? (totalRating / feedbacks.length).toFixed(1) : 0;
 
   const handleShowMore = () => {
     setVisibleCount((prev) => prev + 10);
@@ -170,7 +197,7 @@ export default function Feedback({ id }) {
           {"★".repeat(Math.round(averageRating)).padEnd(5, "☆")}
         </span>
         <span className="text-gray-600 text-sm">
-          Dựa trên {filteredFeedbacks.length} đánh giá
+          Dựa trên {feedbacks.length} đánh giá
         </span>
         <a
           href="/article/post-experience"
