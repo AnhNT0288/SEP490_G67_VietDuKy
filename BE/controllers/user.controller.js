@@ -7,7 +7,17 @@ const StaffLocation = db.StaffLocation;
 const TravelTour = db.TravelTour;
 const Location = db.Location;
 const Tour = db.Tour;
+const nodemailer = require("nodemailer");
 const { Op, Sequelize } = require("sequelize");
+
+// Cấu hình nodemailer
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // Lấy danh sách tất cả User
 exports.getAllUsers = async (req, res) => {
@@ -289,7 +299,6 @@ exports.getStaffProfile = async (req, res) => {
   }
 };
 
-
 //Cập nhật thông tin StaffProfile
 exports.updateStaffProfile = async (req, res) => {
   try {
@@ -346,8 +355,6 @@ exports.updateStaffProfile = async (req, res) => {
     });
   }
 };
-
-
 
 //Gán địa điểm cho Staff
 exports.assignLocationsToStaff = async (req, res) => {
@@ -558,5 +565,182 @@ exports.deleteLocationFromStaff = async (req, res) => {
       message: "Lỗi khi xóa địa điểm khỏi Staff!",
       error: error.message,
     });
+  }
+};
+
+// API gửi mail liên hệ tư vấn
+exports.contactAdvice = async (req, res) => {
+  try {
+    const { name, phone, message } = req.body;
+
+    // Kiểm tra xem req.user có tồn tại không
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Người dùng chưa được xác thực!" });
+    }
+
+    const userId = req.user.id;
+
+    // Truy vấn email từ bảng User dựa trên user_id và role là customer
+    const user = await User.findOne({
+      where: { id: userId },
+      include: {
+        model: Role,
+        as: "role",
+        where: { role_name: "customer" },
+        attributes: [],
+      },
+      attributes: ["email"],
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy thông tin khách hàng!" });
+    }
+
+    const email = user.email;
+
+    // Kiểm tra thông tin đầu vào
+    if (!name || !phone || !message) {
+      return res
+        .status(400)
+        .json({ message: "Vui lòng điền đầy đủ thông tin!" });
+    }
+
+    // Lấy danh sách email của staff hoặc admin
+    const staffOrAdmins = await User.findAll({
+      include: {
+        model: Role,
+        as: "role",
+        where: { role_name: { [Op.in]: ["admin", "staff"] } },
+        attributes: [],
+      },
+      attributes: ["email"],
+    });
+
+    if (!staffOrAdmins || staffOrAdmins.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy staff hoặc admin nào!" });
+    }
+
+    const recipientEmails = staffOrAdmins.map((user) => user.email);
+
+    // Cấu hình nội dung email
+    const mailOptions = {
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+      to: recipientEmails,
+      subject: "Yêu cầu tư vấn từ khách hàng",
+      html: `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background-color: #fff;
+                margin: 0;
+                padding: 0;
+              }
+              .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                background-color: #fef2f2;
+                position: relative;
+              }
+              h1 {
+                color: #d32f2f;
+                text-align: center;
+              }
+              p {
+                margin: 10px 0;
+              }
+              .info-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                table-layout: fixed;
+              }
+              .info-table th, .info-table td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+                word-wrap: break-word;
+              }
+              .info-table th {
+                background-color: #d32f2f;
+                color: #fff;
+              }
+              .info-table td {
+                background-color: #fff;
+              }
+              .footer {
+                text-align: center;
+                margin-top: 20px;
+                font-size: 0.9em;
+                color: #666;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <h1>Yêu cầu tư vấn</h1>
+              <p>Xin chào,</p>
+              <p>Khách hàng <strong>${name}</strong> đã gửi yêu cầu tư vấn. Dưới đây là thông tin chi tiết:</p>
+              <table class="info-table">
+                <tr>
+                  <th>Thông tin</th>
+                  <th>Chi tiết</th>
+                </tr>
+                <tr>
+                  <td>Họ và tên</td>
+                  <td>${name}</td>
+                </tr>
+                <tr>
+                  <td>Email</td>
+                  <td>${email}</td>
+                </tr>
+                <tr>
+                  <td>Số điện thoại</td>
+                  <td>${phone}</td>
+                </tr>
+                <tr>
+                  <td>Nội dung</td>
+                  <td>${message}</td>
+                </tr>
+              </table>
+              <p>Vui lòng liên hệ với khách hàng để hỗ trợ tư vấn.</p>
+              <div class="footer">
+                <p>© 2025 Việt Du Ký</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `,
+    };
+
+    // Gửi email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Lỗi khi gửi email: ", error);
+        return res.status(500).json({ message: "Lỗi khi gửi email!", error });
+      } else {
+        console.log("Email đã được gửi: " + info.response);
+        return res
+          .status(200)
+          .json({ message: "Yêu cầu tư vấn đã được gửi thành công!" });
+      }
+    });
+  } catch (error) {
+    console.error("Lỗi khi gửi yêu cầu tư vấn:", error);
+    res
+      .status(500)
+      .json({ message: "Lỗi khi gửi yêu cầu tư vấn!", error: error.message });
   }
 };
