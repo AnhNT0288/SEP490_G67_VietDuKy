@@ -161,7 +161,7 @@ export default function ManagementUserRole() {
                 )}
 
                 {/* Modals */}
-                {isAddTourModalOpen && <ModalAddUser onClose={toggleAddTourModal} />}
+                {isAddTourModalOpen && <ModalAddUser onClose={toggleAddTourModal} onSuccess={fetchUsers}/>}
                 {isUpdateModalOpen && (
                     <ModalUpdateUser
                         onClose={() => setIsUpdateModalOpen(false)}

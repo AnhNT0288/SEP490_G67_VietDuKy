@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 export default function ModalAddArticle({ onClose, onCreated }) {
   const [previewImage, setPreviewImage] = useState(null);
   const [form, setForm] = useState({
-    article_name: "",   // <-- Thêm field mới
+    article_name: "",
     article_title: "",
     directory_id: "",
     album_post: "",

@@ -65,7 +65,6 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
             return;
         }
 
-        // Kiểm tra ngày trùng trong form
         const days = programs.map((p) => Number(p.day));
         const hasDuplicateDay = days.some((day, index) => days.indexOf(day) !== index);
         if (hasDuplicateDay) {
@@ -202,10 +201,14 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
                                         </td>
 
                                         {/* Chi tiết */}
-                                        <td className="p-3 min-w-[320px]">
-                                            <TextEditor
+                                        <td className="p-3 ">
+                                            <textarea
+                                                placeholder="Chi tiết chương trình"
                                                 value={prog.detail}
-                                                onChange={(value) => handleChange(idx, "detail", value)}
+                                                onChange={(e) => handleChange(idx, "detail", e.target.value)}
+                                                rows={4}
+                                                className="w-full px-2 py-1 border rounded"
+                                                required
                                             />
                                         </td>
 

@@ -17,7 +17,7 @@ export function getAllAccounts() {
     })
         .then((res) => res.data)
         .catch((err) => {
-            console.error("❌ Lỗi khi lấy danh sách tài khoản:", err.response?.data || err);
+            console.error("Lỗi khi lấy danh sách tài khoản:", err.response?.data || err);
             throw err;
         });
 }
