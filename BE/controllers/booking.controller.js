@@ -571,6 +571,7 @@ exports.updateBooking = async (req, res) => {
     if (number_newborn) booking.number_newborn = number_newborn;
     if (note) booking.note = note;
     if (passengers && passengers.length > 0) {
+      const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
       const existingPassengers = await Passenger.findAll({
         where: { booking_id: bookingId },
       });
@@ -578,13 +579,13 @@ exports.updateBooking = async (req, res) => {
         await Passenger.destroy({
           where: { booking_id: bookingId },
         });
+        travelTour.current_people -= existingPassengers.length;
+        await travelTour.save();
       }
       //Kiểm tra số lượng người update có lớn hơn số lượng cũ không?
       //Nếu tính cả case passenger cho phép danh sách rỗng => kéo phần này vào ngoài if
-      const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
-      const people_update = passengers.length - existingPassengers.length;
 
-      const current_people = travelTour.current_people + people_update;
+      const current_people = travelTour.current_people + passengers.length;
       if (current_people > travelTour.max_people) {
         return res.status(200).json({
           message: "Số lượng người đã vượt quá số lượng tối đa của chuyến!",
