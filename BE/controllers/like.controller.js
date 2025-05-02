@@ -10,7 +10,9 @@ exports.toggleLike = async (req, res) => {
     const { valid, message } = await validateTarget(target_id, target_type);
     if (!valid) return res.status(400).json({ message });
 
-    const existingLike = await Like.findOne({ where: { user_id, target_id, target_type } });
+    const existingLike = await Like.findOne({
+      where: { user_id, target_id, target_type },
+    });
 
     if (existingLike) {
       await existingLike.destroy();
@@ -33,7 +35,9 @@ exports.isLiked = async (req, res) => {
     const { valid, message } = await validateTarget(target_id, target_type);
     if (!valid) return res.status(400).json({ message });
 
-    const isLiked = await Like.findOne({ where: { user_id, target_id, target_type } });
+    const isLiked = await Like.findOne({
+      where: { user_id, target_id, target_type },
+    });
 
     return res.status(200).json({ isLiked: !!isLiked });
   } catch (error) {
@@ -50,9 +54,15 @@ exports.countLikes = async (req, res) => {
     const { valid, message } = await validateTarget(target_id, target_type);
     if (!valid) return res.status(400).json({ message });
 
-    const count = await Like.count({ where: { target_id, target_type } });
+    const likes = await Like.findAll({
+      where: { target_id, target_type },
+      attributes: ["user_id"], // Chỉ lấy cột user_id
+    });
 
-    return res.status(200).json({ count });
+    const userIds = likes.map((like) => like.user_id); // Lấy danh sách user_id
+    const count = userIds.length; // Tổng số lượng like
+
+    return res.status(200).json({ count, userIds });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
