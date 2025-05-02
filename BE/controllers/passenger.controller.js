@@ -776,6 +776,7 @@ exports.exportExcel = async (req, res) => {
             { header: 'Giới tính', key: 'gender', width: 10 },
             { header: 'Số điện thoại', key: 'phone_number', width: 20 },
             { header: 'Mã đơn hàng', key: 'booking_code', width: 30 },
+            { header: 'Phòng đơn', width: 10 },
             { header: 'Số Phòng', width: 20 },
             { header: 'Ghi chú', width: 20 },
         ];
