@@ -5,6 +5,7 @@ import { deleteTourActivity } from "../../../services/API/activity_tour.service.
 import { toast } from "react-toastify";
 
 // Modal hiển thị chi tiết một hoạt động
+// eslint-disable-next-line react/prop-types
 function ModalActivityDetail({ activity, onClose }) {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center" onClick={onClose}>
@@ -31,6 +32,7 @@ function ModalActivityDetail({ activity, onClose }) {
 }
 
 // Modal quản lý các hoạt động trong Tour
+// eslint-disable-next-line react/prop-types
 export default function ModalManageActivity({ tour, onClose }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activities, setActivities] = useState([]);
