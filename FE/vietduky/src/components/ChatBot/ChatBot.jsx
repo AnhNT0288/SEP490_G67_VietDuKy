@@ -3,32 +3,6 @@ import { IoChatbubblesOutline } from "react-icons/io5";
 import ReactMarkdown from "react-markdown";
 import { ChatBotService } from "@/services/API/chatbot.service"; // chỉnh path đúng nếu khác
 
-function splitBotMessage(input) {
-  const blocks = [];
-  const regex = /(<div[\s\S]+?<\/div>)/g;
-
-  let lastIndex = 0;
-  let match;
-
-  while ((match = regex.exec(input)) !== null) {
-    const htmlStart = match.index;
-    const htmlBlock = match[0];
-
-    if (htmlStart > lastIndex) {
-      const text = input.slice(lastIndex, htmlStart).trim();
-      if (text) blocks.push({ type: "text", content: text });
-    }
-
-    blocks.push({ type: "html", content: htmlBlock });
-    lastIndex = regex.lastIndex;
-  }
-
-  const remainingText = input.slice(lastIndex).trim();
-  if (remainingText) blocks.push({ type: "text", content: remainingText });
-
-  return blocks;
-}
-
 export default function ChatBot() {
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState([
@@ -51,40 +25,34 @@ export default function ChatBot() {
     if (!input.trim()) return;
 
     // Thêm tin nhắn người dùng vào danh sách
-    const newMessages = [
-      ...messages,
-      { sender: "user", text: input, html: "" },
-    ];
+    const newMessages = [...messages, { sender: "user", text: input, html: "" }];
     setMessages(newMessages);
     setInput("");
 
     try {
       setLoading(true);
       const response = await ChatBotService.askChatBot({ question: input });
-      const botReply =
-        response.data.data || "Xin lỗi tôi chưa có câu trả lời cho bạn.";
+      const botReply = response.data.data || "Xin lỗi, tôi chưa có câu trả lời.";
 
-      const hasHTML = /<[^>]+>/.test(botReply);
+      // Regex nhận diện HTML
+      const htmlPattern = /<\/?[a-z][\s\S]*?>/i;
 
-      // Nếu có HTML, gán toàn bộ vào html (vì thường nội dung bot sẽ là block HTML)
-      if (hasHTML) {
-        const parsedBlocks = splitBotMessage(botReply);
-        const newBotMessages = parsedBlocks.map((block) => ({
-          sender: "bot",
-          text: block.type === "text" ? block.content : "",
-          html: block.type === "html" ? block.content : "",
-        }));
-        setMessages((prev) => [...prev, ...newBotMessages]);
+      if (htmlPattern.test(botReply)) {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: "", html: botReply },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: botReply, html: "" },
+        ]);
       }
     } catch (error) {
       console.error("❌ Lỗi gọi chatbot:", error);
       setMessages((prev) => [
         ...prev,
-        {
-          sender: "bot",
-          text: "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          html: "",
-        },
+        { sender: "bot", text: "Có lỗi xảy ra. Vui lòng thử lại sau!", html: "" },
       ]);
     } finally {
       setLoading(false);
@@ -98,9 +66,8 @@ export default function ChatBot() {
     }
   };
 
+  console.log("chat", input);
   
-
-  // console.log("chat", input);
 
   return (
     <>
@@ -116,7 +83,7 @@ export default function ChatBot() {
 
       {/* Chat Box */}
       {showChat && (
-        <div className="fixed bottom-20 right-6 bg-white w-96 h-96 shadow-lg rounded-lg flex flex-col z-50">
+        <div className="fixed bottom-20 right-6 bg-white w-[500px] h-[600px] shadow-lg rounded-lg flex flex-col z-50">
           {/* Header */}
           <div className="bg-red-500 text-white p-3 rounded-t-lg flex justify-between items-center">
             <span>Chat Bot</span>
@@ -133,7 +100,7 @@ export default function ChatBot() {
                 }`}
               >
                 <div
-                  className={`inline-block max-w-80 p-2 rounded-lg ${
+                  className={`inline-block max-w-96 p-2 rounded-lg ${
                     msg.sender === "user"
                       ? "bg-red-100 text-red-800"
                       : "bg-gray-100 text-gray-700"
@@ -142,8 +109,8 @@ export default function ChatBot() {
                   {/* Nếu có HTML thì render HTML, còn không thì render markdown */}
                   {msg.html ? (
                     <div
-                      className="chat-html-block"
                       dangerouslySetInnerHTML={{ __html: msg.html }}
+                      className="prose max-w-full"
                     />
                   ) : (
                     <ReactMarkdown>{msg.text}</ReactMarkdown>

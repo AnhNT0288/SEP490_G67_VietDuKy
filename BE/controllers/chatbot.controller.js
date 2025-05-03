@@ -88,8 +88,8 @@ const tourKeywordScores = [
   
           Yêu cầu:
           - Nếu người dùng hỏi về tour, hãy gợi ý 1 hoặc nhiều tour phù hợp nhất.
-          - Với mỗi tour gợi ý, tạo HTML gồm: <div> chứa <img> ảnh đầu tiên, <b>tên tour</b> và <a>link http://localhost:5173/tour/{id}.
-          - Chỉ trả về HTML thuần, không có mấy kí tự lỗi như kiểu 3 dấu backtick để đầu và cuối response.
+          - Với mỗi tour gợi ý, tạo HTML gồm: <div> chứa <img> ảnh đầu tiên, <b>tên tour</b> và <a>link http://localhost:5173/tour/{id} và làm sao để có thể click vào ảnh và tên tour để điều hướng.
+          - Chỉ trả về HTML thuần, không dùng MarkDown Syntax và không có mấy kí tự lỗi như kiểu 3 dấu backtick để đầu và cuối response.
           - Thân thiện, giới thiệu cụ thể, văn hay chữ tốt về tour.
   
           Câu hỏi: "${question}"
@@ -100,17 +100,25 @@ const tourKeywordScores = [
           Bạn là một trợ lý du lịch thông minh.
   
           Trả lời câu hỏi của người dùng ngắn gọn, thân thiện, dưới dạng HTML (<b>, <i>, <ul>, <li>...).
-          
+          Yêu cầu bắt buộc:
+          - Chỉ trả lời bằng HTML đơn giản (sử dụng các thẻ như <b>, <i>, <ul>, <li>, <p>, <div>, <br> nếu cần).
+          - **KHÔNG được sử dụng Markdown**.
+          - **KHÔNG được bao quanh nội dung bằng bất kỳ ký tự đặc biệt nào**, đặc biệt là không dùng \`\`\`, không dùng \`\`\`html, không dùng dấu sao (*), dấu gạch đầu dòng (-), hoặc các ký hiệu định dạng văn bản.
+          - **KHÔNG thêm lời giải thích, không nói "Câu trả lời:"**, chỉ trả về đoạn HTML phù hợp.
+          - Trả về duy nhất phần nội dung HTML, KHÔNG có mô tả, KHÔNG có ví dụ, KHÔNG có chú thích.
           Câu hỏi: "${question}"
         `;
       }
   
       const result = await chatSession.sendMessage(prompt);
       const text = await result.response.text();
-  
+      let cleanText = text.trim();
+      if (cleanText.startsWith("```")) {
+        cleanText = cleanText.replace(/```[a-z]*\n?/g, "").replace(/```$/g, "").trim();
+      }
       res.json({
         message: "OK",
-        data: text,
+        data: cleanText,
         score: score,
       });
     } catch (error) {
