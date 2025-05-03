@@ -156,7 +156,7 @@ export default function ModalAssignGuide({ locationId, staffId, travel_tour_id, 
                                     <th className="p-2 text-center">Giới tính</th>
                                     <th className="p-2 text-center">Số điện thoại</th>
                                     <th className="p-2 text-left">Địa điểm phụ trách</th>
-                                    <th className="p-2 text-left">Trạng thái phân công</th>
+                                    <th className="p-2 text-left">Trạng thái</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -176,9 +176,9 @@ export default function ModalAssignGuide({ locationId, staffId, travel_tour_id, 
                                         <td className="p-2 text-left">{guide.TravelGuideLocations[0]?.location.name_location || "Chưa có"}</td>
                                         <td className="p-2 text-left">
                                             {assignedGuides.includes(guide.id) ? (
-                                                <span className="text-green-500">Đã phân công</span>
+                                                <span className="text-green-500">Trống lịch</span>
                                             ) : (
-                                                <span className="text-red-500">Chưa phân công</span>
+                                                <span className="text-red-500">Vướng lịch</span>
                                             )}
                                         </td>
                                     </tr>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { getPassengersByTravelTourId } from "../../../services/API/passenger.service.js";
+import { getPassengersByTravelTourId2} from "../../../services/API/passenger.service.js";
 import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import HotelList from "./TabService/HotelList.jsx";
 import RestaurantList from "./TabService/RestaurantList.jsx";
@@ -20,10 +20,8 @@ export default function ModalAddServiceForTravelTourIsBooking({ tour, onClose })
     useEffect(() => {
         async function fetchTourData() {
             try {
-                console.log("🚀 [DEBUG] Thông tin tour nhận vào:", tour);
-
                 setTourInfo(tour);
-                const passengers = await getPassengersByTravelTourId(tourId);
+                const passengers = await getPassengersByTravelTourId2(tourId);
                 const grouped = passengers.map((booking) => ({
                     booking_id: booking.booking_id,
                     label: `Mã đặt Tour: ${booking.booking_code}`,

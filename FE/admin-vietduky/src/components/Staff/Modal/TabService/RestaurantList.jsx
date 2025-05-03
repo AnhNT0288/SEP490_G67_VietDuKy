@@ -82,8 +82,21 @@ export default function RestaurantList({ tourId, selectedBookingIds }) {
                     <tr className="bg-gray-100 text-left">
                         <th className="p-2">Tên nhà hàng</th>
                         <th className="p-2">Địa chỉ</th>
-                        <th className="p-2">Loại hình</th>
+                        <th className="p-2">SĐT</th>
+                        <th className="p-2">Bữa ăn</th>
                         <th className="p-2">Thao tác</th>
+                        <th className="p-2">
+                            <div>
+                                {selectedBookingIds.length === 1 && (
+                                    <button
+                                        onClick={() => setOpenModal(true)}
+                                        className="bg-red-600 text-white px-2 py-1 rounded-md"
+                                    >
+                                        +
+                                    </button>
+                                )}
+                            </div>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -92,6 +105,15 @@ export default function RestaurantList({ tourId, selectedBookingIds }) {
                             <td className="p-2">{restaurant.Restaurant?.name_restaurant || "Không rõ"}</td>
                             <td className="p-2">{restaurant.Restaurant?.address_restaurant || "Không rõ"}</td>
                             <td className="p-2">{restaurant.Restaurant?.phone_number || "Không rõ"}</td>
+                            <td className="p-2">
+                                {restaurant?.meal === "breakfast"
+                                    ? "Bữa sáng"
+                                    : restaurant?.meal === "lunch"
+                                        ? "Bữa trưa"
+                                        : restaurant?.meal === "dinner"
+                                            ? "Bữa tối"
+                                            : "Không rõ"}
+                            </td>
                             <td className="p-2">
                                 <button
                                     onClick={() => handleCancelAssign(restaurant.id)}

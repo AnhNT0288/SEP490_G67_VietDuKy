@@ -15,6 +15,21 @@ export function getPassengersByTravelTourId(tourId) {
             throw error;
         });
 }
+
+export function getPassengersByTravelTourId2(tourId) {
+    return restClient({
+        url: `passenger/travel-tour/${tourId}`,
+        method: "GET",
+        params: {
+            assigned: false,
+        }
+    })
+        .then((response) => response.data.data)
+        .catch((error) => {
+            console.error("Lỗi khi lấy danh sách hành khách:", error);
+            throw error;
+        });
+}
 export async function assignPassengersToGuide(guideId, travelTourId, passengerIds) {
     try {
         const res = await restClient({

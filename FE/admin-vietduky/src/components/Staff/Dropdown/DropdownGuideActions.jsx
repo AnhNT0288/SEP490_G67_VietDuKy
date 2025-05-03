@@ -1,27 +1,26 @@
-import {FaTrash, FaUserPlus, FaUsers} from "react-icons/fa";
-import {HiOutlineDotsHorizontal} from "react-icons/hi";
-import {useEffect, useState} from "react";
+import { FaTrash, FaUserPlus, FaUsers } from "react-icons/fa";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import { useEffect, useRef } from "react";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownGuideActions({ guide, tourId, isOpen, setOpenDropdown, onAssignPassenger, onViewPassengers, onDeleteGuide }) {
-    const [isHovered, setIsHovered] = useState(false);
+export default function DropdownGuideActions({guide, tourId, isOpen, setOpenDropdown, onAssignPassenger, onViewPassengers, onDeleteGuide,}) {
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (!event.target.closest(".dropdown-container")) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setOpenDropdown(null);
             }
         };
+
         document.addEventListener("click", handleClickOutside);
-        return () => document.removeEventListener("click", handleClickOutside);
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
     }, [setOpenDropdown]);
 
     return (
-        <div
-            className="relative dropdown-container flex items-center gap-2 justify-end"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className="relative flex items-center gap-2 justify-end" ref={dropdownRef}>
             <button
                 onClick={(e) => {
                     e.stopPropagation();
@@ -67,7 +66,6 @@ export default function DropdownGuideActions({ guide, tourId, isOpen, setOpenDro
                         <FaTrash className="mr-2" />
                         Xóa
                     </button>
-
                 </div>
             )}
         </div>

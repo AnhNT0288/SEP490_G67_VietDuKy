@@ -4,12 +4,16 @@ import {getLocations} from "../../services/API/location.service.js";
 
 export default function Dashboard() {
     const [dashboardData, setDashboardData] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
     const [timeRange, setTimeRange] = useState("7ngay");
     const [timeRangeLow, setTimeRangeLow] = useState("7ngay");
     const [locations, setLocations] = useState([]);
     const [ratingFilter, setRatingFilter] = useState("");
     const [areaFilter, setAreaFilter] = useState("");
+    const [guidePage, setGuidePage] = useState(1);
+    const guidesPerPage = 5;
+    const [feedbackPage, setFeedbackPage] = useState(1);
+    const feedbacksPerPage = 10;
+
 
     useEffect(() => {
         // 🔄 Sẵn sàng để lọc theo timeRange nếu cần
@@ -51,7 +55,7 @@ export default function Dashboard() {
     const filteredGuides = guides.filter((guide) => {
         // Lọc theo đánh giá (average_rating)
         const passRating =
-            ratingFilter === "" || (guide.average_rating || 0) >= parseFloat(ratingFilter);
+            ratingFilter === "" || Math.floor(guide.average_rating || 0) === parseInt(ratingFilter);
 
         // Lọc theo khu vực (tạm thời dựa vào group_name nếu chưa có location_id)
         const guideArea = guide.GuideTours?.[0]?.group_name?.split(" ")[0] || "";
@@ -68,7 +72,15 @@ export default function Dashboard() {
         { value: "1quy", label: "1 quý" },
         { value: "1nam", label: "1 năm" },
     ];
+    const paginatedGuides = filteredGuides.slice(
+        (guidePage - 1) * guidesPerPage,
+        guidePage * guidesPerPage
+    );
 
+    const paginatedFeedbacks = feedbacks.slice(
+        (feedbackPage - 1) * feedbacksPerPage,
+        feedbackPage * feedbacksPerPage
+    );
     return (
         <div className="p-6 space-y-6">
             {/* Header Stats */}
@@ -164,12 +176,13 @@ export default function Dashboard() {
                                 className="border text-sm px-2 py-1 rounded text-gray-600"
                             >
                                 <option value="">Tất cả đánh giá</option>
-                                <option value="4"> 5 sao</option>
-                                <option value="4"> 4 sao</option>
-                                <option value="3"> 3 sao</option>
-                                <option value="4"> 2 sao</option>
-                                <option value="4"> 1 sao</option>
+                                <option value="5">5 sao</option>
+                                <option value="4">4 sao</option>
+                                <option value="3">3 sao</option>
+                                <option value="2">2 sao</option>
+                                <option value="1">1 sao</option>
                             </select>
+
                             <select
                                 value={areaFilter}
                                 onChange={(e) => setAreaFilter(e.target.value)}
@@ -197,7 +210,7 @@ export default function Dashboard() {
                             </tr>
                             </thead>
                             <tbody>
-                            {filteredGuides.map((guide) => (
+                            {paginatedGuides.map((guide) => (
                                 <tr key={guide.id} className="border-b hover:bg-gray-50">
                                     <td className="p-2">
                                         <div className="flex items-center gap-2">
@@ -215,7 +228,7 @@ export default function Dashboard() {
                                     <td className="p-2">{guide.GuideTours?.[0]?.group_name?.split(" ")[0] || "N/A"}</td>
                                     <td className="p-2">{guide.approved_tour_count}</td>
                                     <td className="p-2">
-                                        <div className="flex text-yellow-500">
+                                        <div className="flex text-yellow-500 text-lg">
                                             {Array.from({ length: 5 }, (_, i) => (
                                                 <span key={i}>{i < guide.average_rating ? "★" : "☆"}</span>
                                             ))}
@@ -226,6 +239,17 @@ export default function Dashboard() {
                             ))}
                             </tbody>
                         </table>
+                    </div>
+                    <div className="flex justify-center mt-4 gap-2">
+                        {Array.from({ length: Math.ceil(filteredGuides.length / guidesPerPage) }, (_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setGuidePage(i + 1)}
+                                className={`px-3 py-1 rounded border text-sm ${guidePage === i + 1 ? 'bg-gray-200 font-semibold' : ''}`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -288,16 +312,33 @@ export default function Dashboard() {
                         </tr>
                         </thead>
                         <tbody>
-                        {feedbacks?.map((feedback, index) => (
+                        {paginatedFeedbacks.map((feedback, index) => (
                             <tr key={feedback.feedback_id} className="border-b">
                                 <td className="p-2">{index + 1}</td>
                                 <td className="p-2">{feedback.tour?.name_tour || "Chưa cập nhật"}</td>
                                 <td className="p-2">{feedback.description_feedback}</td>
-                                <td className="p-2">{'⭐'.repeat(feedback.rating)}</td>
+                                <td className="p-2">
+                                    <div className="flex text-yellow-500 text-lg">
+                                        {Array.from({ length: 5 }, (_, i) => (
+                                            <span key={i}>{i < feedback.rating ? "★" : "☆"}</span>
+                                        ))}
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
+                </div>
+                <div className="flex justify-center mt-4 gap-2">
+                    {Array.from({ length: Math.ceil(feedbacks.length / feedbacksPerPage) }, (_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setFeedbackPage(i + 1)}
+                            className={`px-3 py-1 rounded border text-sm ${feedbackPage === i + 1 ? 'bg-gray-200 font-semibold' : ''}`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
                 </div>
             </div>
         </div>

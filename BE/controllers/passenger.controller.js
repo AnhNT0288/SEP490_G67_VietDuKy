@@ -194,7 +194,6 @@ exports.getPassengersByTravelTourId = async (req, res) => {
     try {
         const {travel_tour_id} = req.params;
         const {assigned} = req.query ? req.query : false;
-        console.log(assigned)
         if (!travel_tour_id) {
             return res.status(400).json({message: "Thiếu travel_tour_id"});
         }
@@ -204,7 +203,6 @@ exports.getPassengersByTravelTourId = async (req, res) => {
             where: {travel_tour_id, status: 2},
             attributes: ["id", "number_adult", "number_children", "travel_tour_id"], // Lấy thông tin cần thiết
         });
-
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({message: "Không tìm thấy booking nào!"});
         }
@@ -214,7 +212,8 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 
         // Tìm tất cả hành khách liên quan đến các booking_id
         let passengers;
-        if (assigned === false) {
+        console.log(assigned);
+        if (!assigned || assigned === "false") {
             passengers = await Passenger.findAll({
                 where: {
                     booking_id: bookingIds
@@ -233,6 +232,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
                     },
                 ],
             });
+            console.log(passengers);
         } else {
             passengers = await Passenger.findAll({
                 where: {
@@ -257,7 +257,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 
         if (!passengers || passengers.length === 0) {
             return res
-                .status(404)
+                .status(200)
                 .json({message: "Không tìm thấy hành khách nào!"});
         }
 
