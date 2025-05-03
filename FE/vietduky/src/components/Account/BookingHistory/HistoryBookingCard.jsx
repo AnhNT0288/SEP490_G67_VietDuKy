@@ -2,30 +2,31 @@ import { formatDayDMY } from "@/utils/dateUtil";
 import { CalendarDays, User } from "lucide-react";
 import React, { useState } from "react";
 import { RiEditBoxLine } from "react-icons/ri";
-import { FeedbackService } from "@/services/API/feedback.service";
-import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import ModalFeedbackTour from "./ModalFeedbackTour";
 
 const HistoryBookingCard = ({ booking }) => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+  const handleRebook = () => {
+    navigate(`/bookingReConfirm?booking_code=${booking.booking_code}`);
+  };
 
   return (
     <div>
       <div className="flex gap-6 items-center mb-4 border-b">
         <p className="text-sm mb-2">
           Mã đơn hàng:{" "}
-          <span className="text-red-800 font-semibold">
+          <span className="text-red-800 font-semibold cursor-pointer" onClick={handleRebook}>
             {booking.booking_code || "Không có mã đơn hàng"}
           </span>
         </p>
         <p className="text-sm mb-2">
           Trạng thái:{" "}
-          <span className="text-green-600 font-semibold">
-            Đã thanh toán
-          </span>
+          <span className="text-green-600 font-semibold">Đã thanh toán</span>
         </p>
       </div>
       <div className="flex flex-col gap-2">
@@ -36,7 +37,10 @@ const HistoryBookingCard = ({ booking }) => {
           {/* Ảnh tour */}
           <div className="w-32 h-24 overflow-hidden rounded">
             <img
-              src={booking.travel_tour?.Tour?.album?.[0] || "https://via.placeholder.com/150"}
+              src={
+                booking.travel_tour?.Tour?.album?.[0] ||
+                "https://via.placeholder.com/150"
+              }
               className="w-full h-full object-cover"
             />
           </div>
@@ -61,7 +65,11 @@ const HistoryBookingCard = ({ booking }) => {
             </p>
           </div>
           <div className="flex items-start gap-3 text-gray-600 text-lg">
-            <button title="Đánh giá" onClick={handleOpenModal} className="hover:text-red-600">
+            <button
+              title="Đánh giá"
+              onClick={handleOpenModal}
+              className="hover:text-red-600"
+            >
               <RiEditBoxLine />
             </button>
           </div>

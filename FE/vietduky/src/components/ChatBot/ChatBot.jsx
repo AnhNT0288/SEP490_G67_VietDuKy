@@ -100,7 +100,7 @@ export default function ChatBot() {
 
   
 
-  console.log("chat", input);
+  // console.log("chat", input);
 
   return (
     <>

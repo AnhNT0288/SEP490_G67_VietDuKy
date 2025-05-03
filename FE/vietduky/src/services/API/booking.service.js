@@ -59,6 +59,13 @@ export const BookingService = {
                 Authorization: `Bearer ${StorageService.getToken()}`,
             },
         });
+    },
+    searchBooking: (data) => {
+        return restClient({
+            url: 'booking/code',
+            method: "POST",
+            data,
+        });
     }
 
 };

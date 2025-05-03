@@ -28,7 +28,11 @@ export default function Feedback({ id }) {
               const likeResponse = await LikeService.totalLikeFeedback(
                 fb.feedback_id
               );
-              return { ...fb, totalLikes: likeResponse.data.count }; // Cập nhật số lượt thích
+              return {
+                ...fb,
+                totalLikes: likeResponse.data.count,
+                likes: likeResponse.data.userIds || [],
+              }; // Cập nhật số lượt thích
             })
           );
           setFeedbacks(updatedFeedbacks);
@@ -177,8 +181,8 @@ export default function Feedback({ id }) {
                 ...fb,
                 totalLikes,
                 likes: fb.likes?.includes(userId)
-                  ? fb.likes.filter((uid) => uid !== userId) // nếu userId đã tồn tại → bỏ ra
-                  : [...(fb.likes || []), userId], // chưa có userId → thêm vào
+                  ? fb.likes.filter((uid) => uid !== userId)
+                  : [...(fb.likes || []), userId],
               }
             : fb
         )
@@ -231,7 +235,7 @@ export default function Feedback({ id }) {
       <div className="mt-6 space-y-6">
         {visibleFeedbacks.length > 0 ? (
           visibleFeedbacks.map((fb) => {
-            console.log(fb);
+            console.log(fb.totalLikes);
 
             return (
               <div
