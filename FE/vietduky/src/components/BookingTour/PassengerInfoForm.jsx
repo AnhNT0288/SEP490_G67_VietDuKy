@@ -264,8 +264,6 @@ const PassengerInfoForm = ({
 
   return (
     <div>
-      
-      <div className="border-b border-[#b1b1b1]" />
       <div className="w-full flex flex-row justify-end gap-4">
         <button
           type="button"
