@@ -12,7 +12,7 @@ export default function LayoutStaff() {
     };
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex h-screen">
             <SidebarStaff setBreadcrumb={setBreadcrumb} isCollapsed={isCollapsed} />
             <div className="flex-1">
                 <HeaderManage

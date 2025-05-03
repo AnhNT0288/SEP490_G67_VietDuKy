@@ -80,7 +80,7 @@ const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
               ? "adult"
               : item.age_type === "Trẻ em"
               ? "child"
-              : "infant",
+              : "Fix",
         }));
         setBookingDetail((prev) => ({
           ...prev,

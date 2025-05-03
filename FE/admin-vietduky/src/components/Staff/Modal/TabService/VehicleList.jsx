@@ -84,7 +84,18 @@ export default function VehicleList({ tourId, selectedBookingIds }) {
                         <th className="p-2">Tên xe</th>
                         <th className="p-2">Biển số</th>
                         <th className="p-2">Số điện thoại</th>
-                        <th className="p-2"></th>
+                        <th className="p-2">Thao tác</th>
+                        <th className="p-2">
+                            <div>
+                            {selectedBookingIds.length === 1 && (
+                                <button
+                                    onClick={() => setOpenModal(true)}
+                                    className="bg-red-600 text-white px-2 py-1 rounded-md"
+                                >
+                                    +
+                                </button>
+                            )}
+                        </div></th>
                     </tr>
                     </thead>
                     <tbody>

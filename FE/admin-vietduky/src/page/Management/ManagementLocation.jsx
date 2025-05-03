@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import Layout from "../../layouts/LayoutManagement";
 import { getLocations, deleteLocation } from "../../services/API/location.service";
 import { LuSearch } from "react-icons/lu";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
@@ -11,6 +10,8 @@ import ModalDeleteLocation from "../../components/ModalManage/ModalConfirm/Modal
 import {toast} from "react-toastify";
 
 export default function ManagementLocation() {
+  const locationsPerPage = 14;
+  const [currentPage, setCurrentPage] = useState(1);
   const [locations, setLocations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -19,6 +20,11 @@ export default function ManagementLocation() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
+
+  const totalPages = Math.ceil(locations.length / locationsPerPage);
+  const indexOfLastLocation = currentPage * locationsPerPage;
+  const indexOfFirstLocation = indexOfLastLocation - locationsPerPage;
+  const currentLocations = locations.slice(indexOfFirstLocation, indexOfLastLocation);
 
   const toggleDropdown = (id) => {
     setOpenDropdown(openDropdown === id ? null : id);
@@ -120,7 +126,7 @@ export default function ManagementLocation() {
               </tr>
               </thead>
               <tbody>
-              {locations.map((location) => (
+              {currentLocations.map((location) => (
                   <tr key={location.id} className="border-t">
                     <td className="p-2">{location.name_location}</td>
                     <td className="p-2">
@@ -160,6 +166,17 @@ export default function ManagementLocation() {
               ))}
               </tbody>
             </table>
+            <div className="flex justify-center items-center gap-2 mt-4">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                      key={page}
+                      className={`px-3 py-1 border rounded ${page === currentPage ? "bg-red-600 text-white" : "bg-white text-gray-700"}`}
+                      onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+              ))}
+            </div>
           </div>
 
           {selectedImage !== null && (

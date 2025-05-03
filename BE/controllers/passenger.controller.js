@@ -194,7 +194,6 @@ exports.getPassengersByTravelTourId = async (req, res) => {
     try {
         const {travel_tour_id} = req.params;
         const {assigned} = req.query ? req.query : false;
-        console.log(assigned)
         if (!travel_tour_id) {
             return res.status(400).json({message: "Thiếu travel_tour_id"});
         }
@@ -204,7 +203,6 @@ exports.getPassengersByTravelTourId = async (req, res) => {
             where: {travel_tour_id, status: 2},
             attributes: ["id", "number_adult", "number_children", "travel_tour_id"], // Lấy thông tin cần thiết
         });
-
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({message: "Không tìm thấy booking nào!"});
         }
@@ -214,7 +212,8 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 
         // Tìm tất cả hành khách liên quan đến các booking_id
         let passengers;
-        if (assigned === false) {
+        console.log(assigned);
+        if (!assigned || assigned === "false") {
             passengers = await Passenger.findAll({
                 where: {
                     booking_id: bookingIds
@@ -233,6 +232,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
                     },
                 ],
             });
+            console.log(passengers);
         } else {
             passengers = await Passenger.findAll({
                 where: {
@@ -257,7 +257,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 
         if (!passengers || passengers.length === 0) {
             return res
-                .status(404)
+                .status(200)
                 .json({message: "Không tìm thấy hành khách nào!"});
         }
 
@@ -378,6 +378,18 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 return passenger.save();
             })
         );
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id: travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengersNotAssigned = await Passenger.findAll({
+            where: {booking_id: bookingIds, group: null}
+        });
+        if (passengersNotAssigned.length <= 0) {
+            const travelTour = await TravelTour.findByPk(travel_tour_id);
+            travelTour.status = 1;
+            await travelTour.save();
+        }
 
 
         res.status(200).json({
@@ -659,6 +671,19 @@ exports.removePassengerGroup = async (req, res) => {
         }
         passengers.group = null;
         passengers.travel_guide_id = null;
+        const booking = await Booking.findByPk(passengers.booking_id);
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id: booking.travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengerNotAssigned = await Passenger.findAll({
+            where: {booking_id: bookingIds, group: null}
+        })
+        if (passengerNotAssigned.length > 0) {
+            const travelTour = await TravelTour.findByPk(passengers.travel_tour_id);
+            travelTour.status = 0;
+            await travelTour.save();
+        }
         await passengers.save();
         res.status(200).json({message: "Xóa nhóm hành khách thành công!", data: passengers});
     } catch (error) {

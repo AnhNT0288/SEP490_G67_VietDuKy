@@ -7,6 +7,8 @@ import ModalAssignTravelGuide from "../Modal/ModalAssignTravelGuide.jsx";
 import ModalListGuidesAndPassengersIsAssigned from "../Modal/ModalListGuidesAndPassengersIsAssigned.jsx";
 import ModalAddServiceForTravelTourIsBooking from "../Modal/ModalAddServiceForTravelTourIsBooking.jsx";
 import {toast} from "react-toastify";
+import ModalListBooking from "../Modal/ModalListBooking.jsx";
+import {getBookingsByTravelTourId} from "../../../services/API/booking.service.js";
 
 // eslint-disable-next-line react/prop-types
 export default function IsBookingTravelToursManagement({ staffId }) {
@@ -25,9 +27,10 @@ export default function IsBookingTravelToursManagement({ staffId }) {
     const [openAssignModal, setOpenAssignModal] = useState(false);
     const [openAssignServiceModal, setOpenAssignServiceModal] = useState(false);
     const [selectedTourForService, setSelectedTourForService] = useState(null);
-    // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+    const [openBookingListModal, setOpenBookingListModal] = useState(false);
+    const [selectedBookingList, setSelectedBookingList] = useState([]);
 
     const resolvedStaffId = staffId || JSON.parse(localStorage.getItem("user"))?.id;
 
@@ -112,6 +115,17 @@ export default function IsBookingTravelToursManagement({ staffId }) {
         setOpenAssignServiceModal(true);
     };
 
+    const handleImportPassenger = async (tour) => {
+        try {
+            const data = await getBookingsByTravelTourId(tour.id);
+            setSelectedBookingList(data || []);
+            setOpenBookingListModal(true);
+        } catch (error) {
+            toast.error("Không thể tải danh sách khách hàng");
+            console.error("Lỗi khi lấy booking:", error);
+        }
+    };
+
     return (
         <div className="bg-white p-4 rounded-md">
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Danh sách Travel Tour</h2>
@@ -193,7 +207,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                         <th className="p-2">Điểm đến</th>
                         <th className="p-2">Ngày khởi hành</th>
                         <th className="p-2">Ngày về</th>
-                        <th className="p-2 text-center">Trạng thái</th> {/* Thêm cột này */}
+                        <th className="p-2 text-left">Trạng thái</th>
                         <th className="p-2 text-right">Thao tác</th>
                     </tr>
                     </thead>
@@ -206,7 +220,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                             <td className="p-2">{format(new Date(tour.start_day), "dd/MM/yyyy")}</td>
                             <td className="p-2">{format(new Date(tour.end_day), "dd/MM/yyyy")}</td>
                             <td
-                                className={`p-2 text-center font-medium ${
+                                className={`p-2 font-medium ${
                                     tour.status === 1 ? "text-green-600" : "text-red-600"
                                 }`}
                             >
@@ -221,6 +235,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                                     onViewGuides={(t) => handleOpenViewGuidesModal(t)}
                                     onAssignService={(t) => handleOpenAssignServiceModal(t)}
                                     onMarkAssigned={handleMarkAssigned}
+                                    onImportPassengers={(t) => handleImportPassenger(t)}
                                 />
                             </td>
                         </tr>
@@ -253,6 +268,13 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                 <ModalAddServiceForTravelTourIsBooking
                     tour={selectedTourForService}
                     onClose={() => setOpenAssignServiceModal(false)}
+                />
+            )}
+            {openBookingListModal && (
+                <ModalListBooking
+                    bookingList={selectedBookingList}
+                    open={openBookingListModal}
+                    onClose={() => setOpenBookingListModal(false)}
                 />
             )}
             {/* Pagination */}

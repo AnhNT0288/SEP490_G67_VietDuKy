@@ -34,6 +34,8 @@ import ModalPaymentSuccess from "./components/BookingCheckout/ModalBookingChecko
 import ModalSuccessPage from "./components/BookingCheckout/ModalBookingCheckout/test";
 import DetailDynamicArticle from "./page/ArticlePage/PostDynamicArticle/DetailDynamicArticle";
 import ChatBot from "./components/ChatBot/ChatBot";
+import BookingReConfirm from "./page/Booking/BookingReConfirm";
+import BookingReComplete from "./page/Booking/BookingReComplete";
 
 function App() {
   const [directory, setDirectory] = useState([]);
@@ -75,6 +77,8 @@ function App() {
           <Route path={"/booking/:id"} element={<BookingTour />} />
           <Route path={"/bookingConfirm"} element={<BookingConfirm />} />
           <Route path={"/bookingComplete"} element={<BookingComplete />} />
+          <Route path={"/bookingReConfirm"} element={<BookingReConfirm />} />
+          <Route path={"/bookingReComplete"} element={<BookingReComplete />} />
           <Route
             path={"/bookingHistory"}
             element={<TourBookingHistoryPage />}

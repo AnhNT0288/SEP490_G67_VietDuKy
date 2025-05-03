@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { FaUserPlus, FaUsers, FaConciergeBell } from "react-icons/fa"; // Thêm icon dịch vụ
+import {FaUserPlus, FaUsers, FaConciergeBell, FaFileImport} from "react-icons/fa"; // Thêm icon dịch vụ
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides, onAssignService,onMarkAssigned }) {
+export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides, onAssignService,onMarkAssigned,onImportPassengers }) {
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const widthDropdown = 224;
 
@@ -46,6 +46,16 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
                         <button
                             onClick={() => {
                                 setOpenDropdown(null);
+                                onImportPassengers(travelTour);
+                            }}
+                            className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
+                        >
+                            <FaFileImport className="mr-2" />
+                            Nhập danh sách khách hàng
+                        </button>
+                        <button
+                            onClick={() => {
+                                setOpenDropdown(null);
                                 onAssignGuide(travelTour);
                             }}
                             className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
@@ -82,8 +92,8 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
                             }}
                             className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left font-medium"
                         >
-                            <span className={travelTour.status === 1 ? "text-red-600" : "text-green-600"}>
-                                {travelTour.status === 1 ? "❌ Huỷ phân công" : "✅ Đã phân công"}
+                            <span className={travelTour.status === 1 ? "text-red-600" : "text-green-600 ml-2"}>
+                                {travelTour.status === 1 ? " Huỷ phân công" : "Đã phân công"}
                             </span>
                         </button>
                     </div>,

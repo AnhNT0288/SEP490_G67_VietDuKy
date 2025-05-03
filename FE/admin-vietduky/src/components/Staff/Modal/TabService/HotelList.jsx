@@ -86,7 +86,19 @@ export default function HotelList({ tourId, selectedBookingIds }) {
                         <th className="p-2">Địa chỉ</th>
                         <th className="p-2">Số điện thoại</th>
                         <th className="p-2">Số sao</th>
-                        <th className="p-2"></th>
+                        <th className="p-2">Thao tác</th>
+                        <th className="p-2">
+
+                            <div>
+                            {selectedBookingIds.length === 1 && (
+                                <button
+                                    onClick={() => setOpenModal(true)}
+                                    className="bg-red-600 text-white px-2 py-1 rounded-md"
+                                >
+                                    +
+                                </button>
+                            )}
+                        </div></th>
 
                     </tr>
                     </thead>

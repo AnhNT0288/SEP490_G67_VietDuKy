@@ -83,6 +83,10 @@ const ContactForm = ({
     }));
   };
 
+  const handleAssistanceChange = (e) => {
+    setAssistance(e.target.checked);
+  };
+
   console.log("Passenger data:", passengerData);
 
   // console.log("Hành khách", passengers);
@@ -159,7 +163,7 @@ const ContactForm = ({
 
       <div className="grid grid-cols-2 gap-4">
         {[
-          { label: "Người lớn", type: "adult", desc: "Từ 12 trở lên", min: 0 },
+          { label: "Người lớn", type: "adult", desc: "Từ 12 trở lên", min: 1 },
           { label: "Trẻ em", type: "children", desc: "Từ 5 - 11 tuổi", min: 0 },
           {
             label: "Trẻ nhỏ",
@@ -186,18 +190,37 @@ const ContactForm = ({
         ))}
       </div>
 
-      {!assistance && (
-        <PassengerInfoForm
-          passengers={passengers}
-          setPassengers={setPassengers}
-          roomCost={roomCost}
-          setRoomCost={setRoomCost}
-          onPassengerDataChange={handlePassengerDataChange}
-          setFormData={setFormData}
-          assistance={assistance}
-          setAssistance={setAssistance}
-        />
-      )}
+      <div className="space-y-6 mt-4">
+        <h2 className="text-xl font-bold text-neutral-900">
+          Thông tin hành khách
+        </h2>
+        <div className="p-4 bg-[#ffe8eb] rounded-lg flex items-center gap-2.5">
+          <input
+            type="checkbox"
+            name="assistance"
+            checked={assistance}
+            onChange={handleAssistanceChange}
+            className="w-6 h-6 border border-[#5d5d5d] rounded-md"
+          />
+          <span className="text-sm font-semibold text-zinc-900/90">
+            Tôi cần được nhân viên tư vấn VietDuKy trợ giúp nhập thông tin đăng
+            ký dịch vụ
+          </span>
+        </div>
+        {!assistance && (
+          <PassengerInfoForm
+            passengers={passengers}
+            setPassengers={setPassengers}
+            roomCost={roomCost}
+            setRoomCost={setRoomCost}
+            onPassengerDataChange={handlePassengerDataChange}
+            setFormData={setFormData}
+            assistance={assistance}
+            setAssistance={setAssistance}
+          />
+        )}
+      </div>
+
       <div className="border-b border-[#b1b1b1]" />
       <div className="space-y-2">
         <h3 className="text-xl font-bold">Ghi chú</h3>

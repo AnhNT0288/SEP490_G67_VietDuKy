@@ -25,7 +25,7 @@ export default function ModalSelectRestaurant({ tourId, onClose, onConfirm }) {
         } else {
             setSelectedData(prev => [
                 ...prev,
-                { restaurantId, meal: "lunch", date: "" } // mặc định meal: lunch
+                { restaurantId, meal: "lunch", date: "" }
             ]);
         }
     };

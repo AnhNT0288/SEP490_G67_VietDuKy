@@ -70,25 +70,17 @@ function App() {
           <Route path="/managementLastMinuteDeals" element={<ManagementLastMinuteDeals />}/>
           <Route path="/managementVehicle" element={<ManagementVehicle />}/>
           <Route path="/managementRequestAssignTour" element={<ModalManagementRequestAssignTour />}/>
+          <Route path="/managementRestaurant" element={<ManagementRestaurant />}/>
+          <Route path="/managementHotel" element={<ManagementHotel />} />
+          <Route path="/managementTravelTour" element={<ManagementTravelTour />}/>
         </Route>
 
         {/* Admin-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
-          <Route
-            path="/managementTravelTour"
-            element={<ManagementTravelTour />}
-          />
-          <Route path="/managementHotel" element={<ManagementHotel />} />
-          <Route
-            path="/managementRestaurant"
-            element={<ManagementRestaurant />}
-          />
-          <Route path="/managementVehicle" element={<ManagementVehicle />} />
           <Route path="/managementUserRole" element={<ManagementUserRole />} />
         </Route>
 
         <Route path={"/modalL"} element={<ModalManageTravelTour />} />
-
         <Route path={"/sidebar_staff"} element={<SidebarStaff />} />
       </Routes>
     </BrowserRouter>

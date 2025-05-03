@@ -41,11 +41,6 @@ export default function BookingTour() {
   });
   const [roomCost, setRoomCost] = useState(0);
 
-  // console.log("BookingTour:", selectedTours, id);
-  // console.log("Dữ liệu tour:", travelTourData);
-
-  // console.log("Dữ liệu đặt tour:", formData);
-
   useEffect(() => {
     if (user) {
       CustomerService.getProfile()

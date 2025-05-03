@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { XIcon } from "lucide-react";
-import {getPassengersByGuideId, getServiceForGuide, getTravelTourDetailForGuide,} from "../../services/API/guide-tour.service";
+import {getPassengersByGuideId, getServiceForGuide, getTravelTourDetailForGuide} from "../../services/API/guide-tour.service";
 import { formatDate } from "../../utils/dateUtil";
 import BookingListModal from "./BookingListModal";
 import BookingDetailsModal from "./BookingDetailsModal";
+import {toast} from "react-toastify";
+import {exportPassengerExcel} from "../../services/API/exportExcels.service.js";
 
 const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
   const [travelTourDetail, setTravelTourDetail] = useState(null);
@@ -16,10 +18,6 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
   const [serviceAssignments, setServiceAssignments] = useState([]);
   const [tab, setTab] = useState("hotel");
 
-  const handleClose = () => {
-    onClose();
-    setTravelTourDetail(null);
-  };
 
   useEffect(() => {
     const fetchTravelTourDetailAndPassengers = async () => {
@@ -94,8 +92,32 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
 
     fetchServiceAssignments();
   }, [tourSelected,guideId]);
-  console.log('data111111',serviceAssignments)
-  console.log("Hotel",hotels);
+
+  const handleExportExcel = async () => {
+    try {
+      const blob = await exportPassengerExcel(tourSelected.travel_tour_id, guideId);
+
+      // Nếu blob không phải file Excel thật → đọc thử nội dung text
+      if (blob.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+        const text = await blob.text();
+        console.error("❌ Nội dung thực sự của blob (không phải Excel):", text);
+        throw new Error("Server trả về không đúng định dạng Excel");
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `passenger_export_${tourSelected.travel_tour_id}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Xuất file Excel thất bại");
+      console.error("Lỗi khi export Excel:", error);
+    }
+  };
+
   const getAge = (birthDateStr) => {
     const birthDate = new Date(birthDateStr);
     const today = new Date();
@@ -109,7 +131,10 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
 
   if (!open) return null;
 
-  console.log("TravelTourDetail", travelTourDetail);
+  const handleClose = () => {
+    onClose();
+    setTravelTourDetail(null);
+  };
 
   return (
     <div className="fixed inset-0 z-10 bg-black/40 flex items-center justify-center">
@@ -257,10 +282,18 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
                     <div className="space-y-3">
                       {serviceAssignments.map((passenger, idx) => {
                         const restaurantName = passenger.booking?.RestaurantBookings?.[0]?.Restaurant?.name_restaurant;
+                        const restaurantMeal = passenger.booking?.RestaurantBookings?.[0]?.meal;
                         return (
                             <div key={idx} className="p-3 border rounded shadow-sm text-sm flex">
                               <p><span>{passenger.name}  -</span></p>
-                              <p> {restaurantName || 'Chưa gán'}</p>
+                              <p> {restaurantName || 'Chưa gán'} -</p>
+                                <p>{restaurantMeal === "breakfast"
+                                    ? "Bữa sáng"
+                                    : restaurantMeal === "lunch"
+                                        ? "Bữa trưa"
+                                        : restaurantMeal === "dinner"
+                                            ? "Bữa tối"
+                                            : "Không rõ"}</p>
                             </div>
                         );
                       })}
@@ -385,58 +418,24 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
                 </table>
               </div>
             </div>
-
-            {/*<div className="h-2/5">*/}
-            {/*  <div className="flex items-center justify-between mb-2">*/}
-            {/*    <h3 className="font-semibold">Danh sách đặt lịch</h3>*/}
-            {/*    <a*/}
-            {/*      href="#"*/}
-            {/*      className="text-red-600 text-sm"*/}
-            {/*      onClick={() => setOpenBookingListModal(true)}*/}
-            {/*    >*/}
-            {/*      Xem tất cả danh sách &gt;*/}
-            {/*    </a>*/}
-            {/*  </div>*/}
-
-            {/*  <div className="h-full">*/}
-            {/*    <table className="w-full text-sm border">*/}
-            {/*      <thead className="bg-gray-100 text-left">*/}
-            {/*        <tr>*/}
-            {/*          <th className="p-2">Mã đặt Tour</th>*/}
-            {/*          <th className="p-2">Tên người đặt</th>*/}
-            {/*          <th className="p-2">Số điện thoại</th>*/}
-            {/*          <th className="p-2 text-center">Thao tác</th>*/}
-            {/*        </tr>*/}
-            {/*      </thead>*/}
-            {/*      <tbody className="overflow-y-auto">*/}
-            {/*        {travelTourDetail?.bookings?.slice(0, 4)?.map((booking) => (*/}
-            {/*          <tr className="border-t" key={booking.id}>*/}
-            {/*            <td className="p-2">{booking.booking_code}</td>*/}
-            {/*            <td className="p-2">{booking.name}</td>*/}
-            {/*            <td className="p-2">{booking.phone}</td>*/}
-            {/*            <td className="p-2 flex justify-center">*/}
-            {/*              <PencilIcon*/}
-            {/*                className="w-4 h-4 cursor-pointer"*/}
-            {/*                onClick={() => setBooking(booking)}*/}
-            {/*              />*/}
-            {/*            </td>*/}
-            {/*          </tr>*/}
-            {/*        ))}*/}
-            {/*      </tbody>*/}
-            {/*    </table>*/}
-            {/*  </div>*/}
-            {/*</div>*/}
           </div>
         </div>
 
         <div className="flex justify-end mt-4 gap-2">
           <button
-            className="btn border rounded-md px-4 py-2 text-sm"
-            onClick={handleClose}
+              className="btn border rounded-md px-4 py-2 text-sm"
+              onClick={handleClose}
           >
             Hủy
           </button>
+          <button
+              className="btn bg-green-600 text-white rounded-md px-4 py-2 text-sm"
+              onClick={handleExportExcel}
+          >
+            Xuất Excel
+          </button>
         </div>
+
       </div>
       <BookingDetailsModal
         booking={booking}
