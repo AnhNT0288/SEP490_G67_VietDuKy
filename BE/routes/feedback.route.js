@@ -37,20 +37,21 @@ router.delete(
 
 router.get(
   "/tour/:tourId",
-  // authenticateUser,
+  authenticateUser,
   feedbackController.getFeedbackByTourId
 );
 
 router.get(
-  "/travel-guide/:travelGuideId",
-  // authenticateUser,
-  feedbackController.getFeedbackByTravelGuideId
+  "/travel-guide/:userId",
+  authenticateUser,
+  checkRoles(["admin"]),
+  feedbackController.getFeedbackByUserId
 );
 
 router.get(
   "/admin/tour-feedbacks",
-  // authenticateUser,
-  // checkRoles(["admin"]),
+  authenticateUser,
+  checkRoles(["admin"]),
   feedbackController.getAllTourFeedbacksForAdmin
 );
 module.exports = router;

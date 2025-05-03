@@ -570,71 +570,71 @@ exports.deleteLocationFromStaff = async (req, res) => {
 
 // API gửi mail liên hệ tư vấn
 exports.contactAdvice = async (req, res) => {
-    try {
-        const {name, phone, message} = req.body;
+  try {
+    const { name, phone, message } = req.body;
 
-        // Kiểm tra xem req.user có tồn tại không
-        if (!req.user || !req.user.id) {
-            return res
-                .status(401)
-                .json({message: "Người dùng chưa được xác thực!"});
-        }
+    // Kiểm tra xem req.user có tồn tại không
+    if (!req.user || !req.user.id) {
+      return res
+        .status(401)
+        .json({ message: "Người dùng chưa được xác thực!" });
+    }
 
-        const userId = req.user.id;
+    const userId = req.user.id;
 
-        // Truy vấn email từ bảng User dựa trên user_id và role là customer
-        const user = await User.findOne({
-            where: {id: userId},
-            include: {
-                model: Role,
-                as: "role",
-                where: {role_name: "customer"},
-                attributes: [],
-            },
-            attributes: ["email"],
-        });
+    // Truy vấn email từ bảng User dựa trên user_id và role là customer
+    const user = await User.findOne({
+      where: { id: userId },
+      include: {
+        model: Role,
+        as: "role",
+        where: { role_name: "customer" },
+        attributes: [],
+      },
+      attributes: ["email"],
+    });
 
-        if (!user) {
-            return res
-                .status(404)
-                .json({message: "Không tìm thấy thông tin khách hàng!"});
-        }
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy thông tin khách hàng!" });
+    }
 
-        const email = user.email;
+    const email = user.email;
 
-        // Kiểm tra thông tin đầu vào
-        if (!name || !phone || !message) {
-            return res
-                .status(400)
-                .json({message: "Vui lòng điền đầy đủ thông tin!"});
-        }
+    // Kiểm tra thông tin đầu vào
+    if (!name || !phone || !message) {
+      return res
+        .status(400)
+        .json({ message: "Vui lòng điền đầy đủ thông tin!" });
+    }
 
-        // Lấy danh sách email của staff hoặc admin
-        const staffOrAdmins = await User.findAll({
-            include: {
-                model: Role,
-                as: "role",
-                where: {role_name: {[Op.in]: ["staff"]}},
-                // where: { role_name: { [Op.in]: ["admin", "staff"] } },
-                attributes: [],
-            },
-            attributes: ["email"],
-        });
+    // Lấy danh sách email của staff hoặc admin có quyền tư vấn
+    const staffOrAdmins = await User.findAll({
+      include: {
+        model: Role,
+        as: "role",
+        where: { role_name: { [Op.in]: ["staff", "admin"] } },
+        attributes: [],
+      },
+      where: { can_consult: true }, // Chỉ lấy user có quyền tư vấn
+      attributes: ["email"],
+    });
 
-        if (!staffOrAdmins || staffOrAdmins.length === 0) {
-            return res
-                .status(404)
-                .json({message: "Không tìm thấy staff hoặc admin nào!"});
-        }
+    if (!staffOrAdmins || staffOrAdmins.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy staff nào có quyền tư vấn!",
+      });
+    }
 
-        const recipientEmails = staffOrAdmins.map((user) => user.email);
+    const recipientEmails = staffOrAdmins.map((user) => user.email);
 
-        // Cấu hình nội dung email
-        const mailOptions = {
-            from: '"Việt Du Ký" <vietduky.service@gmail.com>',
-            to: recipientEmails,
-            subject: "Yêu cầu tư vấn từ khách hàng",
-            html: `
+    // Cấu hình nội dung email
+    const mailOptions = {
+      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+      to: recipientEmails,
+      subject: "Yêu cầu tư vấn từ khách hàng",
+      html: `
         <html>
           <head>
             <style>
