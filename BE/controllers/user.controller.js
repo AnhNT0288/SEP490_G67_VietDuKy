@@ -609,21 +609,22 @@ exports.contactAdvice = async (req, res) => {
         .json({ message: "Vui lòng điền đầy đủ thông tin!" });
     }
 
-    // Lấy danh sách email của staff hoặc admin
+    // Lấy danh sách email của staff hoặc admin có quyền tư vấn
     const staffOrAdmins = await User.findAll({
       include: {
         model: Role,
         as: "role",
-        where: { role_name: { [Op.in]: ["admin", "staff"] } },
+        where: { role_name: { [Op.in]: ["staff", "admin"] } },
         attributes: [],
       },
+      where: { can_consult: true }, // Chỉ lấy user có quyền tư vấn
       attributes: ["email"],
     });
 
     if (!staffOrAdmins || staffOrAdmins.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy staff hoặc admin nào!" });
+      return res.status(404).json({
+        message: "Không tìm thấy staff nào có quyền tư vấn!",
+      });
     }
 
     const recipientEmails = staffOrAdmins.map((user) => user.email);
