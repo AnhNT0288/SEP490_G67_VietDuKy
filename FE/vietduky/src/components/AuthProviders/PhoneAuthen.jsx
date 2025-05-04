@@ -1,5 +1,5 @@
+import { app } from "@/firebase/init";
 import React, { useEffect, useState } from "react";
-import firebase from "@/services/firebase/firebase";
 
 const PhoneAuthen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -9,7 +9,7 @@ const PhoneAuthen = () => {
     // setup sau khi component render
     setTimeout(() => {
       if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+        window.recaptchaVerifier = new app.auth.RecaptchaVerifier(
           "recaptcha-container",
           {
             size: "invisible",
@@ -38,7 +38,7 @@ const PhoneAuthen = () => {
     }
 
     try {
-      const confirmationResult = await firebase
+      const confirmationResult = await app
         .auth()
         .signInWithPhoneNumber(phoneNumber, appVerifier);
 

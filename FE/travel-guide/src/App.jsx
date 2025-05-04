@@ -17,10 +17,16 @@ import VerifyOtp from "./components/ResetPassword/VerifyOTP.jsx";
 import ChangePassword from "./components/ResetPassword/ChangePassword.jsx";
 import SuccessReset from "./components/ResetPassword/SuccessReset.jsx";
 import ForgotPasswordFlow from "./page/ForgotPasswordFlow.jsx";
+import requestPermissionAndSaveToken from "./firebase/requestPermissionAndSaveToken";
+import {useEffect} from 'react'
 
 Modal.setAppElement("#root");
 
 function App() {
+  useEffect(() => {
+    requestPermissionAndSaveToken();
+  }, []);
+
   return (
     <BrowserRouter>
       <ToastContainer position="bottom-right" autoClose={3000} />
@@ -28,7 +34,6 @@ function App() {
       <Routes>
         <Route path={"/"} element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
-
 
         <Route path={"/register"} element={<RegisterPage />} />
         <Route path="/auth/callback" element={<GoogleAuthCallback />} />

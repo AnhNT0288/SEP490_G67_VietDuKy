@@ -2,14 +2,21 @@ import { useState, useEffect } from "react";
 import { FiSidebar, FiMoon, FiUser } from "react-icons/fi";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { StorageService } from "../../services/storage/StorageService";
+import { useNotifications } from "@/hooks/useNotifications";
 
 // eslint-disable-next-line react/prop-types
 export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isOpenMenu, setIsOpenMenu] = useState(false);
+  const [isShowNotification, setIsShowNotification] = useState(false);
+
+  const notifications = useNotifications({
+    userId: user?.id,
+    role: user?.role_name,
+  });
 
   // Lấy thông tin user khi component mount
   useEffect(() => {
@@ -17,7 +24,7 @@ export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
     if (storedUser) {
       setUser(storedUser);
     }
-  }, []);
+  }, []); // file cấu hình firebase
 
   // Xử lý đăng xuất
   const handleSignout = () => {
@@ -39,21 +46,24 @@ export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
         <span className="text-GrayishBlue font-medium">Quản lý</span>
         <span className="text-black font-medium flex items-center gap-1">
           <IoIosArrowForward className="text-[12px] text-GrayishBlue opacity-70" />
-            {breadcrumb.map((item, index) => (
-                <span key={index} className="flex items-center gap-1">
-                {index !== 0 && (
-                    <IoIosArrowForward className="text-[12px] text-GrayishBlue opacity-70" />
-                )}
-                    {item}
-                </span>
-            ))}
+          {breadcrumb.map((item, index) => (
+            <span key={index} className="flex items-center gap-1">
+              {index !== 0 && (
+                <IoIosArrowForward className="text-[12px] text-GrayishBlue opacity-70" />
+              )}
+              {item}
+            </span>
+          ))}
         </span>
       </div>
 
       {/* User Icons */}
       <div className="flex gap-4 items-center relative">
         <FiMoon size={24} />
-        <IoMdNotificationsOutline size={24} />
+        <IoMdNotificationsOutline
+          size={24}
+          onClick={() => setIsShowNotification(!isShowNotification)}
+        />
 
         {/* Avatar hoặc FiUser */}
         <div className="relative">
@@ -72,6 +82,25 @@ export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
               className="cursor-pointer"
               onClick={() => navigate("/")}
             />
+          )}
+          {isShowNotification && (
+            <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+              <p className="text-sm text-gray-700 font-medium px-3 py-1">
+                {notifications.length} thông báo
+              </p>
+              {notifications.map((notification) => (
+                <Link
+                  key={notification.id}
+                  to={getLinkNotification(notification)}
+                  className="flex flex-col border-t border-gray-200 p-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  <p className="text-md font-medium">{notification.title}</p>
+                  <p className="text-sm text-gray-700 font-medium ">
+                    {notification.body}
+                  </p>
+                </Link>
+              ))}
+            </div>
           )}
 
           {/* Dropdown Menu */}
@@ -100,3 +129,16 @@ export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
     </div>
   );
 }
+
+const getLinkNotification = (notification) => {
+  switch (notification?.type) {
+    case "BOOKING":
+      return `/booking`;
+
+    case "BOOKING_DETAIL":
+      return `/booking/${notification?.bookingId}`;
+
+    default:
+      return `#`;
+  }
+};

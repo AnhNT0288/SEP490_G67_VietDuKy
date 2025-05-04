@@ -106,7 +106,10 @@ function App() {
           element={<DetailPostExperience />}
         />
         <Route path={"/article/:alias"} element={<DynamicArticlePage />} />
-        <Route path={"/article/:alias/:id"} element={<DetailDynamicArticle />} />
+        <Route
+          path={"/article/:alias/:id"}
+          element={<DetailDynamicArticle />}
+        />
 
         <Route path={"/calendar"} element={<Calendar />} />
         <Route path="/modalSuccess" element={<ModalSuccessPage />} />

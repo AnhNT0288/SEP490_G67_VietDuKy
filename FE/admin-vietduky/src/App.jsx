@@ -33,10 +33,15 @@ import Dashboard from "./page/Management/Dashboard.jsx";
 import Profile from "./components/Profile/Profile.jsx";
 import ModalManagementRequestAssignTour from "./page/Management/ManagementRequestAssignTour.jsx";
 // import RegisterPage from "./page/Authentication/RegisterPage.jsx";
+import requestPermissionAndSaveToken from "./firebase/requestPermissionAndSaveToken.js";
+import { useEffect } from "react";
 
 Modal.setAppElement("#root");
 
 function App() {
+  useEffect(() => {
+    requestPermissionAndSaveToken();
+  }, []);
   return (
     <BrowserRouter>
       <ToastContainer position="bottom-right" autoClose={3000} />

@@ -90,6 +90,27 @@ exports.addNewUser = async (req, res) => {
     }
 };
 
+//Cập nhật FCM Token
+exports.updateFcmToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    //Lấy user_id từ token
+    const userId = req.user.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
+    user.fcm_token = fcmToken;
+    await user.save();
+    res.json({ message: "FCM Token đã được cập nhật thành công!" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi cập nhật FCM Token!",
+      error: error.message,
+    });
+  }
+};
+
 //Cập nhật thông tin User
 exports.updateUser = async (req, res) => {
     try {

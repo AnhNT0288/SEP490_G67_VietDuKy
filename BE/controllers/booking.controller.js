@@ -15,8 +15,10 @@ const path = require("path");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const {Op} = require("sequelize");
-const {generateUniqueBookingTour} = require("../utils/booking");
+const { Op } = require("sequelize");
+const { generateUniqueBookingTour } = require("../utils/booking");
+const { sendRoleBasedNotification } = require("../utils/sendNotification");
+const { NOTIFICATION_TYPE } = require("../constants");
 
 //Cấu hình nodemailer
 const transporter = nodemailer.createTransport({
@@ -65,7 +67,7 @@ const sendConfirmationEmail = (userEmail, bookingDetails) => {
         start_time_close,
         end_time_close,
     } = bookingDetails;
-    const {price_tour} = travelTour;
+    const { price_tour } = travelTour;
 
     // Format tiền
     const formattedPriceTour = formatCurrency(price_tour);
@@ -228,7 +230,7 @@ exports.getAllBookings = async (req, res) => {
     try {
         const bookings = await Booking.findAll({
             include: [
-                {model: User, attributes: ["id", "email", "avatar"]},
+                { model: User, attributes: ["id", "email", "avatar"] },
                 {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
@@ -287,7 +289,7 @@ exports.getBookingById = async (req, res) => {
 
         const booking = await Booking.findByPk(bookingId, {
             include: [
-                {model: User, attributes: ["id", "email", "avatar"]},
+                { model: User, attributes: ["id", "email", "avatar"] },
                 {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
@@ -328,10 +330,10 @@ exports.getBookingById = async (req, res) => {
         });
 
         if (!booking) {
-            return res.status(200).json({message: "Không tìm thấy đơn hàng!"});
+            return res.status(200).json({ message: "Không tìm thấy đơn hàng!" });
         }
         booking.dataValues.passengers = await Passenger.findAll({
-            where: {booking_id: bookingId},
+            where: { booking_id: bookingId },
         });
 
         res.status(200).json({
@@ -524,7 +526,10 @@ exports.createBooking = async (req, res) => {
             start_time_close: travelTour.start_time_close,
             end_time_close: travelTour.end_time_close,
         });
-
+        await sendRoleBasedNotification(['admin', 'staff'], {
+            title: "Có tour mới đặt thành công!",
+            type: NOTIFICATION_TYPE.BOOKING,
+        });
         res.status(201).json({
             message: "Đặt tour thành công!",
             data: newBooking,
@@ -559,7 +564,7 @@ exports.updateBooking = async (req, res) => {
 
         const booking = await Booking.findByPk(bookingId);
         if (!booking) {
-            return res.status(404).json({message: "Booking not found!"});
+            return res.status(404).json({ message: "Booking not found!" });
         }
         if (name) booking.name = name;
         if (phone) booking.phone = phone;
@@ -574,11 +579,11 @@ exports.updateBooking = async (req, res) => {
         if (passengers && passengers.length > 0) {
             const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
             const existingPassengers = await Passenger.findAll({
-                where: {booking_id: bookingId},
+                where: { booking_id: bookingId },
             });
             if (existingPassengers.length > 0) {
                 await Passenger.destroy({
-                    where: {booking_id: bookingId},
+                    where: { booking_id: bookingId },
                 });
                 travelTour.current_people -= existingPassengers.length;
                 await travelTour.save();
@@ -629,7 +634,7 @@ exports.deleteBooking = async (req, res) => {
 
         const booking = await Booking.findByPk(bookingId);
         if (!booking) {
-            return res.status(200).json({message: "Không tìm thấy booking!"});
+            return res.status(200).json({ message: "Không tìm thấy booking!" });
         }
         const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
         const people_update =
@@ -658,7 +663,7 @@ exports.getLatestBooking = async (req, res) => {
         const latestBooking = await Booking.findOne({
             order: [["id", "DESC"]], // Sắp xếp giảm dần theo ID (mới nhất trước)
             include: [
-                {model: User, attributes: ["id", "email", "avatar"]},
+                { model: User, attributes: ["id", "email", "avatar"] },
                 {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
@@ -699,7 +704,7 @@ exports.getLatestBooking = async (req, res) => {
         });
 
         if (!latestBooking) {
-            return res.status(200).json({message: "Không tìm thấy booking nào!"});
+            return res.status(200).json({ message: "Không tìm thấy booking nào!" });
         }
 
         res.status(200).json({
@@ -718,9 +723,9 @@ exports.getBookingByUserId = async (req, res) => {
     try {
         const userId = req.params.id;
         const bookings = await Booking.findAll({
-            where: {user_id: userId},
+            where: { user_id: userId },
             include: [
-                {model: User, attributes: ["id", "email", "avatar"]},
+                { model: User, attributes: ["id", "email", "avatar"] },
                 {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "status"],
@@ -737,7 +742,7 @@ exports.getBookingByUserId = async (req, res) => {
 
         // Format lại dữ liệu trả về
         const formattedBookings = bookings.map((booking) => {
-            const bookingData = booking.get({plain: true});
+            const bookingData = booking.get({ plain: true });
             return {
                 ...bookingData,
                 travel_tour: {
@@ -760,20 +765,20 @@ exports.getBookingByUserId = async (req, res) => {
 };
 exports.searchBooking = async (req, res) => {
     try {
-        const {keyword, travel_tour_id} = req.query;
+        const { keyword, travel_tour_id } = req.query;
         const bookings = await Booking.findAll({
             where: {
                 [Op.or]: [
-                    {name: {[Op.like]: `%${keyword}%`}},
-                    {email: {[Op.like]: `%${keyword}%`}},
-                    {phone: {[Op.like]: `%${keyword}%`}},
-                    {booking_code: {[Op.like]: `%${keyword}%`}},
+                    { name: { [Op.like]: `%${keyword}%` } },
+                    { email: { [Op.like]: `%${keyword}%` } },
+                    { phone: { [Op.like]: `%${keyword}%` } },
+                    { booking_code: { [Op.like]: `%${keyword}%` } },
                 ],
                 travel_tour_id: travel_tour_id,
             },
             include: [
-                {model: User, attributes: ["id", "email", "avatar"]},
-                {model: TravelTour},
+                { model: User, attributes: ["id", "email", "avatar"] },
+                { model: TravelTour },
             ],
         });
 
@@ -792,7 +797,7 @@ exports.getBookingByTravelTourId = async (req, res) => {
     try {
         const travelTourId = req.params.id;
         const bookings = await Booking.findAll({
-            where: {travel_tour_id: travelTourId},
+            where: { travel_tour_id: travelTourId },
         });
         res.status(200).json({
             message: "Lấy booking thành công!",
@@ -809,10 +814,10 @@ exports.getBookingByBookingCode = async (req, res) => {
     try {
         const bookingCode = req.body.booking_code;
         const booking = await Booking.findOne({
-            where: {booking_code: bookingCode},
+            where: { booking_code: bookingCode },
         });
         if (!booking) {
-            return res.status(200).json({message: "Không tìm thấy booking!"});
+            return res.status(200).json({ message: "Không tìm thấy booking!" });
         }
         res.status(200).json({
             message: "Lấy booking thành công!",

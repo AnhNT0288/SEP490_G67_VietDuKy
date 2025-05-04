@@ -4,6 +4,8 @@ const Tour = db.Tour;
 const User = db.User;
 const TravelGuide = db.TravelGuide;
 const { Op } = require("sequelize");
+const { sendRoleBasedNotification } = require("../utils/sendNotification");
+const { NOTIFICATION_TYPE } = require("../constants");
 
 // Lấy tất cả Feedback theo user_id
 exports.getFeedbackByUser = async (req, res) => {
@@ -113,6 +115,11 @@ exports.createFeedbackForTour = async (req, res) => {
     // Cập nhật trường rating_tour của tour
     tour.rating_tour = averageRating;
     await tour.save();
+
+    await sendRoleBasedNotification(['admin', 'staff', 'user'], {
+      title: "Có feedback mới!",
+      type: NOTIFICATION_TYPE.TOUR,
+    });
 
     res.status(201).json({
       message: "Tạo feedback cho tour thành công!",

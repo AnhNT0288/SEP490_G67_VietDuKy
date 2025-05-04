@@ -28,6 +28,11 @@ router.post(
   uploadAvatar.single("avatar"),
   userController.addNewUser
 );
+router.put('/fcm-token',
+  authenticateUser,
+  checkRoles(["admin", "staff", "customer", "tour_guide",]),
+  userController.updateFcmToken
+);
 router.put(
   "/update/:id",
   authenticateUser,

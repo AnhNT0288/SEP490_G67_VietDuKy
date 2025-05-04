@@ -2,9 +2,11 @@ import Icons from "../Icons/Icon";
 import ModalLogin from "../ModalLogin/ModalLogin";
 import { StorageService } from "@/services/storage/StorageService";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import HeaderMenu from "./HeaderMenu";
 import { FaBars } from "react-icons/fa";
+import { useNotifications } from "@/hooks/useNotifications";
+import { IoMdNotificationsOutline } from "react-icons/io";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -15,6 +17,13 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const menuRef = useRef(null);
   const hamburgerRef = useRef(null);
+  const notificationRef = useRef(null);
+  const [isShowNotification, setIsShowNotification] = useState(false);
+
+  const notifications = useNotifications({
+    userId: user?.id,
+    role: user?.role_name,
+  });
 
   // Lấy thông tin user khi component mount
   useEffect(() => {
@@ -40,10 +49,25 @@ export default function Header() {
     }
   };
 
+  const handleClickOutsideNotification = (event) => {
+    if (
+      notificationRef.current &&
+      !notificationRef.current.contains(event.target)
+    ) {
+      setIsShowNotification(false);
+    }
+  };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutsideNotification);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutsideNotification);
+    };
   }, []);
+
+  // Tắt scroll khi hamburger mở
 
   // Tắt scroll khi hamburger mở
   useEffect(() => {
@@ -100,6 +124,33 @@ export default function Header() {
         {/* Avatar + Hamburger */}
         <div className="flex items-center gap-4 md:gap-6 md:flex-row-reverse">
           {/* Avatar */}
+
+          <div className="relative" ref={notificationRef}>
+            <IoMdNotificationsOutline
+              size={22}
+              className="sm:size-6 cursor-pointer"
+              onClick={() => setIsShowNotification(!isShowNotification)}
+            />
+            {isShowNotification && (
+              <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+                <p className="text-sm text-gray-700 font-medium px-3 py-1">
+                  {notifications.length} thông báo
+                </p>
+                {notifications.map((notification) => (
+                  <Link
+                    key={notification.id}
+                    to={getLinkNotification(notification)}
+                    className="flex flex-col border-t border-gray-200 p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    <p className="text-md font-medium">{notification.title}</p>
+                    <p className="text-sm text-gray-700 font-medium ">
+                      {notification.body}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="relative" ref={menuRef}>
             <img
               onClick={handleAvatarClick}
@@ -178,3 +229,13 @@ export default function Header() {
     </header>
   );
 }
+
+const getLinkNotification = (notification) => {
+  switch (notification?.type) {
+    case "BOOKING":
+      return `/booking`;
+
+    default:
+      return `#`;
+  }
+};

@@ -1,13 +1,15 @@
 const db = require("../models");
 const axios = require("axios");
+const { sendRoleBasedNotification } = require("../utils/sendNotification");
+const { NOTIFICATION_TYPE } = require("../constants");
 const Booking = db.Booking;
 const Payment = db.Payment;
 
 //Lấy danh sách tất cả Payment Card
 exports.checkPayment = async (req, res) => {
-    const {paymentKey} = req.body;
-    const {bookingId} = req.body;
-    const {customerId} = req.body;
+    const { paymentKey } = req.body;
+    const { bookingId } = req.body;
+    const { customerId } = req.body;
     const sheetId = "1w3jFPsqXk0aPqYGFieCDeHiArUwcj9hpzIdjsl1vEz0";
     const apiKey = process.env.GOOGLE_API;
     const range = "payment!A2:F100";
@@ -66,6 +68,11 @@ exports.checkPayment = async (req, res) => {
                 if (amount === booking.total_cost) {
                     booking.status = 2;
                     console.log("Thanh toán thành công");
+                    await sendRoleBasedNotification(['admin', 'staff'], {
+                        title: "Có thông tin thanh toán mới!",
+                        type: NOTIFICATION_TYPE.BOOKING_DETAIL,
+                        bookingId: bookingId,
+                    });
                 } else {
                     booking.status = 1;
                     console.log("Thanh toán thất bại");
@@ -78,11 +85,11 @@ exports.checkPayment = async (req, res) => {
                     amount: amount,
                 });
 
-                return res.status(200).json({message: "OK", data: payment});
+                return res.status(200).json({ message: "OK", data: payment });
             } else {
                 return res
                     .status(500)
-                    .json({error: "Không có giao dịch"});
+                    .json({ error: "Không có giao dịch" });
             }
         }
 
@@ -94,21 +101,21 @@ exports.checkPayment = async (req, res) => {
         console.error("Error occurred:", error);
         return res
             .status(500)
-            .json({error: "Đã xảy ra lỗi trong quá trình xử lý"});
+            .json({ error: "Đã xảy ra lỗi trong quá trình xử lý" });
     }
 };
 exports.getPayment = async (req, res) => {
-    const {paymentId} = req.body;
+    const { paymentId } = req.body;
     console.log("REQ BODY:", req.body);
     const payment = await Payment.findOne({
         where: {
             id: paymentId,
         },
     });
-    return res.status(200).json({message: "OK", data: payment});
+    return res.status(200).json({ message: "OK", data: payment });
 };
 exports.getPaymentByBookingId = async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     console.log("REQ BODY:", req.body);
 
     const payment = await Payment.findOne({
@@ -116,10 +123,10 @@ exports.getPaymentByBookingId = async (req, res) => {
             booking_id: id,
         },
     });
-    return res.status(200).json({message: "OK", data: payment});
+    return res.status(200).json({ message: "OK", data: payment });
 };
 exports.getPaymentByCustomerId = async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     console.log("REQ BODY:", req.body);
 
     const payment = await Payment.findOne({
@@ -127,9 +134,9 @@ exports.getPaymentByCustomerId = async (req, res) => {
             customer_id: id,
         },
     });
-    return res.status(200).json({message: "OK", data: payment});
+    return res.status(200).json({ message: "OK", data: payment });
 };
 exports.getAllPayment = async (req, res) => {
     const payment = await Payment.findAll();
-    return res.status(200).json({message: "OK", data: payment});
+    return res.status(200).json({ message: "OK", data: payment });
 };

@@ -19,7 +19,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
-    "firebase": "^11.6.0",
+    "firebase": "^11.6.1",
     "html-react-parser": "^5.2.3",
     "lucide-react": "^0.477.0",
     "moment": "^2.30.1",
