@@ -199,7 +199,7 @@ const PassengerInfoForm = ({
           : "";
         const age = birthdate ? calculateAge(birthdate) : null;
 
-        let type = "adult"; // Mặc định là người lớn
+        let type = "adult";
         if (age !== null) {
           if (age < 2) type = "infant";
           else if (age < 5) type = "toddler";
@@ -207,7 +207,7 @@ const PassengerInfoForm = ({
         }
 
         return {
-          id: `${type}-${index}-${Date.now()}`, // Đảm bảo id là duy nhất
+          id: `${type}-${index}-${Date.now()}`,
           name: row["Họ tên"] || "",
           phone: row["Số điện thoại"] || "",
           gender: row["Giới tính"]?.toLowerCase() === "nữ" ? "false" : "true",

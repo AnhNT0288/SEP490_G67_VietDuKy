@@ -123,7 +123,7 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
 
   return (
     <aside
-      className={`fixed md:relative min-h-screen bg-[#9A1B21] text-white p-4 transition-all duration-300 ${
+      className={`min-h-screen bg-[#9A1B21] text-white p-4 transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       } ${isMobileOpen ? "block" : "hidden"} md:block`}
     >
