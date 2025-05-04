@@ -8,4 +8,10 @@ export const DiscountService = {
             method: "GET",
         })
     },
+    getApproveDiscounts: async () => {
+        return restClient({
+            url: `discount-service/get-approve-discount-service`,
+            method: "GET",
+        })
+    },
 };

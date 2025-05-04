@@ -6,6 +6,7 @@ import { formatTime } from "@/utils/dateUtil";
 import React, { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ContactModal from "./ContactModal";
 
 const TourBooking = ({
   formData,
@@ -20,6 +21,7 @@ const TourBooking = ({
   const [agreed, setAgreed] = useState(false);
   const [tours, setTours] = useState("");
   const [travelTourData, setTravelTourData] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const validatePhoneNumber = (phone) => /^0\d{9,10}$/.test(phone);
   const isDateInRange = (dateStr) => {
@@ -404,9 +406,13 @@ const TourBooking = ({
         <button className="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-600 transition font-bold">
           Gọi miễn phí qua internet
         </button>
-        <button className="px-4 py-2 bg-white border border-red-800 text-red-800 rounded-lg hover:bg-red-100 transition font-bold">
+        <button
+          onClick={() => setModalOpen(true)}
+          className="px-4 py-2 bg-white border border-red-800 text-red-800 rounded-lg hover:bg-red-100 transition font-bold"
+        >
           Liên hệ tư vấn
         </button>
+        <ContactModal open={modalOpen} onClose={() => setModalOpen(false)} />
       </div>
     </div>
   );

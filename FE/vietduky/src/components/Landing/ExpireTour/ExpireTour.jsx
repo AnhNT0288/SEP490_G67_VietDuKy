@@ -11,7 +11,7 @@ export default function ExpireTour() {
   useEffect(() => {
     const fetchDiscountTours = async () => {
       try {
-        const response = await DiscountService.getDiscounts();
+        const response = await DiscountService.getApproveDiscounts();
         setDiscountTours(response.data.data);
       } catch (error) {
         console.error("Error fetching discount tours:", error);

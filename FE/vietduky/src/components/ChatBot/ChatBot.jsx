@@ -61,7 +61,7 @@ export default function ChatBot() {
             ...formattedMessages,
           ]);
         } catch (error) {
-          console.error("❌ Lỗi lấy lịch sử chat:", error);
+          console.error("Lỗi lấy lịch sử chat:", error);
         }
       }
     };
@@ -109,7 +109,7 @@ export default function ChatBot() {
         ]);
       }
     } catch (error) {
-      console.error("❌ Lỗi gọi chatbot:", error);
+      console.error("Lỗi gọi chatbot:", error);
       setMessages((prev) => [
         ...prev,
         {

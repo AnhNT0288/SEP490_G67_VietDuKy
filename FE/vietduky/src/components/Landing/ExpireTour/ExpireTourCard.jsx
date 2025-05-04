@@ -124,7 +124,7 @@ const ExpireTourCard = ({
         </span>
       </p>
       <p className="text-red-800 text-xl font-bold leading-7">
-        {discountPrice}
+        {discountPrice} VNĐ
       </p>
     </div>
   );
