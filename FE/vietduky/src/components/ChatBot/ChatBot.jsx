@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { ChatBotService } from "@/services/API/chatbot.service"; // chỉnh path đúng nếu khác
 
 export default function ChatBot() {
+  const userId = JSON.parse(localStorage.getItem("user"))?.id;
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState([
     { sender: "bot", text: "Xin chào! Bạn cần hỗ trợ gì?", html: "" },
@@ -21,18 +22,77 @@ export default function ChatBot() {
     scrollToBottom();
   }, [messages, loading]);
 
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (showChat && userId) {
+        try {
+          const res = await ChatBotService.getHistoryChat(userId);
+          const history = res.data?.data || [];
+  
+          // Sắp xếp theo thời gian tạo (tăng dần)
+          history.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  
+          // Chuyển đổi dữ liệu thành messages
+          const formattedMessages = history.flatMap((item) => {
+            const messages = [];
+  
+            if (item.question) {
+              messages.push({
+                sender: "user",
+                text: item.question,
+                html: "",
+              });
+            }
+  
+            if (item.answer) {
+              const htmlPattern = /<\/?[a-z][\s\S]*?>/i;
+              messages.push({
+                sender: "bot",
+                text: htmlPattern.test(item.answer) ? "" : item.answer,
+                html: htmlPattern.test(item.answer) ? item.answer : "",
+              });
+            }
+  
+            return messages;
+          });
+  
+          setMessages([
+            { sender: "bot", text: "Xin chào! Bạn cần hỗ trợ gì?", html: "" },
+            ...formattedMessages,
+          ]);
+        } catch (error) {
+          console.error("❌ Lỗi lấy lịch sử chat:", error);
+        }
+      }
+    };
+  
+    fetchHistory();
+  }, [showChat, userId]);
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
     // Thêm tin nhắn người dùng vào danh sách
-    const newMessages = [...messages, { sender: "user", text: input, html: "" }];
+    const newMessages = [
+      ...messages,
+      { sender: "user", text: input, html: "" },
+    ];
     setMessages(newMessages);
     setInput("");
 
     try {
       setLoading(true);
-      const response = await ChatBotService.askChatBot({ question: input });
-      const botReply = response.data.data || "Xin lỗi, tôi chưa có câu trả lời.";
+      const payload = {
+        question: input,
+      };
+      
+      if (userId) {
+        payload.user_id = userId;
+      }
+      
+      const response = await ChatBotService.askChatBot(payload);
+      const botReply =
+        response.data.data || "Xin lỗi, tôi chưa có câu trả lời.";
 
       // Regex nhận diện HTML
       const htmlPattern = /<\/?[a-z][\s\S]*?>/i;
@@ -52,7 +112,11 @@ export default function ChatBot() {
       console.error("❌ Lỗi gọi chatbot:", error);
       setMessages((prev) => [
         ...prev,
-        { sender: "bot", text: "Có lỗi xảy ra. Vui lòng thử lại sau!", html: "" },
+        {
+          sender: "bot",
+          text: "Có lỗi xảy ra. Vui lòng thử lại sau!",
+          html: "",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -66,8 +130,7 @@ export default function ChatBot() {
     }
   };
 
-  console.log("chat", input);
-  
+  // console.log("chat", input);
 
   return (
     <>
@@ -91,7 +154,7 @@ export default function ChatBot() {
           </div>
 
           {/* Nội dung chat */}
-          <div className="flex-1 p-4 overflow-y-auto text-sm text-gray-700 space-y-2">
+          <div className="flex-1 p-4 overflow-y-auto text-md text-gray-700 space-y-2">
             {messages.map((msg, index) => (
               <div
                 key={index}

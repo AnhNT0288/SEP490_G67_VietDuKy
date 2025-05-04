@@ -10,5 +10,14 @@ export const ChatBotService = {
             },
             data: data,
         })
+    },
+    getHistoryChat: (userId) => {
+        return restClient({
+            url: `/chatbot/history/${userId}`,
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
     }
 };
