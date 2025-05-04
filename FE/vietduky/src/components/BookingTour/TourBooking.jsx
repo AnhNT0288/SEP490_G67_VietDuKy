@@ -412,7 +412,7 @@ const TourBooking = ({
         >
           Liên hệ tư vấn
         </button>
-        <ContactModal open={modalOpen} onClose={() => setModalOpen(false)} />
+        <ContactModal travelTour={travelTourData} open={modalOpen} onClose={() => setModalOpen(false)} />
       </div>
     </div>
   );

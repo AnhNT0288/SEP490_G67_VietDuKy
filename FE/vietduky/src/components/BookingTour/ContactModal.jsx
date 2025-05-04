@@ -1,15 +1,21 @@
 import { UserService } from "@/services/API/user.service";
+import { formatDayDMY } from "@/utils/dateUtil";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-export default function ContactModal({ open, onClose }) {
-  const [form, setForm] = useState({ name: "", phone: "", message: "" });
+export default function ContactModal({ open, onClose, travelTour }) {
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    message: `Tôi cần tư vấn về ${travelTour?.Tour?.name_tour} - ${formatDayDMY(travelTour?.start_day)} - ${formatDayDMY(travelTour?.end_day)}`,
+  });
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+console.log("Travel Tour", travelTour);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,14 +25,18 @@ export default function ContactModal({ open, onClose }) {
       const res = await UserService.sendAdviceRequest(form);
 
       if (res.status === 200) {
-        toast("Gửi thông tin thành công!");
-        setForm({ name: "", phone: "", message: "Tôi cần tư vấn về tour du lịch" });
+        toast.success("Gửi thông tin thành công!");
+        setForm({
+          name: "",
+          phone: "",
+          message: "Tôi cần tư vấn về tour du lịch",
+        });
         onClose();
       } else {
-        toast("Gửi thất bại. Vui lòng thử lại.");
+        toast.error("Gửi thất bại. Vui lòng thử lại.");
       }
     } catch (err) {
-      toast("Lỗi kết nối server.");
+      toast.error("Lỗi kết nối server.");
     } finally {
       setLoading(false);
     }
@@ -36,46 +46,74 @@ export default function ContactModal({ open, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md relative">
+      <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md relative animate-fade-in">
         <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl"
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-500 text-2xl font-bold"
           onClick={onClose}
         >
           ×
         </button>
-        <h2 className="text-2xl font-semibold mb-4 text-center">Liên hệ tư vấn</h2>
+
+        <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">
+          Liên hệ tư vấn
+        </h2>
+
+        <p className="text-sm text-gray-600 mb-4 text-center leading-relaxed">
+          Chúng tôi mong muốn lắng nghe ý kiến của quý khách. <br />
+          Vui lòng gửi mọi yêu cầu, thắc mắc theo thông tin bên dưới, chúng tôi
+          sẽ liên lạc với bạn sớm nhất có thể.
+        </p>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            name="name"
-            type="text"
-            placeholder="Họ và tên"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="phone"
-            type="tel"
-            placeholder="Số điện thoại"
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.phone}
-            onChange={handleChange}
-            required
-          />
-          <textarea
-            name="message"
-            placeholder="Nội dung cần tư vấn"
-            rows={4}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.message}
-            onChange={handleChange}
-            required
-          ></textarea>
+          <div>
+            <label className="block mb-1 text-gray-700 font-medium">
+              Họ và tên
+            </label>
+            <input
+              name="name"
+              type="text"
+              placeholder="Nhập họ và tên"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-gray-700 font-medium">
+              Số điện thoại
+            </label>
+            <input
+              name="phone"
+              type="tel"
+              placeholder="Nhập số điện thoại"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              value={form.phone}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-gray-700 font-medium">
+              Nội dung cần tư vấn
+            </label>
+            <textarea
+              name="message"
+              placeholder="Tôi cần tư vấn về tour du lịch..."
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              value={form.message}
+              onChange={handleChange}
+              required
+            ></textarea>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+            className="w-full bg-red-500 text-white font-semibold py-2 rounded-lg hover:bg-red-600 transition duration-200"
           >
             {loading ? "Đang gửi..." : "Gửi thông tin"}
           </button>

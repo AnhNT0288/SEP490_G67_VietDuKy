@@ -4,7 +4,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { StorageService } from "../../services/storage/StorageService";
 import { useNotifications } from "@/hooks/useNotifications";
-import { getLinkNotification } from "../../utils";
+// import { getLinkNotification } from "../../utils";
 
 export default function HeaderManage({ toggleSidebar, title }) {
   const navigate = useNavigate();
