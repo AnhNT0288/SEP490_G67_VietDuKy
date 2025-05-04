@@ -2301,8 +2301,15 @@ exports.deleteGuideTour = async (req, res) => {
 }
 exports.getGuideTourStatistics = async (req, res) => {
     try {
-        const {travel_guide_id} = req.params;
+        const {user_id} = req.params;
         const {month} = req.query;
+        const travelGuide = await TravelGuide.findOne({
+            where: {user_id},
+        });
+        if (!travelGuide) {
+            return res.status(404).json({message: "Không tìm thấy TravelGuide!"});
+        }
+        const travel_guide_id = travelGuide.id;
 
         // Xử lý tháng hiện tại và tháng trước
         const currentMonth = month ? parseInt(month) : new Date().getMonth() + 1;
@@ -2314,7 +2321,7 @@ exports.getGuideTourStatistics = async (req, res) => {
 
         // Lấy tất cả guide tour của tháng hiện tại
         const currentMonthGuideTours = await GuideTour.findAll({
-            where: {travel_guide_id},
+            where: {travel_guide_id: travelGuide.id},
             include: [{
                 model: db.TravelTour,
                 as: 'travelTour',
