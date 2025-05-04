@@ -133,7 +133,7 @@ export default function SidebarStaff({isCollapsed, setBreadcrumb }) {
     }, [location.pathname])
 
     return (
-        <aside className={`fixed md:relative min-h-screen bg-[#9A1B21] text-white p-4 transition-all duration-300 ${isCollapsed ? "w-20" : "w-64"}`}>
+        <aside className={`h-screen bg-[#9A1B21] text-white p-4 transition-all duration-300 ${isCollapsed ? "w-20" : "w-64"}`}>
 
             <a href="/" className="flex justify-center">
                 <img src="/Image/Logo.png" alt="Viet Du Ky" width={isCollapsed ? 50 : 175} height={isCollapsed ? 50 : 125} className="transition-all duration-300"/>

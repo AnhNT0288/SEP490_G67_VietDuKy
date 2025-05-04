@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import {getDashboardData} from "../../services/API/dashboard.service.js";
 import {getLocations} from "../../services/API/location.service.js";
+import RevenueChart from "../../components/DashBoard/RevenueChart.jsx";
+import {generateFullMonthlyStats} from "../../utils/chartUtils.js";
 
 export default function Dashboard() {
     const [dashboardData, setDashboardData] = useState(null);
@@ -16,23 +18,16 @@ export default function Dashboard() {
 
 
     useEffect(() => {
-        // 🔄 Sẵn sàng để lọc theo timeRange nếu cần
         const fetchData = async () => {
             try {
-                const data = await getDashboardData({ time: timeRange }); // ← sau này bạn truyền timeRange vào API
+                const data = await getDashboardData({ time: timeRange });
                 setDashboardData(data);
             } catch (err) {
                 console.error("Fetch dashboard data failed", err);
             }
         };
-
         fetchData();
-    }, [timeRange]); // ← khi timeRange thay đổi thì tự fetch lại
-    useEffect(() => {
-        getDashboardData()
-            .then(data => setDashboardData(data))
-            .catch(error => console.error("Fetch dashboard data failed", error));
-    }, []);
+    }, [timeRange]);
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -45,6 +40,22 @@ export default function Dashboard() {
         };
         fetchLocations();
     }, []);
+
+    // const generateFullMonthlyStats = (statsFromAPI) => {
+    //     const fullStats = Array.from({ length: 12 }, (_, i) => ({
+    //         month: i + 1,
+    //         revenue: 0,
+    //     }));
+    //
+    //     statsFromAPI.forEach(({ month, revenue }) => {
+    //         const index = fullStats.findIndex((m) => m.month === month);
+    //         if (index !== -1) {
+    //             fullStats[index].revenue = parseInt(revenue);
+    //         }
+    //     });
+    //
+    //     return fullStats;
+    // };
 
     if (!dashboardData) {
         return <div className="p-6">Loading...</div>;
@@ -110,9 +121,8 @@ export default function Dashboard() {
                         <h2 className="text-lg font-semibold">Báo cáo doanh thu</h2>
                         <button className="px-3 py-1 border rounded text-sm">Xuất Excel</button>
                     </div>
-                    <div className="h-60 bg-gray-100 flex items-center justify-center">
-                        {/* Nếu có monthly_stats bạn có thể vẽ chart ở đây sau */}
-                        [Biểu đồ doanh thu đang phát triển]
+                    <div className="bg-gray-50 p-2 rounded">
+                        <RevenueChart data={generateFullMonthlyStats(dashboardData.monthly_stats)} />
                     </div>
                 </div>
 

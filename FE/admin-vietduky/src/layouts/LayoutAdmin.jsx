@@ -12,14 +12,16 @@ export default function LayoutAdmin() {
     };
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen">
+        <div className="flex md:flex-row h-full min-h-screen">
             <SidebarAdmin setBreadcrumb={setBreadcrumb} isCollapsed={isCollapsed} />
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col">
                 <HeaderManage
                     toggleSidebar={toggleSidebar}
                     breadcrumb={breadcrumb}
                 />
-                <Outlet />
+                <div className="flex-1 bg-gray-50">
+                    <Outlet />
+                </div>
             </div>
         </div>
     );

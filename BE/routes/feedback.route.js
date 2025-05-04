@@ -44,7 +44,7 @@ router.get(
 router.get(
   "/travel-guide/:userId",
   authenticateUser,
-  checkRoles(["admin"]),
+  checkRoles(["admin","tour_guide", "staff", "customer"]),
   feedbackController.getFeedbackByUserId
 );
 
