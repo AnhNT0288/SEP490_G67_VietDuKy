@@ -81,6 +81,7 @@ const FavoriteTour = require("./favoriteTour.model.js")(sequelize, Sequelize);
 const Like = require("./like.model.js")(sequelize, Sequelize);
 const StaffProfile = require("./staffProfile.model.js")(sequelize, Sequelize);
 const StaffLocation = require("./staffLocation.model.js")(sequelize, Sequelize);
+const ChatHistory = require("./chat_history.model.js")(sequelize, Sequelize);
 
 // Mối quan hệ (Associations)
 //Payment/Booking
@@ -421,4 +422,5 @@ db.Like = Like;
 db.TourInfo = TourInfo;
 db.StaffProfile = StaffProfile;
 db.StaffLocation = StaffLocation;
+db.ChatHistory = ChatHistory;
 module.exports = db;
