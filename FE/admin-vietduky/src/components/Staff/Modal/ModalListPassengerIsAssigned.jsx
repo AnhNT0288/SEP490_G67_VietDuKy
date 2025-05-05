@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { getPassengersByTravelGuideId, removePassengerFromGroup } from "../../../services/API/passenger.service.js";
+import { getPassengersByTravelGuideId, removePassengerFromGroup } from "@/services/API/passenger.service.js";
 import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
@@ -8,6 +8,8 @@ export default function ModalListPassengerIsAssigned({ guide, travelTourId, onCl
     const [passengers, setPassengers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
 
     useEffect(() => {
         if (guide?.id && travelTourId) {
@@ -36,9 +38,14 @@ export default function ModalListPassengerIsAssigned({ guide, travelTourId, onCl
     };
 
     const filteredPassengers = passengers.filter(p =>
-        p.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        p.name?.toLowerCase().includes(searchTerm.trim().toLowerCase())
     );
 
+    const totalPages = Math.ceil(filteredPassengers.length / itemsPerPage);
+    const paginatedPassengers = filteredPassengers.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
     if (!guide) return null;
 
     return (
@@ -122,7 +129,7 @@ export default function ModalListPassengerIsAssigned({ guide, travelTourId, onCl
                             </tr>
                             </thead>
                             <tbody>
-                            {filteredPassengers.map((p) => (
+                            {paginatedPassengers.map((p) => (
                                 <tr key={p.id} className="border-t">
                                     <td className="p-2">{p.name || "-"}</td>
                                     <td className="p-2">{p.phone_number || "-"}</td>
@@ -147,6 +154,27 @@ export default function ModalListPassengerIsAssigned({ guide, travelTourId, onCl
                         </table>
                     )}
                 </div>
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 mt-4">
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 rounded border bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                        >
+                            Trước
+                        </button>
+                        <span className="text-sm">
+            Trang {currentPage} / {totalPages}
+        </span>
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1 rounded border bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                        >
+                            Sau
+                        </button>
+                    </div>
+                )}
 
                 {/* Footer cố định */}
                 <div className="border-t p-4 flex justify-end">

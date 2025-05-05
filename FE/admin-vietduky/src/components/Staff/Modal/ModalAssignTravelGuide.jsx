@@ -30,9 +30,6 @@ export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
 
 // Khi ấn "Xóa"
     const handleDeleteGuide = async (travel_guide_id, travel_tour_id) => {
-        if (!window.confirm("Bạn có chắc chắn muốn xóa hướng dẫn viên này khỏi lịch trình?")) {
-            return;
-        }
 
         try {
             await deleteAssignedGuide(travel_guide_id, travel_tour_id);
@@ -247,7 +244,7 @@ export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
                                 <th className="p-2">Ngày sinh</th>
                                 <th className="p-2">Số điện thoại</th>
                                 <th className="p-2">Tổng khách hàng</th>
-                                <th className="p-2">Thao tác</th>
+                                <th className="p-2 text-right">Thao tác</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -271,7 +268,6 @@ export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
                                             onViewPassengers={(guide) => handleViewAssignedPassengers(guide)}
                                             onDeleteGuide={({ travel_guide_id, travel_tour_id }) => handleDeleteGuide(travel_guide_id, travel_tour_id)}
                                         />
-
                                     </td>
                                 </tr>
                             ))}
