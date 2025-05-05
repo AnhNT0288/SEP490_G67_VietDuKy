@@ -19,7 +19,7 @@ const ProtectedRoute = () => {
 
   const handleLoginSuccess = () => {
     setShowModal(false);
-    navigate(location.state?.from || "/"); // Điều hướng về trang trước đó hoặc trang home
+    navigate(location.state?.from || "/");
   };
 
   if (isAuthenticated) {

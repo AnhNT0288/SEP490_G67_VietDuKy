@@ -15,6 +15,7 @@ export default function TourCard({
   travelTours = [],
   favoriteTours,
   setFavoriteTours,
+  openLoginModal,
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -36,7 +37,7 @@ export default function TourCard({
     );
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
-      toast.error("Bạn phải đăng nhập để thêm tour vào danh sách yêu thích.");
+      openLoginModal();
       return;
     }
     const data = {

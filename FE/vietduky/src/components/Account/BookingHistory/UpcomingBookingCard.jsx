@@ -73,7 +73,7 @@ export default function UpcomingBookingCard({ booking }) {
               </div>
               <div className="flex items-center gap-1 text-zinc-900 text-sm">
                 <img src={Icons.UserBold} className="w-5 h-5" />
-                <span>{`${booking.number_adult} người lớn, ${booking.number_children} trẻ em`}</span>
+                <span>{`${booking.number_adult} người lớn, ${booking.number_toddler} trẻ em, ${booking.number_children} trẻ nhỏ, ${booking.number_newborn} em bé`}</span>
               </div>
             </div>
             <p className="text-lg text-red-800 font-semibold mt-2">

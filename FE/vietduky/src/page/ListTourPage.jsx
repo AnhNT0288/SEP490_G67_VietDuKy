@@ -3,6 +3,7 @@ import Header from "@/components/Header/Header";
 import HeaderCard from "@/components/ListTour/HeaderCard";
 import SearchBar from "@/components/ListTour/SearchBar";
 import TourFilter from "@/components/ListTour/TourFilter";
+import ModalLogin from "@/components/ModalLogin/ModalLogin";
 import TourCard from "@/components/TourCard/TourCard";
 import { FavouriteTourService } from "@/services/API/favourite_tour.service";
 import { LocationService } from "@/services/API/location.service";
@@ -29,6 +30,7 @@ export default function ListTour() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
   const countTours = tours.length;
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -101,14 +103,14 @@ export default function ListTour() {
     const hasFilters = Object.values(filterParams).some(
       (param) => param !== "" && param !== "Tất cả"
     );
-  
+
     if (!hasFilters) {
       setFilteredTours([]);
       setIsFiltering(false);
       setMessage("");
       return;
     }
-  
+
     try {
       const res = await TourService.searchTour(filterParams);
       if (res.status === 200) {
@@ -126,7 +128,6 @@ export default function ListTour() {
       setMessage("Chúng tôi không tìm thấy tour nào cho bạn !");
     }
   };
-  
 
   const activeTopics = topics.filter((topic) => topic.active === true);
 
@@ -143,7 +144,7 @@ export default function ListTour() {
   const validTravelTours = travelTours.filter((tour) => {
     const startDate = new Date(tour.start_day);
     const now = new Date();
-    
+
     // Chỉ lấy tour có ngày khởi hành hôm nay hoặc sau hôm nay
     return startDate >= new Date(now.setHours(0, 0, 0, 0));
   });
@@ -218,9 +219,11 @@ export default function ListTour() {
                   travelTours={validTravelTours}
                   favoriteTours={favoriteTours}
                   setFavoriteTours={setFavoriteTours}
+                  openLoginModal={() => setShowLoginModal(true)}
                 />
               )}
             </div>
+            {showLoginModal && <ModalLogin />}
           </div>
         </div>
       </div>
