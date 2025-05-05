@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import {deleteAssignedGuide, getGuidesByTravelTourId} from "../../../services/API/guide_tour.service.js";
+import {deleteAssignedGuide, getGuidesByTravelTourId} from "@/services/API/guide_tour.service.js";
 import ModalAssignPassenger from "./ModalAssignPassenger.jsx";
 import ModalAssignGuide from "../../ModalManage/ModalAdd/ModalAssignGuide.jsx";
 import {toast} from "react-toastify";
-import {autoAssignPassengersToGuides} from "../../../services/API/passenger.service.js";
+import {autoAssignPassengersToGuides} from "@/services/API/passenger.service.js";
 import DropdownGuideActions from "../Dropdown/DropdownGuideActions.jsx";
 import ModalListPassengerIsAssigned from "./ModalListPassengerIsAssigned.jsx";
 
@@ -21,14 +21,12 @@ export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
     const [openDropdown, setOpenDropdown] = useState(null);
     const [viewingGuide, setViewingGuide] = useState(null);
 
-    const tourId = tour.id; // tourId
+    const tourId = tour.id;
     const travelTourId = tour.id;
-// Khi ấn "Xem KH đã gán"
     const handleViewAssignedPassengers = (guide) => {
         setViewingGuide(guide);
     };
 
-// Khi ấn "Xóa"
     const handleDeleteGuide = async (travel_guide_id, travel_tour_id) => {
 
         try {

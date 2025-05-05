@@ -68,7 +68,7 @@ export function deleteTravelTour(id) {
 export function closeTravelTour(id) {
   return restClient({
     url: `travel-tour/close/${id}`,
-    method: "POST",
+    method: "GET",
   })
       .then(response => {
         console.log("✅ Đóng lịch khởi hành thành công:", response.data);
