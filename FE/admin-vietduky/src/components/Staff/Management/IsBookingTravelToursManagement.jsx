@@ -88,6 +88,12 @@ export default function IsBookingTravelToursManagement({ staffId }) {
         setOpenAssignModal(true);
     };
 
+    const fetchTravelTours = () => {
+        getTravelToursByStaffAndEndLocation(resolvedStaffId)
+            .then((tours) => setTravelTours(tours))
+            .catch((error) => console.error("Error fetching tours:", error));
+    };
+
     const handleMarkAssigned = async (tour) => {
         try {
             const newStatus = tour.status === 1 ? 0 : 1;
@@ -254,7 +260,10 @@ export default function IsBookingTravelToursManagement({ staffId }) {
             {openAssignModal && selectedTour && (
                 <ModalAssignTravelGuide
                     tour={selectedTour}
-                    onClose={() => setOpenAssignModal(false)}
+                    onClose={() => {
+                        setOpenAssignModal(false);
+                        fetchTravelTours();
+                    }}
                     staffId={resolvedStaffId}
                 />
             )}
