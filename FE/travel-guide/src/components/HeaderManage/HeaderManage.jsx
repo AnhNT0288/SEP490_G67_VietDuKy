@@ -14,15 +14,32 @@ export default function HeaderManage({ toggleSidebar, title }) {
   const [isShowNotification, setIsShowNotification] = useState(false);
   console.log(user);
 
-  const notifications = useNotifications({
+  const { notifications, markNotificationAsRead } = useNotifications({
     userId: user?.id,
     role: user?.role_name,
   });
 
+  const handleClickNotification = (notification) => {
+    if (!notification.isRead) {
+      markNotificationAsRead(notification.id);
+    }
+    navigate(getLinkNotification(notification));
+    setIsShowNotification(false);
+  };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const handleClickOutside = (e) => {
+    if (!e.target.closest("#notification-container")) {
+      setIsShowNotification(false);
+    }
+  };
+
   useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
     const storedUser = StorageService.getUser();
     if (storedUser) {
       setUser(storedUser);
+      document.removeEventListener("click", handleClickOutside);
     }
   }, []);
 
@@ -50,11 +67,44 @@ export default function HeaderManage({ toggleSidebar, title }) {
       {/* User Icons */}
       <div className="flex gap-3 items-center relative">
         <FiMoon size={20} className="sm:size-5" />
-        <IoMdNotificationsOutline
-          size={22}
-          className="sm:size-6 cursor-pointer"
-          onClick={() => setIsShowNotification(!isShowNotification)}
-        />
+        <div id="notification-container" className="relative">
+          <IoMdNotificationsOutline
+            size={24}
+            onClick={() => setIsShowNotification(!isShowNotification)}
+            className="cursor-pointer"
+          />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-[1px] rounded-full font-semibold">
+              {unreadCount}
+            </span>
+          )}
+          {isShowNotification && (
+            <div className="absolute right-0 mt-2 w-[300px] max-h-[400px] overflow-y-auto bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+              <p className="text-sm text-gray-700 font-medium px-3 py-1">
+                {notifications.length} thông báo
+              </p>
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  onClick={() => handleClickNotification(notification)}
+                  className={`flex flex-row justify-between items-center border-t bg-gray-100 border-gray-200 p-2 hover:bg-gray-100 cursor-pointer ${
+                    !notification?.isRead && "bg-white"
+                  }`}
+                >
+                  <div className="flex flex-col">
+                    <p className="text-md font-medium">{notification.title}</p>
+                    <p className="text-sm text-gray-700 font-medium ">
+                      {notification.body}
+                    </p>
+                  </div>
+                  {!notification?.isRead && (
+                    <div className="bg-red-700 w-2 h-2 rounded-full" />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Avatar */}
         <div className="relative">
@@ -71,26 +121,6 @@ export default function HeaderManage({ toggleSidebar, title }) {
               className="cursor-pointer"
               onClick={() => navigate("/")}
             />
-          )}
-
-          {isShowNotification && (
-            <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
-              <p className="text-sm text-gray-700 font-medium px-3 py-1">
-                {notifications.length} thông báo
-              </p>
-              {notifications.map((notification) => (
-                <Link
-                  to={getLinkNotification(notification)}
-                  key={notification.id}
-                  className="flex flex-col border-t border-gray-200 p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  <p className="text-md font-medium">{notification.title}</p>
-                  <p className="text-sm text-gray-700 font-medium ">
-                    {notification.body}
-                  </p>
-                </Link>
-              ))}
-            </div>
           )}
 
           {/* Dropdown Menu */}

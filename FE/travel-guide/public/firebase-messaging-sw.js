@@ -10,7 +10,6 @@ firebase.initializeApp({
     messagingSenderId: "460941475771",
     appId: "1:460941475771:web:df11af9a01be2ce8be8e9e",
     measurementId: "G-374LVHBE1E",
-    vapidKey: "BJyIY1lX94vH2BI4w2CrX9rM_p3iqVf_FEX8C6nRRtYeXOraDZh19vw3c92RVALe8bhxHy1D5KaePg9LnpZBt8w",
 });
 
 const messaging = firebase.messaging();

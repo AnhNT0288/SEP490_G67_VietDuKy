@@ -801,7 +801,8 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
             const guideTourDetail = await GuideTour.findOne({
                 where: {travel_guide_id, travel_tour_id: travelTourId},
             });
-
+            if (guideTourDetail && guideTourDetail.group === 1) {
+                
             // Lấy danh sách hành khách đã được gán cho từng TravelGuide
             const passengersByGuide = await Passenger.findAll({
                 where: {
@@ -831,9 +832,40 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
                 },
                 {}
             );
+            } else {
+                passengersByGuide = [];
+                passengerCountByGuide = {};
+            }
+
         } else {
-            passengerCountByGuide = {};
-            passengersByGuide = [];
+            // Lấy danh sách hành khách cho tất cả các booking
+            const allPassengers = await Passenger.findAll({
+                where: {
+                    booking_id: {
+                        [Op.in]: bookings.map((booking) => booking.id),
+                    },
+                },
+                include: [
+                    {
+                        model: Booking,
+                        as: "booking",
+                        attributes: ["id"],
+                    },
+                ],
+            });
+
+            // Nhóm hành khách theo TravelGuide
+            passengerCountByGuide = allPassengers.reduce((acc, passenger) => {
+                const guideId = passenger.travel_guide_id;
+                if (!acc[guideId]) {
+                    acc[guideId] = 0;
+                }
+                acc[guideId]++;
+                return acc;
+            }, {});
+
+            // Lưu danh sách hành khách
+            passengersByGuide = allPassengers;
         }
         const formatedGuideTour = guideTours
             .map((guideTour) => {

@@ -75,7 +75,25 @@ exports.checkPayment = async (req, res) => {
                     });
                 } else {
                     booking.status = 1;
-                    console.log("Thanh toán thất bại");
+                    const existingPayment = await Payment.findOne({
+                        where: {
+                            transactionCode: paymentKey,
+                        },
+                    });
+                    if (!existingPayment) {
+                        const newPayment = await Payment.create({
+                            customer_id: customerId,
+                            booking_id: bookingId,
+                            transactionCode: paymentKey,
+                            amount: amount,
+                        });
+                        await newPayment.save();
+                    }
+                    return res.status(500).json({
+                        message: "Số tiền không khớp",
+                        amount: amount,
+                        total_cost: booking.total_cost
+                    });
                 }
                 await booking.save();
                 const payment = await Payment.create({
