@@ -15,7 +15,7 @@ export default function ContactModal({ open, onClose, travelTour }) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-console.log("Travel Tour", travelTour);
+// console.log("Travel Tour", travelTour);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

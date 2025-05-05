@@ -35,7 +35,7 @@ const ContactForm = ({
 
     setFormData((prev) => ({
       ...prev,
-      travel_tour_id: travelTourData[0]?.id || "",
+      travel_tour_id: travelTourData?.id || "",
       number_adult: adults + passengers.adult,
       number_children: children + passengers.children,
       number_toddler: toddlers + passengers.toddler,
@@ -77,12 +77,35 @@ const ContactForm = ({
   };
 
   const handlePassengerChange = (type, increment) => {
-    setPassengers((prev) => ({
-      ...prev,
-      [type]: Math.max(0, prev[type] + increment),
-    }));
+    setPassengers((prev) => {
+      const remainingSlots = travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people;
+      
+      // Tính tổng hành khách (không bao gồm infant)
+      const totalCurrentWithoutInfant = Object.entries(prev)
+        .filter(([key]) => key !== "infant")
+        .reduce((sum, [, val]) => sum + val, 0);
+  
+      // Kiểm tra nếu đang muốn tăng vượt quá slot còn lại
+      if (increment > 0 && totalCurrentWithoutInfant >= remainingSlots && type !== "infant") {
+        alert(`Chuyến đi này chỉ còn ${remainingSlots} hành khách!`);
+        return prev;
+      }
+  
+      const newValue = prev[type] + increment;
+  
+      // Nếu là người lớn (adult) thì min = 1
+      if (type === "adult" && newValue < 1) return prev;
+  
+      // Các loại khác không được nhỏ hơn 0
+      if (newValue < 0) return prev;
+  
+      return {
+        ...prev,
+        [type]: newValue,
+      };
+    });
   };
-
+  
   const handleAssistanceChange = (e) => {
     setAssistance(e.target.checked);
   };
@@ -90,6 +113,8 @@ const ContactForm = ({
   console.log("Passenger data:", passengerData);
 
   // console.log("Hành khách", passengers);
+  // console.log("Travel tour data", travelTourData?.[0]?.max_people);
+  
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -217,6 +242,7 @@ const ContactForm = ({
             setFormData={setFormData}
             assistance={assistance}
             setAssistance={setAssistance}
+            currentSlot={travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people}
           />
         )}
       </div>

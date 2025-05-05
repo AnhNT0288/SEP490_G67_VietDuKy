@@ -21,10 +21,22 @@ export const formatDayDMY = (dateString) => {
   });
 };
 
-export const excelDateToJSDate = (serial) => {
-  const utc_days = Math.floor(serial - 25569);
-  const date_info = new Date(utc_days * 86400 * 1000);
-  return date_info.toISOString().split("T")[0]; // YYYY-MM-DD
+export const excelDateToJSDate = (excelDate) => {
+  if (!excelDate) return "";
+
+  if (typeof excelDate === "number") {
+    const date = new Date((excelDate - 25569) * 86400 * 1000);
+    return date.toISOString().split("T")[0];
+  }
+
+  if (typeof excelDate === "string") {
+    const date = new Date(excelDate);
+    if (!isNaN(date)) {
+      return date.toISOString().split("T")[0];
+    }
+  }
+
+  return "";
 };
 
 export const formatTime = (timeString) => {

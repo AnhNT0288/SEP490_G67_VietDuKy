@@ -60,7 +60,7 @@ export default function SearchTour() {
           className="w-full h-full object-cover brightness-[70%] scale-[1.1] transition-transform duration-500"
         />
 
-        <div className="absolute bg-[rgba(0,0,0,0.3)] inset-0 flex flex-col justify-center items-center px-4 sm:px-10">
+        <div className="absolute bg-[rgba(0,0,0,0.3)] rounded-b-[48px] inset-0 flex flex-col justify-center items-center px-4 sm:px-10">
           <div className="text-white text-center max-w-4xl">
             <h2 className="text-3xl sm:text-5xl font-bold leading-snug sm:leading-[3.5rem] search-tour-title">
               Thế giới tour trong tay bạn

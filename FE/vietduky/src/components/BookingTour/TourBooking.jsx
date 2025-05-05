@@ -102,8 +102,20 @@ const TourBooking = ({
       return;
     }
 
+    const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("Số điện thoại không hợp lệ!");
+      return;
+    }
+
     if (!formData.email) {
       toast.error("Vui lòng nhập email!");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Email không hợp lệ!");
       return;
     }
 
@@ -412,7 +424,11 @@ const TourBooking = ({
         >
           Liên hệ tư vấn
         </button>
-        <ContactModal travelTour={travelTourData} open={modalOpen} onClose={() => setModalOpen(false)} />
+        <ContactModal
+          travelTour={travelTourData}
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
       </div>
     </div>
   );

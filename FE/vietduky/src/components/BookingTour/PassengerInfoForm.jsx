@@ -12,6 +12,7 @@ const PassengerInfoForm = ({
   setRoomCost,
   assistance,
   setAssistance,
+  currentSlot,
 }) => {
   const [passengerData, setPassengerData] = useState([]);
   
@@ -27,7 +28,9 @@ const PassengerInfoForm = ({
 
   
 
-  console.log("assistance", assistance);
+  // console.log("assistance", assistance);
+  console.log("currentSlot", currentSlot);
+  
   
   const getPassengerErrors = (passenger) => {
     if (assistance) return {};
@@ -183,29 +186,27 @@ const PassengerInfoForm = ({
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
+  
     const reader = new FileReader();
     reader.readAsBinaryString(file);
-
+  
     reader.onload = (e) => {
       const workbook = XLSX.read(e.target.result, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json(sheet);
-
+    
       const formattedData = data.map((row, index) => {
-        const birthdate = row["Ngày sinh"]
-          ? excelDateToJSDate(row["Ngày sinh"])
-          : "";
+        const birthdate = row["Ngày sinh"] ? excelDateToJSDate(row["Ngày sinh"]) : "";
         const age = birthdate ? calculateAge(birthdate) : null;
-
+    
         let type = "adult";
         if (age !== null) {
           if (age < 2) type = "infant";
           else if (age < 5) type = "toddler";
           else if (age < 12) type = "children";
         }
-
+    
         return {
           id: `${type}-${index}-${Date.now()}`,
           name: row["Họ tên"] || "",
@@ -215,49 +216,72 @@ const PassengerInfoForm = ({
           birthdate,
           age,
           type,
-          label:
-            type === "adult"
-              ? "Người lớn"
-              : type === "children"
-              ? "Trẻ em"
-              : type === "toddler"
-              ? "Trẻ nhỏ"
-              : "Em bé",
-          desc:
-            type === "adult"
-              ? "Từ 12 trở lên"
-              : type === "children"
-              ? "Từ 5 - 11 tuổi"
-              : type === "toddler"
-              ? "Từ 2 - 4 tuổi"
-              : "Dưới 2 tuổi",
-          singleRoom: false,
+          label: type === "adult" ? "Người lớn" : type === "children" ? "Trẻ em" : type === "toddler" ? "Trẻ nhỏ" : "Em bé",
+          desc: type === "adult" ? "Từ 12 trở lên" : type === "children" ? "Từ 5 - 11 tuổi" : type === "toddler" ? "Từ 2 - 4 tuổi" : "Dưới 2 tuổi",
+          singleRoom: row["Phòng đơn"]?.toLowerCase() === "có"
         };
       });
-
-      // Cập nhật passengerData
+    
+      // // Tổng số người hiện tại + số thêm mới
+      // const currentTotal = passengerData.length;
+      // const newTotal = formattedData.length;
+      // const totalAfterAdd = currentTotal + newTotal;
+    
+      // if (totalAfterAdd > currentSlot) {
+      //   alert(
+      //     `Vượt quá số lượng slot còn lại! Hiện còn ${currentSlot - currentTotal} slot.`
+      //   );
+      //   return;
+      // }
+    
+      const invalidPassengers = formattedData.filter((p) => {
+        const errors = getPassengerErrors(p);
+        return Object.keys(errors).length > 0;
+      });
+    
+      if (invalidPassengers.length > 0) {
+        alert(
+          `Dữ liệu không hợp lệ trong file Excel. Vui lòng kiểm tra lại các dòng bị thiếu thông tin hoặc sai định dạng.`
+        );
+        return;
+      }
+    
+      // Dữ liệu hợp lệ và không vượt slot
       setPassengerData((prev) => {
-        const combinedPassengers = [...prev, ...formattedData];
-
-        // Tính toán số lượng hành khách cho từng loại
+        const filledSlots = prev.filter(p => p.name || p.phone || p.gender || p.birthdate);
+        const emptySlots = prev.filter(p => !p.name && !p.phone && !p.gender && !p.birthdate);
+      
+        const overwriteCount = Math.min(emptySlots.length, formattedData.length);
+        const overwriteData = formattedData.slice(0, overwriteCount);
+        const appendData = formattedData.slice(overwriteCount);
+      
+        const updatedPassengers = [
+          ...filledSlots,
+          ...overwriteData.map((data, idx) => ({
+            ...data,
+            id: emptySlots[idx].id, // giữ nguyên ID
+          })),
+          ...appendData,
+        ];
+      
+        if (updatedPassengers.length > currentSlot) {
+          alert(`Vượt quá số lượng slot còn lại! Hiện còn ${currentSlot} slot.`);
+          return prev; // giữ nguyên không thay đổi
+        }
+      
         const passengerCounts = {
-          adult: combinedPassengers.filter((p) => p.type === "adult").length,
-          children: combinedPassengers.filter((p) => p.type === "children")
-            .length,
-          toddler: combinedPassengers.filter((p) => p.type === "toddler")
-            .length,
-          infant: combinedPassengers.filter((p) => p.type === "infant").length,
+          adult: updatedPassengers.filter((p) => p.type === "adult").length,
+          children: updatedPassengers.filter((p) => p.type === "children").length,
+          toddler: updatedPassengers.filter((p) => p.type === "toddler").length,
+          infant: updatedPassengers.filter((p) => p.type === "infant").length,
         };
-
-        // Cập nhật state passengers
+      
         setPassengers(passengerCounts);
-        onPassengerDataChange(passengerCounts);
-
-        // console.log("passengerCounts", passengerCounts);
-
-        return combinedPassengers;
+        onPassengerDataChange(updatedPassengers);
+        return updatedPassengers;
       });
     };
+    
   };
 
   console.log("Dữ liệu hành khách:", passengerData);
