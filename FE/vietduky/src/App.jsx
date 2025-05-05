@@ -36,6 +36,7 @@ import DetailDynamicArticle from "./page/ArticlePage/PostDynamicArticle/DetailDy
 import ChatBot from "./components/ChatBot/ChatBot";
 import BookingReConfirm from "./page/Booking/BookingReConfirm";
 import BookingReComplete from "./page/Booking/BookingReComplete";
+import AboutPage from "./components/AboustUs/AboutPage";
 
 function App() {
   const [directory, setDirectory] = useState([]);
@@ -71,6 +72,7 @@ function App() {
       />
       <Routes>
         <Route path={"/"} element={<LayoutLandingPage />} />
+        <Route path={"/about-us"} element={<AboutPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<ProfileCustomer />} />

@@ -113,10 +113,13 @@ export default function Header() {
           <a href="/listTour" className="hover:underline text-white">
             Du lịch trọn gói
           </a>
-          <a href="#" className="hover:underline text-white">
-            Hợp tác với chúng tôi
+          <a
+            href="/about-us?tab=gioi-thieu"
+            className="hover:underline text-white"
+          >
+            Về chúng tôi
           </a>
-          <a href="#" className="hover:underline text-white">
+          <a href="/about-us?tab=ho-tro" className="hover:underline text-white">
             Hỗ Trợ
           </a>
         </nav>
@@ -215,10 +218,10 @@ export default function Header() {
           <a href="/listTour" className="text-lg font-semibold">
             Du lịch trọn gói
           </a>
-          <a href="#" className="text-lg font-semibold">
+          <a href="/about-us?tab=gioi-thieu" className="text-lg font-semibold">
             Hợp tác với chúng tôi
           </a>
-          <a href="#" className="text-lg font-semibold">
+          <a href="/about-us?tab=ho-tro" className="text-lg font-semibold">
             Hỗ Trợ
           </a>
         </div>

@@ -11,11 +11,16 @@ const TopicTourCard = ({
   userId,
   favoriteTours,
   setFavoriteTours,
+  openLoginModal,
 }) => {
   const isFavorite = favoriteTours.some(favTour => favTour.tour_id === id);
 
   const handleFavoriteToggle = async (event) => {
     event.stopPropagation();
+    if (!userId) {
+      openLoginModal();
+      return;
+    }
     const data = { user_id: userId, tour_id: id };
     
     if (isFavorite) {

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { RiEditBoxLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import ModalFeedbackTour from "./ModalFeedbackTour";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const HistoryBookingCard = ({ booking }) => {
   const navigate = useNavigate();
@@ -20,13 +21,16 @@ const HistoryBookingCard = ({ booking }) => {
       <div className="flex gap-6 items-center mb-4 border-b">
         <p className="text-sm mb-2">
           Mã đơn hàng:{" "}
-          <span className="text-red-800 font-semibold cursor-pointer" onClick={handleRebook}>
+          <span
+            className="text-red-800 font-semibold cursor-pointer"
+            onClick={handleRebook}
+          >
             {booking.booking_code || "Không có mã đơn hàng"}
           </span>
         </p>
         <p className="text-sm mb-2">
           Trạng thái:{" "}
-          <span className="text-green-600 font-semibold">Đã thanh toán</span>
+          <span className="text-green-600 font-semibold">Đã hoàn thành</span>
         </p>
       </div>
       <div className="flex flex-col gap-2">
@@ -56,7 +60,7 @@ const HistoryBookingCard = ({ booking }) => {
               </div>
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
-                <span>{`${booking.number_adult} người lớn, ${booking.number_children} trẻ em`}</span>
+                <span>{`${booking.number_adult} người lớn, ${booking.number_toddler} trẻ em, ${booking.number_children} trẻ nhỏ, ${booking.number_newborn} em bé`}</span>
               </div>
             </div>
             <p className="text-lg text-red-800 font-semibold mt-2">
@@ -65,6 +69,9 @@ const HistoryBookingCard = ({ booking }) => {
             </p>
           </div>
           <div className="flex items-start gap-3 text-gray-600 text-lg">
+            <button title="Đặt lại" className="hover:text-red-600">
+              <AiOutlineLoading3Quarters />
+            </button>
             <button
               title="Đánh giá"
               onClick={handleOpenModal}

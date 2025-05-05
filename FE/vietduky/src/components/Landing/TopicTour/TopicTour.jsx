@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TopicTourCard from "./TopicTourCard";
 import { FavouriteTourService } from "@/services/API/favourite_tour.service";
+import ModalLogin from "@/components/ModalLogin/ModalLogin";
 
 export default function TopicTour({ topic }) {
   const [tours, setTours] = useState([]);
   const [favoriteTours, setFavoriteTours] = useState([]);
   const navigate = useNavigate();
   const userId = JSON.parse(localStorage.getItem("user"))?.id;
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -57,10 +59,13 @@ export default function TopicTour({ topic }) {
               className="relative box-border"
               onClick={() => navigate(`/tour/${tour.id}`)}
             >
-              <TopicTourCard {...tour} userId={userId} favoriteTours={favoriteTours} setFavoriteTours={setFavoriteTours} />
+              <TopicTourCard {...tour} userId={userId} favoriteTours={favoriteTours} setFavoriteTours={setFavoriteTours} openLoginModal={() => setShowLoginModal(true)} />
             </div>
           ))}
         </div>
+        {showLoginModal && (
+          <ModalLogin />
+        )}
         {/* Nút xem thêm */}
         <div className="text-center mt-6">
           <button
