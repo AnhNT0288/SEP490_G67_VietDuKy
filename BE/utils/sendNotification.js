@@ -1,13 +1,12 @@
-const { admin, db } = require('../firebase');
-const { Role } = require('../models');
-const { User } = require('../models');
-const { Op } = require('sequelize');
+const {admin, db} = require('../firebase');
+const {Role} = require('../models');
+const {User} = require('../models');
+const {Op} = require('sequelize');
 
 const sendNotificationToUser = async (userId, fcmToken, data) => {
     const message = {
         notification: {
-            title: data.title,
-            body,
+            title: data.title
         },
         token: fcmToken,
     };
@@ -60,7 +59,7 @@ const sendRoleBasedNotification = async (roles, data) => {
 
         // Lấy tất cả các roles có trong mảng
         const roleFind = await Role.findAll({
-            where: { role_name: { [Op.in]: roleNames } }
+            where: {role_name: {[Op.in]: roleNames}}
         });
         console.log('roleFind', roleFind);
 
@@ -73,7 +72,7 @@ const sendRoleBasedNotification = async (roles, data) => {
         console.log('roleIds', roleIds);
 
         const users = await User.findAll({
-            where: { role_id: { [Op.in]: roleIds } }
+            where: {role_id: {[Op.in]: roleIds}}
         });
         console.log('users', users, roleIds);
 
