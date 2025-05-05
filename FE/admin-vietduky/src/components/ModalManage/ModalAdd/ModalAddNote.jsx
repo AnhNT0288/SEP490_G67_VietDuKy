@@ -32,7 +32,7 @@ export default function ModalAddNote({ tourId, onClose, usedTabs = [] }) {
             onClose();
         } catch (error) {
             toast.error("Tạo thất bại!");
-            console.error("Lỗi khi tạo note:", error);
+            console.error("Lỗi khi tạo thông tin lưu ý:", error);
         }
     };
 
@@ -45,7 +45,7 @@ export default function ModalAddNote({ tourId, onClose, usedTabs = [] }) {
                     <label htmlFor="tab" className="text-sm font-medium">Tiêu đề</label>
                     <select
                         id="tab"
-                        className="border px-3 py-2 rounded w-full mt-1"
+                        className="border px-3 py-2 rounded w-full mt-1 truncate"
                         value={tab}
                         onChange={(e) => setTab(e.target.value)}
                     >

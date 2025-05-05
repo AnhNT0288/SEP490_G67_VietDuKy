@@ -1,7 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
-const {User} = require("../../../../../../../../Users/Asus TUF/Downloads/SEP490_G67_VietDuKy/SEP490_G67_VietDuKy/BE/models");
+const {User} = require("../models");
 
 const isDev = process.env.NODE_ENV !== "production";
 const googleCallbackURL = isDev

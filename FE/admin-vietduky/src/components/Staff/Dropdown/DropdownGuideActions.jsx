@@ -3,15 +3,7 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { useEffect, useRef, useState } from "react";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownGuideActions({
-                                                 guide,
-                                                 tourId,
-                                                 isOpen,
-                                                 setOpenDropdown,
-                                                 onAssignPassenger,
-                                                 onViewPassengers,
-                                                 onDeleteGuide,
-                                             }) {
+export default function DropdownGuideActions({guide, tourId, isOpen, setOpenDropdown, onAssignPassenger, onViewPassengers, onDeleteGuide,}) {
     const dropdownRef = useRef(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
@@ -39,7 +31,7 @@ export default function DropdownGuideActions({
     };
 
     return (
-        <div className="relative flex items-center gap-2 justify-end" ref={dropdownRef}>
+        <div className="relative flex items-center gap-2 justify-end" ref={dropdownRef} >
             <button
                 onClick={(e) => {
                     e.stopPropagation();
@@ -53,19 +45,19 @@ export default function DropdownGuideActions({
                 <>
                     <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-md z-10">
                         {/* Nút đóng */}
-                        <div className="flex justify-end px-1 pt-1">
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenDropdown(null);
-                                    setIsConfirmOpen(false);
-                                }}
-                                className="text-gray-400 hover:text-gray-600 text-sm"
-                                aria-label="Đóng"
-                            >
-                                ×
-                            </button>
-                        </div>
+                        {/*<div className="flex justify-end px-1 pt-1">*/}
+                        {/*    <button*/}
+                        {/*        onClick={(e) => {*/}
+                        {/*            e.stopPropagation();*/}
+                        {/*            setOpenDropdown(null);*/}
+                        {/*            setIsConfirmOpen(false);*/}
+                        {/*        }}*/}
+                        {/*        className="text-gray-400 hover:text-gray-600 text-sm"*/}
+                        {/*        aria-label="Đóng"*/}
+                        {/*    >*/}
+                        {/*        ×*/}
+                        {/*    </button>*/}
+                        {/*</div>*/}
 
                         {/* Các nút hành động */}
                         <button

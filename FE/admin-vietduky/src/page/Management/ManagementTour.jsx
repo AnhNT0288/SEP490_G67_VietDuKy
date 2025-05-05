@@ -281,10 +281,13 @@ export default function ManagementTour() {
         {isAddTourModalOpen && (
             <ModalAddTour
                 onClose={() => setIsAddTourModalOpen(false)}
-                onCreateSuccess={(newTour) => {
+                onCreateSuccess={(newTour, shouldOpenActivityModal) => {
                   fetchTours();
-                  setSelectedProgramTour(newTour);
-                  setIsManagementProgramModalOpen(true);
+                  if (shouldOpenActivityModal) {
+                    setSelectedProgramTour(newTour);
+                    setIsManagementProgramModalOpen(true);
+                  }
+                  setIsAddTourModalOpen(false);
                 }}
             />
         )}

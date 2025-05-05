@@ -99,7 +99,7 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
     setIsConfirmModalOpen(true);
   };
 
-  const handleCreateTour = async () => {
+  const handleCreateTour = async (shouldOpenActivityModal = false) => {
     try {
       setIsSubmitting(true);
       const formData = new FormData();
@@ -130,7 +130,7 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
 
       if (tour) {
         toast.success("Tạo Tour thành công!");
-        onCreateSuccess?.(tour);
+        onCreateSuccess?.(tour, shouldOpenActivityModal);
         onClose();
       } else {
         toast.error("Tạo Tour thất bại!");
@@ -146,8 +146,7 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
   const handleConfirm = async () => {
     setIsConfirmModalOpen(false);
     setIsSubmitting(true);
-
-    await handleCreateTour();
+    await handleCreateTour(true);
 
     setIsSubmitting(false);
   };
@@ -155,19 +154,12 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
   const handleCancel = async () => {
     setIsConfirmModalOpen(false);
     setIsSubmitting(true);
-
-    await handleCreateTour();
-
-    setIsSubmitting(false);
+    await handleCreateTour(false);
   };
 
   const formatCurrency = (value) => {
     return Number(value).toLocaleString("vi-VN");
   };
-
-  // const handleWrapperClick = () => {
-  //   onClose();
-  // };
 
   const handleModalClick = (event) => {
     event.stopPropagation();
@@ -175,10 +167,7 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center">
-      <div
-        className="bg-white p-6 rounded-lg shadow-lg w-3/4 h-5/7"
-        onClick={handleModalClick}
-      >
+      <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 h-5/7" onClick={handleModalClick}>
         <form onSubmit={handleSubmit}>
           <div className="flex gap-6">
             {/* Cột trái */}
