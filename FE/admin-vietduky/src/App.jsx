@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Modal from "react-modal";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ManagementTour from "./page/Management/ManagementTour.jsx";
 import ManagementLocation from "./page/Management/ManagementLocation.jsx";
@@ -42,10 +42,10 @@ function App() {
   useEffect(() => {
     requestPermissionAndSaveToken();
   }, []);
+
   return (
     <BrowserRouter>
       <ToastContainer position="bottom-right" autoClose={3000} />
-
       <Routes>
         <Route path={"/"} element={<LoginPage />} />
         {/* <Route path={"/register"} element={<RegisterPage />} /> */}
@@ -68,16 +68,40 @@ function App() {
           <Route path="/managementPost" element={<ManagementArticle />} />
           <Route path="/managementCategory" element={<ManagementDirectory />} />
           <Route path="/managementTheme" element={<ManagementTheme />} />
-          <Route path="/managementSaleProgram" element={<ManagementSaleProgram />}/>
-          <Route path="/staff/:id/assigned-guides" element={<PageAssignedGuides />}/>
-          <Route path="/managementStaffTourGuide" element={<TourGuideManagement />}/>
-          <Route path="/managementTourForStaff" element={<IsBookingTravelToursManagement />}/>
-          <Route path="/managementLastMinuteDeals" element={<ManagementLastMinuteDeals />}/>
-          <Route path="/managementVehicle" element={<ManagementVehicle />}/>
-          <Route path="/managementRequestAssignTour" element={<ModalManagementRequestAssignTour />}/>
-          <Route path="/managementRestaurant" element={<ManagementRestaurant />}/>
+          <Route
+            path="/managementSaleProgram"
+            element={<ManagementSaleProgram />}
+          />
+          <Route
+            path="/staff/:id/assigned-guides"
+            element={<PageAssignedGuides />}
+          />
+          <Route
+            path="/managementStaffTourGuide"
+            element={<TourGuideManagement />}
+          />
+          <Route
+            path="/managementTourForStaff"
+            element={<IsBookingTravelToursManagement />}
+          />
+          <Route
+            path="/managementLastMinuteDeals"
+            element={<ManagementLastMinuteDeals />}
+          />
+          <Route path="/managementVehicle" element={<ManagementVehicle />} />
+          <Route
+            path="/managementRequestAssignTour"
+            element={<ModalManagementRequestAssignTour />}
+          />
+          <Route
+            path="/managementRestaurant"
+            element={<ManagementRestaurant />}
+          />
           <Route path="/managementHotel" element={<ManagementHotel />} />
-          <Route path="/managementTravelTour" element={<ManagementTravelTour />}/>
+          <Route
+            path="/managementTravelTour"
+            element={<ManagementTravelTour />}
+          />
         </Route>
 
         {/* Admin-only routes */}

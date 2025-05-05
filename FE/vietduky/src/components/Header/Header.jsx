@@ -2,7 +2,7 @@ import Icons from "../Icons/Icon";
 import ModalLogin from "../ModalLogin/ModalLogin";
 import { StorageService } from "@/services/storage/StorageService";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import HeaderMenu from "./HeaderMenu";
 import { FaBars } from "react-icons/fa";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -20,7 +20,7 @@ export default function Header() {
   const notificationRef = useRef(null);
   const [isShowNotification, setIsShowNotification] = useState(false);
 
-  const notifications = useNotifications({
+  const { notifications, markNotificationAsRead } = useNotifications({
     userId: user?.id,
     role: user?.role_name,
   });
@@ -57,6 +57,31 @@ export default function Header() {
       setIsShowNotification(false);
     }
   };
+  const handleSignout = () => {
+    StorageService.signout(navigate);
+    setUser(null);
+    setAvatar(Icons.User);
+    setIsOpenMenu(false);
+    setIsOpenHamburger(false);
+  };
+
+  const handleAvatarClick = () => {
+    if (user) {
+      setIsOpenMenu(!isOpenMenu);
+    } else {
+      setIsOpenLogin(true);
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const handleClickNotification = (notification) => {
+    if (!notification.isRead) {
+      markNotificationAsRead(notification.id);
+    }
+    navigate(getLinkNotification(notification));
+    setIsShowNotification(false);
+  };
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -73,22 +98,6 @@ export default function Header() {
   useEffect(() => {
     document.body.style.overflow = isOpenHamburger ? "hidden" : "auto";
   }, [isOpenHamburger]);
-
-  const handleSignout = () => {
-    StorageService.signout(navigate);
-    setUser(null);
-    setAvatar(Icons.User);
-    setIsOpenMenu(false);
-    setIsOpenHamburger(false);
-  };
-
-  const handleAvatarClick = () => {
-    if (user) {
-      setIsOpenMenu(!isOpenMenu);
-    } else {
-      setIsOpenLogin(true);
-    }
-  };
 
   return (
     <header className="bg-red-700 text-white py-4 px-6 flex items-center justify-between relative z-50">
@@ -113,13 +122,10 @@ export default function Header() {
           <a href="/listTour" className="hover:underline text-white">
             Du lịch trọn gói
           </a>
-          <a
-            href="/about-us?tab=gioi-thieu"
-            className="hover:underline text-white"
-          >
-            Về chúng tôi
+          <a href="#" className="hover:underline text-white">
+            Hợp tác với chúng tôi
           </a>
-          <a href="/about-us?tab=ho-tro" className="hover:underline text-white">
+          <a href="#" className="hover:underline text-white">
             Hỗ Trợ
           </a>
         </nav>
@@ -130,26 +136,42 @@ export default function Header() {
 
           <div className="relative" ref={notificationRef}>
             <IoMdNotificationsOutline
-              size={22}
-              className="sm:size-6 cursor-pointer"
+              size={24}
               onClick={() => setIsShowNotification(!isShowNotification)}
+              className="cursor-pointer"
             />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-white text-red-500 text-[10px] px-1.5 py-[1px] rounded-full font-semibold">
+                {unreadCount}
+              </span>
+            )}
             {isShowNotification && (
-              <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-[300px] max-h-[400px] overflow-y-auto bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
                 <p className="text-sm text-gray-700 font-medium px-3 py-1">
                   {notifications.length} thông báo
                 </p>
                 {notifications.map((notification) => (
-                  <Link
+                  <div
                     key={notification.id}
-                    to={getLinkNotification(notification)}
-                    className="flex flex-col border-t border-gray-200 p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleClickNotification(notification)}
+                    className={`flex flex-row justify-between items-center border-t bg-gray-100 border-gray-200 p-2 hover:bg-gray-100 cursor-pointer ${
+                      !notification?.isRead && "bg-white"
+                    }`}
                   >
-                    <p className="text-md font-medium">{notification.title}</p>
-                    <p className="text-sm text-gray-700 font-medium ">
-                      {notification.body}
-                    </p>
-                  </Link>
+                    <div className="flex flex-col">
+                      <p className="text-md font-medium text-black">
+                        {notification.title}
+                      </p>
+                      {notification.body && (
+                        <p className="text-sm text-gray-700 font-medium text-black">
+                          {notification.body}
+                        </p>
+                      )}
+                    </div>
+                    {!notification?.isRead && (
+                      <div className="bg-red-700 w-2 h-2 rounded-full" />
+                    )}
+                  </div>
                 ))}
               </div>
             )}
@@ -218,10 +240,10 @@ export default function Header() {
           <a href="/listTour" className="text-lg font-semibold">
             Du lịch trọn gói
           </a>
-          <a href="/about-us?tab=gioi-thieu" className="text-lg font-semibold">
+          <a href="#" className="text-lg font-semibold">
             Hợp tác với chúng tôi
           </a>
-          <a href="/about-us?tab=ho-tro" className="text-lg font-semibold">
+          <a href="#" className="text-lg font-semibold">
             Hỗ Trợ
           </a>
         </div>

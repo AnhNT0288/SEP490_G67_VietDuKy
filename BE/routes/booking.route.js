@@ -10,11 +10,15 @@ const {
 
 router.get("/", BookingController.getAllBookings);
 
-router.get(
-    "/payment-remind",
-    BookingController.paymentBookingRemind
-);
+// router.get(
+//     "/payment-remind",
+//     BookingController.paymentBookingRemind
+// );
 
+router.get(
+    "/re-payment/:id",
+    BookingController.rePayment
+);
 router.get(
     "/search",
     BookingController.searchBooking
