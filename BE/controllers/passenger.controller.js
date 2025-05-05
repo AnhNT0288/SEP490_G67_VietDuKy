@@ -672,18 +672,9 @@ exports.removePassengerGroup = async (req, res) => {
         passengers.group = null;
         passengers.travel_guide_id = null;
         const booking = await Booking.findByPk(passengers.booking_id);
-        const bookings = await Booking.findAll({
-            where: {travel_tour_id: booking.travel_tour_id}
-        })
-        const bookingIds = bookings.map((booking) => booking.id);
-        const passengerNotAssigned = await Passenger.findAll({
-            where: {booking_id: bookingIds, group: null}
-        })
-        if (passengerNotAssigned.length > 0) {
-            const travelTour = await TravelTour.findByPk(passengers.travel_tour_id);
+            const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
             travelTour.status = 0;
             await travelTour.save();
-        }
         await passengers.save();
         res.status(200).json({message: "Xóa nhóm hành khách thành công!", data: passengers});
     } catch (error) {

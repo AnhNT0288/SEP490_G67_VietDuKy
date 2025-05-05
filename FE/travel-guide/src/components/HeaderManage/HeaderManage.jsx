@@ -4,6 +4,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { StorageService } from "../../services/storage/StorageService";
 import { useNotifications } from "@/hooks/useNotifications";
+import { Check, Trash } from "lucide-react";
 // import { getLinkNotification } from "../../utils";
 
 export default function HeaderManage({ toggleSidebar, title }) {
@@ -14,7 +15,7 @@ export default function HeaderManage({ toggleSidebar, title }) {
   const [isShowNotification, setIsShowNotification] = useState(false);
   console.log(user);
 
-  const { notifications, markNotificationAsRead } = useNotifications({
+  const { notifications, markNotificationAsRead, markAllAsRead, deleteAllNotifications } = useNotifications({
     userId: user?.id,
   });
 
@@ -78,10 +79,21 @@ export default function HeaderManage({ toggleSidebar, title }) {
             </span>
           )}
           {isShowNotification && (
-            <div className="absolute right-0 mt-2 w-[300px] max-h-[400px] overflow-y-auto bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
-              <p className="text-sm text-gray-700 font-medium px-3 py-1">
-                {notifications.length} thông báo
-              </p>
+            <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+              <div className="flex flex-row justify-between items-center">
+                  <p className="text-sm text-gray-700 font-medium px-3 py-1">
+                    {notifications.length} thông báo
+                  </p>
+                  <div className="flex flex-row gap-2">
+                    <button onClick={markAllAsRead}>
+                      <Check size={18} className="text-gray-700" />
+                    </button>
+                    <button onClick={deleteAllNotifications}>
+                      <Trash size={18} className="text-red-700" />
+                    </button>
+                  </div>
+                </div>
+                <div className="overflow-y-auto max-h-[400px]">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
@@ -101,6 +113,7 @@ export default function HeaderManage({ toggleSidebar, title }) {
                   )}
                 </div>
               ))}
+              </div>
             </div>
           )}
         </div>

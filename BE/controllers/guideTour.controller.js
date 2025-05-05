@@ -9,6 +9,7 @@ const Booking = db.Booking;
 const Passenger = db.Passenger;
 const Role = db.Role;
 const nodemailer = require("nodemailer");
+const TravelGuideLocation = db.TravelGuideLocation;
 const {Op} = require("sequelize");
 
 //Cấu hình nodemailer
@@ -882,10 +883,27 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
                     address: guideTour.travelGuide.address,
                     avatar: guideTour.travelGuide.user?.avatar || null,
                     display_name: guideTour.travelGuide.user?.displayName || null,
-                    passenger_count: passengerCountByGuide[guideTour.travelGuide.id] || 0,
+                    passenger_count: 0, // Sẽ được cập nhật bên dưới
                 };
             })
             .filter((guide) => guide !== null);
+
+        // Tính số lượng passenger cho mỗi guideTour
+        for (const guide of formatedGuideTour) {
+            const guideTour = guideTours.find(gt => gt.travelGuide.id === guide.id);
+            if (guideTour && guideTour.group) {
+                const passengerCount = await Passenger.count({
+                    where: {
+                        booking_id: {
+                            [Op.in]: bookings.map(booking => booking.id)
+                        },
+                        group: guideTour.group
+                    }
+                });
+                guide.passenger_count = passengerCount;
+            }
+        }
+
         // Format lại dữ liệu trả về
         const formattedTravelTour = {
             id: travelTour.id,
@@ -972,7 +990,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
         }
 
         // Lấy danh sách hướng dẫn viên của tour
-        const guideTours = await GuideTour.findAll({
+        const existingGuideTours = await GuideTour.findAll({
             where: {
                 travel_tour_id: travel_tour_id,
                 status: 1, // Chỉ lấy hướng dẫn viên đã được duyệt
@@ -991,12 +1009,88 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
             ],
         });
 
-        if (!guideTours || guideTours.length === 0) {
-            return res
-                .status(200)
-                .json({message: "Không tìm thấy hướng dẫn viên cho tour này!"});
+        const totalBooking = await Booking.findAll({
+            where: {
+                travel_tour_id: travel_tour_id,
+            },
+        });
+
+        const totalPassengers = await Passenger.findAll({
+            where: {
+                booking_id: {
+                    [Op.in]: totalBooking.map((booking) => booking.id),
+                },
+                birth_date: {
+                    [Op.lt]: new Date(new Date().setFullYear(new Date().getFullYear() - 2))
+                },
+            },
+        });
+        console.log(totalPassengers.length);
+        const needGuides = Math.ceil(totalPassengers.length / number_passenger);
+        let needMoreGuides = 0;
+        if (needGuides > existingGuideTours.length) {
+            needMoreGuides = needGuides - existingGuideTours.length;
         }
 
+        // Nếu cần thêm hướng dẫn viên
+        if (needMoreGuides > 0) {
+            // Lấy location_id từ tour
+            const tour = await Tour.findByPk(travelTour.tour_id);
+            if (!tour) {
+                return res.status(404).json({ message: "Không tìm thấy thông tin tour!" });
+            }
+
+            // Tìm các travelGuide theo location
+            const travelGuideLocations = await TravelGuideLocation.findAll({
+                where: {
+                    location_id: tour.end_location, // Lấy theo location kết thúc của tour
+                },
+            });
+
+            // Lấy danh sách travelGuide theo location
+            const availableTravelGuides = await TravelGuide.findAll({
+                where: {
+                    id: {
+                        [Op.in]: travelGuideLocations.map(loc => loc.travel_guide_id)
+                    },
+                    // Loại bỏ các travelGuide đã được gán cho tour này
+                    id: {
+                        [Op.notIn]: existingGuideTours.map(gt => gt.travel_guide_id)
+                    }
+                },
+                limit: needMoreGuides
+            });
+
+            // Tạo guideTour mới cho các travelGuide tìm được
+            for (const travelGuide of availableTravelGuides) {
+                await GuideTour.create({
+                    travel_tour_id: travel_tour_id,
+                    travel_guide_id: travelGuide.id,
+                    status: 1, // Tự động duyệt
+                });
+            }
+
+            // Lấy lại danh sách guideTour sau khi thêm mới
+        }
+
+        const guideTours = await GuideTour.findAll({
+            where: {
+                travel_tour_id: travel_tour_id,
+                status: 1,
+            },
+            include: [
+                {
+                    model: TravelGuide,
+                    as: "travelGuide",
+                    include: [
+                        {
+                            model: User,
+                            as: "user",
+                        },
+                    ],
+                },
+            ],
+        });
         // Lấy danh sách booking của tour
         const bookings = await Booking.findAll({
             where: {
@@ -2311,6 +2405,11 @@ exports.deleteGuideTour = async (req, res) => {
             }
         }
         await guideTour.destroy();
+        const travelTour = await TravelTour.findOne({
+            where: {id: travel_tour_id},
+        });
+        travelTour.status = 0;
+        await travelTour.save();
         res
             .status(200)
             .json({message: "Xóa GuideTour thành công!", data: guideTour});

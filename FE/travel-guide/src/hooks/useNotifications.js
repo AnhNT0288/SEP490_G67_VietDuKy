@@ -8,6 +8,8 @@ import {
   orderBy,
   collectionGroup,
   getDoc,
+  getDocs,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/init";
 
@@ -75,5 +77,55 @@ export const useNotifications = ({ userId }) => {
     }
   };
 
-  return { notifications, markNotificationAsRead };
+  
+  const markAllAsRead = async () => {
+    if (!userId) return;
+
+    try {
+      const recipientsQuery = query(
+        collectionGroup(db, "recipients"),
+        where("userId", "==", Number(userId))
+      );
+
+      const snapshot = await getDocs(recipientsQuery);
+
+      const updatePromises = snapshot.docs.map((docSnap) => {
+        return updateDoc(docSnap.ref, {
+          isRead: true,
+          readAt: new Date().toISOString(),
+        });
+      });
+
+      await Promise.all(updatePromises);
+      console.log("All notifications marked as read.");
+
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
+
+  const deleteAllNotifications = async () => {
+    if (!userId) return;
+
+    try {
+      const recipientsQuery = query(
+        collectionGroup(db, "recipients"),
+        where("userId", "==", Number(userId))
+      );
+
+      const snapshot = await getDocs(recipientsQuery);
+
+      const deletePromises = snapshot.docs.map((docSnap) => deleteDoc(docSnap.ref));
+
+      await Promise.all(deletePromises);
+      console.log("All notifications deleted for user.");
+
+      // Cập nhật thủ công để phản ánh ngay trên UI
+      setNotifications([]);
+    } catch (error) {
+      console.error("Error deleting notifications:", error);
+    }
+  };
+
+  return { notifications, markNotificationAsRead, markAllAsRead, deleteAllNotifications };
 };
