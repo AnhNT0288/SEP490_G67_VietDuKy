@@ -36,11 +36,32 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
     note: "",
   });
 
+  const validatePassenger = (passengers) => {
+    const adult = passengers.filter(
+      (passenger) => passenger.age_type === "adult"
+    );
+    const child = passengers.filter(
+      (passenger) => passenger.age_type === "child"
+    );
+    const toddler = passengers.filter(
+      (passenger) => passenger.age_type === "toddler"
+    );
+    const newborn = passengers.filter(
+      (passenger) => passenger.age_type === "newborn"
+    );
+
+    const validAdult = adult.length + 1 < bookingDetail?.number_adult;
+    const validChild = child.length + 1 < bookingDetail?.number_child;
+    const validToddler = toddler.length + 1 < bookingDetail?.number_toddler;
+    const validNewborn = newborn.length + 1 < bookingDetail?.number_newborn;
+
+    return validAdult && validChild && validToddler && validNewborn;
+  };
+
   const handleDeleteCustomer = (customer) => {
     setCustomerToDelete(customer);
     setOpenDeleteCustomerModal(true);
   };
-  console.log(bookingDetail);
 
   const handleDeleteCustomerConfirm = () => {
     setOpenDeleteCustomerModal(false);
@@ -78,6 +99,8 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
   const handleExcelUploadAddCustomer = async (file) => {
     try {
       const data = await handleExcelUpload(file);
+      console.log(data);
+
       if (data) {
         const convertedData = data.map((item) => ({
           ...item,
@@ -87,7 +110,10 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
               ? "adult"
               : item.age_type === "Trẻ em"
               ? "child"
-              : "Fix",
+              : item.age_type === "Trẻ nhỏ"
+              ? "toddler"
+              : "newborn",
+          single_room: item.single_room === "Có" ? true : false,
           id: uuidv4(),
         }));
         setBookingDetail((prev) => ({
@@ -101,6 +127,11 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
   };
 
   const handleUpdateBooking = async () => {
+    const validate = validatePassenger(bookingDetail.passengers);
+    if (!validate) {
+      toast.error("Số lượng khách hàng không hợp lệ");
+      return;
+    }
     const response = await updateBooking(booking.id, {
       name: updateInfoCustomer.name,
       phone: updateInfoCustomer.phone,
@@ -136,8 +167,6 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
   }, [booking?.id]);
 
   if (!open) return null;
-
-  console.log("Booking detail", booking);
 
   return (
     <div className="fixed inset-0 z-30 bg-black/40 flex items-center justify-center">
@@ -285,6 +314,40 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
                   ))}
               </tbody>
             </table>
+          </div>
+          <div className="flex flex-row items-center space-x-4">
+            <p className="text-md font-medium">
+              Người lớn:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "adult"
+                ).length
+              }
+            </p>
+            <p className="text-md font-medium">
+              Trẻ em:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "child"
+                ).length
+              }
+            </p>
+            <p className="text-md font-medium">
+              Trẻ nhỏ:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "toddler"
+                ).length
+              }
+            </p>
+            <p className="text-md font-medium">
+              Em bé:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "newborn"
+                ).length
+              }
+            </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <h2 className="text-xl font-semibold">

@@ -1,89 +1,79 @@
 import { useEffect, useState } from "react";
 import {
-  collection,
   query,
   where,
   onSnapshot,
   updateDoc,
   doc,
   orderBy,
+  collectionGroup,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/init";
 
-export const useNotifications = ({ userId, role }) => {
+export const useNotifications = ({ userId }) => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    if (!userId && !role) return;
-
-    const notificationsRef = collection(db, "notification");
-
-    const userQuery = query(
-      notificationsRef,
-      where("user_id", "==", userId),
-      orderBy("createAt", "desc")
+    if (!userId) return;
+    const recipientsQuery = query(
+      collectionGroup(db, "recipients"),
+      where("userId", "==", Number(userId)),
+      orderBy("createdAt", "desc")
     );
 
-    const roleQuery = query(
-      notificationsRef,
-      where("role", "array-contains", role),
-      orderBy("createAt", "desc")
-    );
+    const unsubscribe = onSnapshot(recipientsQuery, async (snapshot) => {
+      const notiPromises = snapshot.docs.map(async (recipientDoc) => {
+        try {
 
-    const handleSnapshot = (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      return data;
-    };
+          const recipientData = recipientDoc.data();
+          const recipientRef = recipientDoc.ref;
+          const notificationRef = recipientRef.parent.parent;
 
-    let userData = [];
-    let roleData = [];
+          if (!notificationRef) return null;
 
-    const unsubscribeUser = onSnapshot(userQuery, (snapshot) => {
-      userData = handleSnapshot(snapshot);
-      updateCombinedNotifications();
-    });
+          const notificationSnap = await getDoc(notificationRef);
+          if (!notificationSnap.exists()) return null;
 
-    const unsubscribeRole = onSnapshot(roleQuery, (snapshot) => {
-      roleData = handleSnapshot(snapshot);
-      updateCombinedNotifications();
-    });
-
-    const updateCombinedNotifications = () => {
-      const combined = [...userData, ...roleData];
-      const unique = Array.from(
-        new Map(combined.map((item) => [item.id, item])).values()
-      );
-      setNotifications(unique);
-    };
-
-    return () => {
-      unsubscribeUser();
-      unsubscribeRole();
-    };
-  }, [userId, role]);
-
-  // Gộp các notification từ hai query và loại bỏ các mục trùng lặp
-  const uniqueNotifications = Array.from(
-    new Map(notifications.map((item) => [item.id, item])).values()
-  );
-  /**
-   * Đánh dấu 1 thông báo là đã đọc
-   * @param notificationId - ID của document trong collection "notification"
-   */
-  const markNotificationAsRead = async (notificationId) => {
-    try {
-      const notiRef = doc(db, "notification", notificationId);
-      await updateDoc(notiRef, {
-        isRead: true,
+          return {
+            id: notificationSnap.id,
+            ...notificationSnap.data(),
+            isRead: recipientData.isRead,
+            readAt: recipientData.readAt || null,
+            recipientDocId: recipientDoc.id,
+          };
+        } catch (error) {
+          console.log(error);
+        }
       });
+
+      const notiData = await Promise.all(notiPromises);
+      setNotifications(notiData.filter(Boolean));
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
+
+  const markNotificationAsRead = async (notificationId, recipientId) => {
+    try {
+      const recipientRef = doc(
+        db,
+        "notifications",
+        notificationId,
+        "recipients",
+        String(recipientId)
+      );
+
+      await updateDoc(recipientRef, {
+        isRead: true,
+        readAt: new Date().toISOString(),
+      });
+
       console.log(`Notification ${notificationId} marked as read.`);
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
 
-  return { notifications: uniqueNotifications, markNotificationAsRead };
+  return { notifications, markNotificationAsRead };
 };

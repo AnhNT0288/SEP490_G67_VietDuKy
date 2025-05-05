@@ -5,7 +5,10 @@ const ImportExcelButton = ({ onFileSelect }) => {
   const inputRef = useRef(null);
 
   const handleClick = () => {
-    inputRef.current?.click(); // Trigger file input
+    if (inputRef.current) {
+      inputRef.current.value = null; // reset input để chọn lại cùng 1 file vẫn trigger onChange
+      inputRef.current.click();
+    }
   };
 
   const handleChange = (e) => {

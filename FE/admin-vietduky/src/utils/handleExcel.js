@@ -6,6 +6,7 @@ const headerMap = {
   "Số điện thoại": "phone_number",
   Passport: "passport_number",
   "Giới tính": "gender",
+  "Phòng đơn": "single_room",
 };
 
 export const handleExcelUpload = (file) => {

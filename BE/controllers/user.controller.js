@@ -8,7 +8,7 @@ const TravelTour = db.TravelTour;
 const Location = db.Location;
 const Tour = db.Tour;
 const nodemailer = require("nodemailer");
-const {Op, Sequelize} = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 // Cấu hình nodemailer
 const transporter = nodemailer.createTransport({
@@ -60,13 +60,13 @@ exports.getUserById = async (req, res) => {
 //Thêm một User mới
 exports.addNewUser = async (req, res) => {
     try {
-        const {username, password} = req.body;
+        const { username, password } = req.body;
         const avatarUrl = req.file ? req.file.path : null;
 
         // Kiểm tra xem username đã tồn tại chưa
-        const existingUser = await User.findOne({where: {username}});
+        const existingUser = await User.findOne({ where: { username } });
         if (existingUser) {
-            return res.status(400).json({message: "Tên người dùng đã tồn tại"});
+            return res.status(400).json({ message: "Tên người dùng đã tồn tại" });
         }
 
         // Hash password bằng bcryptjs
@@ -86,41 +86,43 @@ exports.addNewUser = async (req, res) => {
     } catch (error) {
         res
             .status(500)
-            .json({message: "Lỗi khi tạo người dùng mới", error: error.message});
+            .json({ message: "Lỗi khi tạo người dùng mới", error: error.message });
     }
 };
 
 //Cập nhật FCM Token
 exports.updateFcmToken = async (req, res) => {
-  try {
-    const { fcmToken } = req.body;
-    //Lấy user_id từ token
-    const userId = req.user.id;
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.status(404).json({ message: "Người dùng không tồn tại" });
+    try {
+        const { fcmToken } = req.body;
+        //Lấy user_id từ token
+        const userId = req.user.id;
+        console.log("userId", userId);
+
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+        user.fcm_token = fcmToken;
+        await user.save();
+        res.json({ message: "FCM Token đã được cập nhật thành công!" });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi cập nhật FCM Token!",
+            error: error.message,
+        });
     }
-    user.fcm_token = fcmToken;
-    await user.save();
-    res.json({ message: "FCM Token đã được cập nhật thành công!" });
-  } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi cập nhật FCM Token!",
-      error: error.message,
-    });
-  }
 };
 
 //Cập nhật thông tin User
 exports.updateUser = async (req, res) => {
     try {
         const id = req.params.id;
-        const {username, password} = req.body;
+        const { username, password } = req.body;
         const avatarUrl = req.file ? req.file.path : null;
 
         const user = await User.findByPk(id);
         if (!user) {
-            return res.status(404).json({message: "Không tìm thấy người dùng"});
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
         }
 
         // Hash password bằng bcryptjs
@@ -149,17 +151,17 @@ exports.updateUser = async (req, res) => {
 exports.changePassword = async (req, res) => {
     try {
         const id = req.params.id;
-        const {oldPassword, newPassword} = req.body;
+        const { oldPassword, newPassword } = req.body;
 
         const user = await User.findByPk(id);
         if (!user) {
-            return res.status(404).json({message: "Không tìm thấy người dùng"});
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
         }
 
         // Kiểm tra mật khẩu cũ
         const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
         if (!isPasswordValid) {
-            return res.status(400).json({message: "Mật khẩu cũ không đúng"});
+            return res.status(400).json({ message: "Mật khẩu cũ không đúng" });
         }
 
         // Hash mật khẩu mới
@@ -168,11 +170,11 @@ exports.changePassword = async (req, res) => {
 
         await user.save();
 
-        res.json({message: "Thay đổi mật khẩu thành công!"});
+        res.json({ message: "Thay đổi mật khẩu thành công!" });
     } catch (error) {
         res
             .status(500)
-            .json({message: "Lỗi khi thay đổi mật khẩu", error: error.message});
+            .json({ message: "Lỗi khi thay đổi mật khẩu", error: error.message });
     }
 };
 
@@ -204,7 +206,7 @@ exports.changeStatus = async (req, res) => {
 //Lọc người dùng theo status
 exports.filterByStatus = async (req, res) => {
     try {
-        const {status} = req.query;
+        const { status } = req.query;
         const users = await User.findAll({
             where: {
                 status: status === "true" ? true : false,
@@ -225,25 +227,25 @@ exports.filterByStatus = async (req, res) => {
 //Phân quyền cho User
 exports.assignRole = async (req, res) => {
     try {
-        const {user_id, role_id} = req.body;
+        const { user_id, role_id } = req.body;
         const user = await User.findByPk(user_id);
         if (!user) {
-            return res.status(404).json({message: "Không tìm thấy người dùng!"});
+            return res.status(404).json({ message: "Không tìm thấy người dùng!" });
         }
 
         const role = await Role.findByPk(role_id);
         if (!role) {
-            return res.status(404).json({message: "Không tìm thấy vai trò!"});
+            return res.status(404).json({ message: "Không tìm thấy vai trò!" });
         }
 
         const existingRole = await RoleService.findOne({
-            where: {user_id, role_id},
+            where: { user_id, role_id },
         });
         if (existingRole) {
-            return res.status(400).json({message: "Người dùng đã có vai trò này!"});
+            return res.status(400).json({ message: "Người dùng đã có vai trò này!" });
         }
 
-        const newRoleService = await RoleService.create({user_id, role_id});
+        const newRoleService = await RoleService.create({ user_id, role_id });
 
         res.status(201).json({
             message: "Phân quyền thành công!",
@@ -260,17 +262,17 @@ exports.assignRole = async (req, res) => {
 // Lấy danh sách người dùng theo role_id
 exports.getUsersByRoleId = async (req, res) => {
     try {
-        const {role_id} = req.params;
+        const { role_id } = req.params;
 
         // Kiểm tra xem role có tồn tại không
         const role = await Role.findByPk(role_id);
         if (!role) {
-            return res.status(404).json({message: "Không tìm thấy vai trò!"});
+            return res.status(404).json({ message: "Không tìm thấy vai trò!" });
         }
 
         // Tìm danh sách người dùng theo role_id
         const users = await User.findAll({
-            where: {role_id},
+            where: { role_id },
             attributes: ["id", "avatar", "status", "email", "displayName"],
             include: [
                 {
@@ -299,7 +301,7 @@ exports.getStaffProfile = async (req, res) => {
 
         // Tìm user và bao gồm thông tin StaffProfile (nếu có)
         const user = await User.findOne({
-            where: {id: userId},
+            where: { id: userId },
             attributes: ["id", "email", "displayName", "avatar"], // Các trường từ User
             include: [
                 {
@@ -310,13 +312,13 @@ exports.getStaffProfile = async (req, res) => {
         });
 
         if (!user) {
-            return res.status(404).json({message: "Người dùng không tồn tại"});
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
         }
 
         return res.json(user); // Trả về toàn bộ thông tin User + StaffProfile
     } catch (error) {
         console.error("Lỗi khi lấy profile:", error);
-        return res.status(500).json({error: "Internal server error"});
+        return res.status(500).json({ error: "Internal server error" });
     }
 };
 
@@ -324,12 +326,12 @@ exports.getStaffProfile = async (req, res) => {
 exports.updateStaffProfile = async (req, res) => {
     try {
         const userId = req.user.id; // Lấy user_id từ token
-        const {phone, date_of_birth, gender, displayName} = req.body; // Lấy thêm displayName
+        const { phone, date_of_birth, gender, displayName } = req.body; // Lấy thêm displayName
 
         // Tìm user
         const user = await User.findByPk(userId);
         if (!user) {
-            return res.status(404).json({message: "Người dùng không tồn tại!"});
+            return res.status(404).json({ message: "Người dùng không tồn tại!" });
         }
 
         // Nếu có displayName, cập nhật luôn vào User
@@ -340,8 +342,8 @@ exports.updateStaffProfile = async (req, res) => {
 
         // Tìm hoặc tạo StaffProfile
         const [profile, created] = await StaffProfile.findOrCreate({
-            where: {user_id: userId},
-            defaults: {phone, date_of_birth, gender},
+            where: { user_id: userId },
+            defaults: { phone, date_of_birth, gender },
         });
 
         // Nếu profile đã tồn tại, cập nhật
@@ -354,7 +356,7 @@ exports.updateStaffProfile = async (req, res) => {
 
         // Lấy lại User + StaffProfile sau khi cập nhật
         const updatedUser = await User.findOne({
-            where: {id: userId},
+            where: { id: userId },
             attributes: ["id", "email", "displayName", "avatar"],
             include: [
                 {
@@ -380,18 +382,18 @@ exports.updateStaffProfile = async (req, res) => {
 //Gán địa điểm cho Staff
 exports.assignLocationsToStaff = async (req, res) => {
     try {
-        const {location_ids} = req.body;
-        const {user_id} = req.params;
+        const { location_ids } = req.body;
+        const { user_id } = req.params;
 
         // Kiểm tra user_id có phải role Staff không
         const user = await User.findByPk(user_id);
         if (!user || user.role_id !== 2) {
-            return res.status(400).json({message: "Người dùng không phải Staff!"});
+            return res.status(400).json({ message: "Người dùng không phải Staff!" });
         }
 
         // Kiểm tra xem các địa điểm có tồn tại không
         const existingLocations = await Location.findAll({
-            where: {id: location_ids},
+            where: { id: location_ids },
         });
 
         if (existingLocations.length !== location_ids.length) {
@@ -402,7 +404,7 @@ exports.assignLocationsToStaff = async (req, res) => {
 
         // Lấy danh sách các địa điểm đã được gán cho Staff
         const existingAssignments = await StaffLocation.findAll({
-            where: {user_id},
+            where: { user_id },
         });
         const existingLocationIds = existingAssignments.map(
             (assignment) => assignment.location_id
@@ -442,24 +444,24 @@ exports.assignLocationsToStaff = async (req, res) => {
 // Lấy danh sách TravelTour theo các địa điểm mà Staff phụ trách
 exports.getTravelToursByStaffLocations = async (req, res) => {
     try {
-        const {user_id} = req.params;
+        const { user_id } = req.params;
 
         // Kiểm tra user_id có phải role Staff không
         const user = await User.findByPk(user_id);
         if (!user || user.role_id !== 2) {
-            return res.status(400).json({message: "Người dùng không phải Staff!"});
+            return res.status(400).json({ message: "Người dùng không phải Staff!" });
         }
 
         // Lấy danh sách location mà Staff phụ trách
         const staffLocations = await StaffLocation.findAll({
-            where: {user_id},
-            include: [{model: Location, as: "location"}],
+            where: { user_id },
+            include: [{ model: Location, as: "location" }],
         });
 
         if (staffLocations.length === 0 || !staffLocations || !staffLocations[0]) {
             return res
                 .status(404)
-                .json({message: "Staff không phụ trách địa điểm nào!"});
+                .json({ message: "Staff không phụ trách địa điểm nào!" });
         }
 
         // Lấy danh sách location_id mà Staff phụ trách
@@ -473,13 +475,13 @@ exports.getTravelToursByStaffLocations = async (req, res) => {
                     as: "Tour",
                     where: {
                         [Op.or]: [
-                            {start_location: {[Op.in]: locationIds}},
-                            {end_location: {[Op.in]: locationIds}},
+                            { start_location: { [Op.in]: locationIds } },
+                            { end_location: { [Op.in]: locationIds } },
                         ],
                     },
                     include: [
-                        {model: Location, as: "startLocation"},
-                        {model: Location, as: "endLocation"},
+                        { model: Location, as: "startLocation" },
+                        { model: Location, as: "endLocation" },
                     ],
                 },
             ],
@@ -488,7 +490,7 @@ exports.getTravelToursByStaffLocations = async (req, res) => {
         if (!travelTours || travelTours.length === 0) {
             return res
                 .status(404)
-                .json({message: "Không tìm thấy TravelTour nào!"});
+                .json({ message: "Không tìm thấy TravelTour nào!" });
         }
 
         res.status(200).json({
@@ -507,17 +509,17 @@ exports.getTravelToursByStaffLocations = async (req, res) => {
 // Lấy danh sách các địa điểm được gán cho Staff
 exports.getLocationsByStaff = async (req, res) => {
     try {
-        const {user_id} = req.params;
+        const { user_id } = req.params;
 
         // Kiểm tra user_id có phải role Staff không
         const user = await User.findByPk(user_id);
         if (!user || user.role_id !== 2) {
-            return res.status(400).json({message: "Người dùng không phải Staff!"});
+            return res.status(400).json({ message: "Người dùng không phải Staff!" });
         }
 
         // Lấy danh sách các địa điểm được gán cho Staff
         const staffLocations = await StaffLocation.findAll({
-            where: {user_id},
+            where: { user_id },
             include: [
                 {
                     model: Location,
@@ -549,23 +551,23 @@ exports.getLocationsByStaff = async (req, res) => {
 // Xóa địa điểm khỏi Staff
 exports.deleteLocationFromStaff = async (req, res) => {
     try {
-        const {user_id, location_id} = req.body;
+        const { user_id, location_id } = req.body;
 
         // Kiểm tra user_id có phải role Staff không
         const user = await User.findByPk(user_id);
         if (!user || user.role_id !== 2) {
-            return res.status(400).json({message: "Người dùng không phải Staff!"});
+            return res.status(400).json({ message: "Người dùng không phải Staff!" });
         }
 
         // Kiểm tra Location có tồn tại không
         const location = await Location.findByPk(location_id);
         if (!location) {
-            return res.status(404).json({message: "Không tìm thấy Location!"});
+            return res.status(404).json({ message: "Không tìm thấy Location!" });
         }
 
         // Kiểm tra xem địa điểm đã được gán cho Staff chưa
         const staffLocation = await StaffLocation.findOne({
-            where: {user_id, location_id},
+            where: { user_id, location_id },
         });
 
         if (!staffLocation) {
@@ -591,71 +593,71 @@ exports.deleteLocationFromStaff = async (req, res) => {
 
 // API gửi mail liên hệ tư vấn
 exports.contactAdvice = async (req, res) => {
-  try {
-    const { name, phone, message } = req.body;
+    try {
+        const { name, phone, message } = req.body;
 
-    // Kiểm tra xem req.user có tồn tại không
-    if (!req.user || !req.user.id) {
-      return res
-        .status(401)
-        .json({ message: "Người dùng chưa được xác thực!" });
-    }
+        // Kiểm tra xem req.user có tồn tại không
+        if (!req.user || !req.user.id) {
+            return res
+                .status(401)
+                .json({ message: "Người dùng chưa được xác thực!" });
+        }
 
-    const userId = req.user.id;
+        const userId = req.user.id;
 
-    // Truy vấn email từ bảng User dựa trên user_id và role là customer
-    const user = await User.findOne({
-      where: { id: userId },
-      include: {
-        model: Role,
-        as: "role",
-        where: { role_name: "customer" },
-        attributes: [],
-      },
-      attributes: ["email"],
-    });
+        // Truy vấn email từ bảng User dựa trên user_id và role là customer
+        const user = await User.findOne({
+            where: { id: userId },
+            include: {
+                model: Role,
+                as: "role",
+                where: { role_name: "customer" },
+                attributes: [],
+            },
+            attributes: ["email"],
+        });
 
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy thông tin khách hàng!" });
-    }
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "Không tìm thấy thông tin khách hàng!" });
+        }
 
-    const email = user.email;
+        const email = user.email;
 
-    // Kiểm tra thông tin đầu vào
-    if (!name || !phone || !message) {
-      return res
-        .status(400)
-        .json({ message: "Vui lòng điền đầy đủ thông tin!" });
-    }
+        // Kiểm tra thông tin đầu vào
+        if (!name || !phone || !message) {
+            return res
+                .status(400)
+                .json({ message: "Vui lòng điền đầy đủ thông tin!" });
+        }
 
-    // Lấy danh sách email của staff hoặc admin có quyền tư vấn
-    const staffOrAdmins = await User.findAll({
-      include: {
-        model: Role,
-        as: "role",
-        where: { role_name: { [Op.in]: ["staff", "admin"] } },
-        attributes: [],
-      },
-      where: { can_consult: true }, // Chỉ lấy user có quyền tư vấn
-      attributes: ["email"],
-    });
+        // Lấy danh sách email của staff hoặc admin có quyền tư vấn
+        const staffOrAdmins = await User.findAll({
+            include: {
+                model: Role,
+                as: "role",
+                where: { role_name: { [Op.in]: ["staff", "admin"] } },
+                attributes: [],
+            },
+            where: { can_consult: true }, // Chỉ lấy user có quyền tư vấn
+            attributes: ["email"],
+        });
 
-    if (!staffOrAdmins || staffOrAdmins.length === 0) {
-      return res.status(404).json({
-        message: "Không tìm thấy staff nào có quyền tư vấn!",
-      });
-    }
+        if (!staffOrAdmins || staffOrAdmins.length === 0) {
+            return res.status(404).json({
+                message: "Không tìm thấy staff nào có quyền tư vấn!",
+            });
+        }
 
-    const recipientEmails = staffOrAdmins.map((user) => user.email);
+        const recipientEmails = staffOrAdmins.map((user) => user.email);
 
-    // Cấu hình nội dung email
-    const mailOptions = {
-      from: '"Việt Du Ký" <vietduky.service@gmail.com>',
-      to: recipientEmails,
-      subject: "Yêu cầu tư vấn từ khách hàng",
-      html: `
+        // Cấu hình nội dung email
+        const mailOptions = {
+            from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+            to: recipientEmails,
+            subject: "Yêu cầu tư vấn từ khách hàng",
+            html: `
         <html>
           <head>
             <style>
@@ -751,18 +753,18 @@ exports.contactAdvice = async (req, res) => {
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.error("Lỗi khi gửi email: ", error);
-                return res.status(500).json({message: "Lỗi khi gửi email!", error});
+                return res.status(500).json({ message: "Lỗi khi gửi email!", error });
             } else {
                 console.log("Email đã được gửi: " + info.response);
                 return res
                     .status(200)
-                    .json({message: "Yêu cầu tư vấn đã được gửi thành công!"});
+                    .json({ message: "Yêu cầu tư vấn đã được gửi thành công!" });
             }
         });
     } catch (error) {
         console.error("Lỗi khi gửi yêu cầu tư vấn:", error);
         res
             .status(500)
-            .json({message: "Lỗi khi gửi yêu cầu tư vấn!", error: error.message});
+            .json({ message: "Lỗi khi gửi yêu cầu tư vấn!", error: error.message });
     }
 };

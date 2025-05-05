@@ -16,12 +16,11 @@ export default function HeaderManage({ toggleSidebar, title }) {
 
   const { notifications, markNotificationAsRead } = useNotifications({
     userId: user?.id,
-    role: user?.role_name,
   });
 
   const handleClickNotification = (notification) => {
     if (!notification.isRead) {
-      markNotificationAsRead(notification.id);
+      markNotificationAsRead(notification.id, user.id);
     }
     navigate(getLinkNotification(notification));
     setIsShowNotification(false);

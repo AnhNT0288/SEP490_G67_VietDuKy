@@ -22,7 +22,6 @@ export default function Header() {
 
   const { notifications, markNotificationAsRead } = useNotifications({
     userId: user?.id,
-    role: user?.role_name,
   });
 
   // Lấy thông tin user khi component mount
@@ -77,7 +76,7 @@ export default function Header() {
 
   const handleClickNotification = (notification) => {
     if (!notification.isRead) {
-      markNotificationAsRead(notification.id);
+      markNotificationAsRead(notification.id, user.id);
     }
     navigate(getLinkNotification(notification));
     setIsShowNotification(false);
@@ -122,10 +121,13 @@ export default function Header() {
           <a href="/listTour" className="hover:underline text-white">
             Du lịch trọn gói
           </a>
-          <a href="#" className="hover:underline text-white">
-            Hợp tác với chúng tôi
+          <a
+            href="/about-us?tab=gioi-thieu"
+            className="hover:underline text-white"
+          >
+            Về chúng tôi
           </a>
-          <a href="#" className="hover:underline text-white">
+          <a href="/about-us?tab=ho-tro" className="hover:underline text-white">
             Hỗ Trợ
           </a>
         </nav>
@@ -240,10 +242,10 @@ export default function Header() {
           <a href="/listTour" className="text-lg font-semibold">
             Du lịch trọn gói
           </a>
-          <a href="#" className="text-lg font-semibold">
+          <a href="/about-us?tab=gioi-thieu" className="text-lg font-semibold">
             Hợp tác với chúng tôi
           </a>
-          <a href="#" className="text-lg font-semibold">
+          <a href="/about-us?tab=ho-tro" className="text-lg font-semibold">
             Hỗ Trợ
           </a>
         </div>
@@ -257,9 +259,10 @@ export default function Header() {
 
 const getLinkNotification = (notification) => {
   switch (notification?.type) {
-    case "BOOKING":
+    case "booking":
       return `/booking`;
-
+    case "booking_detail":
+      return `/bookingHistory`;
     default:
       return `#`;
   }
