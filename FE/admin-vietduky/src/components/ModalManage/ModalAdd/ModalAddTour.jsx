@@ -1,12 +1,12 @@
 import TextEditor from "../../../lib/TextEditor.jsx";
 import { FaArrowRight } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import {fetchLocations, fetchServices, fetchTypeTours} from "../../../services/service.js";
-import { createTour } from "../../../services/API/tour.service.js";
+import {fetchLocations, fetchServices, fetchTypeTours} from "@/services/service.js";
+import { createTour } from "@/services/API/tour.service.js";
 import ModalConfirmTravelTour from "../ModalConfirm/ModalConfirmTravelTour.jsx";
 import Select from "react-select";
 import {toast} from "react-toastify";
-import ModalAddService from "./ModalAddService.jsx"; // Import React Select đúng cách
+import ModalAddService from "./ModalAddService.jsx";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddTour({ onClose, onCreateSuccess }) {
@@ -33,6 +33,9 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
     album: [],
     travel_tours: [],
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
   const handleAddServiceSuccess = (newService) => {
     setServices((prev) => [...prev, newService]);
   };
@@ -95,6 +98,7 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
 
   const handleCreateTour = async (callback) => {
     try {
+      setIsSubmitting(true);
       const formData = new FormData();
 
       Object.keys(pendingTourData).forEach((key) => {
@@ -107,25 +111,16 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
         } else if (key === "service_id") {
           formData.append("service_ids", JSON.stringify(pendingTourData.service_id.map(Number)));
           formData.append("service_id", pendingTourData.service_id[0]);
-          console.log("== FormData Preview ==");
-          for (let pair of formData.entries()) {
-            console.log(pair[0] + ": " + pair[1]);
-          }
-        } else if (
-            pendingTourData[key] !== null &&
-            pendingTourData[key] !== undefined
-        ) {
+        } else if (pendingTourData[key] !== null && pendingTourData[key] !== undefined) {
           formData.append(key, pendingTourData[key]);
         }
       });
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-      const response = await createTour(formData);
-      console.log("API response:", response);
 
+      const response = await createTour(formData);
       const tour = response?.tour;
+
       if (tour) {
+        toast.success("Tạo Tour thành công!");
         callback?.(tour);
       } else {
         toast.error("Tạo Tour thất bại!");
@@ -133,22 +128,32 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
     } catch (error) {
       toast.error(`Lỗi: ${JSON.stringify(error.response?.data)}`);
       console.error("Lỗi API:", error.response?.data || error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setIsConfirmModalOpen(false);
-    handleCreateTour((tour) => {
-      onCreateSuccess?.(tour);
-    });
-  };
+    setIsSubmitting(true);
 
-  const handleCancel = () => {
-    setIsConfirmModalOpen(false);
-    handleCreateTour(() => {
-      toast.success("Tạo Tour thành công!");
+    await handleCreateTour((tour) => {
+      onCreateSuccess?.(tour);
       onClose();
     });
+
+    setIsSubmitting(false);
+  };
+
+  const handleCancel = async () => {
+    setIsConfirmModalOpen(false);
+    setIsSubmitting(true);
+
+    await handleCreateTour(() => {
+      onClose();
+    });
+
+    setIsSubmitting(false);
   };
 
   const formatCurrency = (value) => {
@@ -191,16 +196,24 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
                   <label className="block mb-2 font-medium before:content-['*'] before:text-red-500 before:mr-1">
                     Điểm khởi hành
                   </label>
-                  <select name="start_location" className="w-[250px] p-2 border rounded text-gray-600" value={tourData.start_location} onChange={handleChange} required>
-                    <option value="" disabled>
-                      Chọn điểm khởi hành
-                    </option>
-                    {locations.map((location) => (
-                      <option key={location.id} value={location.id}>
-                        {location.name_location}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                      options={locations.map((loc) => ({
+                        value: loc.id,
+                        label: loc.name_location,
+                      }))}
+                      value={locations.find((loc) => loc.id === tourData.start_location)
+                          ? {
+                            value: tourData.start_location,
+                            label: locations.find((loc) => loc.id === tourData.start_location)?.name_location,
+                          }
+                          : null}
+                      onChange={(selected) =>
+                          setTourData((prev) => ({ ...prev, start_location: selected?.value || "" }))
+                      }
+                      placeholder="Chọn điểm khởi hành"
+                      isSearchable
+                      className="w-[250px] mb-2"
+                  />
                 </div>
 
                 {/* Mũi tên */}
@@ -211,16 +224,27 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
                   <label className="block mb-2 font-medium before:content-['*'] before:text-red-500 before:mr-1">
                     Điểm đến
                   </label>
-                  <select name="end_location" className="w-[250px] p-2 border rounded text-gray-600" value={tourData.end_location} onChange={handleChange} required>
-                    <option value="" disabled>
-                      Chọn điểm đến
-                    </option>
-                    {locations.map((location) => (
-                      <option key={location.id} value={location.id}>
-                        {location.name_location}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                      options={locations
+                          .filter((loc) => loc.id !== tourData.start_location)
+                          .map((loc) => ({
+                            value: loc.id,
+                            label: loc.name_location,
+                          }))}
+                      value={locations.find((loc) => loc.id === tourData.end_location)
+                          ? {
+                            value: tourData.end_location,
+                            label: locations.find((loc) => loc.id === tourData.end_location)?.name_location,
+                          }
+                          : null}
+                      onChange={(selected) =>
+                          setTourData((prev) => ({ ...prev, end_location: selected?.value || "" }))
+                      }
+                      placeholder="Chọn điểm đến"
+                      isSearchable
+                      className="w-[250px]"
+                  />
+
                 </div>
               </div>
 
@@ -399,9 +423,14 @@ export default function ModalAddTour({ onClose, onCreateSuccess }) {
             <button type="button" className="bg-gray-300 px-4 py-2 rounded-md" onClick={onClose}>
               Hủy
             </button>
-            <button type="submit" className="bg-red-700 text-white px-4 py-2 rounded-md">
-              Tạo Tour mới
+            <button
+                type="submit"
+                className={`bg-red-700 text-white px-4 py-2 rounded-md ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+                disabled={isSubmitting}
+            >
+              {isSubmitting ? "Đang tạo Tour..." : "Tạo Tour mới"}
             </button>
+
           </div>
         </form>
       </div>

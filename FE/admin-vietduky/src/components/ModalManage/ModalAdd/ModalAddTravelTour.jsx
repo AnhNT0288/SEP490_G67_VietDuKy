@@ -2,8 +2,9 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaArrowRight } from "react-icons/fa";
-import { createTravelTour } from "../../../services/API/travel_tour.service.js";
+import { createTravelTour } from "@/services/API/travel_tour.service.js";
 import {toast} from "react-toastify";
+import { addDays } from 'date-fns';
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
@@ -21,6 +22,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
     children_price: "",
     toddler_price: "",
   });
+  const minStartDate = addDays(new Date(), 1);
 
   const formatNumber = (value) => {
     if (!value) return "";
@@ -68,16 +70,23 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
       return;
     }
 
+    const startTime = new Date(`1970-01-01T${travelTourData.start_time_depart}:00Z`);
+    const endTime = new Date(`1970-01-01T${travelTourData.end_time_close}:00Z`);
+    if (endTime < startTime) {
+      toast.error("Giờ về không được nhỏ hơn giờ khởi hành.");
+      setLoading(false);
+      return;
+    }
+
     const formattedData = {
       ...travelTourData,
       start_day: travelTourData.start_day.toISOString().split("T")[0],
       end_day: travelTourData.end_day.toISOString().split("T")[0],
-      max_people: parseNumber(travelTourData.max_people), // 👈 bỏ dấu , khi submit
+      max_people: parseNumber(travelTourData.max_people),
       price_tour: parseNumber(travelTourData.price_tour),
       children_price: travelTourData.children_price ? parseNumber(travelTourData.children_price) : 0,
       toddler_price: travelTourData.toddler_price ? parseNumber(travelTourData.toddler_price) : 0,
     };
-
 
     try {
       const response = await createTravelTour(formattedData);
@@ -85,7 +94,12 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
       onClose();
       if (onAddSuccess) onAddSuccess(response.data);
     } catch (error) {
-      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
+      // Kiểm tra nếu API trả về thông báo lỗi
+      if (error.response && error.response.data && error.response.data.message) {
+        toast.error(error.response.data.message);  // Hiển thị thông báo lỗi từ API
+      } else {
+        toast.error("Có lỗi xảy ra, vui lòng thử lại!");  // Thông báo mặc định nếu không có message từ API
+      }
       console.error("Lỗi khi thêm Travel Tour", error);
     } finally {
       setLoading(false);
@@ -120,6 +134,7 @@ export default function ModalAddTravelTour({ tourId, onClose, onAddSuccess }) {
                     selectsStart
                     startDate={travelTourData.start_day}
                     endDate={travelTourData.end_day}
+                    minDate={minStartDate}
                     dateFormat="yyyy-MM-dd"
                     className="w-[200px] p-2 border rounded text-gray-500"
                 />

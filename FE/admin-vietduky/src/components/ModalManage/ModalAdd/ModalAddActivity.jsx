@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { HiOutlineInbox, HiOutlineTrash} from "react-icons/hi";
-import {createTourActivity} from "../../../services/API/activity_tour.service.js";
 import {IoMdAdd} from "react-icons/io";
 import {toast} from "react-toastify";
-import ReactQuill from "react-quill";
-import TextEditor from "../../../lib/TextEditor.jsx";
+import {createTourActivity} from "@/services/API/activity_tour.service.js";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {

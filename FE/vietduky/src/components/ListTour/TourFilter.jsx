@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+// eslint-disable-next-line react/prop-types
 const TourFilter = ({ onFilter, locations, typeTours, activeTopics, initialDeparture, initialDate, initialDestination }) => {
   const [selectedBudget, setSelectedBudget] = useState("");
   const [departure, setDeparture] = useState(initialDeparture);
@@ -34,7 +35,7 @@ const TourFilter = ({ onFilter, locations, typeTours, activeTopics, initialDepar
       tourType: selectedTourType,
       tourTheme: selectedTourTheme,
     });
-  }, [departure, destination, date, selectedBudget, selectedTourType, selectedTourTheme]); // Gọi lại khi các giá trị thay đổi
+  }, [departure, destination, date, selectedBudget, selectedTourType, selectedTourTheme]);
 
   return (
     <div className="w-full max-w-[350px] rounded-xl border border-gray-200 bg-white p-5 shadow-sm">

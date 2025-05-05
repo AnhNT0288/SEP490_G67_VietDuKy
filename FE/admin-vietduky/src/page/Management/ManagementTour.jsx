@@ -30,6 +30,7 @@ export default function ManagementTour() {
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [noteTourId, setNoteTourId] = useState(null);
   const [sortOrder, setSortOrder] = useState("newest");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleOpenNoteTour = (tour) => {
     setNoteTourId(tour.id);
@@ -57,12 +58,13 @@ export default function ManagementTour() {
 
         const uniqueLocations = [
           ...new Set(
-            sortedTours
-              .map((tour) => tour?.startLocation?.name_location)
-              .filter(Boolean)
+              sortedTours
+                  .map((tour) => tour?.endLocation?.name_location)
+                  .filter(Boolean)
           ),
         ];
         setLocationsList(uniqueLocations);
+
       } else {
         console.error("Dữ liệu API không đúng định dạng:", toursData);
         setTours([]);
@@ -110,18 +112,24 @@ export default function ManagementTour() {
   };
 
   const filteredTours = tours
-  .filter((tour) => {
-    if (location && tour?.startLocation?.name_location !== location) return false;
-    const price = tour.price_tour;
-    if (priceFilter === "low" && price >= 5_000_000) return false;
-    if (priceFilter === "medium" && (price < 5_000_000 || price > 10_000_000)) return false;
-    if (priceFilter === "high" && price <= 10_000_000) return false;
-    return true;
-  })
-  .sort((a, b) => {
-    if (sortOrder === "newest") return b.id - a.id;
-    else return a.id - b.id;
-  });
+      .filter((tour) => {
+        if (location && tour?.endLocation?.name_location !== location) return false;
+        const price = tour.price_tour;
+        if (priceFilter === "low" && price >= 5_000_000) return false;
+        if (priceFilter === "medium" && (price < 5_000_000 || price > 10_000_000)) return false;
+        if (priceFilter === "high" && price <= 10_000_000) return false;
+
+        // Tìm kiếm tên tour
+        if (searchTerm && !tour.name_tour.toLowerCase().includes(searchTerm.toLowerCase()))
+          return false;
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortOrder === "newest") return b.id - a.id;
+        else return a.id - b.id;
+      });
+
 
   const totalPages = Math.ceil(filteredTours.length / toursPerPage);
   const indexOfLastTour = currentPage * toursPerPage;
@@ -137,9 +145,11 @@ export default function ManagementTour() {
           <div className="relative flex-1 w-full sm:w-auto">
             <LuSearch className="absolute left-3 top-3 text-gray-500" />
             <input
-              type="text"
-              placeholder="Tìm kiếm bằng từ khóa"
-              className="pl-10 pr-4 py-2 border rounded-md w-full"
+                type="text"
+                placeholder="Tìm kiếm bằng từ khóa"
+                className="pl-10 pr-4 py-2 border rounded-md w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex gap-3 w-full sm:w-auto justify-center">
@@ -269,18 +279,14 @@ export default function ManagementTour() {
         </div>
 
         {isAddTourModalOpen && (
-          <ModalAddTour
-            onClose={toggleAddTourModal}
-            onCreateSuccess={(newTour) => {
-              fetchTours().then(() => {
-                setSelectedProgramTour(newTour);
-                setIsManagementProgramModalOpen(true);
-              });
-              setIsAddTourModalOpen(false);
-              toast.success("Tạo Tour thành công!");
-            }}
-            
-          />
+            <ModalAddTour
+                onClose={() => setIsAddTourModalOpen(false)}
+                onCreateSuccess={(newTour) => {
+                  fetchTours();
+                  setSelectedProgramTour(newTour);
+                  setIsManagementProgramModalOpen(true);
+                }}
+            />
         )}
 
         {isManageTravelTourModalOpen && (
