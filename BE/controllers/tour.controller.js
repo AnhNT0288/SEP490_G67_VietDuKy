@@ -227,7 +227,14 @@ exports.searchTour = async (req, res) => {
                 ),
             });
             if (endLocation) {
-                whereCondition.end_location = endLocation.id;
+                whereCondition[Op.or] = [
+                    { end_location: endLocation.id },
+                    db.sequelize.literal(`LOWER(name_tour) LIKE LOWER('%${end}%')`)
+                ];
+            } else {
+                whereCondition[Op.or] = [
+                    db.sequelize.literal(`LOWER(name_tour) LIKE LOWER('%${end}%')`)
+                ];
             }
         }
 

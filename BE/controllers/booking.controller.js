@@ -17,7 +17,7 @@ dotenv.config();
 
 const { Op } = require("sequelize");
 const { generateUniqueBookingTour } = require("../utils/booking");
-const { sendRoleBasedNotification } = require("../utils/sendNotification");
+const { sendRoleBasedNotification, sendNotificationToUser } = require("../utils/sendNotification");
 const { NOTIFICATION_TYPE } = require("../constants");
 
 //Cấu hình nodemailer
@@ -214,6 +214,162 @@ const sendConfirmationEmail = (userEmail, bookingDetails) => {
         </body>
       </html>
     `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log("Lỗi khi gửi email: ", error);
+        } else {
+            console.log("Email đã được gửi: " + info.response);
+        }
+    });
+};
+
+// Hàm gửi email thông báo thanh toán
+const sendPaymentReminderEmail = (userEmail, bookingDetails) => {
+    const {
+        name,
+        name_tour,
+        start_day,
+        total_cost,
+        paid_amount,
+        remaining_amount,
+        passengers
+    } = bookingDetails;
+
+    // Format tiền
+    const formattedTotalCost = formatCurrency(total_cost);
+    const formattedPaidAmount = formatCurrency(paid_amount);
+    const formattedRemainingAmount = formatCurrency(remaining_amount);
+
+    // Format ngày tháng
+    const formattedStartDate = formatDate(start_day);
+
+    // Tạo danh sách hành khách
+    const passengerList = passengers.map(passenger => `
+        <tr>
+            <td>${passenger.name}</td>
+            <td>${formatDate(passenger.birth_date)}</td>
+            <td>${passenger.gender ? 'Nữ' : 'Nam'}</td>
+            <td>${passenger.phone_number || ''}</td>
+            <td>${passenger.passport_number || ''}</td>
+        </tr>
+    `).join('');
+
+    const mailOptions = {
+        from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+        to: userEmail,
+        subject: "Thông báo thanh toán tour",
+        html: `
+            <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #fff;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .email-container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            background-color: #fef2f2;
+                            position: relative;
+                        }
+                        h1 {
+                            color: #d32f2f;
+                            text-align: center;
+                        }
+                        p {
+                            margin: 10px 0;
+                        }
+                        .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                            table-layout: fixed;
+                        }
+                        .info-table th, .info-table td {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            text-align: left;
+                            word-wrap: break-word;
+                        }
+                        .info-table th {
+                            background-color: #d32f2f;
+                            color: #fff;
+                        }
+                        .info-table td {
+                            background-color: #fff;
+                        }
+                        .warning {
+                            color: #d32f2f;
+                            font-weight: bold;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            font-size: 0.9em;
+                            color: #666;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <h1>Thông báo thanh toán tour</h1>
+                        <p>Xin chào <strong>${name}</strong>,</p>
+                        <p>Chúng tôi gửi thông báo này để nhắc nhở về việc thanh toán tour của bạn:</p>
+                        <table class="info-table">
+                            <tr>
+                                <th>Thông tin tour</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                            <tr>
+                                <td>Tour</td>
+                                <td>${name_tour}</td>
+                            </tr>
+                            <tr>
+                                <td>Ngày khởi hành</td>
+                                <td>${formattedStartDate}</td>
+                            </tr>
+                            <tr>
+                                <td>Tổng chi phí</td>
+                                <td>${formattedTotalCost} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Đã thanh toán</td>
+                                <td>${formattedPaidAmount} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Còn thiếu</td>
+                                <td class="warning">${formattedRemainingAmount} VND</td>
+                            </tr>
+                        </table>
+                        <h3>Danh sách hành khách:</h3>
+                        <table class="info-table">
+                            <tr>
+                                <th>Họ tên</th>
+                                <th>Ngày sinh</th>
+                                <th>Giới tính</th>
+                                <th>Số điện thoại</th>
+                                <th>Số hộ chiếu</th>
+                            </tr>
+                            ${passengerList}
+                        </table>
+                        <p class="warning">Vui lòng hoàn tất thanh toán trước ngày khởi hành để đảm bảo chuyến đi của bạn được diễn ra suôn sẻ.</p>
+                        <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email hoặc số điện thoại hỗ trợ.</p>
+                        <div class="footer">
+                            <p>© 2025 Việt Du Ký. Tất cả các quyền được bảo lưu.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -511,6 +667,11 @@ exports.createBooking = async (req, res) => {
 
             await Promise.all(passengerPromises);
         }
+        await sendNotificationToUser(user_id, user.fcm_token, {
+            title: "Có tour mới đặt thành công!",
+            body: "Nhấn vào để xem chi tiết",
+            type: NOTIFICATION_TYPE.BOOKING,
+        });
 
         //Gửi email xác nhận
         sendConfirmationEmail(email, {
@@ -830,3 +991,71 @@ exports.getBookingByBookingCode = async (req, res) => {
         });
     }
 };
+exports.paymentBookingRemind = async (req, res) => {
+    try {
+        const today = new Date();
+        const thirtyDaysFromNow = new Date(today);
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+        const bookings = await Booking.findAll({
+            where: {
+                status: {
+                    [Op.in]: [0, 1] // 0: Not Paid, 1: Half Paid
+                }
+            },
+            include: [
+                { model: User },
+                { 
+                    model: TravelTour,
+                    where: {
+                        start_day: {
+                            [Op.between]: [today, thirtyDaysFromNow]
+                        }
+                    },
+                    include: [{ model: Tour }]
+                }
+            ]
+        });
+
+        if (!bookings || bookings.length === 0) {
+            return res.status(200).json({ message: "Không có booking nào cần nhắc nhở thanh toán!" });
+        }
+
+        for (const booking of bookings) {
+            // Lấy thông tin thanh toán
+            const payments = await db.Payment.findAll({
+                where: { booking_id: booking.id }
+            });
+
+            const paidAmount = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            const remainingAmount = booking.total_cost - paidAmount;
+
+            // Lấy danh sách hành khách
+            const passengers = await Passenger.findAll({
+                where: { booking_id: booking.id }
+            });
+
+            // Gửi email thông báo
+            sendPaymentReminderEmail(booking.email, {
+                name: booking.name,
+                name_tour: booking.TravelTour.Tour.name_tour,
+                start_day: booking.TravelTour.start_day,
+                total_cost: booking.total_cost,
+                paid_amount: paidAmount,
+                remaining_amount: remainingAmount,
+                passengers: passengers
+            });
+        }
+
+        res.status(200).json({
+            message: "Đã gửi thông báo thanh toán thành công!",
+            count: bookings.length
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi gửi email thông báo thanh toán booking!",
+            error: error.message
+        });
+    }
+};
+

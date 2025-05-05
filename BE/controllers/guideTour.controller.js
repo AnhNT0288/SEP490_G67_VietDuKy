@@ -254,13 +254,6 @@ exports.addGuideToTour = async (req, res) => {
                 .json({message: "Không tìm thấy lịch khởi hành!"});
         }
 
-        // Kiểm tra hướng dẫn viên tồn tại
-        const travelGuide = await TravelGuide.findByPk(travel_guide_id);
-        if (!travelGuide) {
-            return res
-                .status(200)
-                .json({message: "Không tìm thấy hướng dẫn viên!"});
-        }
 
         // Kiểm tra hướng dẫn viên đã gửi yêu cầu tham gia tour này chưa
         const existingGuideTour = await GuideTour.findOne({
