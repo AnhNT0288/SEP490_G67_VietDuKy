@@ -19,13 +19,13 @@ const HeaderMenu = ({ handleSignout, user }) => {
         </div>
       </div>
       <div className="p-2">
-        <button
+        {/* <button
           className="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md"
           onClick={() => navigate("/profile")}
         >
           Giao diện: Theo hệ thống
-        </button>
-        <div className="border-b border-gray-200"/>
+        </button> */}
+        {/* <div className="border-b border-gray-200"/> */}
         <button
           className="block w-full text-left px-4 py-2 hover:bg-gray-100 rounded-md"
           onClick={() => navigate("/bookingHistory")}
