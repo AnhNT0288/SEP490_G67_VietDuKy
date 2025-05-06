@@ -1363,9 +1363,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                         `Nhóm ${groupNumber}:\n` +
                         `- Hướng dẫn viên: ${guideInfo.first_name} ${guideInfo.last_name}` +
                         (guideInfo.number_phone ? ` (${guideInfo.number_phone}` : "") +
-                        (guideInfo.email ? (guideInfo.number_phone ? `, ${guideInfo.email}` : ` (${guideInfo.email}`) : "") +
-                        ((guideInfo.number_phone || guideInfo.email) ? ")" : "") + `\n` +
-                        `- Hành khách: ${passengerNames}`
+                        (guideInfo.email ? (guideInfo.number_phone ? `, ${guideInfo.email}` : ` (${guideInfo.email}`) : "")
                     );
                 });
 
@@ -1377,7 +1375,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                         title: "Thông báo phân nhóm tour",
                         type: NOTIFICATION_TYPE.PASSENGER_GROUP_ASSIGNED,
                         id: booking.id,
-                        body: `Đơn đặt tour của bạn đã được phân nhóm như sau:\n${groupMessages.join("\n")}`
+                        body: `Đơn đặt tour của bạn đã được phân nhóm như sau:\n${groupMessages.join("\n")}. Thông tin chi tiết đã được gửi qua email. Mọi thắc mắc vui lòng liên hệ hướng dẫn viên.`
                     }
                 );
             }

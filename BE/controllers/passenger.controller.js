@@ -10,6 +10,8 @@ const Restaurant = db.Restaurant;
 const VehicleBooking = db.VehicleBooking;
 const Vehicle = db.Vehicle;
 const ExcelJS = require('exceljs');
+const { sendNotificationToUser } = require("../utils/sendNotification");
+const { NOTIFICATION_TYPE } = require("../constants");
 
 // Tạo hành khách mới
 exports.createPassenger = async (req, res) => {
@@ -329,6 +331,20 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
         // Kiểm tra và lấy danh sách Passenger
         const passengers = await Passenger.findAll({
             where: {id: passenger_ids},
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                    attributes: ["id", "user_id", "booking_code"],
+                    include: [
+                        {
+                            model: db.User,
+                            as: "User",
+                            attributes: ["fcm_token"]
+                        }
+                    ]
+                }
+            ]
         });
 
         if (!passengers || passengers.length === 0) {
@@ -378,23 +394,77 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 return passenger.save();
             })
         );
-        const bookings = await Booking.findAll({
+
+        // Nhóm hành khách theo booking_id và tính tổng số người lớn, trẻ em
+        const groupedPassengers = passengers.reduce((acc, passenger) => {
+            const booking = passenger.booking;
+            if (!booking) {
+                return acc; // Bỏ qua nếu không có thông tin booking
+            }
+
+            const bookingId = booking.id;
+
+            if (!acc[bookingId]) {
+                acc[bookingId] = {
+                    booking_id: bookingId,
+                    booking_code: booking.booking_code,
+                    number_adult: booking.number_adult,
+                    number_children: booking.number_children,
+                    travel_tour_id: booking.travel_tour_id,
+                    user_id: booking.user_id,
+                    fcm_token: booking.User.fcm_token,
+                    passengers: [],
+                };
+            }
+            acc[bookingId].passengers.push(passenger);
+            return acc;
+        }, {});
+
+        // Lấy thông tin tour
+        const travelTour = await TravelTour.findByPk(travel_tour_id, {
+            include: [
+                {
+                    model: db.Tour,
+                    as: "Tour",
+                    attributes: ["name_tour"]
+                }
+            ]
+        });
+
+        // Gửi thông báo cho từng user
+        await Promise.all(
+            Object.values(groupedPassengers).map(async (group) => {
+                if (group.user_id && group.fcm_token) {
+                    await sendNotificationToUser(
+                        parseInt(group.user_id),
+                        group.fcm_token,
+                        {
+                            title: "Thông báo phân công hướng dẫn viên",
+                            type: NOTIFICATION_TYPE.PASSENGER_GROUP_ASSIGNED,
+                            id: group.booking_id,
+                            body: `Một số thành viên của ${travelTour.Tour.name_tour} đã được phân công cho hướng dẫn viên ${travelGuide.first_name} ${travelGuide.last_name}. Số điện thoại liên hệ: ${travelGuide.number_phone}, email: ${travelGuide.email}. Thông tin chi tiết đã được gửi qua email. Mọi thắc mắc vui lòng liên hệ hướng dẫn viên.`
+                        }
+                    );
+                }
+            })
+        );
+
+        // Kiểm tra và cập nhật trạng thái tour
+        const allBookings = await Booking.findAll({
             where: {travel_tour_id: travel_tour_id}
-        })
-        const bookingIds = bookings.map((booking) => booking.id);
+        });
+        const allBookingIds = allBookings.map((booking) => booking.id);
         const passengersNotAssigned = await Passenger.findAll({
-            where: {booking_id: bookingIds, group: null}
+            where: {booking_id: allBookingIds, group: null}
         });
         if (passengersNotAssigned.length <= 0) {
-            const travelTour = await TravelTour.findByPk(travel_tour_id);
             travelTour.status = 1;
             await travelTour.save();
         }
 
-
         res.status(200).json({
             message: "Phân công hành khách cho hướng dẫn viên thành công!",
-            data: passengers,
+            data: Object.values(groupedPassengers),
         });
     } catch (error) {
         res.status(500).json({
