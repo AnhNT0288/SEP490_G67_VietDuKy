@@ -6,10 +6,22 @@ const Booking = db.Booking;
 const User = db.User;
 const TravelGuide = db.TravelGuide;
 const GuideTour = db.GuideTour;
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+dotenv.config();
 const { Op, Sequelize } = require("sequelize");
 const TravelGuideLocation = db.TravelGuideLocation;
 const { NOTIFICATION_TYPE } = require("../constants");
 const { sendNotificationToUser } = require("../utils/sendNotification");
+
+// Cấu hình nodemailer
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 //Lấy tất cả dữ liệu trong bảng travel tour
 exports.getAllTravelTours = async (req, res) => {
@@ -385,7 +397,8 @@ exports.updateTravelTour = async (req, res) => {
     if (end_day !== undefined) travelTour.end_day = end_day;
     if (price_tour !== undefined) travelTour.price_tour = price_tour;
     if (max_people !== undefined) travelTour.max_people = max_people;
-    if (current_people !== undefined) travelTour.current_people = current_people;
+    if (current_people !== undefined)
+      travelTour.current_people = current_people;
     if (start_time_depart !== undefined)
       travelTour.start_time_depart = start_time_depart;
     if (end_time_depart !== undefined)
@@ -485,20 +498,20 @@ exports.getListTravelTourForGuide = async (req, res) => {
       },
     });
     const locationIds = travelGuideLocation.map((loc) => loc.location_id);
-    const existingTourIds = existingGuideTour.map(gt => gt.travel_tour_id);
+    const existingTourIds = existingGuideTour.map((gt) => gt.travel_tour_id);
 
     // Tạo điều kiện where cho TravelTour
     const travelTourWhereCondition = {
       status: 0,
       active: 1,
       id: {
-        [Op.notIn]: existingTourIds
-      }
+        [Op.notIn]: existingTourIds,
+      },
     };
 
     // Thêm điều kiện end_location vào tourWhereCondition
     tourWhereCondition.end_location = {
-      [Op.in]: locationIds
+      [Op.in]: locationIds,
     };
 
     if (start_day) {
@@ -507,7 +520,7 @@ exports.getListTravelTourForGuide = async (req, res) => {
       };
     } else {
       travelTourWhereCondition.start_day = {
-        [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
+        [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)),
       };
     }
 
@@ -890,18 +903,18 @@ exports.completeTravelTour = async (req, res) => {
     const travelTours = await TravelTour.findAll({
       where: {
         start_day: {
-          [Op.lte]: today
+          [Op.lte]: today,
         },
         end_time_close: {
-          [Op.lt]: now
+          [Op.lt]: now,
         },
-        status: 1 // Chỉ lấy những tour đang diễn ra
-      }
+        status: 1, // Chỉ lấy những tour đang diễn ra
+      },
     });
 
     if (travelTours.length === 0) {
       return res.status(200).json({
-        message: "Không có tour nào cần cập nhật trạng thái!"
+        message: "Không có tour nào cần cập nhật trạng thái!",
       });
     }
 
@@ -915,14 +928,14 @@ exports.completeTravelTour = async (req, res) => {
       message: "Cập nhật trạng thái tour thành công!",
       data: {
         updatedTours: travelTours.length,
-        tours: travelTours
-      }
+        tours: travelTours,
+      },
     });
   } catch (error) {
     console.error("Lỗi khi cập nhật trạng thái tour:", error);
     res.status(500).json({
       message: "Lỗi khi cập nhật trạng thái tour!",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -934,31 +947,144 @@ exports.cancelTravelTour = async (req, res) => {
     if (!travelTour) {
       return res.status(404).json({ message: "Không tìm thấy tour du lịch!" });
     }
+
     if (travelTour.status !== 1 && travelTour.status !== 0) {
       return res.status(400).json({ message: "Tour du lịch không đang diễn ra!" });
+
     }
     const tour = await Tour.findByPk(travelTour.tour_id);
     const bookings = await Booking.findAll({
       where: {
-        travel_tour_id: travelTour.id
-      }
+        travel_tour_id: travelTour.id,
+      },
     });
+
+    // Lấy thông tin nhân viên đầu tiên có role name là "staff"
+    const staff = await User.findOne({
+      include: [
+        {
+          model: db.Role,
+          as: "Role",
+          where: {
+            name: "staff",
+          },
+          attributes: ["name"],
+        },
+      ],
+      attributes: ["name", "email", "phone"],
+      order: [["id", "ASC"]], // Sắp xếp theo id tăng dần để lấy nhân viên đầu tiên
+      limit: 1, // Chỉ lấy 1 user đầu tiên
+    });
+
+    if (!staff) {
+      return res.status(500).json({
+        message: "Không tìm thấy nhân viên để gửi thông báo!",
+      });
+    }
+
     if (bookings.length > 0) {
       const notifiedUsers = new Set(); // Tạo Set để theo dõi các user đã được gửi thông báo
       for (const booking of bookings) {
         const user = await User.findByPk(booking.user_id);
         // Chỉ gửi thông báo nếu user chưa được thông báo
         if (!notifiedUsers.has(user.id)) {
-          await sendNotificationToUser(
-            parseInt(user.id),
-            user.fcm_token,
-            {
-              title: "Tour du lịch đã bị hủy!",
-              type: NOTIFICATION_TYPE.TOUR_CANCELLED,
-              id: travelTour.id,
-              body: tour.name_tour + ", ngày khởi hành: " + travelTour.start_day + " đã bị huỷ. Vui lòng liên hệ với nhân viên để được hoàn tiền. Xin chân thành xin lỗi vì sự bất tiện này."
+          const messageBody =
+            tour.name_tour +
+            ", ngày khởi hành: " +
+            travelTour.start_day +
+            " đã bị huỷ. Vui lòng liên hệ với nhân viên để được hoàn tiền. Xin chân thành xin lỗi vì sự bất tiện này.";
+
+          // Gửi email thông báo
+          const emailContent = `
+                      <html>
+                      <head>
+                        <style>
+                          body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #fff;
+                            margin: 0;
+                            padding: 0;
+                          }
+                          .email-container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            background-color: #fef2f2;
+                            position: relative;
+                          }
+                          h1 {
+                            color: #d32f2f;
+                            text-align: center;
+                          }
+                          p {
+                            margin: 10px 0;
+                          }
+                          .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                            table-layout: fixed;
+                          }
+                          .info-table th, .info-table td {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            text-align: left;
+                            word-wrap: break-word;
+                          }
+                          .info-table th {
+                            background-color: #d32f2f;
+                            color: #fff;
+                          }
+                          .info-table td {
+                            background-color: #fff;
+                          }
+                          .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            font-size: 0.9em;
+                            color: #666;
+                          }
+                        </style>
+                      </head>
+                      <body>
+                        <div class="email-container">
+                          <h1>Thông báo hủy tour du lịch</h1>
+                          <p>Xin chào <strong>${user.name}</strong>,</p>
+                          <p>${messageBody}</p>
+                          <p>Thông tin liên hệ nhân viên tư vấn:</p>
+                          <ul>
+                            <li><strong>Tên:</strong> ${staff.name}</li>
+                            <li><strong>Email:</strong> ${staff.email}</li>
+                            <li><strong>Số điện thoại:</strong> ${staff.phone}</li>
+                          </ul>
+                          <p>Chúng tôi rất tiếc vì sự bất tiện này và mong nhận được sự thông cảm từ bạn.</p>
+                          <div class="footer">
+                            <p>© 2025 Việt Du Ký</p>
+                          </div>
+                        </div>
+                      </body>
+                      </html>
+                  `;
+
+          const mailOptions = {
+            from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+            to: user.email,
+            subject: "Thông báo hủy tour du lịch",
+            html: emailContent,
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.log("Lỗi khi gửi email: ", error);
+            } else {
+              console.log("Email đã được gửi: " + info.response);
             }
-          );
+          });
+
           notifiedUsers.add(user.id); // Thêm user vào danh sách đã thông báo
         }
         booking.status = 3;
@@ -973,7 +1099,7 @@ exports.cancelTravelTour = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Lỗi khi hủy tour du lịch!",
-      error: error.message
+      error: error.message,
     });
   }
 };
