@@ -14,6 +14,9 @@ const nodemailer = require("nodemailer");
 const path = require("path");
 const dotenv = require("dotenv");
 const Payment = db.Payment;
+const GuideTour = db.GuideTour;
+const TravelGuide = db.TravelGuide;
+const Role = db.Role;
 dotenv.config();
 
 const {Op} = require("sequelize");
@@ -520,6 +523,7 @@ exports.createBooking = async (req, res) => {
             address,
             note,
             passengers,
+            need_support
         } = req.body;
 
         // Parse passengers từ chuỗi JSON thành object JavaScript
@@ -688,16 +692,180 @@ exports.createBooking = async (req, res) => {
         //         type: NOTIFICATION_TYPE.BOOKING,
         //     }
         // );
-        await sendNotificationToUser(
-            parseInt(user_id),
-            user.fcm_token,
-            {
-                title: "Bạn đã đặt tour thành công!",
-                type: NOTIFICATION_TYPE.BOOKING_DETAIL,
-                id: newBooking.id,
-                body: tourDetails.name_tour + ". Ngày khởi hành: " + travelTour.start_day
+        if (need_support) {
+            const message = "Nguời dùng cần hỗ trợ nhập thông tin";
+            const staffOrAdmins = await User.findAll({
+                include: {
+                    model: Role,
+                    as: "role",
+                    where: {role_name: {[Op.in]: ["staff", "admin"]}},
+                    attributes: [],
+                },
+                where: {can_consult: true}, // Chỉ lấy user có quyền tư vấn
+                attributes: ["email"],
+            });
+    
+            if (!staffOrAdmins || staffOrAdmins.length === 0) {
+                return res.status(404).json({
+                    message: "Không tìm thấy staff nào có quyền tư vấn!",
+                });
             }
-        )
+            const recipientEmailsForStaff = staffOrAdmins.map((user) => user.email);
+            await sendNotificationToUser(
+                parseInt(user_id),
+                user.fcm_token,
+                {
+                    title: "Bạn đã đặt tour thành công!",
+                    type: NOTIFICATION_TYPE.BOOKING_DETAIL,
+                    id: newBooking.id,
+                    body: tourDetails.name_tour + ". Ngày khởi hành: " + travelTour.start_day
+                }
+            )
+            const mailOptionsForStaff = {
+                from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+                to: recipientEmailsForStaff,
+                subject: "Yêu cầu hỗ trợ nhập thông tin từ khách hàng",
+                html: `
+            <html>
+              <head>
+                <style>
+                  body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    background-color: #fff;
+                    margin: 0;
+                    padding: 0;
+                  }
+                  .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    background-color: #fef2f2;
+                    position: relative;
+                  }
+                  h1 {
+                    color: #d32f2f;
+                    text-align: center;
+                  }
+                  p {
+                    margin: 10px 0;
+                  }
+                  .info-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                    table-layout: fixed;
+                  }
+                  .info-table th, .info-table td {
+                    border: 1px solid #ddd;
+                    padding: 10px;
+                    text-align: left;
+                    word-wrap: break-word;
+                  }
+                  .info-table th {
+                    background-color: #d32f2f;
+                    color: #fff;
+                  }
+                  .info-table td {
+                    background-color: #fff;
+                  }
+                  .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    font-size: 0.9em;
+                    color: #666;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="email-container">
+                  <h1>Yêu cầu hỗ trợ nhập thông tin</h1>
+                  <p>Xin chào,</p>
+                  <p>Khách hàng <strong>${name}</strong> đã gửi yêu cầu hỗ trợ nhập thông tin về tour. Dưới đây là thông tin chi tiết:</p>
+                  <table class="info-table">
+                    <tr>
+                      <th>Thông tin</th>
+                      <th>Chi tiết</th>
+                    </tr>
+                    <tr>
+                      <td>Họ và tên</td>
+                      <td>${name}</td>
+                    </tr>
+                    <tr>
+                      <td>Email</td>
+                      <td>${email}</td>
+                    </tr>
+                    <tr>
+                      <td>Số điện thoại</td>
+                      <td><a href="tel:{${phone}}">${phone}</a></td>
+                    </tr>
+                    <tr>
+                      <td>Nội dung</td>
+                      <td>${message}</td>
+                    </tr>
+                    <tr>
+                      <td>Mã đặt tour</td>
+                      <td>${booking_code}</td>
+                    </tr>
+                    <tr>
+                      <td>Tên tour</td>
+                      <td>${tourDetails.name_tour}</td>
+                    </tr>
+                    <tr>
+                      <td>Số lượng người lớn</td>
+                      <td>${number_adult}</td>
+                    </tr>
+                    <tr>
+                      <td>Số lượng trẻ em</td>
+                      <td>${number_children}</td>
+                    </tr>
+                    <tr>
+                      <td>Số lượng trẻ nhỏ</td>
+                      <td>${number_toddler}</td>
+                    </tr>
+                    <tr>
+                      <td>Số lượng em bé</td>
+                      <td>${number_newborn}</td>
+                    </tr>
+                    <tr>
+                      <td>Ngày khởi hành</td>
+                      <td>${travelTour.start_day}</td>
+                    </tr>
+                    <tr>
+                      <td>Ngày kết thúc</td>
+                      <td>${travelTour.end_day}</td>
+                    </tr>
+                    <tr>
+                      <td>Ghi chú</td>
+                      <td>${note}</td>
+                    </tr>
+                  </table>
+                  <p>Vui lòng liên hệ với khách hàng để hỗ trợ nhập thông tin.</p>
+                  <div class="footer">
+                    <p>© 2025 Việt Du Ký</p>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `,
+            };
+    
+            // Gửi email
+            transporter.sendMail(mailOptionsForStaff, (error, info) => {
+                if (error) {
+                    console.error("Lỗi khi gửi email: ", error);
+                    return res.status(500).json({message: "Lỗi khi gửi email!", error});
+                } else {
+                    console.log("Email đã được gửi: " + info.response);
+                    return res
+                        .status(200)
+                        .json({message: "Yêu cầu tư vấn đã được gửi thành công!"});
+                }
+            });
+        }
         res.status(201).json({
             message: "Đặt tour thành công!",
             data: newBooking,
@@ -1022,7 +1190,7 @@ exports.rePayment = async (req, res) => {
         } else {
             res.status(200).json({
                 message: "Đã thanh toán hết!",
-                data:0,
+                data: 0,
             });
         }
     } catch (error) {
@@ -1314,11 +1482,11 @@ exports.remindUpcomingTour = async (req, res) => {
                     title: "Tour của bạn sắp đến ngày khởi hành!",
                     type: NOTIFICATION_TYPE.BOOKING_UPCOMING,
                     id: booking.id,
-                    body: booking.TravelTour.Tour.name_tour + " của bạn sắp đến ngày khởi hành. Ngày khởi hành: "+ booking.TravelTour.start_time_depart + " " + booking.TravelTour.start_day
+                    body: booking.TravelTour.Tour.name_tour + " của bạn sắp đến ngày khởi hành. Ngày khởi hành: " + booking.TravelTour.start_time_depart + " " + booking.TravelTour.start_day
                 }
             )
         }
-f
+
         res.status(200).json({
             message: "Đã gửi thông báo tour sắp đến thành công!",
             count: bookings.length
@@ -1329,7 +1497,95 @@ f
             error: error.message
         });
     }
-}; 
+};
+
+exports.getDetailBooking = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const booking = await Booking.findByPk(id, {
+            include: [
+                {model: User},
+                {
+                    model: TravelTour,
+                    include: [
+                        {model: Tour},
+                        {
+                            model: GuideTour,
+                            include: [
+                                {
+                                    model: TravelGuide,
+                                    include: [
+                                        {model: User, as: 'user'},
+                                        {model: User, as: 'staff'}
+                                    ],
+                                    as: 'travelGuide'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: Passenger,
+                    as: 'passengers'
+                }
+            ]
+        });
+
+        if (!booking) {
+            return res.status(404).json({
+                message: "Không tìm thấy booking!"
+            });
+        }
+
+        // Nhóm passenger theo group của GuideTour
+        const passengersByGroup = {};
+        if (booking.TravelTour && booking.TravelTour.GuideTours) {
+            // Tạo các nhóm từ GuideTour
+            booking.TravelTour.GuideTours.forEach(guideTour => {
+                if (guideTour.group) {
+                    passengersByGroup[guideTour.group] = {
+                        guide: guideTour.travelGuide,
+                        passengers: []
+                    };
+                }
+            });
+        }
+
+        // Thêm passenger vào nhóm tương ứng
+        if (booking.passengers) {
+            booking.passengers.forEach(passenger => {
+                if (passenger.group && passengersByGroup[passenger.group]) {
+                    passengersByGroup[passenger.group].passengers.push(passenger);
+                } else {
+                    // Nếu passenger không có group hoặc group không tồn tại
+                    if (!passengersByGroup['unassigned']) {
+                        passengersByGroup['unassigned'] = {
+                            guide: null,
+                            passengers: []
+                        };
+                    }
+                    passengersByGroup['unassigned'].passengers.push(passenger);
+                }
+            });
+        }
+
+        // Format lại dữ liệu trả về
+        const formattedBooking = {
+            ...booking.toJSON(),
+            passengersByGroup
+        };
+
+        res.status(200).json({
+            message: "Lấy thông tin booking thành công!",
+            data: formattedBooking
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy thông tin booking!",
+            error: error.message
+        });
+    }
+}
 
 // exports.remindExpiredBooking = async (req, res) => {
 //     try {
@@ -1342,7 +1598,7 @@ f
 //                 status: {
 //                     [Op.in]: [0, 1] // 0: Not Paid, 1: Half Paid
 //                 }
-                
+
 //             },
 //             include: [
 //                 {model: User},

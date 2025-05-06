@@ -72,5 +72,12 @@ export const BookingService = {
             url: `booking/re-payment/${id}`,
             method: "GET",
         });
-    }
+    },
+    getDetailBooking: (id) => {
+        return restClient({
+            url: `booking/booking-detail/${id}`,
+            method: "GET",
+        });
+    },
+
 };

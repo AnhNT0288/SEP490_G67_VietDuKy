@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
-import { useEffect } from "react";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { MdEdit, MdLock, MdUpdate } from "react-icons/md";
+import {useEffect} from "react";
+import {HiOutlineDotsHorizontal} from "react-icons/hi";
+import {MdEdit, MdLock, MdUpdate} from "react-icons/md";
 
-export default function DropdownMenuUser({ user, onLockAccount, onUpdatePermissions, onEditUser, isOpen, setOpenDropdown }) {
+export default function DropdownMenuUser({user, onLockAccount, onUpdatePermissions, onEditUser, isOpen, setOpenDropdown}) {
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (!event.target.closest(".dropdown-container")) {
@@ -18,7 +18,7 @@ export default function DropdownMenuUser({ user, onLockAccount, onUpdatePermissi
     return (
         <div className="relative dropdown-container flex items-center gap-2 justify-end">
             <button onClick={() => setOpenDropdown(isOpen ? null : user.id)} className="p-2">
-                <HiOutlineDotsHorizontal className="text-xl cursor-pointer" />
+                <HiOutlineDotsHorizontal className="text-xl cursor-pointer"/>
             </button>
 
             {isOpen && (
@@ -30,36 +30,36 @@ export default function DropdownMenuUser({ user, onLockAccount, onUpdatePermissi
                         }}
                         className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                     >
-                        <MdUpdate className="mr-2 text-gray-700" />
-                        Cập nhật quyền người dùng
-                    </button>
-                    <button
-                        onClick={() => {
-                            onEditUser(user);
-                            setOpenDropdown(null);
-                        }}
-                        className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
-                    >
-                        <MdEdit className="mr-2 text-gray-700" />
+                        <MdUpdate className="mr-2 text-gray-700"/>
                         Cập nhật thông tin
                     </button>
+                    {/*<button*/}
+                    {/*    onClick={() => {*/}
+                    {/*        onEditUser(user);*/}
+                    {/*        setOpenDropdown(null);*/}
+                    {/*    }}*/}
+                    {/*    className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"*/}
+                    {/*>*/}
+                    {/*    <MdEdit className="mr-2 text-gray-700" />*/}
+                    {/*    Cập nhật thông tin*/}
+                    {/*</button>*/}
                     <button
-                    onClick={() => {
-                        onLockAccount(user);
-                        setOpenDropdown(null);
-                    }}
-                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                        user.status ? "text-red-600" : "text-green-600"
-                    }`}
+                        onClick={() => {
+                            onLockAccount(user);
+                            setOpenDropdown(null);
+                        }}
+                        className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
+                            user.status ? "text-red-600" : "text-green-600"
+                        }`}
                     >
-                        <div  className="flex items-center">
-                            <MdLock className="mr-2" />
+                        <div className="flex items-center">
+                            <MdLock className="mr-2"/>
                             <span>
                                 {user.status ? "Khóa tài khoản" : "Mở tài khoản"}
                                 </span>
                         </div>
 
-                </button>
+                    </button>
                 </div>
             )}
         </div>

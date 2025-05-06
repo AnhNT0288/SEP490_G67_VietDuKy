@@ -1042,6 +1042,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
         const totalBooking = await Booking.findAll({
             where: {
                 travel_tour_id: travel_tour_id,
+                status: 2,
             },
         });
 
@@ -1363,9 +1364,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                         `Nhóm ${groupNumber}:\n` +
                         `- Hướng dẫn viên: ${guideInfo.first_name} ${guideInfo.last_name}` +
                         (guideInfo.number_phone ? ` (${guideInfo.number_phone}` : "") +
-                        (guideInfo.email ? (guideInfo.number_phone ? `, ${guideInfo.email}` : ` (${guideInfo.email}`) : "") +
-                        ((guideInfo.number_phone || guideInfo.email) ? ")" : "") + `\n` +
-                        `- Hành khách: ${passengerNames}`
+                        (guideInfo.email ? (guideInfo.number_phone ? `, ${guideInfo.email}` : ` (${guideInfo.email}`) : "")
                     );
                 });
 
@@ -1377,9 +1376,104 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                         title: "Thông báo phân nhóm tour",
                         type: NOTIFICATION_TYPE.PASSENGER_GROUP_ASSIGNED,
                         id: booking.id,
-                        body: `Đơn đặt tour của bạn đã được phân nhóm như sau:\n${groupMessages.join("\n")}`
+                        body: `Đơn đặt tour của bạn đã được phân nhóm như sau:\n${groupMessages.join("\n")}. Thông tin chi tiết đã được gửi qua email. Mọi thắc mắc vui lòng liên hệ hướng dẫn viên.`
                     }
                 );
+                // Tạo nội dung email cho từng nhóm
+                const emailGroupMessages = Object.entries(passengersByGroup).map(([groupNumber, data]) => {
+                    const guideInfo = data.guideInfo;
+                    const passengerRows = data.passengers.map((p, index) => `
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${index + 1}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">${p.name}</td>
+                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${p.birth_date ? formatDate(p.birth_date) : "N/A"}</td>
+                        </tr>
+                    `).join("");
+
+                    return `
+                        <h3>Nhóm ${groupNumber}</h3>
+                        <p><strong>Hướng dẫn viên:</strong> ${guideInfo.first_name} ${guideInfo.last_name}</p>
+                        <p><strong>Số điện thoại:</strong> ${guideInfo.number_phone || "Không có"}</p>
+                        <p><strong>Email:</strong> ${guideInfo.email || "Không có"}</p>
+                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                            <thead>
+                                <tr style="background-color: #d32f2f; color: #fff;">
+                                    <th style="border: 1px solid #ddd; padding: 8px;">STT</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px;">Tên hành khách</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px;">Ngày sinh</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${passengerRows}
+                            </tbody>
+                        </table>
+                    `;
+                }).join("");
+
+                // Gửi email thông báo
+                const mailOptions = {
+                    from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+                    to: booking.User.email, // Email của người dùng
+                    subject: "Thông báo phân công hướng dẫn viên cho tour của bạn",
+                    html: `
+                    <html>
+                    <head>
+                        <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #fff;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .email-container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            background-color: #fef2f2;
+                            position: relative;
+                        }
+                        h1 {
+                            color: #d32f2f;
+                            text-align: center;
+                        }
+                        p {
+                            margin: 10px 0;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            font-size: 0.9em;
+                            color: #666;
+                        }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="email-container">
+                        <h1>Thông báo phân công hướng dẫn viên</h1>
+                        <p>Xin chào <strong>${booking.User.displayName}</strong>,</p>
+                        <p>Tour của bạn đã được phân công hướng dẫn viên. Dưới đây là thông tin chi tiết:</p>
+                        ${emailGroupMessages}
+                        <p>Chúc bạn có một chuyến đi vui vẻ!</p>
+                        <div class="footer">
+                            <p>© 2025 Việt Du Ký</p>
+                        </div>
+                        </div>
+                    </body>
+                    </html>
+                    `,
+                };
+
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.error("Lỗi khi gửi email: ", error);
+                    } else {
+                        console.log("Email đã được gửi: " + info.response);
+                    }
+                });
             }
         }
 
@@ -1394,7 +1488,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
             birth_date: guideTour.travelGuide.birth_date,
         }));
         const totalBookings = await Booking.findAll({
-            where: {travel_tour_id: travel_tour_id}
+            where: {travel_tour_id: travel_tour_id, status: 2}
         })
         const bookingIds = totalBookings.map((booking) => booking.id);
         const passengersNotAssigned = await Passenger.findAll({

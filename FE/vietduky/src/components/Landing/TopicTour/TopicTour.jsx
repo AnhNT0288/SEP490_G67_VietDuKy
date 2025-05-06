@@ -36,7 +36,7 @@ export default function TopicTour({ topic }) {
     fetchTours();
   }, [topic.id, userId]);
 
-  // console.log("topic", tours);
+  console.log("topic", tours);
   // console.log("favoriteTours", favoriteTours);
   
   return (

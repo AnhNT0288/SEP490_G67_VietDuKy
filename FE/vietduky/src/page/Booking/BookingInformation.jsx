@@ -37,6 +37,7 @@ export default function BookingTour() {
     address: user?.address || "",
     voucher_id: "",
     note: "",
+    need_support: assistance,
     passengers: [],
   });
   const [roomCost, setRoomCost] = useState(0);
@@ -84,6 +85,16 @@ export default function BookingTour() {
   
     fetchTravelTour();
   }, [selectedTours, discountInfo]);
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      need_support: assistance,
+    }));
+  }, [assistance]);
+console.log("FormData", formData);
+console.log("Assistance", assistance);
+
 
   return (
     <LayoutBookingTour title="Đặt tour">

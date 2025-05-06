@@ -2,7 +2,7 @@ import PassengerInfoForm from "./PassengerInfoForm";
 import { CustomerService } from "@/services/API/customer.service";
 import { StorageService } from "@/services/storage/StorageService";
 import { useEffect, useState } from "react";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const ContactForm = ({
   formData,
@@ -79,32 +79,62 @@ const ContactForm = ({
 
   const handlePassengerChange = (type, increment) => {
     setPassengers((prev) => {
-      const remainingSlots = travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people;
-      
+      const remainingSlots =
+        travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people;
+
       // Tính tổng hành khách (không bao gồm infant)
       const totalCurrentWithoutInfant = Object.entries(prev)
         .filter(([key]) => key !== "infant")
         .reduce((sum, [, val]) => sum + val, 0);
-  
+
       // Kiểm tra nếu đang muốn tăng vượt quá slot còn lại
-      if (increment > 0 && totalCurrentWithoutInfant >= remainingSlots && type !== "infant") {
+      if (
+        increment > 0 &&
+        totalCurrentWithoutInfant >= remainingSlots &&
+        type !== "infant"
+      ) {
         toast.error(`Chuyến đi này chỉ còn ${remainingSlots} hành khách!`);
         return prev;
       }
-  
+
       const newValue = prev[type] + increment;
-  
+
       // Nếu là người lớn (adult) thì min = 1
       if (type === "adult" && newValue < 1) return prev;
-  
+
       // Các loại khác không được nhỏ hơn 0
       if (newValue < 0) return prev;
-  
+
       return {
         ...prev,
         [type]: newValue,
       };
     });
+  };
+
+  const handlePassengerInput = (type, value) => {
+    let newValue = parseInt(value);
+    if (isNaN(newValue)) return;
+  
+    const remainingSlots = travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people;
+  
+    // Tính tổng hành khách (không bao gồm infant)
+    const totalOthers = Object.entries(passengers)
+      .filter(([key]) => key !== "infant" && key !== type)
+      .reduce((sum, [, val]) => sum + val, 0);
+  
+    if (type !== "infant" && newValue + totalOthers > remainingSlots) {
+      toast.error(`Chuyến đi này chỉ còn ${remainingSlots} hành khách!`);
+      return;
+    }
+  
+    if (type === "adult" && newValue < 1) newValue = 1;
+    if (newValue < 0) newValue = 0;
+  
+    setPassengers((prev) => ({
+      ...prev,
+      [type]: newValue,
+    }));
   };
   
   const handleAssistanceChange = (e) => {
@@ -115,7 +145,6 @@ const ContactForm = ({
 
   // console.log("Hành khách", passengers);
   // console.log("Travel tour data", travelTourData?.[0]?.max_people);
-  
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -209,7 +238,13 @@ const ContactForm = ({
             </div>
             <div className="flex items-center gap-3">
               <button onClick={() => handlePassengerChange(type, -1)}>-</button>
-              <span className="text-lg font-bold">{passengers[type]}</span>
+              <input
+                type="number"
+                min={min}
+                value={passengers[type]}
+                onChange={(e) => handlePassengerInput(type, e.target.value)}
+                className="w-16 text-center border rounded px-2 py-1"
+              />
               <button onClick={() => handlePassengerChange(type, 1)}>+</button>
             </div>
           </div>
@@ -243,7 +278,10 @@ const ContactForm = ({
             setFormData={setFormData}
             assistance={assistance}
             setAssistance={setAssistance}
-            currentSlot={travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people}
+            currentSlot={
+              travelTourData?.[0]?.max_people -
+              travelTourData?.[0]?.current_people
+            }
           />
         )}
       </div>

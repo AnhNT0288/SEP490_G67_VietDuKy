@@ -92,7 +92,7 @@ export default function ModalFeedbackTour({ isOpen, onClose, booking }) {
 
         {/* Kéo thả hoặc upload file */}
         <label className="block mt-4 mb-1 font-medium text-gray-700">
-          Thêm ảnh hoặc video minh hoạ:
+          Thêm ảnh minh hoạ:
         </label>
         <div
           className="border-dashed border-2 border-gray-300 p-4 rounded text-center cursor-pointer hover:border-red-400 transition"
@@ -101,7 +101,7 @@ export default function ModalFeedbackTour({ isOpen, onClose, booking }) {
           onClick={() => fileInputRef.current?.click()}
         >
           <p className="text-sm text-gray-500">
-            Kéo & thả hoặc bấm để chọn file từ máy tính (hỗ trợ ảnh, video)
+            Kéo & thả hoặc bấm để chọn ảnh
           </p>
           <input
             type="file"
