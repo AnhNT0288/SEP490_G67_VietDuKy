@@ -71,7 +71,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
         if (tab === "upcoming") matchTab = isAfter(startDay, today);
         if (tab === "ongoing") matchTab = isBefore(startDay, today) && isAfter(endDay, today);
         if (tab === "completed") matchTab = isBefore(endDay, today);
-        if (tab === "cancelled") matchTab = tour.status === 2;
+        if (tab === "cancelled") matchTab = tour.status === 3;
 
         return matchSearch && matchStartLoc && matchEndLoc && matchStartDate && matchTab;
     });
@@ -231,10 +231,16 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                             </td>
                             <td
                                 className={`p-2 font-medium ${
-                                    tour.status === 1 ? "text-green-600" : "text-red-600"
+                                    tour.status === 1 ? "text-green-600" : 
+                                    tour.status === 2 ? "text-blue-600" :
+                                    tour.status === 3 ? "text-red-600" : 
+                                    "text-orange-600"
                                 }`}
                             >
-                                {tour.status === 1 ? "Đã phân công" : "Chưa phân công"}
+                                {tour.status === 0 ? "Chưa phân công" :
+                                 tour.status === 1 ? "Đã phân công" :
+                                 tour.status === 2 ? "Đã hoàn thành" :
+                                 "Đã hủy"}
                             </td>
                             <td className="p-2 text-right relative">
                                 <DropdownTourIsBooking
