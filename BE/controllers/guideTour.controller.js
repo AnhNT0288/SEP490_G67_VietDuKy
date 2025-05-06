@@ -1340,10 +1340,36 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                     }
                 ]
             });
+            
             if (booking && booking.User) {
-                const guideInfo = passengers[0].guideTour.travelGuide;
-                const groupNumber = passengers[0].groupNumber;
-                
+                // Nhóm các passengers theo groupNumber
+                const passengersByGroup = passengers.reduce((acc, curr) => {
+                    const groupNumber = curr.groupNumber;
+                    if (!acc[groupNumber]) {
+                        acc[groupNumber] = {
+                            guideInfo: curr.guideTour.travelGuide,
+                            passengers: []
+                        };
+                    }
+                    acc[groupNumber].passengers.push(curr.passenger);
+                    return acc;
+                }, {});
+
+                // Tạo nội dung thông báo cho từng nhóm
+                const groupMessages = Object.entries(passengersByGroup).map(([groupNumber, data]) => {
+                    const guideInfo = data.guideInfo;
+                    const passengerNames = data.passengers.map(p => p.name).join(", ");
+                    return (
+                        `Nhóm ${groupNumber}:\n` +
+                        `- Hướng dẫn viên: ${guideInfo.first_name} ${guideInfo.last_name}` +
+                        (guideInfo.number_phone ? ` (${guideInfo.number_phone}` : "") +
+                        (guideInfo.email ? (guideInfo.number_phone ? `, ${guideInfo.email}` : ` (${guideInfo.email}`) : "") +
+                        ((guideInfo.number_phone || guideInfo.email) ? ")" : "") + `\n` +
+                        `- Hành khách: ${passengerNames}`
+                    );
+                });
+
+                // Gửi thông báo
                 await sendNotificationToUser(
                     parseInt(booking.user_id),
                     booking.User.fcm_token,
@@ -1351,7 +1377,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                         title: "Thông báo phân nhóm tour",
                         type: NOTIFICATION_TYPE.PASSENGER_GROUP_ASSIGNED,
                         id: booking.id,
-                        body: `Bạn đã được phân vào nhóm hướng dẫn viên ${guideInfo.first_name} ${guideInfo.last_name}. Thông tin hướng dẫn viên: ${guideInfo.number_phone}, email: ${guideInfo.email}`
+                        body: `Đơn đặt tour của bạn đã được phân nhóm như sau:\n${groupMessages.join("\n")}`
                     }
                 );
             }
