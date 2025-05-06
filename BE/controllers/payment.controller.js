@@ -64,8 +64,14 @@ exports.checkPayment = async (req, res) => {
                         id: bookingId,
                     },
                 });
-                console.log(amount, booking.total_cost);
-                if (amount === booking.total_cost) {
+                const existingPayments = await Payment.findAll({
+                    where: {
+                        booking_id: bookingId,
+                    },
+                });
+                const remainingAmount = booking.total_cost - existingPayments.reduce((acc, payment) => acc + payment.amount, 0);
+                console.log(amount, booking.total_cost, remainingAmount);
+                if (amount === remainingAmount) {
                     booking.status = 2;
                     console.log("Thanh toán thành công");
                     await sendRoleBasedNotification(['admin', 'staff'], {

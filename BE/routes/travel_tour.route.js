@@ -69,7 +69,9 @@ router.get(
   // checkRoles(["admin", "staff"]),
   travelTourController.getTravelToursByStaffEndLocationWithBooking
 );
+router.get("/remind-upcoming", travelTourController.remindUpcomingTravelTours);
 
 router.get("/:id", travelTourController.getTravelTourById);
+
 
 module.exports = router;

@@ -9,11 +9,12 @@ import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
 import ModalQRPayment from "./ModalBookingCheckout/ModalPayment";
 import ModalPaymentSuccess from "./ModalBookingCheckout/ModalPaymentSuccess";
+import ModalPartialPayment from "./ModalBookingCheckout/ModalPartialPayment";
 
 // Import Modal từ react-modal
 Modal.setAppElement("#root");
 
-const BookingReConfirmation = ({ bookingData }) => {
+const BookingReConfirmation = ({ bookingData, paymentData, onRePaymentUpdate }) => {
   const navigate = useNavigate();
   const [booking, setBooking] = useState([]);
   const [travelTour, setTravelTour] = useState([]);
@@ -25,6 +26,11 @@ const BookingReConfirmation = ({ bookingData }) => {
   const [intervalId, setIntervalId] = useState(null);
   const [paymentKey, setPaymentKey] = useState("");
   const [qrSrc, setQrSrc] = useState("");
+  const [isPartialModalOpen, setIsPartialModalOpen] = useState(false);
+  const [partialPaymentInfo, setPartialPaymentInfo] = useState({
+    paidAmount: 0,
+    remaining: 0,
+  });
 
   const generateAddInfo = () => {
     const randomLetters = String.fromCharCode(
@@ -75,16 +81,25 @@ const BookingReConfirmation = ({ bookingData }) => {
     const key = generateAddInfo();
     setPaymentKey(key);
 
-    // const src = `https://img.vietqr.io/image/mbbank-0705897004-compact2.jpg?amount=${booking.total_cost}&addInfo=start${key}end&accountName=VietDuKy`;
-    const src = `https://img.vietqr.io/image/mbbank-0705897004-compact2.jpg?amount=2000&addInfo=start${key}end&accountName=VietDuKy`;
+    const src = `https://img.vietqr.io/image/mbbank-0705897004-compact2.jpg?amount=${paymentData}&addInfo=start${key}end&accountName=VietDuKy`;
+    // const src = `https://img.vietqr.io/image/mbbank-0705897004-compact2.jpg?amount=2000&addInfo=start${key}end&accountName=VietDuKy`;
     setQrSrc(src);
+
+    if (intervalId) {
+        clearInterval(intervalId);
+        setIntervalId(null);
+      }
+      setCountdown(600);
 
     setIsQRModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsQRModalOpen(false);
-    clearInterval(intervalId); // Dừng kiểm tra khi đóng modal
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
     setCountdown(600); // Reset đếm ngược
   };
 
@@ -105,16 +120,35 @@ const BookingReConfirmation = ({ bookingData }) => {
       customerId: bookingData?.user_id,
       paymentKey: paymentKey,
     };
-
+  
     try {
       const response = await PaymentService.checkPayment(paymentData);
       if (response?.status === 200) {
         setIsSuccessModalOpen(true);
+        setIsQRModalOpen(false);
         clearInterval(intervalId);
-        setCountdown(0); // Dừng đếm ngược khi thanh toán thành công
+        setIntervalId(null);
+        setCountdown(0);
+
+        onRePaymentUpdate?.();
       }
     } catch (error) {
-      console.error("Lỗi khi kiểm tra thanh toán:", error);
+      const res = error?.response;
+      if (res?.status === 500 && res?.data?.message === "Số tiền không khớp") {
+        setIsPartialModalOpen(true);
+        setIsQRModalOpen(false);
+        clearInterval(intervalId);
+        setIntervalId(null);
+        setCountdown(0);
+        
+        const paidAmount = res.data.amount;
+  
+        setPartialPaymentInfo({
+          paidAmount,
+          remaining: bookingData?.total_cost - paidAmount,
+        });
+        onRePaymentUpdate?.();
+      }
     }
   };
 
@@ -143,6 +177,9 @@ const BookingReConfirmation = ({ bookingData }) => {
       return () => clearTimeout(timer);
     }
   }, [isSuccessModalOpen]);
+
+  console.log("PaymentData:", paymentData);
+  
 
   return (
     <>
@@ -252,6 +289,7 @@ const BookingReConfirmation = ({ bookingData }) => {
         countdown={countdown}
         qrSrc={qrSrc}
         booking={booking}
+        paymentData={paymentData}
         onClose={handleCloseModal}
       />
 
@@ -263,6 +301,14 @@ const BookingReConfirmation = ({ bookingData }) => {
           setIsSuccessModalOpen(false);
           navigate(`/bookingReComplete?booking_code=${bookingData.booking_code}`);
         }}
+      />
+
+      {/* Modal thông báo chưa đủ tiền */}
+      <ModalPartialPayment
+        isOpen={isPartialModalOpen}
+        paidAmount={partialPaymentInfo.paidAmount}
+        remaining={paymentData}
+        onClose={() => setIsPartialModalOpen(false)}
       />
     </>
   );

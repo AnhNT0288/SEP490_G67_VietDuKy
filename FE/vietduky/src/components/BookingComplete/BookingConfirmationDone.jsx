@@ -95,7 +95,7 @@ const BookingConfirmationDone = ({ bookingData }) => {
             </div>
             <div className="flex justify-between text-sm font-semibold mb-2">
               <span>{formatTime(travelTour?.start_time_depart)}</span>
-              <span>{formatTime(travelTour?.start_time_close)}</span>
+              <span>{formatTime(travelTour?.end_time_depart)}</span>
             </div>
             <div className="relative mb-2">
               <div className="absolute -top-0.8 transforms -translate-y-1/3 w-2 h-2 bg-[#B1B1B1]" />

@@ -14,33 +14,32 @@ export default function BookingComplete() {
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("bookingResult"));
     if (stored) {
-      setBookingData(stored);
+      const fetchBookingData = async () => {
+        try {
+          const response = await BookingService.getBookingById(stored.data?.data?.id);
+          if (response?.data) {
+            setBookingData(response);
+          }
+        } catch (error) {
+          console.error("Error fetching booking data:", error);
+        }
+      };
       
       const fetchPaymentData = async () => {
         try {
-          const response = await PaymentService.getAllPayment();
-          const payments = response?.data?.data || [];
-  
-          // Tìm payment đúng bookingId
-          const matchedPayment = payments.find(
-            (payment) => payment.booking_id === stored.data?.data?.id
-          );
-  
-          if (matchedPayment) {
-            setPaymentData(matchedPayment);
-          } else {
-            console.warn("Không tìm thấy thanh toán cho booking này.");
-            setPaymentData(null); // Hoặc [] nếu bạn thích
-          }
+          const response = await PaymentService.getPaymentByBookingId(stored.data?.data?.id);
+            setPaymentData(response.data.data);
         } catch (error) {
           console.error("Lỗi lấy thông tin thanh toán:", error);
         }
       };
   
+      fetchBookingData();
       fetchPaymentData();
     }
   }, []);
   
+  const totalAmount = paymentData.reduce((total, item) => total + item.amount, 0);
 
   if (!bookingData) return <div>Không có dữ liệu xác nhận!</div>;
   
@@ -48,7 +47,7 @@ export default function BookingComplete() {
   const passengerData = bookingData.data?.passengers;
   // console.log("Dữ liệu xác nhận:", passengerData);
   console.log("BookingData:", data);
-  console.log("PaymentData:", paymentData);
+  console.log("PaymentDataComplete:", paymentData);
   
 
   return (
@@ -61,13 +60,13 @@ export default function BookingComplete() {
             CustomerListDone
           ].map((Component, index) => (
             <div key={index} className="bg-gray-50 rounded-xl">
-              <Component bookingData={data} passengerData={passengerData} paymentData={paymentData} />
+              <Component bookingData={data} passengerData={passengerData} paymentData={paymentData} totalAmount={totalAmount}/>
             </div>
           ))}
         </div>
 
         <div className="w-1/3 bg-white rounded-xl">
-          <BookingConfirmationDone bookingData={data} />
+          <BookingConfirmationDone bookingData={data} totalAmount={totalAmount} />
         </div>
       </div>
     </LayoutBookingTour>

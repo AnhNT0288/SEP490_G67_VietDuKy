@@ -26,6 +26,8 @@ export default function UpcomingBookingCard({ booking }) {
                 ? "text-blue-950"
                 : booking.status === 1
                 ? "text-green-600"
+                : booking.status === 2
+                ? "text-green-600"
                 : "text-red-800"
             } font-semibold`}
           >
