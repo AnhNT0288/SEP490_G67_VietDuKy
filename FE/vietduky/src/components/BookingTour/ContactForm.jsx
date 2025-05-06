@@ -35,7 +35,7 @@ const ContactForm = ({
 
     setFormData((prev) => ({
       ...prev,
-      travel_tour_id: travelTourData?.id || "",
+      travel_tour_id: travelTourData?.[0]?.id || "",
       number_adult: adults + passengers.adult,
       number_children: children + passengers.children,
       number_toddler: toddlers + passengers.toddler,
