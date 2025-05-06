@@ -443,6 +443,7 @@ exports.closeTourWhenFull = async (req, res) => {
 
 exports.getListTravelTourForGuide = async (req, res) => {
   try {
+    const { user_id } = req.params;
     const {
       page = 1,
       limit = 10,
@@ -450,7 +451,6 @@ exports.getListTravelTourForGuide = async (req, res) => {
       end_location_id,
       name_tour,
       start_day,
-      user_id,
     } = req.query;
 
     // Tạo điều kiện where cho Tour

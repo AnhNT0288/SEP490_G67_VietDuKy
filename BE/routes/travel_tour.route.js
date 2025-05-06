@@ -9,7 +9,7 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.get("/", travelTourController.getAllTravelTours);
-router.get("/guide", travelTourController.getListTravelTourForGuide);
+router.get("/guide/:user_id", travelTourController.getListTravelTourForGuide);
 // router.get("/:id", authenticateUser, travelTourController.getTravelTourById);
 router.get("/:id", travelTourController.getTravelTourById);
 router.post(
