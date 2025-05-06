@@ -10,6 +10,8 @@ const Passenger = db.Passenger;
 const Role = db.Role;
 const nodemailer = require("nodemailer");
 const TravelGuideLocation = db.TravelGuideLocation;
+const {NOTIFICATION_TYPE} = require("../constants");
+const {sendRoleBasedNotification, sendNotificationToUser} = require("../utils/sendNotification");
 const {Op} = require("sequelize");
 
 //Cấu hình nodemailer
@@ -318,7 +320,14 @@ exports.approveGuideTour = async (req, res) => {
         }
 
         // Tìm thông tin TravelGuide
-        const travelGuide = await TravelGuide.findByPk(guideTour.travel_guide_id);
+        const travelGuide = await TravelGuide.findByPk(guideTour.travel_guide_id, {
+            include: [
+                {
+                    model: User,
+                    as: "User",
+                },
+            ],
+        });
         if (!travelGuide) {
             return res
                 .status(200)
@@ -449,6 +458,16 @@ exports.approveGuideTour = async (req, res) => {
                 console.log("Email đã được gửi: " + info.response);
             }
         });
+        await sendNotificationToUser(
+            parseInt(travelGuide.user_id),
+            travelGuide.User.fcm_token,
+            {
+                title: "Yêu cầu đi tour đã được duyệt!",
+                type: NOTIFICATION_TYPE.GUIDE_TOUR_APPROVED,
+                id: guideTour.id,
+                body: travelTour.Tour.name_tour + ". Ngày khởi hành: " + travelTour.start_day
+            }
+        )
 
         res.status(200).json({
             message: "Duyệt hướng dẫn viên thành công và đã gửi email thông báo!",

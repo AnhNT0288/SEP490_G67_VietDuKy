@@ -166,7 +166,8 @@ const getLinkNotification = (notification) => {
   switch (notification?.type) {
     case "BOOKING":
       return `/booking`;
-
+    case "guide_tour_approved":
+      return `/travel-guide-tour`;
     default:
       return `#`;
   }
