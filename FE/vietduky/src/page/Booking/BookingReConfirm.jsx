@@ -49,7 +49,7 @@ export default function BookingReConfirm() {
       const data = response.data;
 
       if (data.data === 0) {
-        navigate("/bookingReComplete");
+        navigate(`/bookingReComplete?booking_code=${bookingData.data?.data?.data?.booking_code}`);
       } else {
         setPaymentData(data.data);
       }
@@ -62,6 +62,9 @@ export default function BookingReConfirm() {
 
   const data = bookingData.data?.data?.data;
   const passengerData = bookingData.data?.passengers;
+
+  console.log("Booking 1", bookingData);
+  
 
   return (
     <LayoutBookingTour title="Xác nhận tour">
