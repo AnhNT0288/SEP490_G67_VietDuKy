@@ -15,7 +15,7 @@ const FavouriteTourCard = ({
         <span className="text-white text-sm px-3 py-2.5 font-bold leading-tight">
           ✨ {type_tour}
         </span>
-        <div className="absolute -bottom-2 bg-red-900 -left-0 w-0 h-0 border-r-[8px] border-r-transparent border-b-[8px] border-b-white group-hover:border-b-gray-300 opacity-90" />{" "}
+        <div className="absolute -bottom-3 bg-red-900 -left-0 w-0 h-0 border-r-[8px] border-r-transparent border-b-[8px] border-b-white group-hover:border-b-gray-300 opacity-90" />{" "}
       </div>
       {/* Hình ảnh + Thời gian */}
       <div className="relative h-60 rounded-2xl overflow-hidden">

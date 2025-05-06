@@ -80,7 +80,7 @@ export default function LayoutLandingPage() {
       </div>
 
       {/* Image Slider */}
-      <div className="p-6 relative sm:w-full md:w-full lg:w-4/5 mx-auto h-[400px]  slider-wrapper">
+      {/* <div className="p-6 relative w-full mx-auto h-64  slider-wrapper">
         <Slider {...settings}>
           <div>
             <img
@@ -104,7 +104,7 @@ export default function LayoutLandingPage() {
             />
           </div>
         </Slider>
-      </div>
+      </div> */}
 
       {/* Tour nổi bật */}
       {/* <TopTours /> */}
