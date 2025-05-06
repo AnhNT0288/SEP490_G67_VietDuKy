@@ -270,6 +270,7 @@ exports.addGuideToTour = async (req, res) => {
                     "Hướng dẫn viên đã gửi yêu cầu tham gia tour này rồi! Vui lòng kiểm tra lại",
             });
         }
+        const travelGuide = await TravelGuide.findByPk(travel_guide_id);
 
         // Tạo mới yêu cầu tham gia tour
         const newGuideTour = await GuideTour.create({
@@ -280,6 +281,15 @@ exports.addGuideToTour = async (req, res) => {
 
         // Gửi email thông báo cho admin
         await sendAdminEmailRequestTravelTour(travelGuide, travelTour);
+        await sendRoleBasedNotification(
+            ["admin", "staff"],
+            {
+                title: "Có yêu cầu đi tour mới!",
+                type: NOTIFICATION_TYPE.GUIDE_TOUR_REQUEST,
+                id: newGuideTour.id,
+                body: travelGuide.first_name + " " + travelGuide.last_name + " đã gửi yêu cầu tham gia tour " + travelTour.Tour.name_tour
+            }
+        );
 
         res.status(201).json({
             message:

@@ -880,3 +880,49 @@ exports.closeTravelTour = async (req, res) => {
     });
   }
 };
+exports.completeTravelTour = async (req, res) => {
+  try {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const travelTours = await TravelTour.findAll({
+      where: {
+        start_day: {
+          [Op.lte]: today
+        },
+        end_time_close: {
+          [Op.lt]: now
+        },
+        status: 1 // Chỉ lấy những tour đang diễn ra
+      }
+    });
+
+    if (travelTours.length === 0) {
+      return res.status(200).json({
+        message: "Không có tour nào cần cập nhật trạng thái!"
+      });
+    }
+
+    // Cập nhật trạng thái của các tour
+    for (const travelTour of travelTours) {
+      travelTour.status = 2; // Cập nhật trạng thái thành hoàn thành
+      await travelTour.save();
+    }
+
+    res.status(200).json({
+      message: "Cập nhật trạng thái tour thành công!",
+      data: {
+        updatedTours: travelTours.length,
+        tours: travelTours
+      }
+    });
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái tour:", error);
+    res.status(500).json({
+      message: "Lỗi khi cập nhật trạng thái tour!",
+      error: error.message
+    });
+  }
+};
+
+
