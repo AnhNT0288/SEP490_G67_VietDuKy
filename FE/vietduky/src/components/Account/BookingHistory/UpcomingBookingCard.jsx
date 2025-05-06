@@ -63,7 +63,7 @@ export default function UpcomingBookingCard({ booking }) {
           onClick={() =>
             navigate(`/detail-booking-tour/${booking?.TravelTour?.Tour?.id}`)
           }
-          className="text-[#A80F21] font-semibold text-xl mb-2 cursor-pointer hover:text-red-600"
+          className="text-[#A80F21] font-semibold text-xl mb-2 cursor-pointer hover:text-red-600  hover:underline"
         >
           {booking?.TravelTour?.Tour?.name_tour || "Tên tour không có"}
         </h3>
