@@ -7,6 +7,7 @@ const User = db.User;
 const TravelGuide = db.TravelGuide;
 const GuideTour = db.GuideTour;
 const { Op, Sequelize } = require("sequelize");
+const TravelGuideLocation = db.TravelGuideLocation;
 
 //Lấy tất cả dữ liệu trong bảng travel tour
 exports.getAllTravelTours = async (req, res) => {
@@ -449,6 +450,7 @@ exports.getListTravelTourForGuide = async (req, res) => {
       end_location_id,
       name_tour,
       start_day,
+      user_id,
     } = req.query;
 
     // Tạo điều kiện where cho Tour
@@ -464,11 +466,25 @@ exports.getListTravelTourForGuide = async (req, res) => {
         [Op.like]: `%${name_tour}%`,
       };
     }
+    const travelGuide = await TravelGuide.findOne({
+      where: {
+        user_id,
+      },
+    });
+    const travelGuideLocation = await TravelGuideLocation.findAll({
+      where: {
+        travel_guide_id: travelGuide.id,
+      },
+    });
+    const locationIds = travelGuideLocation.map((loc) => loc.location_id);
+    
+    
 
     // Tạo điều kiện where cho TravelTour
     const travelTourWhereCondition = {
       status: 0,
       active: 1,
+      end_location: { [Sequelize.Op.in]: locationIds },
     };
 
     if (start_day) {
