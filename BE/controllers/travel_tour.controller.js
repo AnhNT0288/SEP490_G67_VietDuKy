@@ -477,12 +477,21 @@ exports.getListTravelTourForGuide = async (req, res) => {
         travel_guide_id: travelGuide.id,
       },
     });
+    const existingGuideTour = await GuideTour.findAll({
+      where: {
+        travel_guide_id: travelGuide.id,
+      },
+    });
     const locationIds = travelGuideLocation.map((loc) => loc.location_id);
+    const existingTourIds = existingGuideTour.map(gt => gt.travel_tour_id);
 
     // Tạo điều kiện where cho TravelTour
     const travelTourWhereCondition = {
       status: 0,
-      active: 1
+      active: 1,
+      id: {
+        [Op.notIn]: existingTourIds
+      }
     };
 
     // Thêm điều kiện end_location vào tourWhereCondition
