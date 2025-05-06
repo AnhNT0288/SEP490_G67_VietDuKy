@@ -8,6 +8,8 @@ const TravelGuide = db.TravelGuide;
 const GuideTour = db.GuideTour;
 const { Op, Sequelize } = require("sequelize");
 const TravelGuideLocation = db.TravelGuideLocation;
+const { NOTIFICATION_TYPE } = require("../constants");
+const { sendNotificationToUser } = require("../utils/sendNotification");
 
 //Lấy tất cả dữ liệu trong bảng travel tour
 exports.getAllTravelTours = async (req, res) => {
@@ -925,4 +927,53 @@ exports.completeTravelTour = async (req, res) => {
   }
 };
 
-
+exports.cancelTravelTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const travelTour = await TravelTour.findByPk(id);
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy tour du lịch!" });
+    }
+    if (travelTour.status !== 1 || travelTour.status !== 0) {
+      return res.status(400).json({ message: "Tour du lịch không đang diễn ra!" });
+    }
+    const tour = await Tour.findByPk(travelTour.tour_id);
+    const bookings = await Booking.findAll({
+      where: {
+        travel_tour_id: travelTour.id
+      }
+    });
+    if (bookings.length > 0) {
+      const notifiedUsers = new Set(); // Tạo Set để theo dõi các user đã được gửi thông báo
+      for (const booking of bookings) {
+        const user = await User.findByPk(booking.user_id);
+        // Chỉ gửi thông báo nếu user chưa được thông báo
+        if (!notifiedUsers.has(user.id)) {
+          await sendNotificationToUser(
+            parseInt(user.id),
+            user.fcm_token,
+            {
+              title: "Tour du lịch đã bị hủy!",
+              type: NOTIFICATION_TYPE.TOUR_CANCELLED,
+              id: travelTour.id,
+              body: tour.name_tour + ", ngày khởi hành: " + travelTour.start_day + " đã bị huỷ. Vui lòng liên hệ với nhân viên để được hoàn tiền. Xin chân thành xin lỗi vì sự bất tiện này."
+            }
+          );
+          notifiedUsers.add(user.id); // Thêm user vào danh sách đã thông báo
+        }
+        booking.status = 3;
+        await booking.save();
+      }
+    }
+    travelTour.status = 3;
+    await travelTour.save();
+    res.status(200).json({
+      message: "Hủy tour du lịch thành công!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi hủy tour du lịch!",
+      error: error.message
+    });
+  }
+};

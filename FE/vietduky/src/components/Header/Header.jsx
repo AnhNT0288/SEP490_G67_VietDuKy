@@ -276,6 +276,8 @@ const getLinkNotification = (notification) => {
       return `/booking`;
     case "booking_detail":
       return `/bookingHistory`;
+    case "tour_cancelled":
+      return `/bookingHistory`;
     default:
       return `#`;
   }

@@ -1018,7 +1018,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                 .status(200)
                 .json({message: "Không tìm thấy lịch khởi hành!"});
         }
-
+        const tour = await Tour.findByPk(travelTour.tour_id);
         // Lấy danh sách hướng dẫn viên của tour
         const existingGuideTours = await GuideTour.findAll({
             where: {
@@ -1088,6 +1088,12 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                         [Op.notIn]: existingGuideTours.map(gt => gt.travel_guide_id)
                     }
                 },
+                include: [
+                    {
+                        model: User,
+                        as: "user",
+                    },
+                ],
                 limit: needMoreGuides
             });
 
@@ -1098,6 +1104,16 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                     travel_guide_id: travelGuide.id,
                     status: 1, // Tự động duyệt
                 });
+                await sendNotificationToUser(
+                    parseInt(travelGuide.user_id),
+                    travelGuide.user.fcm_token,
+                    {
+                        title: "Bạn đã được phân công vào tour!",
+                        type: NOTIFICATION_TYPE.GUIDE_TOUR_ASSIGNED,
+                        id: travelGuide.id,
+                        body: tour.name_tour + ". Ngày khởi hành: " + travelTour.start_day
+                    }
+                )
             }
 
             // Lấy lại danh sách guideTour sau khi thêm mới
@@ -1608,6 +1624,12 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
         const travelGuideIds = guides.map((guide) => guide.travel_guide_id);
         const travelGuides = await db.TravelGuide.findAll({
             where: {id: travelGuideIds},
+            include: [
+                {
+                    model: db.User,
+                    as: "user",
+                },
+            ],
         });
 
         if (travelGuides.length !== guides.length) {
@@ -1843,6 +1865,18 @@ exports.assignTravelGuidesToTravelTour = async (req, res) => {
                     console.log("Email đã được gửi: " + info.response);
                 }
             });
+            console.log("guide.user_id", guide.user_id);
+            console.log("guide.user.fcm_token", guide.user.fcm_token);
+        await sendNotificationToUser(
+            parseInt(guide.user_id),
+            guide.user.fcm_token,
+            {
+                title: "Bạn đã được phân công vào tour!",
+                type: NOTIFICATION_TYPE.GUIDE_TOUR_ASSIGNED,
+                id: guide.id,
+                body: travelTour.Tour.name_tour + ". Ngày khởi hành: " + travelTour.start_day
+            }
+        )
         }
 
         res.status(200).json({

@@ -168,6 +168,8 @@ const getLinkNotification = (notification) => {
       return `/booking`;
     case "guide_tour_approved":
       return `/travel-guide-tour`;
+    case "guide_tour_assigned":
+      return `/travel-guide-tour`;
     default:
       return `#`;
   }
