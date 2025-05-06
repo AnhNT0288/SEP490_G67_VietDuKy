@@ -15,6 +15,10 @@ router.get(
     BookingController.paymentBookingRemind
 );
 router.get(
+    "/booking-detail/:id",
+    BookingController.getDetailBooking
+);
+router.get(
     "/upcoming-tour",
     BookingController.remindUpcomingTour
 );

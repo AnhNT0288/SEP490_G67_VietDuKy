@@ -14,6 +14,8 @@ const nodemailer = require("nodemailer");
 const path = require("path");
 const dotenv = require("dotenv");
 const Payment = db.Payment;
+const GuideTour = db.GuideTour;
+const TravelGuide = db.TravelGuide;
 dotenv.config();
 
 const {Op} = require("sequelize");
@@ -1318,7 +1320,7 @@ exports.remindUpcomingTour = async (req, res) => {
                 }
             )
         }
-f
+
         res.status(200).json({
             message: "Đã gửi thông báo tour sắp đến thành công!",
             count: bookings.length
@@ -1329,7 +1331,95 @@ f
             error: error.message
         });
     }
-}; 
+};
+
+exports.getDetailBooking = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const booking = await Booking.findByPk(id, {
+            include: [
+                {model: User}, 
+                {
+                    model: TravelTour, 
+                    include: [
+                        {model: Tour},
+                        {
+                            model: GuideTour,
+                            include: [
+                                {
+                                    model: TravelGuide,
+                                    include: [
+                                        {model: User, as: 'user'},
+                                        {model: User, as: 'staff'}
+                                    ],
+                                    as: 'travelGuide'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: Passenger,
+                    as: 'passengers'
+                }
+            ]
+        });
+
+        if (!booking) {
+            return res.status(404).json({
+                message: "Không tìm thấy booking!"
+            });
+        }
+
+        // Nhóm passenger theo group của GuideTour
+        const passengersByGroup = {};
+        if (booking.TravelTour && booking.TravelTour.GuideTours) {
+            // Tạo các nhóm từ GuideTour
+            booking.TravelTour.GuideTours.forEach(guideTour => {
+                if (guideTour.group) {
+                    passengersByGroup[guideTour.group] = {
+                        guide: guideTour.travelGuide,
+                        passengers: []
+                    };
+                }
+            });
+        }
+
+        // Thêm passenger vào nhóm tương ứng
+        if (booking.passengers) {
+            booking.passengers.forEach(passenger => {
+                if (passenger.group && passengersByGroup[passenger.group]) {
+                    passengersByGroup[passenger.group].passengers.push(passenger);
+                } else {
+                    // Nếu passenger không có group hoặc group không tồn tại
+                    if (!passengersByGroup['unassigned']) {
+                        passengersByGroup['unassigned'] = {
+                            guide: null,
+                            passengers: []
+                        };
+                    }
+                    passengersByGroup['unassigned'].passengers.push(passenger);
+                }
+            });
+        }
+
+        // Format lại dữ liệu trả về
+        const formattedBooking = {
+            ...booking.toJSON(),
+            passengersByGroup
+        };
+
+        res.status(200).json({
+            message: "Lấy thông tin booking thành công!",
+            data: formattedBooking
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy thông tin booking!",
+            error: error.message
+        });
+    }
+}
 
 // exports.remindExpiredBooking = async (req, res) => {
 //     try {
