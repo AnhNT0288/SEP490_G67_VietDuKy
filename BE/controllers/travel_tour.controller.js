@@ -454,7 +454,7 @@ exports.getListTravelTourForGuide = async (req, res) => {
     } = req.query;
 
     // Tạo điều kiện where cho Tour
-    const tourWhereCondition = {};
+    let tourWhereCondition = {};
     if (start_location_id) {
       tourWhereCondition.start_location = start_location_id;
     }
@@ -466,6 +466,7 @@ exports.getListTravelTourForGuide = async (req, res) => {
         [Op.like]: `%${name_tour}%`,
       };
     }
+
     const travelGuide = await TravelGuide.findOne({
       where: {
         user_id,
@@ -477,14 +478,16 @@ exports.getListTravelTourForGuide = async (req, res) => {
       },
     });
     const locationIds = travelGuideLocation.map((loc) => loc.location_id);
-    
-    
 
     // Tạo điều kiện where cho TravelTour
     const travelTourWhereCondition = {
       status: 0,
-      active: 1,
-      end_location: { [Sequelize.Op.in]: locationIds },
+      active: 1
+    };
+
+    // Thêm điều kiện end_location vào tourWhereCondition
+    tourWhereCondition.end_location = {
+      [Op.in]: locationIds
     };
 
     if (start_day) {
