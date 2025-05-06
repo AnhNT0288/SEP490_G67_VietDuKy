@@ -20,11 +20,16 @@ export default function ManagementLocation() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const totalPages = Math.ceil(locations.length / locationsPerPage);
+  const filteredLocations = locations.filter((location) =>
+      location.name_location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredLocations.length / locationsPerPage);
   const indexOfLastLocation = currentPage * locationsPerPage;
   const indexOfFirstLocation = indexOfLastLocation - locationsPerPage;
-  const currentLocations = locations.slice(indexOfFirstLocation, indexOfLastLocation);
+  const currentLocations = filteredLocations.slice(indexOfFirstLocation, indexOfLastLocation);
 
   const toggleDropdown = (id) => {
     setOpenDropdown(openDropdown === id ? null : id);
@@ -93,6 +98,7 @@ export default function ManagementLocation() {
     };
   }, []);
 
+
   return (
       <div title="Quản lý vị trí">
         <div className="overflow-visible">
@@ -103,6 +109,8 @@ export default function ManagementLocation() {
                   type="text"
                   placeholder="Tìm kiếm bằng từ khóa"
                   className="pl-10 pr-4 py-2 border rounded-md w-1/3"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 

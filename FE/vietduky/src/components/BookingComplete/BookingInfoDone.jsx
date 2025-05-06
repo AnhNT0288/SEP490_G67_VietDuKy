@@ -8,8 +8,12 @@ const BookingInfoDone = ({ bookingData, paymentData }) => {
     paymentDeadline.setDate(bookingDateObj.getDate() + 15);
     return paymentDeadline.toLocaleDateString("vi-VN");
   };
+  const totalAmount = paymentData.reduce((total, item) => total + item.amount, 0);
 
-  const isPaid = paymentData?.amount > 0;
+  console.log("PaymentData:", paymentData);
+  
+
+  const isPaid = totalAmount === bookingData?.total_cost;
 
   return (
     <div className="p-6 bg-[#f8f8f8] rounded-lg border border-gray-300 shadow-md">
@@ -34,7 +38,7 @@ const BookingInfoDone = ({ bookingData, paymentData }) => {
         </div>
         <div className="flex justify-between">
           <div className="text-gray-900 font-bold">Số tiền đã thanh toán:</div>
-          <div className="text-gray-900 font-bold">{paymentData?.amount?.toLocaleString("vi-VN", {
+          <div className="text-gray-900 font-bold">{totalAmount?.toLocaleString("vi-VN", {
             style: "currency",
             currency: "VND",
           }) || "0 ₫"}</div>

@@ -20,7 +20,7 @@ const RelatedTourCard = ({
       onClick={() => navigate(`/tour/${id}`)}
     >
       {/* Ribbon label */}
-      <div className="absolute z-10 flex flex-col items-center -left-0 bg-red-800 shadow-md">
+      <div className="absolute z-10 flex flex-col items-center -left-0 top-5 bg-red-800 shadow-md">
         <span className="text-white text-sm px-3 py-2.5 font-bold leading-tight">
           ✨ {typeTour?.name_type || "Mặc định"}
         </span>

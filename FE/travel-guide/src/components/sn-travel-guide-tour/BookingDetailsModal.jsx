@@ -145,7 +145,7 @@ const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
             <XIcon className="w-5 h-5" />
           </button>
         </div>{" "}
-        <div className="grid grid-cols-4 gap-5 mb-5">
+        <div className="grid grid-cols-4 gap-5 mb-2">
           <div className="flex flex-col gap-1">
             <label className="text-md font-medium">Mã đặt Tour</label>
             <input

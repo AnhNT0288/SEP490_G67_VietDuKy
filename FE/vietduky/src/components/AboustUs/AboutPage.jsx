@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import { useSearchParams } from "react-router-dom";
+import TermsVietDuKy from "./Terms";
 
 export default function AboutPage() {
   const [searchParams] = useSearchParams();
@@ -190,57 +191,7 @@ export default function AboutPage() {
             )}
             {activeTab === "dieu-khoan" && (
               <div className="space-y-4 text-gray-800">
-                <h2 className="text-2xl font-bold text-red-600">
-                  Điều khoản thỏa thuận sử dụng dịch vụ du lịch nội địa
-                </h2>
-
-                <p>
-                  <strong>1. Quy định chung:</strong> Việt Du Ký là nền tảng
-                  cung cấp dịch vụ đặt tour du lịch nội địa trực tuyến, kết nối
-                  khách hàng với các đối tác tổ chức tour uy tín trên khắp Việt
-                  Nam.
-                </p>
-
-                <p>
-                  <strong>2. Điều kiện bán vé:</strong> Việc đặt tour được thực
-                  hiện qua website hoặc các kênh hỗ trợ chính thức. Thanh toán
-                  có thể bằng chuyển khoản, ví điện tử hoặc thẻ tín dụng. Việc
-                  hủy tour, hoàn tiền phụ thuộc vào điều kiện riêng từng tour và
-                  sẽ được hỗ trợ tối đa trong trường hợp bất khả kháng.
-                </p>
-
-                <p>
-                  <strong>3. Trách nhiệm của các bên:</strong> Việt Du Ký đảm
-                  bảo thông tin minh bạch, hỗ trợ khách hàng tận tình và bảo mật
-                  dữ liệu cá nhân. Khách hàng cần cung cấp thông tin chính xác
-                  và tuân thủ quy định của từng tour.
-                </p>
-
-                <p>
-                  <strong>4. Bảo vệ dữ liệu cá nhân:</strong> Dữ liệu của khách
-                  hàng được thu thập, lưu trữ và sử dụng theo đúng quy định tại
-                  Nghị định 13/2023/NĐ-CP. Khách hàng có quyền yêu cầu truy cập,
-                  chỉnh sửa hoặc xóa thông tin cá nhân.
-                </p>
-
-                <p>
-                  <strong>5. Thay đổi điều khoản:</strong> Việt Du Ký có quyền
-                  cập nhật nội dung điều khoản, và sẽ thông báo công khai trên
-                  nền tảng. Việc tiếp tục sử dụng dịch vụ sau khi điều khoản
-                  được cập nhật đồng nghĩa với việc chấp nhận các thay đổi.
-                </p>
-
-                <p className="pt-2">
-                  Mọi thắc mắc xin liên hệ qua hotline{" "}
-                  <strong>1900 1870</strong> hoặc email{" "}
-                  <a
-                    href="mailto:contact@vietduky.vn"
-                    className="text-blue-600 hover:underline"
-                  >
-                    contact@vietduky.vn
-                  </a>
-                  .
-                </p>
+                <TermsVietDuKy />
               </div>
             )}
           </section>

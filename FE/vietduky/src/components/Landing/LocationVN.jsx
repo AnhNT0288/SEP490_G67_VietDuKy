@@ -1,9 +1,21 @@
 import { LocationService } from "@/services/API/location.service";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function LocationVN() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const handleLocationClick = (locationName) => {
+    navigate("/listTour", {
+      state: {
+        destination: locationName,
+        departure: "Tất cả",
+        date: "",
+      },
+    });
+  };
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -46,13 +58,14 @@ export default function LocationVN() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-rows-2 sm:grid-cols-3 md:grid-rows-2 md:grid-cols-3 lg:grid-cols-3 md:gap-6 gap-2 mt-6">
-        {randomLocations.map((place, index) => {
+          {randomLocations.map((place, index) => {
             // Tạo số lượng hành trình ngẫu nhiên cho mỗi địa điểm
             const randomTrips = Math.floor(Math.random() * 50) + 1;
 
             return (
               <div
                 key={index}
+                onClick={() => handleLocationClick(place.name_location)}
                 className={`relative group overflow-hidden cursor-pointer ${
                   index === 0 ? "row-span-2" : ""
                 }`}

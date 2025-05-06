@@ -10,20 +10,19 @@ const ModalPaymentSuccess = ({ isOpen, onClose, booking }) => {
 
   useEffect(() => {
     const fetchPaymentInfo = async () => {
+      if (!booking?.id) return;
       try {
-        const response = await PaymentService.getPaymentByBookingId(
-          booking?.id
-        );
+        const response = await PaymentService.getPaymentByBookingId(booking.id);
         setPaymentInfo(response.data.data);
       } catch (error) {
         console.error("Error fetching payment info:", error);
       }
     };
-
+  
     fetchPaymentInfo();
-  }, []);
+  }, [booking?.id]);
 
-  // console.log("BookingData:", booking);
+  console.log("BookingData:", booking?.id);
 
   // console.log("Payment Info:", paymentInfo);
 

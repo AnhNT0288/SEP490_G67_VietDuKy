@@ -230,11 +230,11 @@ export default function ModalAddServiceForTravelTourIsBooking({ tour, onClose })
                         >
                             Hủy
                         </button>
-                        <button
+                        {/* <button
                             className="bg-red-700 text-white px-4 py-2 rounded-md"
                         >
                             Xác nhận
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             </div>

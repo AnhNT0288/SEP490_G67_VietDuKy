@@ -6,9 +6,9 @@ export const exportTemplate = () => {
     {
       "Họ tên": "Nguyễn Văn A",
       "Số điện thoại": "0xxx-xxxx-xxx",
-      "Giới tính": "Nam",
-      "Ngày sinh": "DD/MM/YYYY",
-      "Phòng đơn": "Không",
+      "Giới tính": "Nam/Nữ",
+      "Ngày sinh": "YYYY/MM/DD",
+      "Phòng đơn": "Có/Không",
     },
   ];
 

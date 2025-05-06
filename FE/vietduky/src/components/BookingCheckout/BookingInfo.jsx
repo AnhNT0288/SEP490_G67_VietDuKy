@@ -1,13 +1,16 @@
 import { formatDate } from '@/utils/dateUtil';
 import React from 'react';
 
-const BookingInfo = ({ bookingData }) => {
+const BookingInfo = ({ bookingData, paymentData }) => {
   const getPaymentDeadline = (bookingDate) => {
     const bookingDateObj = new Date(bookingDate);
     const paymentDeadline = new Date(bookingDateObj);
     paymentDeadline.setDate(bookingDateObj.getDate() + 15);
     return paymentDeadline.toLocaleDateString("vi-VN");
   };
+
+  console.log("PaymentData:", paymentData);
+  
 
   return (
     <div className="p-6 bg-[#f8f8f8] rounded-lg border border-gray-300 shadow-md">
@@ -36,7 +39,10 @@ const BookingInfo = ({ bookingData }) => {
         </div> */}
         <div className="flex justify-between">
           <div className="text-gray-900 font-bold">Số tiền đã thanh toán:</div>
-          <div className="text-gray-900 font-bold">0 ₫</div>
+          <div className="text-gray-900 font-bold">{(bookingData?.total_cost - paymentData).toLocaleString("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          })}</div>
         </div>
         <div className="flex justify-between">
           <div className="text-gray-900 font-bold">Tình trạng:</div>

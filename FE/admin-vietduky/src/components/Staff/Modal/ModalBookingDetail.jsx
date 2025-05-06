@@ -31,12 +31,12 @@ import { Pagination } from "react-bootstrap";
 const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
   const [search, setSearch] = useState("");
   const [openAddCustomerInfoModal, setOpenAddCustomerInfoModal] =
-      useState(false);
+    useState(false);
   const [bookingDetail, setBookingDetail] = useState(null);
   const [openDeleteCustomerModal, setOpenDeleteCustomerModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
   const [openUpdateCustomerInfoModal, setOpenUpdateCustomerInfoModal] =
-      useState(false);
+    useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -50,7 +50,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
     note: "",
   });
   const totalPage = Math.ceil(
-      bookingDetail?.passengers.length / pagination.limit
+    bookingDetail?.passengers.length / pagination.limit
   );
 
   const handlePagination = (type) => {
@@ -63,23 +63,23 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
 
   const validatePassenger = (passengers, newPassenger) => {
     const countByType = (type) =>
-        passengers.filter((p) => p.age_type === type).length +
-        (newPassenger?.age_type === type ? 1 : 0);
+      passengers.filter((p) => p.age_type === type).length +
+      (newPassenger?.age_type === type ? 1 : 0);
 
     const totalCount = passengers.length + (newPassenger ? 1 : 0);
 
     const validAdult =
-        countByType("adult") <= (bookingDetail?.number_adult || 0);
+      countByType("adult") <= (bookingDetail?.number_adult || 0);
     const validChild =
-        countByType("child") <= (bookingDetail?.number_children || 0);
+      countByType("child") <= (bookingDetail?.number_children || 0);
     const validToddler =
-        countByType("toddler") <= (bookingDetail?.number_toddler || 0);
+      countByType("toddler") <= (bookingDetail?.number_toddler || 0);
     const validNewborn =
-        countByType("newborn") <= (bookingDetail?.number_newborn || 0);
+      countByType("newborn") <= (bookingDetail?.number_newborn || 0);
 
     const validTotal =
-        totalCount <=
-        (bookingDetail?.number_adult || 0) +
+      totalCount <=
+      (bookingDetail?.number_adult || 0) +
         (bookingDetail?.number_children || 0) +
         (bookingDetail?.number_toddler || 0) +
         (bookingDetail?.number_newborn || 0);
@@ -94,7 +94,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
 
     return {
       isValid:
-          validAdult && validChild && validToddler && validNewborn && validTotal,
+        validAdult && validChild && validToddler && validNewborn && validTotal,
       messageError,
     };
   };
@@ -109,7 +109,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
     setBookingDetail((prev) => ({
       ...prev,
       passengers: prev.passengers.filter(
-          (passenger) => passenger.id !== customerToDelete.id
+        (passenger) => passenger.id !== customerToDelete.id
       ),
     }));
   };
@@ -118,7 +118,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
     setBookingDetail((prev) => ({
       ...prev,
       passengers: prev.passengers.map((passenger) =>
-          passenger.id === customer.id ? customer : passenger
+        passenger.id === customer.id ? customer : passenger
       ),
     }));
   };
@@ -158,7 +158,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
       console.log(error);
     }
   };
-  console.log(bookingDetail?.passengers);
+
   const handleUpdateBooking = async () => {
     try {
       const validate = validatePassenger(bookingDetail.passengers);
@@ -191,7 +191,13 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
     const fetchBooking = async () => {
       const response = await getBookingById(booking?.id);
       if (response.status === 200) {
-        setBookingDetail(response.data.data);
+        const passengers = response.data.data.passengers.map((passenger) => ({
+          ...passenger,
+          age_type: passenger.birth_date
+            ? getAgeType(passenger.birth_date)
+            : "",
+        }));
+        setBookingDetail({ ...response.data.data, passengers });
         setUpdateInfoCustomer({
           name: response.data.data?.name,
           phone: response.data.data?.phone,
@@ -207,104 +213,104 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
   if (!open) return null;
 
   return (
-      <div className="fixed inset-0 z-30 bg-black/40 flex items-center justify-center">
-        <div className="bg-white w-[90%] h-[90vh] max-w-7xl rounded-2xl p-6 overflow-auto shadow-xl flex flex-col">
-          <div className="flex justify-between items-start mb-2">
-            <h2 className="text-xl font-semibold">Thông tin chi tiết</h2>
-            <button
-                className="text-gray-500 hover:text-black"
-                onClick={handleClose}
-            >
-              <XIcon className="w-5 h-5" />
-            </button>
-          </div>{" "}
-          <div className="grid grid-cols-4 gap-5 mb-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-md font-medium">Mã đặt Tour</label>
-              <input
-                  type="text"
-                  className="w-full rounded-md border border-gray-300 p-2"
-                  value={booking?.booking_code}
-                  disabled
+    <div className="fixed inset-0 z-30 bg-black/40 flex items-center justify-center">
+      <div className="bg-white w-[90%] h-[90vh] max-w-7xl rounded-2xl p-6 overflow-auto shadow-xl flex flex-col">
+        <div className="flex justify-between items-start mb-2">
+          <h2 className="text-xl font-semibold">Thông tin chi tiết</h2>
+          <button
+            className="text-gray-500 hover:text-black"
+            onClick={handleClose}
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        </div>{" "}
+        <div className="grid grid-cols-4 gap-5 mb-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-md font-medium">Mã đặt Tour</label>
+            <input
+              type="text"
+              className="w-full rounded-md border border-gray-300 p-2"
+              value={booking?.booking_code}
+              disabled
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-md font-medium">Ngày đặt</label>
+            <input
+              type="text"
+              className="w-full rounded-md border border-gray-300 p-2"
+              value={booking?.booking_date}
+              disabled
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-md font-medium">Tên người đặt</label>
+            <input
+              type="text"
+              className="w-full rounded-md border border-gray-300 p-2"
+              value={updateInfoCustomer.name}
+              onChange={(e) =>
+                setUpdateInfoCustomer({
+                  ...updateInfoCustomer,
+                  name: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-md font-medium">Số điện thoại</label>
+            <input
+              type="text"
+              className="w-full rounded-md border border-gray-300 p-2"
+              value={updateInfoCustomer.phone}
+              onChange={(e) =>
+                setUpdateInfoCustomer({
+                  ...updateInfoCustomer,
+                  phone: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1 col-span-4">
+            <label className="text-md font-medium">Ghi chú</label>
+            <textarea
+              type="text"
+              className="w-full rounded-md border border-gray-300 p-2"
+              value={updateInfoCustomer.note}
+              onChange={(e) =>
+                setUpdateInfoCustomer({
+                  ...updateInfoCustomer,
+                  note: e.target.value,
+                })
+              }
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-5 flex-1">
+          <h2 className="text-xl font-semibold">Danh sách khách hàng</h2>
+          <div className="flex flex-row justify-between items-center">
+            <div>
+              <SearchDebounceInput
+                placeholder="Tìm kiếm khách hàng"
+                onChange={(value) => {
+                  setSearch(value);
+                }}
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-md font-medium">Ngày đặt</label>
-              <input
-                  type="text"
-                  className="w-full rounded-md border border-gray-300 p-2"
-                  value={booking?.booking_date}
-                  disabled
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-md font-medium">Tên người đặt</label>
-              <input
-                  type="text"
-                  className="w-full rounded-md border border-gray-300 p-2"
-                  value={updateInfoCustomer.name}
-                  onChange={(e) =>
-                      setUpdateInfoCustomer({
-                        ...updateInfoCustomer,
-                        name: e.target.value,
-                      })
-                  }
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-md font-medium">Số điện thoại</label>
-              <input
-                  type="text"
-                  className="w-full rounded-md border border-gray-300 p-2"
-                  value={updateInfoCustomer.phone}
-                  onChange={(e) =>
-                      setUpdateInfoCustomer({
-                        ...updateInfoCustomer,
-                        phone: e.target.value,
-                      })
-                  }
-              />
-            </div>
-            <div className="flex flex-col gap-1 col-span-4">
-              <label className="text-md font-medium">Ghi chú</label>
-              <textarea
-                  type="text"
-                  className="w-full rounded-md border border-gray-300 p-2"
-                  value={updateInfoCustomer.note}
-                  onChange={(e) =>
-                      setUpdateInfoCustomer({
-                        ...updateInfoCustomer,
-                        note: e.target.value,
-                      })
-                  }
-              />
+            <div className="gap-1 flex justify-end items-center">
+              <ImportExcelButton onFileSelect={handleExcelUploadAddCustomer} />
+              <button
+                className="bg-[#A80F21] text-white px-4 py-2 rounded-md whitespace-nowrap"
+                onClick={() => setOpenAddCustomerInfoModal(true)}
+              >
+                Thêm thông tin khách hàng
+              </button>
             </div>
           </div>
-          <div className="flex flex-col gap-5 flex-1">
-            <h2 className="text-xl font-semibold">Danh sách khách hàng</h2>
-            <div className="flex flex-row justify-between items-center">
-              <div>
-                <SearchDebounceInput
-                    placeholder="Tìm kiếm khách hàng"
-                    onChange={(value) => {
-                      setSearch(value);
-                    }}
-                />
-              </div>
-              <div className="gap-1 flex justify-end items-center">
-                <ImportExcelButton onFileSelect={handleExcelUploadAddCustomer} />
-                <button
-                    className="bg-[#A80F21] text-white px-4 py-2 rounded-md whitespace-nowrap"
-                    onClick={() => setOpenAddCustomerInfoModal(true)}
-                >
-                  Thêm thông tin khách hàng
-                </button>
-              </div>
-            </div>
-            <div>
-              <div className="flex-1 overflow-y-auto min-h-[280px]">
-                <table className="w-full">
-                  <thead>
+          <div>
+            <div className="flex-1 overflow-y-auto min-h-[280px]">
+              <table className="w-full">
+                <thead>
                   <tr className="text-left">
                     <th>Họ và tên khách hàng</th>
                     <th>Ngày sinh</th>
@@ -315,161 +321,161 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
                     <th className="text-center">Phòng đơn</th>
                     <th className="text-center">Thao tác</th>
                   </tr>
-                  </thead>
-                  <tbody className="h-fit">
+                </thead>
+                <tbody className="h-fit">
                   {bookingDetail?.passengers
-                      ?.filter((customer) =>
-                          customer.name.toLowerCase().includes(search.toLowerCase())
-                      )
-                      .slice(
-                          (pagination.page - 1) * pagination.limit,
-                          pagination.page * pagination.limit
-                      )
-                      .map((customer) => (
-                          <tr key={customer.id} className="text-left">
-                            <td>{customer.name}</td>
-                            <td>{customer.birth_date}</td>
-                            <td>{customer.gender ? "Nam" : "Nữ"}</td>
-                            <td>{getAgeTypeLabel(customer.age_type)}</td>
-                            <td>{customer.phone_number}</td>
-                            <td>{customer.passport_number}</td>
-                            <td>
-                              {customer.single_room ? (
-                                  <CheckSquare className="text-blue-500 mx-auto" />
-                              ) : (
-                                  <Square className="mx-auto" />
-                              )}
-                            </td>
-                            <td className="flex gap-2 justify-center">
-                              <Pencil
-                                  className="w-4 h-4 cursor-pointer"
-                                  onClick={() => {
-                                    setCustomerToUpdate(customer);
-                                    setOpenUpdateCustomerInfoModal(true);
-                                  }}
-                              />
-                              <Trash
-                                  className="w-4 h-4 cursor-pointer text-[#A80F21]"
-                                  onClick={() => handleDeleteCustomer(customer)}
-                              />
-                            </td>
-                          </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="flex justify-end items-center">
-                <button
-                    className={`px-4 py-2 rounded-md whitespace-nowrap ${
-                        pagination.page === 1 ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    onClick={() => handlePagination("prev")}
-                    disabled={pagination.page === 1}
-                >
-                  <ChevronLeft />
-                </button>
-                <button
-                    className={`px-4 py-2 rounded-md whitespace-nowrap ${
-                        pagination.page === totalPage
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                    }`}
-                    onClick={() => handlePagination("next")}
-                    disabled={pagination.page === totalPage}
-                >
-                  <ChevronRight />
-                </button>
-              </div>
+                    ?.filter((customer) =>
+                      customer.name.toLowerCase().includes(search.toLowerCase())
+                    )
+                    .slice(
+                      (pagination.page - 1) * pagination.limit,
+                      pagination.page * pagination.limit
+                    )
+                    .map((customer) => (
+                      <tr key={customer.id} className="text-left">
+                        <td>{customer.name}</td>
+                        <td>{customer.birth_date}</td>
+                        <td>{customer.gender ? "Nam" : "Nữ"}</td>
+                        <td>{getAgeTypeLabel(customer.age_type)}</td>
+                        <td>{customer.phone_number}</td>
+                        <td>{customer.passport_number}</td>
+                        <td>
+                          {customer.single_room ? (
+                            <CheckSquare className="text-blue-500 mx-auto" />
+                          ) : (
+                            <Square className="mx-auto" />
+                          )}
+                        </td>
+                        <td className="flex gap-2 justify-center">
+                          <Pencil
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => {
+                              setCustomerToUpdate(customer);
+                              setOpenUpdateCustomerInfoModal(true);
+                            }}
+                          />
+                          <Trash
+                            className="w-4 h-4 cursor-pointer text-[#A80F21]"
+                            onClick={() => handleDeleteCustomer(customer)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
 
-            <div className="flex flex-row items-center space-x-4">
-              <p className="text-md font-medium">
-                Người lớn:{" "}
-                {
-                  bookingDetail?.passengers.filter(
-                      (passenger) => passenger.age_type === "adult"
-                  ).length
-                }
-              </p>
-              <p className="text-md font-medium">
-                Trẻ em:{" "}
-                {
-                  bookingDetail?.passengers.filter(
-                      (passenger) => passenger.age_type === "child"
-                  ).length
-                }
-              </p>
-              <p className="text-md font-medium">
-                Trẻ nhỏ:{" "}
-                {
-                  bookingDetail?.passengers.filter(
-                      (passenger) => passenger.age_type === "toddler"
-                  ).length
-                }
-              </p>
-              <p className="text-md font-medium">
-                Em bé:{" "}
-                {
-                  bookingDetail?.passengers.filter(
-                      (passenger) => passenger.age_type === "newborn"
-                  ).length
-                }
-              </p>
-            </div>
-            <div className="flex flex-row justify-between items-center">
-              <h2 className="text-xl font-semibold">
-                Trạng thái:{" "}
-                <span
-                    className={`${STATUS_BOOKING_COLOR[bookingDetail?.status]}`}
-                >
-                {STATUS_BOOKING_TEXT[bookingDetail?.status]}
-              </span>
-              </h2>
-              <h2 className="text-xl font-semibold">
-                Tổng tiền{" "}
-                <span className="text-[#A80F21]">
-                {bookingDetail?.total_cost.toLocaleString("vi-VN")} VNĐ
-              </span>
-              </h2>
-            </div>
-            <div className="flex flex-row justify-end items-center gap-2">
+            <div className="flex justify-end items-center">
               <button
-                  className="border border-gray-300 px-4 py-2 rounded-md whitespace-nowrap"
-                  onClick={handleClose}
+                className={`px-4 py-2 rounded-md whitespace-nowrap ${
+                  pagination.page === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={() => handlePagination("prev")}
+                disabled={pagination.page === 1}
               >
-                Hủy
+                <ChevronLeft />
               </button>
               <button
-                  className="bg-[#A80F21] text-white px-4 py-2 rounded-md whitespace-nowrap"
-                  onClick={handleUpdateBooking}
+                className={`px-4 py-2 rounded-md whitespace-nowrap ${
+                  pagination.page === totalPage
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                onClick={() => handlePagination("next")}
+                disabled={pagination.page === totalPage}
               >
-                Lưu thao tác
+                <ChevronRight />
               </button>
             </div>
           </div>
+
+          <div className="flex flex-row items-center space-x-4">
+            <p className="text-md font-medium">
+              Người lớn:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "adult"
+                ).length
+              }
+            </p>
+            <p className="text-md font-medium">
+              Trẻ em:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "child"
+                ).length
+              }
+            </p>
+            <p className="text-md font-medium">
+              Trẻ nhỏ:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "toddler"
+                ).length
+              }
+            </p>
+            <p className="text-md font-medium">
+              Em bé:{" "}
+              {
+                bookingDetail?.passengers.filter(
+                  (passenger) => passenger.age_type === "newborn"
+                ).length
+              }
+            </p>
+          </div>
+          <div className="flex flex-row justify-between items-center">
+            <h2 className="text-xl font-semibold">
+              Trạng thái:{" "}
+              <span
+                className={`${STATUS_BOOKING_COLOR[bookingDetail?.status]}`}
+              >
+                {STATUS_BOOKING_TEXT[bookingDetail?.status]}
+              </span>
+            </h2>
+            <h2 className="text-xl font-semibold">
+              Tổng tiền{" "}
+              <span className="text-[#A80F21]">
+                {bookingDetail?.total_cost.toLocaleString("vi-VN")} VNĐ
+              </span>
+            </h2>
+          </div>
+          <div className="flex flex-row justify-end items-center gap-2">
+            <button
+              className="border border-gray-300 px-4 py-2 rounded-md whitespace-nowrap"
+              onClick={handleClose}
+            >
+              Hủy
+            </button>
+            <button
+              className="bg-[#A80F21] text-white px-4 py-2 rounded-md whitespace-nowrap"
+              onClick={handleUpdateBooking}
+            >
+              Lưu thao tác
+            </button>
+          </div>
         </div>
-        <ConfirmDeleteCustomer
-            open={openDeleteCustomerModal}
-            onClose={() => {
-              setOpenDeleteCustomerModal(false);
-              setCustomerToDelete(null);
-            }}
-            onDelete={handleDeleteCustomerConfirm}
-            customer={customerToDelete}
-        />
-        <UpdateCustomerInfoModal
-            open={openUpdateCustomerInfoModal}
-            onClose={() => setOpenUpdateCustomerInfoModal(false)}
-            onSubmit={handleUpdateCustomerInfo}
-            customer={customerToUpdate}
-        />
-        <AddCustomerInfoModal
-            open={openAddCustomerInfoModal}
-            onClose={() => setOpenAddCustomerInfoModal(false)}
-            onSubmit={handleAddCustomerInfo}
-        />
       </div>
+      <ConfirmDeleteCustomer
+        open={openDeleteCustomerModal}
+        onClose={() => {
+          setOpenDeleteCustomerModal(false);
+          setCustomerToDelete(null);
+        }}
+        onDelete={handleDeleteCustomerConfirm}
+        customer={customerToDelete}
+      />
+      <UpdateCustomerInfoModal
+        open={openUpdateCustomerInfoModal}
+        onClose={() => setOpenUpdateCustomerInfoModal(false)}
+        onSubmit={handleUpdateCustomerInfo}
+        customer={customerToUpdate}
+      />
+      <AddCustomerInfoModal
+        open={openAddCustomerInfoModal}
+        onClose={() => setOpenAddCustomerInfoModal(false)}
+        onSubmit={handleAddCustomerInfo}
+      />
+    </div>
   );
 };
 
@@ -508,4 +514,3 @@ function getAgeTypeLabel(ageType) {
       return "";
   }
 }
-

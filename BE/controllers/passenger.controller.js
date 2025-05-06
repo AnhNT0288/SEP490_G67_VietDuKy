@@ -10,7 +10,19 @@ const Restaurant = db.Restaurant;
 const VehicleBooking = db.VehicleBooking;
 const Vehicle = db.Vehicle;
 const ExcelJS = require('exceljs');
+const { sendNotificationToUser } = require("../utils/sendNotification");
+const { NOTIFICATION_TYPE } = require("../constants");
 
+const nodemailer = require("nodemailer");
+
+//Cấu hình nodemailer
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 // Tạo hành khách mới
 exports.createPassenger = async (req, res) => {
     try {
@@ -329,6 +341,20 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
         // Kiểm tra và lấy danh sách Passenger
         const passengers = await Passenger.findAll({
             where: {id: passenger_ids},
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                    attributes: ["id", "user_id", "booking_code"],
+                    include: [
+                        {
+                            model: db.User,
+                            as: "User",
+                            attributes: ["email"]
+                        }
+                    ]
+                }
+            ]
         });
 
         if (!passengers || passengers.length === 0) {
@@ -378,23 +404,185 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 return passenger.save();
             })
         );
-        const bookings = await Booking.findAll({
+
+        // Nhóm hành khách theo booking_id và tính tổng số người lớn, trẻ em
+        const groupedPassengers = passengers.reduce((acc, passenger) => {
+            const booking = passenger.booking;
+            if (!booking) {
+                return acc; // Bỏ qua nếu không có thông tin booking
+            }
+
+            const bookingId = booking.id;
+
+            if (!acc[bookingId]) {
+                acc[bookingId] = {
+                    booking_id: bookingId,
+                    booking_code: booking.booking_code,
+                    number_adult: booking.number_adult,
+                    number_children: booking.number_children,
+                    travel_tour_id: booking.travel_tour_id,
+                    user_id: booking.user_id,
+                    email: booking.User.email,
+                    passengers: [],
+                };
+            }
+            acc[bookingId].passengers.push(passenger);
+            return acc;
+        }, {});
+
+        // Lấy thông tin tour
+        const travelTour = await TravelTour.findByPk(travel_tour_id, {
+            include: [
+                {
+                    model: db.Tour,
+                    as: "Tour",
+                    attributes: ["name_tour"]
+                }
+            ]
+        });
+
+        // Gửi thông báo cho từng user
+        await Promise.all(
+            Object.values(groupedPassengers).map(async (group) => {
+                if (group.user_id && group.email) {
+                    // Lấy fcm_token của user
+                    const user = await db.User.findByPk(group.user_id);
+                    if (user && user.fcm_token) {
+                        await sendNotificationToUser(
+                            parseInt(group.user_id),
+                            user.fcm_token,
+                            {
+                                title: "Thông báo phân công hướng dẫn viên",
+                                type: NOTIFICATION_TYPE.PASSENGER_GROUP_ASSIGNED,
+                                id: group.booking_id,
+                                body: `Một số thành viên của ${travelTour.Tour.name_tour} đã được phân công cho hướng dẫn viên ${travelGuide.first_name} ${travelGuide.last_name}. Số điện thoại liên hệ: ${travelGuide.number_phone}, email: ${travelGuide.email}. Thông tin chi tiết đã được gửi qua email. Mọi thắc mắc vui lòng liên hệ hướng dẫn viên.`
+                            }
+                        );
+                    }
+                    // Gửi email thông báo
+                const passengerRows = group.passengers.map((passenger, index) => `
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${index + 1}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${passenger.name}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${passenger.birth_date || "N/A"}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${passenger.phone_number || "N/A"}</td>
+                </tr>
+            `).join("");
+
+            const emailContent = `
+                <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #fff;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .email-container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            background-color: #fef2f2;
+                            position: relative;
+                        }
+                        h1 {
+                            color: #d32f2f;
+                            text-align: center;
+                        }
+                        p {
+                            margin: 10px 0;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        th, td {
+                            border: 1px solid #ddd;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #d32f2f;
+                            color: #fff;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            font-size: 0.9em;
+                            color: #666;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <h1>Thông báo phân công hướng dẫn viên</h1>
+                        <p>Xin chào <strong>${group.user_id}</strong>,</p>
+                        <p>Tour của bạn (${travelTour.Tour.name_tour}) đã được phân công hướng dẫn viên. Dưới đây là thông tin chi tiết:</p>
+                        <p><strong>Hướng dẫn viên:</strong> ${travelGuide.first_name} ${travelGuide.last_name}</p>
+                        <p><strong>Số điện thoại:</strong> ${travelGuide.number_phone || "Không có"}</p>
+                        <p><strong>Email:</strong> ${travelGuide.email || "Không có"}</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên hành khách</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Số điện thoại</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${passengerRows}
+                            </tbody>
+                        </table>
+                        <p>Chúc bạn có một chuyến đi vui vẻ!</p>
+                        <div class="footer">
+                            <p>© 2025 Việt Du Ký</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const mailOptions = {
+                from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+                to: group.email, // Sử dụng email thay vì fcm_token
+                subject: "Thông báo phân công hướng dẫn viên cho tour của bạn",
+                html: emailContent,
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error("Lỗi khi gửi email: ", error);
+                } else {
+                    console.log("Email đã được gửi: " + info.response);
+                }
+            });
+                }
+            })
+        );
+
+        // Kiểm tra và cập nhật trạng thái tour
+        const allBookings = await Booking.findAll({
             where: {travel_tour_id: travel_tour_id}
-        })
-        const bookingIds = bookings.map((booking) => booking.id);
+        });
+        const allBookingIds = allBookings.map((booking) => booking.id);
         const passengersNotAssigned = await Passenger.findAll({
-            where: {booking_id: bookingIds, group: null}
+            where: {booking_id: allBookingIds, group: null}
         });
         if (passengersNotAssigned.length <= 0) {
-            const travelTour = await TravelTour.findByPk(travel_tour_id);
             travelTour.status = 1;
             await travelTour.save();
         }
 
-
         res.status(200).json({
             message: "Phân công hành khách cho hướng dẫn viên thành công!",
-            data: passengers,
+            data: Object.values(groupedPassengers),
         });
     } catch (error) {
         res.status(500).json({
