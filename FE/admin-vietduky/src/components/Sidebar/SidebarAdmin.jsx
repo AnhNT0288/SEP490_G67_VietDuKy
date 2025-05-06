@@ -46,26 +46,12 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       icon: Icons.VehicleIcon,
       path: "/managementVehicle"
     },
-    // {
-    //   id: 6,
-    //   name: "Quản lý khuyến mãi",
-    //   icon: Icons.PromotionIcon,
-    //   subItems: [
-    //     {
-    //       id: 601,
-    //       name: "Chương trình triết khấu",
-    //       path: "/managementSaleProgram"
-    //     },
-    //     { id: 602,
-    //       name: "Mã giảm giá",
-    //       path: "/managementDiscount"
-    //     },
-    //     { id: 603,
-    //       name: "Ưu đãi phút chót",
-    //       path: "/managementLastMinuteDeals"
-    //     },
-    //   ],
-    // },
+    {
+      id: 6,
+      name: "Ưu đãi phút chót",
+      icon: Icons.PromotionIcon,
+      path: "/managementLastMinuteDeals",
+    },
     {
       id: 7,
       name: "Quản lý dịch vụ",
