@@ -1,12 +1,13 @@
 import { useRef } from "react";
-import { FileUp } from "lucide-react"; // hoặc icon bạn đang dùng
+import { FileUp } from "lucide-react";
 
+// eslint-disable-next-line react/prop-types
 const ImportExcelButton = ({ onFileSelect }) => {
   const inputRef = useRef(null);
 
   const handleClick = () => {
     if (inputRef.current) {
-      inputRef.current.value = null; // reset input để chọn lại cùng 1 file vẫn trigger onChange
+      inputRef.current.value = null;
       inputRef.current.click();
     }
   };

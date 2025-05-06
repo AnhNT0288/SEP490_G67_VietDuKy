@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAvailableHotelsByTravelTourId } from "../../../../services/API/hotel.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalSelectHotel({ tourId, onClose, onConfirm }) {
@@ -29,7 +30,7 @@ export default function ModalSelectHotel({ tourId, onClose, onConfirm }) {
 
     const handleConfirm = () => {
         if (selectedHotelIds.length === 0) {
-            alert("Vui lòng chọn ít nhất một khách sạn!");
+            toast.error("Vui lòng chọn ít nhất một khách sạn!");
             return;
         }
         onConfirm(selectedHotelIds);

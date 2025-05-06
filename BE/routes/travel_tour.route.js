@@ -10,8 +10,10 @@ const {
 
 router.get("/", travelTourController.getAllTravelTours);
 router.get("/guide/:user_id", travelTourController.getListTravelTourForGuide);
+router.get("/complete-auto", travelTourController.completeTravelTour);
+
+router.get("/cancel/:id", travelTourController.cancelTravelTour);
 // router.get("/:id", authenticateUser, travelTourController.getTravelTourById);
-router.get("/:id", travelTourController.getTravelTourById);
 router.post(
   "/create",
   authenticateUser,
@@ -67,5 +69,7 @@ router.get(
   // checkRoles(["admin", "staff"]),
   travelTourController.getTravelToursByStaffEndLocationWithBooking
 );
+
+router.get("/:id", travelTourController.getTravelTourById);
 
 module.exports = router;

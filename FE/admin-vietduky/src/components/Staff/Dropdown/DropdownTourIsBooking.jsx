@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import {FaUserPlus, FaUsers, FaConciergeBell, FaFileImport} from "react-icons/fa"; // Thêm icon dịch vụ
+import {FaUserPlus, FaUsers, FaConciergeBell, FaFileImport} from "react-icons/fa";
+import {cancelTravelTour} from "@/services/API/travel_tour.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
-export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides, onAssignService,onMarkAssigned,onImportPassengers }) {
+export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropdown, onAssignGuide, onViewGuides, onAssignService, onMarkAssigned, onImportPassengers, onCanceled }) {
     const [position, setPosition] = useState({ top: 0, left: 0 });
     const widthDropdown = 224;
 
@@ -28,6 +30,24 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
         setOpenDropdown((prev) => (prev === travelTour.id ? null : travelTour.id));
     };
 
+    const handleCancelTour = async () => {
+        const confirm = window.confirm("Bạn có chắc chắn muốn huỷ tour này không?");
+        if (!confirm) return;
+
+        try {
+            await cancelTravelTour(travelTour.id);
+            setOpenDropdown(null);
+            toast.success("Tour đã được huỷ thành công!");
+
+            // Gọi lại danh sách tour từ màn cha nếu truyền vào props:
+            if (typeof travelTour.onCanceled === "function") {
+                travelTour.onCanceled(); // gọi callback nếu có
+            }
+        } catch (error) {
+            console.error("❌ Lỗi khi huỷ tour:", error);
+            toast.error("Huỷ tour thất bại");
+        }
+    };
     return (
         <div className="relative flex items-center gap-2 justify-end">
             <button
@@ -51,7 +71,7 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
                             className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                         >
                             <FaFileImport className="mr-2" />
-                            Nhập danh sách khách hàng
+                            Danh sách khách hàng
                         </button>
                         <button
                             onClick={() => {
@@ -86,15 +106,10 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
                             Gán dịch vụ
                         </button>
                         <button
-                            onClick={() => {
-                                setOpenDropdown(null);
-                                onMarkAssigned(travelTour);
-                            }}
-                            className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left font-medium"
+                            onClick={handleCancelTour}
+                            className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left text-red-600 font-medium"
                         >
-                            <span className={travelTour.status === 1 ? "text-red-600" : "text-green-600 ml-2"}>
-                                {travelTour.status === 1 ? " Huỷ phân công" : "Đã phân công"}
-                            </span>
+                            ❌ Huỷ tour
                         </button>
                     </div>,
                     document.body

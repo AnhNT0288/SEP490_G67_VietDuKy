@@ -71,7 +71,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
         if (tab === "upcoming") matchTab = isAfter(startDay, today);
         if (tab === "ongoing") matchTab = isBefore(startDay, today) && isAfter(endDay, today);
         if (tab === "completed") matchTab = isBefore(endDay, today);
-        if (tab === "cancelled") matchTab = tour.status === 2;
+        if (tab === "cancelled") matchTab = tour.status === 3;
 
         return matchSearch && matchStartLoc && matchEndLoc && matchStartDate && matchTab;
     });
@@ -213,6 +213,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                         <th className="p-2">Điểm đến</th>
                         <th className="p-2">Ngày khởi hành</th>
                         <th className="p-2">Ngày về</th>
+                        <th className="p-2 text-center">Đã đặt</th>
                         <th className="p-2 text-left">Trạng thái</th>
                         <th className="p-2 text-right">Thao tác</th>
                     </tr>
@@ -225,12 +226,21 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                             <td className="p-2">{tour.end_location?.name_location}</td>
                             <td className="p-2">{format(new Date(tour.start_day), "dd/MM/yyyy")}</td>
                             <td className="p-2">{format(new Date(tour.end_day), "dd/MM/yyyy")}</td>
+                            <td className="p-2 text-center">
+                                {tour.current_people}/{tour.max_people}
+                            </td>
                             <td
                                 className={`p-2 font-medium ${
-                                    tour.status === 1 ? "text-green-600" : "text-red-600"
+                                    tour.status === 1 ? "text-green-600" : 
+                                    tour.status === 2 ? "text-blue-600" :
+                                    tour.status === 3 ? "text-red-600" : 
+                                    "text-orange-600"
                                 }`}
                             >
-                                {tour.status === 1 ? "Đã phân công" : "Chưa phân công"}
+                                {tour.status === 0 ? "Chưa phân công" :
+                                 tour.status === 1 ? "Đã phân công" :
+                                 tour.status === 2 ? "Đã hoàn thành" :
+                                 "Đã hủy"}
                             </td>
                             <td className="p-2 text-right relative">
                                 <DropdownTourIsBooking
@@ -242,6 +252,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                                     onAssignService={(t) => handleOpenAssignServiceModal(t)}
                                     onMarkAssigned={handleMarkAssigned}
                                     onImportPassengers={(t) => handleImportPassenger(t)}
+                                    onCanceled={fetchTravelTours}
                                 />
                             </td>
                         </tr>

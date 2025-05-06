@@ -30,7 +30,7 @@ export default function Profile() {
     const token = urlToken || storedToken;
 
     if (!token) {
-      alert("Bạn chưa đăng nhập!");
+      toast.error("Bạn chưa đăng nhập!");
       navigate("/");
       return;
     }

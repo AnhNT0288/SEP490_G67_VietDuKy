@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { sendRequestTour } from "../../services/API/guide-tour.service";
 import { TravelGuideService } from "../../services/API/travel_guide.service";
+import {toast} from "react-toastify";
 
 const ConfirmSendRequest = ({ tourId, open, onClose }) => {
   const [travelGuides, setTravelGuides] = useState([]);
@@ -40,14 +41,14 @@ const ConfirmSendRequest = ({ tourId, open, onClose }) => {
         travel_guide_id: travelGuideId,
       });
       if (response.status === 201) {
-        alert("Gửi yêu cầu thành công");
+        toast.success("Gửi yêu cầu thành công");
       } else {
         console.log(response.data);
-        alert(response.message);
+        toast.error(response.message);
       }
     } catch (error) {
       console.error("Error sending request:", error);
-      alert(error.message);
+      toast.error(error.message);
     } finally {
       onClose();
     }

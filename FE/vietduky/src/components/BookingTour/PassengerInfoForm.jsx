@@ -1,23 +1,15 @@
 import Icons from "../Icons/Icon";
-import { excelDateToJSDate, formatDate } from "@/utils/dateUtil";
+import { excelDateToJSDate} from "@/utils/dateUtil";
 import { exportTemplate } from "@/utils/excelUtils";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
+import {toast} from "react-toastify";
 
-const PassengerInfoForm = ({
-  passengers,
-  onPassengerDataChange,
-  setPassengers,
-  roomCost,
-  setRoomCost,
-  assistance,
-  setAssistance,
-  currentSlot,
-}) => {
+// eslint-disable-next-line react/prop-types
+const PassengerInfoForm = ({passengers, onPassengerDataChange, setPassengers, roomCost, setRoomCost, assistance, setAssistance, currentSlot,}) => {
   const [passengerData, setPassengerData] = useState([]);
   
   const [touchedFields, setTouchedFields] = useState({});
-  const [manualPassenger, setManualPassenger] = useState([false]);
   const validatePhoneNumber = (phone) => /^0\d{9,10}$/.test(phone);
 
   const isDateInRange = (dateStr) => {
@@ -240,7 +232,7 @@ const PassengerInfoForm = ({
       });
     
       if (invalidPassengers.length > 0) {
-        alert(
+        toast.error(
           `Dữ liệu không hợp lệ trong file Excel. Vui lòng kiểm tra lại các dòng bị thiếu thông tin hoặc sai định dạng.`
         );
         return;
@@ -259,13 +251,13 @@ const PassengerInfoForm = ({
           ...filledSlots,
           ...overwriteData.map((data, idx) => ({
             ...data,
-            id: emptySlots[idx].id, // giữ nguyên ID
+            id: emptySlots[idx].id,
           })),
           ...appendData,
         ];
       
         if (updatedPassengers.length > currentSlot) {
-          alert(`Vượt quá số lượng slot còn lại! Hiện còn ${currentSlot} slot.`);
+          toast.error(`Vượt quá số lượng slot còn lại! Hiện còn ${currentSlot} slot.`);
           return prev; // giữ nguyên không thay đổi
         }
       

@@ -1,5 +1,6 @@
 import { app } from "@/firebase/init";
 import React, { useEffect, useState } from "react";
+import {toast} from "react-toastify";
 
 const PhoneAuthen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -33,7 +34,7 @@ const PhoneAuthen = () => {
     const appVerifier = window.recaptchaVerifier;
 
     if (!appVerifier) {
-      alert("Recaptcha chưa sẵn sàng");
+      toast.error("Recaptcha chưa sẵn sàng");
       return;
     }
 
@@ -43,21 +44,21 @@ const PhoneAuthen = () => {
         .signInWithPhoneNumber(phoneNumber, appVerifier);
 
       window.confirmationResult = confirmationResult;
-      alert("OTP đã được gửi về điện thoại!");
+      toast.success("OTP đã được gửi về điện thoại!");
     } catch (error) {
       console.error("Gửi OTP thất bại", error);
-      alert(`Gửi OTP thất bại: ${error.message}`);
+      toast.error(`Gửi OTP thất bại: ${error.message}`);
     }
   };
 
   const handleVerifyOtp = async () => {
     try {
       const result = await window.confirmationResult.confirm(otp);
-      alert("Xác thực thành công!");
+      toast.success("Xác thực thành công!");
       console.log(result.user);
     } catch (error) {
       console.error("OTP không đúng", error);
-      alert("Xác thực thất bại");
+      toast.error("Xác thực thất bại");
     }
   };
 

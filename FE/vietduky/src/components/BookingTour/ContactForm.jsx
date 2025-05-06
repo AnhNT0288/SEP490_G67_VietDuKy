@@ -2,6 +2,7 @@ import PassengerInfoForm from "./PassengerInfoForm";
 import { CustomerService } from "@/services/API/customer.service";
 import { StorageService } from "@/services/storage/StorageService";
 import { useEffect, useState } from "react";
+import {toast} from "react-toastify";
 
 const ContactForm = ({
   formData,
@@ -87,7 +88,7 @@ const ContactForm = ({
   
       // Kiểm tra nếu đang muốn tăng vượt quá slot còn lại
       if (increment > 0 && totalCurrentWithoutInfant >= remainingSlots && type !== "infant") {
-        alert(`Chuyến đi này chỉ còn ${remainingSlots} hành khách!`);
+        toast.error(`Chuyến đi này chỉ còn ${remainingSlots} hành khách!`);
         return prev;
       }
   

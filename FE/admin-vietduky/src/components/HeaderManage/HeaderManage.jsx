@@ -3,7 +3,7 @@ import { FiSidebar, FiMoon, FiUser } from "react-icons/fi";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { StorageService } from "../../services/storage/StorageService";
+import { StorageService } from "@/services/storage/StorageService.js";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Check, Trash } from "lucide-react";
 
@@ -93,7 +93,7 @@ export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
             </span>
           )}
           {isShowNotification && (
-            <div className="absolute right-0 mt-2 w-[300px] max-h-[400px] overflow-y-auto bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+            <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
               <div className="flex flex-row justify-between items-center">
                   <p className="text-sm text-gray-700 font-medium px-3 py-1">
                     {notifications.length} thông báo
@@ -185,7 +185,8 @@ const getLinkNotification = (notification) => {
 
     case "BOOKING_DETAIL":
       return `/booking/${notification?.bookingId}`;
-
+    case "guide_tour_request":
+      return `/managementRequestAssignTour`;
     default:
       return `#`;
   }

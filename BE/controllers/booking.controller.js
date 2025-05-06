@@ -225,6 +225,160 @@ const sendConfirmationEmail = (userEmail, bookingDetails) => {
         }
     });
 };
+const sendPaymentReminderEmail = (userEmail, bookingDetails) => {
+    const {
+        name,
+        name_tour,
+        start_day,
+        total_cost,
+        paid_amount,
+        remaining_amount,
+        passengers
+    } = bookingDetails;
+
+    // Format tiền
+    const formattedTotalCost = formatCurrency(total_cost);
+    const formattedPaidAmount = formatCurrency(paid_amount);
+    const formattedRemainingAmount = formatCurrency(remaining_amount);
+
+    // Format ngày tháng
+    const formattedStartDate = formatDate(start_day);
+
+    // Tạo danh sách hành khách
+    const passengerList = passengers.map(passenger => `
+        <tr>
+            <td>${passenger.name}</td>
+            <td>${formatDate(passenger.birth_date)}</td>
+            <td>${passenger.gender ? 'Nữ' : 'Nam'}</td>
+            <td>${passenger.phone_number || 'N/A'}</td>
+            <td>${passenger.passport_number || 'N/A'}</td>
+        </tr>
+    `).join('');
+
+    const mailOptions = {
+        from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+        to: userEmail,
+        subject: "Thông báo thanh toán tour",
+        html: `
+            <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #fff;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .email-container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            background-color: #fef2f2;
+                            position: relative;
+                        }
+                        h1 {
+                            color: #d32f2f;
+                            text-align: center;
+                        }
+                        p {
+                            margin: 10px 0;
+                        }
+                        .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                            table-layout: fixed;
+                        }
+                        .info-table th, .info-table td {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            text-align: left;
+                            word-wrap: break-word;
+                        }
+                        .info-table th {
+                            background-color: #d32f2f;
+                            color: #fff;
+                        }
+                        .info-table td {
+                            background-color: #fff;
+                        }
+                        .warning {
+                            color: #d32f2f;
+                            font-weight: bold;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            font-size: 0.9em;
+                            color: #666;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <h1>Thông báo thanh toán tour</h1>
+                        <p>Xin chào <strong>${name}</strong>,</p>
+                        <p>Chúng tôi gửi thông báo này để nhắc nhở về việc thanh toán tour của bạn:</p>
+                        <table class="info-table">
+                            <tr>
+                                <th>Thông tin tour</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                            <tr>
+                                <td>Tour</td>
+                                <td>${name_tour}</td>
+                            </tr>
+                            <tr>
+                                <td>Ngày khởi hành</td>
+                                <td>${formattedStartDate}</td>
+                            </tr>
+                            <tr>
+                                <td>Tổng chi phí</td>
+                                <td>${formattedTotalCost} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Đã thanh toán</td>
+                                <td>${formattedPaidAmount} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Còn thiếu</td>
+                                <td class="warning">${formattedRemainingAmount} VND</td>
+                            </tr>
+                        </table>
+                        <h3>Danh sách hành khách:</h3>
+                        <table class="info-table">
+                            <tr>
+                                <th>Họ tên</th>
+                                <th>Ngày sinh</th>
+                                <th>Giới tính</th>
+                                <th>Số điện thoại</th>
+                                <th>Số hộ chiếu</th>
+                            </tr>
+                            ${passengerList}
+                        </table>
+                        <p class="warning">Vui lòng hoàn tất thanh toán trước ngày khởi hành để đảm bảo chuyến đi của bạn được diễn ra suôn sẻ.</p>
+                        <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email hoặc số điện thoại hỗ trợ.</p>
+                        <div class="footer">
+                            <p>© 2025 Việt Du Ký. Tất cả các quyền được bảo lưu.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log("Lỗi khi gửi email: ", error);
+        } else {
+            console.log("Email đã được gửi: " + info.response);
+        }
+    });
+};
 
 //Lấy danh sách tất cả booking
 exports.getAllBookings = async (req, res) => {
@@ -527,13 +681,13 @@ exports.createBooking = async (req, res) => {
             start_time_close: travelTour.start_time_close,
             end_time_close: travelTour.end_time_close,
         });
-        await sendRoleBasedNotification(
-            ["admin", "staff", "tour_guide"],
-            {
-                title: "Có đơn hàng mới!",
-                type: NOTIFICATION_TYPE.BOOKING,
-            }
-        );
+        // await sendRoleBasedNotification(
+        //     ["admin", "staff", "tour_guide"],
+        //     {
+        //         title: "Có đơn hàng mới!",
+        //         type: NOTIFICATION_TYPE.BOOKING,
+        //     }
+        // );
         await sendNotificationToUser(
             parseInt(user_id),
             user.fcm_token,
@@ -590,7 +744,7 @@ exports.updateBooking = async (req, res) => {
         if (number_toddler) booking.number_toddler = number_toddler;
         if (number_newborn) booking.number_newborn = number_newborn;
         if (note) booking.note = note;
-        if (passengers && passengers.length > 0) {
+        if (passengers) {
             const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
             const existingPassengers = await Passenger.findAll({
                 where: {booking_id: bookingId},
@@ -877,3 +1031,369 @@ exports.rePayment = async (req, res) => {
         });
     }
 };
+exports.paymentBookingRemind = async (req, res) => {
+    try {
+        const today = new Date();
+        const thirtyDaysFromNow = new Date(today);
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+        const bookings = await Booking.findAll({
+            where: {
+                status: {
+                    [Op.in]: [0, 1] // 0: Not Paid, 1: Half Paid
+                }
+            },
+            include: [
+                {model: User},
+                {
+                    model: TravelTour,
+                    where: {
+                        start_day: {
+                            [Op.between]: [today, thirtyDaysFromNow]
+                        }
+                    },
+                    include: [{model: Tour}]
+                }
+            ]
+        });
+
+        if (!bookings || bookings.length === 0) {
+            return res.status(200).json({message: "Không có booking nào cần nhắc nhở thanh toán!"});
+        }
+
+        for (const booking of bookings) {
+            // Lấy thông tin thanh toán
+            const payments = await db.Payment.findAll({
+                where: {booking_id: booking.id}
+            });
+
+            const paidAmount = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            const remainingAmount = booking.total_cost - paidAmount;
+
+            // Lấy danh sách hành khách
+            const passengers = await Passenger.findAll({
+                where: {booking_id: booking.id}
+            });
+
+            // Gửi email thông báo
+            sendPaymentReminderEmail(booking.email, {
+                name: booking.name,
+                name_tour: booking.TravelTour.Tour.name_tour,
+                start_day: booking.TravelTour.start_day,
+                total_cost: booking.total_cost,
+                paid_amount: paidAmount,
+                remaining_amount: remainingAmount,
+                passengers: passengers
+            });
+            await sendNotificationToUser(
+                parseInt(booking.user_id),
+                booking.User.fcm_token,
+                {
+                    title: "Bạn có đơn hàng cần thanh toán!",
+                    type: NOTIFICATION_TYPE.BOOKING_DETAIL,
+                    id: booking.id,
+                    body: booking.TravelTour.Tour.name_tour + ". Số tiền chưa thanh toán: " + remainingAmount.toLocaleString('vi-VN') + " VNĐ"
+                }
+            )
+        }
+
+        res.status(200).json({
+            message: "Đã gửi thông báo thanh toán thành công!",
+            count: bookings.length
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi gửi email thông báo thanh toán booking!",
+            error: error.message
+        });
+    }
+};
+const sendUpcomingTourEmail = (userEmail, tourDetails) => {
+    const {
+        name,
+        name_tour,
+        start_day,
+        end_day,
+        start_time_depart,
+        end_time_depart,
+        start_time_close,
+        end_time_close,
+        passengers
+    } = tourDetails;
+
+    // Format ngày tháng
+    const formattedStartDate = formatDate(start_day);
+    const formattedEndDate = formatDate(end_day);
+
+    // Format thời gian
+    const formattedStartTimeDepart = formatTime(start_time_depart);
+    const formattedEndTimeDepart = formatTime(end_time_depart);
+    const formattedStartTimeClose = formatTime(start_time_close);
+    const formattedEndTimeClose = formatTime(end_time_close);
+
+    const mailOptions = {
+        from: '"Việt Du Ký" <vietduky.service@gmail.com>',
+        to: userEmail,
+        subject: "Thông báo: Tour của bạn sắp đến ngày khởi hành",
+        html: `
+            <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #fff;
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .email-container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            background-color: #f0f8ff;
+                            position: relative;
+                        }
+                        h1 {
+                            color: #1e88e5;
+                            text-align: center;
+                        }
+                        p {
+                            margin: 10px 0;
+                        }
+                        .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                            table-layout: fixed;
+                        }
+                        .info-table th, .info-table td {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            text-align: left;
+                            word-wrap: break-word;
+                        }
+                        .info-table th {
+                            background-color: #1e88e5;
+                            color: #fff;
+                        }
+                        .info-table td {
+                            background-color: #fff;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 20px;
+                            font-size: 0.9em;
+                            color: #666;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <h1>Thông báo: Tour sắp đến ngày khởi hành</h1>
+                        <p>Xin chào <strong>${name}</strong>,</p>
+                        <p>Chúng tôi xin thông báo rằng tour của bạn sắp đến ngày khởi hành. Dưới đây là thông tin chi tiết:</p>
+                        <table class="info-table">
+                            <tr>
+                                <th>Thông tin tour</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                            <tr>
+                                <td>Tour</td>
+                                <td>${name_tour}</td>
+                            </tr>
+                            <tr>
+                                <td>Ngày bắt đầu</td>
+                                <td>${formattedStartDate}</td>
+                            </tr>
+                            <tr>
+                                <td>Ngày kết thúc</td>
+                                <td>${formattedEndDate}</td>
+                            </tr>
+                        </table>
+                        <table class="info-table">
+                            <tr>
+                                <th>Ngày khởi hành Tour</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                            <tr>
+                                <td>Thời gian khởi hành</td>
+                                <td>${formattedStartTimeDepart}</td>
+                            </tr>
+                            <tr>
+                                <td>Thời gian kết thúc</td>
+                                <td>${formattedEndTimeDepart}</td>
+                            </tr>
+                        </table>
+                        <table class="info-table">
+                            <tr>
+                                <th>Ngày kết thúc Tour</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                            <tr>
+                                <td>Thời gian khởi hành</td>
+                                <td>${formattedStartTimeClose}</td>
+                            </tr>
+                            <tr>
+                                <td>Thời gian kết thúc</td>
+                                <td>${formattedEndTimeClose}</td>
+                            </tr>
+                        </table>
+                        <p>Vui lòng chuẩn bị đầy đủ giấy tờ và hành lý cần thiết cho chuyến đi.</p>
+                        <p>Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi qua email hoặc số điện thoại hỗ trợ.</p>
+                        <div class="footer">
+                            <p>© 2025 Việt Du Ký. Tất cả các quyền được bảo lưu.</p>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        `
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log("Lỗi khi gửi email: ", error);
+        } else {
+            console.log("Email đã được gửi: " + info.response);
+        }
+    });
+};
+exports.remindUpcomingTour = async (req, res) => {
+    try {
+        const today = new Date();
+        const sevenDaysFromNow = new Date(today);
+        sevenDaysFromNow.setDate(today.getDate() + 7);
+
+        const bookings = await Booking.findAll({
+            where: {
+                status: 2 // 2: Paid
+            },
+            include: [
+                {model: User},
+                {
+                    model: TravelTour,
+                    where: {
+                        start_day: {
+                            [Op.between]: [today, sevenDaysFromNow]
+                        }
+                    },
+                    include: [{model: Tour}]
+                }
+            ]
+        });
+
+        if (!bookings || bookings.length === 0) {
+            return res.status(200).json({message: "Không có tour nào sắp đến ngày khởi hành!"});
+        }
+
+        for (const booking of bookings) {
+            // Lấy danh sách hành khách
+            const passengers = await Passenger.findAll({
+                where: {booking_id: booking.id}
+            });
+
+            // Gửi email thông báo
+            sendUpcomingTourEmail(booking.email, {
+                name: booking.name,
+                name_tour: booking.TravelTour.Tour.name_tour,
+                start_day: booking.TravelTour.start_day,
+                end_day: booking.TravelTour.end_day,
+                start_time_depart: booking.TravelTour.start_time_depart,
+                end_time_depart: booking.TravelTour.end_time_depart,
+                start_time_close: booking.TravelTour.start_time_close,
+                end_time_close: booking.TravelTour.end_time_close,
+                passengers: passengers
+            });
+            await sendNotificationToUser(
+                parseInt(booking.user_id),
+                booking.User.fcm_token,
+                {
+                    title: "Tour của bạn sắp đến ngày khởi hành!",
+                    type: NOTIFICATION_TYPE.BOOKING_UPCOMING,
+                    id: booking.id,
+                    body: booking.TravelTour.Tour.name_tour + " của bạn sắp đến ngày khởi hành. Ngày khởi hành: "+ booking.TravelTour.start_time_depart + " " + booking.TravelTour.start_day
+                }
+            )
+        }
+f
+        res.status(200).json({
+            message: "Đã gửi thông báo tour sắp đến thành công!",
+            count: bookings.length
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi gửi email thông báo tour sắp đến!",
+            error: error.message
+        });
+    }
+}; 
+
+exports.remindExpiredBooking = async (req, res) => {
+    try {
+        const today = new Date();
+        const threeDaysFromNow = new Date(today);
+        threeDaysFromNow.setDate(today.getDate() + 3);
+
+        const bookings = await Booking.findAll({
+            where: {
+                status: {
+                    [Op.in]: [0, 1] // 0: Not Paid, 1: Half Paid
+                }
+                
+            },
+            include: [
+                {model: User},
+                {model: TravelTour, include: [{model: Tour}],
+                    where: {
+                        start_day: {
+                            [Op.between]: [today, threeDaysFromNow]
+                        }
+                    }
+                }
+            ]
+        });
+
+        if (!bookings || bookings.length === 0) {
+            return res.status(200).json({message: "Không có booking nào sắp hết hạn!"});
+        }
+
+        for (const booking of bookings) {
+            // Lấy danh sách hành khách
+            const passengers = await Passenger.findAll({
+                where: {booking_id: booking.id}
+            });
+
+            // Gửi email thông báo
+            sendExpiredBookingEmail(booking.email, {
+                name: booking.name,
+                name_tour: booking.TravelTour.Tour.name_tour,
+                start_day: booking.TravelTour.start_day,
+                passengers: passengers
+            });
+            await sendNotificationToUser(
+                parseInt(booking.user_id),
+                booking.User.fcm_token,
+                {
+                    title: "Booking của bạn sắp hết hạn!",
+                    type: NOTIFICATION_TYPE.BOOKING_EXPIRED,
+                    id: booking.id,
+                    body: booking.TravelTour.Tour.name_tour + " của bạn sắp hết hạn. Ngày khởi hành: " + booking.TravelTour.start_day
+                }
+            )
+        }
+
+        res.status(200).json({
+            message: "Đã gửi thông báo booking sắp hết hạn thành công!",
+            count: bookings.length
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi gửi email thông báo booking sắp hết hạn!",
+            error: error.message
+        });
+    }
+};
+
+
