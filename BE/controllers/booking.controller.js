@@ -1331,70 +1331,70 @@ f
     }
 }; 
 
-exports.remindExpiredBooking = async (req, res) => {
-    try {
-        const today = new Date();
-        const threeDaysFromNow = new Date(today);
-        threeDaysFromNow.setDate(today.getDate() + 3);
+// exports.remindExpiredBooking = async (req, res) => {
+//     try {
+//         const today = new Date();
+//         const thirtyDaysFromNow = new Date(today);
+//         thirtyDaysFromNow.setDate(today.getDate() + 30);
 
-        const bookings = await Booking.findAll({
-            where: {
-                status: {
-                    [Op.in]: [0, 1] // 0: Not Paid, 1: Half Paid
-                }
+//         const bookings = await Booking.findAll({
+//             where: {
+//                 status: {
+//                     [Op.in]: [0, 1] // 0: Not Paid, 1: Half Paid
+//                 }
                 
-            },
-            include: [
-                {model: User},
-                {model: TravelTour, include: [{model: Tour}],
-                    where: {
-                        start_day: {
-                            [Op.between]: [today, threeDaysFromNow]
-                        }
-                    }
-                }
-            ]
-        });
+//             },
+//             include: [
+//                 {model: User},
+//                 {model: TravelTour, include: [{model: Tour}],
+//                     where: {
+//                         start_day: {
+//                             [Op.between]: [today, thirtyDaysFromNow]
+//                         }
+//                     }
+//                 }
+//             ]
+//         });
 
-        if (!bookings || bookings.length === 0) {
-            return res.status(200).json({message: "Không có booking nào sắp hết hạn!"});
-        }
+//         if (!bookings || bookings.length === 0) {
+//             return res.status(200).json({message: "Không có booking nào sắp hết hạn!"});
+//         }
 
-        for (const booking of bookings) {
-            // Lấy danh sách hành khách
-            const passengers = await Passenger.findAll({
-                where: {booking_id: booking.id}
-            });
+//         for (const booking of bookings) {
+//             // Lấy danh sách hành khách
+//             const passengers = await Passenger.findAll({
+//                 where: {booking_id: booking.id}
+//             });
 
-            // Gửi email thông báo
-            sendExpiredBookingEmail(booking.email, {
-                name: booking.name,
-                name_tour: booking.TravelTour.Tour.name_tour,
-                start_day: booking.TravelTour.start_day,
-                passengers: passengers
-            });
-            await sendNotificationToUser(
-                parseInt(booking.user_id),
-                booking.User.fcm_token,
-                {
-                    title: "Booking của bạn sắp hết hạn!",
-                    type: NOTIFICATION_TYPE.BOOKING_EXPIRED,
-                    id: booking.id,
-                    body: booking.TravelTour.Tour.name_tour + " của bạn sắp hết hạn. Ngày khởi hành: " + booking.TravelTour.start_day
-                }
-            )
-        }
+//             // Gửi email thông báo
+//             sendExpiredBookingEmail(booking.email, {
+//                 name: booking.name,
+//                 name_tour: booking.TravelTour.Tour.name_tour,
+//                 start_day: booking.TravelTour.start_day,
+//                 passengers: passengers
+//             });
+//             await sendNotificationToUser(
+//                 parseInt(booking.user_id),
+//                 booking.User.fcm_token,
+//                 {
+//                     title: "Booking của bạn sắp hết hạn!",
+//                     type: NOTIFICATION_TYPE.BOOKING_EXPIRED,
+//                     id: booking.id,
+//                     body: booking.TravelTour.Tour.name_tour + " của bạn sắp hết hạn. Ngày khởi hành: " + booking.TravelTour.start_day
+//                 }
+//             )
+//         }
 
-        res.status(200).json({
-            message: "Đã gửi thông báo booking sắp hết hạn thành công!",
-            count: bookings.length
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Lỗi khi gửi email thông báo booking sắp hết hạn!",
-            error: error.message
-        });
-    }
-};
+//         res.status(200).json({
+//             message: "Đã gửi thông báo booking sắp hết hạn thành công!",
+//             count: bookings.length
+//         });
+//     } catch (error) {
+//         res.status(500).json({
+//             message: "Lỗi khi gửi email thông báo booking sắp hết hạn!",
+//             error: error.message
+//         });
+//     }
+// };
 
 

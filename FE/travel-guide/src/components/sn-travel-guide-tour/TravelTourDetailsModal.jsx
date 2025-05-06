@@ -138,7 +138,7 @@ const TravelTourDetailsModal = ({ tourSelected, onClose, open, guideId }) => {
 
   return (
     <div className="fixed inset-0 z-10 bg-black/40 flex items-center justify-center">
-      <div className="bg-white w-[90%] h-[85vh] max-w-6xl rounded-2xl p-6 overflow-hidden shadow-xl flex flex-col">
+      <div className="bg-white w-[90%] h-[90%] max-w-6xl rounded-2xl p-6 overflow-hidden shadow-xl flex flex-col">
         <div className="flex justify-between items-start mb-4">
           <h2 className="text-xl font-semibold">Thông tin lịch khởi hành</h2>
           <button
