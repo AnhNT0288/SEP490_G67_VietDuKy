@@ -142,7 +142,7 @@ const TourBooking = ({
     try {
       const response = await BookingService.createBooking(formData);
 
-      toast.success("Đặt tour thành công!");
+      // toast.success("Đặt tour thành công!");
 
       // Ghi dữ liệu vào localStorage
       localStorage.setItem("bookingResult", JSON.stringify(response));

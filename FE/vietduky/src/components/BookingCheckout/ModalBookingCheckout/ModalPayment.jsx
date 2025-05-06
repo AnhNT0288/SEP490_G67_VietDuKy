@@ -7,6 +7,7 @@ const ModalQRPayment = ({
   qrSrc,
   booking,
   onClose,
+  paymentData,
 }) => {
   return (
     <Modal
@@ -40,7 +41,7 @@ const ModalQRPayment = ({
                 <div className="flex flex-col gap-2">
                   <p className="text-zinc-500 text-sm font-semibold">Số tiền thanh toán</p>
                   <p className="text-red-800 text-lg font-semibold">
-                    {booking?.total_cost?.toLocaleString("vi-VN")} VND
+                    {paymentData?.toLocaleString("vi-VN")} VND
                   </p>
                 </div>
                 <div>

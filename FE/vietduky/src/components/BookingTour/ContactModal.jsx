@@ -1,13 +1,13 @@
 import { UserService } from "@/services/API/user.service";
 import { formatDayDMY } from "@/utils/dateUtil";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function ContactModal({ open, onClose, travelTour }) {
   const [form, setForm] = useState({
     name: "",
     phone: "",
-    message: `Tôi cần tư vấn về ${travelTour?.Tour?.name_tour} - ${formatDayDMY(travelTour?.start_day)} - ${formatDayDMY(travelTour?.end_day)}`,
+    message: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +15,16 @@ export default function ContactModal({ open, onClose, travelTour }) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-// console.log("Travel Tour", travelTour);
+console.log("Travel Tour", travelTour);
+
+useEffect(() => {
+  if (travelTour?.Tour?.name_tour && travelTour?.start_day && travelTour?.end_day) {
+    setForm((prev) => ({
+      ...prev,
+      message: `Tôi cần tư vấn về ${travelTour.Tour.name_tour} - ${formatDayDMY(travelTour.start_day)} - ${formatDayDMY(travelTour.end_day)}`,
+    }));
+  }
+}, [travelTour]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

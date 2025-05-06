@@ -1022,6 +1022,7 @@ exports.rePayment = async (req, res) => {
         } else {
             res.status(200).json({
                 message: "Đã thanh toán hết!",
+                data:0,
             });
         }
     } catch (error) {

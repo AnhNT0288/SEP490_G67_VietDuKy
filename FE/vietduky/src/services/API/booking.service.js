@@ -22,16 +22,16 @@ export const BookingService = {
     },
     createBooking: (data) => {
         return restClient({
-          url: "booking/create",
-          method: "POST",
-          data,
-          headers: {
-            Authorization: `Bearer ${StorageService.getToken()}`,
-            "Content-Type": "application/json",
-          },
+            url: "booking/create",
+            method: "POST",
+            data,
+            headers: {
+                Authorization: `Bearer ${StorageService.getToken()}`,
+                "Content-Type": "application/json",
+            },
         });
-      },
-      
+    },
+
     updateBooking: (id, data) => {
         return restClient({
             url: `booking/update/${id}`,
@@ -66,6 +66,11 @@ export const BookingService = {
             method: "POST",
             data,
         });
+    },
+    getRePaymentAmount: (id) => {
+        return restClient({
+            url: `booking/re-payment/${id}`,
+            method: "GET",
+        });
     }
-
 };
