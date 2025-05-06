@@ -80,27 +80,27 @@ export default function LayoutLandingPage() {
       </div>
 
       {/* Image Slider */}
-      <div className="p-6 relative sm:w-full md:w-full lg:w-4/5 mx-auto  slider-wrapper">
+      <div className="p-6 relative sm:w-full md:w-full lg:w-4/5 mx-auto h-[400px]  slider-wrapper">
         <Slider {...settings}>
           <div>
             <img
-              src="/Image/poster.jpeg.svg"
+              src="/Image/bn1.jpg"
               alt="Khuyến mãi 1"
-              className="rounded-lg pointer-events-none w-full h-auto"
+              className="rounded-lg pointer-events-none w-full h-[350px]"
             />
           </div>
           <div>
             <img
-              src="/Image/poster.jpeg.svg"
+              src="/Image/bn2.png"
               alt="Khuyến mãi 2"
-              className="rounded-lg pointer-events-none w-full h-auto"
+              className="rounded-lg pointer-events-none w-full h-[350px]"
             />
           </div>
           <div>
             <img
-              src="/Image/poster.jpeg.svg"
+              src="/Image/bn3.jpg"
               alt="Khuyến mãi 3"
-              className="rounded-lg pointer-events-none w-full h-auto"
+              className="rounded-lg pointer-events-none w-full h-[350px]"
             />
           </div>
         </Slider>
