@@ -145,14 +145,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
         const convertedData = data.map((item) => ({
           ...item,
           gender: item.gender === "Nam" ? true : false,
-          age_type:
-              item.age_type === "Người lớn"
-                  ? "adult"
-                  : item.age_type === "Trẻ em"
-                      ? "child"
-                      : item.age_type === "Trẻ nhỏ"
-                          ? "toddler"
-                          : "newborn",
+          age_type: item.birth_date ? getAgeType(item.birth_date) : "",
           single_room: item.single_room === "Có" ? true : false,
           id: uuidv4(),
         }));
@@ -167,25 +160,30 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
   };
 
   const handleUpdateBooking = async () => {
-    const validate = validatePassenger(bookingDetail.passengers);
-    if (!validate.isValid) {
-      toast.error(validate.messageError());
-      return;
-    }
-    const response = await updateBooking(booking.id, {
-      name: updateInfoCustomer.name,
-      phone: updateInfoCustomer.phone,
-      address: updateInfoCustomer.address,
-      email: updateInfoCustomer.email,
-      note: updateInfoCustomer.note,
-      passengers: bookingDetail.passengers,
-    });
-    if (response.status === 200) {
-      onSubmit();
-      handleClose();
-      toast.success("Cập nhật thành công");
-    } else {
-      toast.error(response.data.message || "Cập nhật thất bại");
+    try {
+      const validate = validatePassenger(bookingDetail.passengers);
+      if (!validate.isValid) {
+        toast.error(validate.messageError());
+        return;
+      }
+      const response = await updateBooking(booking.id, {
+        name: updateInfoCustomer.name,
+        phone: updateInfoCustomer.phone,
+        address: updateInfoCustomer.address,
+        email: updateInfoCustomer.email,
+        note: updateInfoCustomer.note,
+        passengers: bookingDetail.passengers,
+      });
+      if (response.status === 200) {
+        onSubmit();
+        handleClose();
+        toast.success("Cập nhật thành công");
+      } else {
+        toast.error(response.data.message || "Cập nhật thất bại");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message || "Cập nhật thất bại");
     }
   };
 
@@ -304,13 +302,14 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
               </div>
             </div>
             <div>
-              <div className="flex-1 overflow-y-auto min-h-[260px]">
+              <div className="flex-1 overflow-y-auto min-h-[300px]">
                 <table className="w-full">
                   <thead>
                   <tr className="text-left">
                     <th>Họ và tên khách hàng</th>
                     <th>Ngày sinh</th>
                     <th>Giới tính</th>
+                    <th>Độ tuổi</th>
                     <th>Số điện thoại</th>
                     <th>CCCD/Passport</th>
                     <th className="text-center">Phòng đơn</th>
@@ -331,6 +330,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
                             <td>{customer.name}</td>
                             <td>{customer.birth_date}</td>
                             <td>{customer.gender ? "Nam" : "Nữ"}</td>
+                            <td>{customer.age_type}</td>
                             <td>{customer.phone_number}</td>
                             <td>{customer.passport_number}</td>
                             <td>
@@ -474,3 +474,22 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
 };
 
 export default ModalBookingDetail;
+
+function getAgeType(birthDateStr) {
+  const birthDate = new Date(birthDateStr);
+  const now = new Date();
+
+  // Tính tuổi chính xác theo năm, tháng, ngày
+  let age = now.getFullYear() - birthDate.getFullYear();
+  const monthDiff = now.getMonth() - birthDate.getMonth();
+  const dayDiff = now.getDate() - birthDate.getDate();
+
+  if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+    age--;
+  }
+
+  if (age < 1) return "newborn";
+  if (age >= 1 && age < 3) return "toddler";
+  if (age >= 3 && age < 14) return "child";
+  return "adult";
+}
