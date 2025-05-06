@@ -744,7 +744,7 @@ exports.updateBooking = async (req, res) => {
         if (number_toddler) booking.number_toddler = number_toddler;
         if (number_newborn) booking.number_newborn = number_newborn;
         if (note) booking.note = note;
-        if (passengers && passengers.length > 0) {
+        if (passengers) {
             const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
             const existingPassengers = await Passenger.findAll({
                 where: {booking_id: bookingId},

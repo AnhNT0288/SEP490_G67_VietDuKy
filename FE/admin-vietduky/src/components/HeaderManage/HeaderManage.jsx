@@ -3,7 +3,7 @@ import { FiSidebar, FiMoon, FiUser } from "react-icons/fi";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { StorageService } from "../../services/storage/StorageService";
+import { StorageService } from "@/services/storage/StorageService.js";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Check, Trash } from "lucide-react";
 

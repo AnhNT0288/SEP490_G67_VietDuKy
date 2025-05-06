@@ -71,7 +71,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
     const validAdult =
         countByType("adult") <= (bookingDetail?.number_adult || 0);
     const validChild =
-        countByType("child") <= (bookingDetail?.number_child || 0);
+        countByType("child") <= (bookingDetail?.number_children || 0);
     const validToddler =
         countByType("toddler") <= (bookingDetail?.number_toddler || 0);
     const validNewborn =
@@ -80,7 +80,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
     const validTotal =
         totalCount <=
         (bookingDetail?.number_adult || 0) +
-        (bookingDetail?.number_child || 0) +
+        (bookingDetail?.number_children || 0) +
         (bookingDetail?.number_toddler || 0) +
         (bookingDetail?.number_newborn || 0);
 
@@ -158,7 +158,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
       console.log(error);
     }
   };
-
+  console.log(bookingDetail?.passengers);
   const handleUpdateBooking = async () => {
     try {
       const validate = validatePassenger(bookingDetail.passengers);
@@ -209,7 +209,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
   return (
       <div className="fixed inset-0 z-30 bg-black/40 flex items-center justify-center">
         <div className="bg-white w-[90%] h-[90vh] max-w-7xl rounded-2xl p-6 overflow-auto shadow-xl flex flex-col">
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex justify-between items-start mb-2">
             <h2 className="text-xl font-semibold">Thông tin chi tiết</h2>
             <button
                 className="text-gray-500 hover:text-black"
@@ -218,7 +218,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
               <XIcon className="w-5 h-5" />
             </button>
           </div>{" "}
-          <div className="grid grid-cols-4 gap-5 mb-5">
+          <div className="grid grid-cols-4 gap-5 mb-3">
             <div className="flex flex-col gap-1">
               <label className="text-md font-medium">Mã đặt Tour</label>
               <input
@@ -302,7 +302,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
               </div>
             </div>
             <div>
-              <div className="flex-1 overflow-y-auto min-h-[300px]">
+              <div className="flex-1 overflow-y-auto min-h-[280px]">
                 <table className="w-full">
                   <thead>
                   <tr className="text-left">
@@ -330,7 +330,7 @@ const ModalBookingDetail = ({ booking, open, onClose, onSubmit }) => {
                             <td>{customer.name}</td>
                             <td>{customer.birth_date}</td>
                             <td>{customer.gender ? "Nam" : "Nữ"}</td>
-                            <td>{customer.age_type}</td>
+                            <td>{getAgeTypeLabel(customer.age_type)}</td>
                             <td>{customer.phone_number}</td>
                             <td>{customer.passport_number}</td>
                             <td>
@@ -488,8 +488,24 @@ function getAgeType(birthDateStr) {
     age--;
   }
 
-  if (age < 1) return "newborn";
-  if (age >= 1 && age < 3) return "toddler";
-  if (age >= 3 && age < 14) return "child";
+  if (age < 2) return "newborn";
+  if (age >= 2 && age < 5) return "toddler";
+  if (age >= 5 && age < 11) return "child";
   return "adult";
 }
+
+function getAgeTypeLabel(ageType) {
+  switch (ageType) {
+    case "adult":
+      return "Người lớn";
+    case "child":
+      return "Trẻ em";
+    case "toddler":
+      return "Trẻ nhỏ";
+    case "newborn":
+      return "Em bé";
+    default:
+      return "";
+  }
+}
+

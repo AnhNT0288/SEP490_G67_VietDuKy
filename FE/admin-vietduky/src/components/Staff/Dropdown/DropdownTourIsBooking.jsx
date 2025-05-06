@@ -71,7 +71,7 @@ export default function DropdownTourIsBooking({ travelTour, isOpen, setOpenDropd
                             className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left"
                         >
                             <FaFileImport className="mr-2" />
-                            Nhập danh sách khách hàng
+                            Danh sách khách hàng
                         </button>
                         <button
                             onClick={() => {
