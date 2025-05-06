@@ -5,13 +5,16 @@ import { RiEditBoxLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import ModalFeedbackTour from "./ModalFeedbackTour";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { PiDotsThreeBold } from "react-icons/pi";
+import BookingDetailModal from "./ModalDetailBooking";
 
 const HistoryBookingCard = ({ booking }) => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setDetailModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleOpenFeedbackModal = () => setFeedbackModalOpen(true);
+  const handleCloseFeedbackModal = () => setFeedbackModalOpen(false);
   const handleRebook = () => {
     navigate(`/bookingReConfirm?booking_code=${booking.booking_code}`);
   };
@@ -22,8 +25,8 @@ const HistoryBookingCard = ({ booking }) => {
         <p className="text-sm mb-2">
           Mã đơn hàng:{" "}
           <span
-            className="text-red-800 font-semibold cursor-pointer"
-            onClick={handleRebook}
+            className="text-red-800 font-semibold cursor-not-allowed"
+            // onClick={handleRebook}
           >
             {booking.booking_code || "Không có mã đơn hàng"}
           </span>
@@ -34,7 +37,12 @@ const HistoryBookingCard = ({ booking }) => {
         </p>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 className="text-[#A80F21] font-semibold text-xl mb-2">
+        <h3
+          className="text-[#A80F21] font-semibold text-xl mb-2 cursor-pointer hover:underline"
+          onClick={() =>
+            navigate(`/detail-booking-tour/${booking?.TravelTour?.Tour?.id}`)
+          }
+        >
           {booking?.TravelTour?.Tour?.name_tour || "Tên tour không có"}
         </h3>
         <div className="flex gap-4">
@@ -68,19 +76,27 @@ const HistoryBookingCard = ({ booking }) => {
                 "Không có mã tour"}
             </p>
           </div>
-          <div
-            className="flex items-start gap-3 text-gray-600 text-lg"
-            onClick={() => navigate(`/tour/${booking?.TravelTour?.Tour?.id}`)}
-          >
-            <button title="Đặt lại" className="hover:text-red-600">
+          <div className="flex items-start gap-3 text-gray-600 text-lg">
+            <button
+              title="Đặt lại"
+              className="hover:text-red-600"
+              onClick={() => navigate(`/tour/${booking?.TravelTour?.Tour?.id}`)}
+            >
               <AiOutlineLoading3Quarters />
             </button>
             <button
               title="Đánh giá"
-              onClick={handleOpenModal}
+              onClick={handleOpenFeedbackModal}
               className="hover:text-red-600"
             >
               <RiEditBoxLine />
+            </button>
+            <button
+              title="Thông tin chi tiết"
+              className="hover:text-red-600"
+              onClick={() => setDetailModalOpen(true)}
+            >
+              <PiDotsThreeBold />
             </button>
           </div>
         </div>
@@ -88,8 +104,15 @@ const HistoryBookingCard = ({ booking }) => {
 
       {/* Modal Đánh Giá */}
       <ModalFeedbackTour
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isFeedbackModalOpen}
+        onClose={handleCloseFeedbackModal}
+        booking={booking}
+      />
+
+      {/* Modal Chi Tiết */}
+      <BookingDetailModal
+        open={isDetailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
         booking={booking}
       />
     </div>
