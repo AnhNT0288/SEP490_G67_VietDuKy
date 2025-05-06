@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { HiOutlineInbox, HiOutlineTrash} from "react-icons/hi";
-import {createTourActivity} from "../../../services/API/activity_tour.service.js";
 import {IoMdAdd} from "react-icons/io";
+import {toast} from "react-toastify";
+import {createTourActivity} from "@/services/API/activity_tour.service.js";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
@@ -58,15 +59,14 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
                 !p.image
         );
         if (hasInvalid) {
-            alert("Vui lòng nhập đúng ngày (số dương), tiêu đề, mô tả và ảnh.");
+            toast.error("Vui lòng nhập đúng ngày (số dương), tiêu đề, mô tả và ảnh.");
             return;
         }
 
-        // Kiểm tra ngày trùng trong form
         const days = programs.map((p) => Number(p.day));
         const hasDuplicateDay = days.some((day, index) => days.indexOf(day) !== index);
         if (hasDuplicateDay) {
-            alert("Không được nhập trùng ngày trong các chương trình.");
+            toast.error("Không được nhập trùng ngày trong các chương trình.");
             return;
         }
 
@@ -92,11 +92,12 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
 
                 const response = await createTourActivity(formData);
                 submitted.push({
-                    ...response.data,             // Dùng dữ liệu từ backend (bao gồm ảnh Cloudinary)
-                    preview: response.data.image  // Tạo thêm `preview` để dùng làm `src` nếu cần
-                });            }
+                    ...response.data,
+                    preview: response.data.image
+                });
+            }
 
-            alert("Tạo chương trình tour thành công!");
+            toast.success("Tạo chương trình tour thành công!");
             setSubmittedPrograms((prev) => [...prev, ...submitted]);
             setPrograms([{ day: "", title: "", description: "", detail: "", image: null, preview: null }]);
             onAddTravelTour(submitted);
@@ -104,10 +105,9 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
 
         } catch (error) {
             console.error("🔥 Lỗi từ backend:", error.response?.data || error);
-            alert(error.response?.data?.message || "Tạo chương trình tour thất bại.");
+            toast.error(error.response?.data?.message || "Tạo chương trình tour thất bại.");
         }
     };
-
 
     const handleWrapperClick = () => {
         onClose();
@@ -118,14 +118,8 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
     };
 
     return (
-        <div
-            className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-[9999]"
-            onClick={handleWrapperClick}
-        >
-            <div
-                className="bg-white p-6 rounded-lg shadow-lg w-[1000px] max-h-[90vh] overflow-y-auto"
-                onClick={handleModalClick}
-            >
+        <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-[9999]" onClick={handleWrapperClick}>
+            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 h-[80%] overflow-y-auto scrollbar-hide" onClick={handleModalClick}>
                 <form onSubmit={handleSubmit}>
                     <div className="flex justify-between items-center mb-4">
                         <div>
@@ -205,12 +199,15 @@ export default function ModalAddActivity({ tour, onClose, onAddTravelTour }) {
                                         </td>
 
                                         {/* Chi tiết */}
-                                        <td className="p-3">
-                                        <textarea
-                                            placeholder="Chi tiết"
-                                            value={prog.detail}
-                                            onChange={(e) => handleChange(idx, "detail", e.target.value)} rows={2}
-                                            className="w-full px-2 py-1 border rounded"/>
+                                        <td className="p-3 ">
+                                            <textarea
+                                                placeholder="Chi tiết chương trình"
+                                                value={prog.detail}
+                                                onChange={(e) => handleChange(idx, "detail", e.target.value)}
+                                                rows={4}
+                                                className="w-full px-2 py-1 border rounded"
+                                                required
+                                            />
                                         </td>
 
                                         {/* Ảnh */}

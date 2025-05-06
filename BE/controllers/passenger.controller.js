@@ -2,6 +2,14 @@ const db = require("../models");
 const Passenger = db.Passenger;
 const Booking = db.Booking;
 const TravelGuide = db.TravelGuide;
+const TravelTour = db.TravelTour;
+const HotelBooking = db.HotelBooking;
+const Hotel = db.Hotel;
+const RestaurantBooking = db.RestaurantBooking;
+const Restaurant = db.Restaurant;
+const VehicleBooking = db.VehicleBooking;
+const Vehicle = db.Vehicle;
+const ExcelJS = require('exceljs');
 
 // Tạo hành khách mới
 exports.createPassenger = async (req, res) => {
@@ -13,14 +21,15 @@ exports.createPassenger = async (req, res) => {
             phone_number,
             passport_number,
             booking_id,
+            single_room,
         } = req.body;
 
         if (
             !name ||
             !birth_date ||
             !gender ||
-            !phone_number ||
-            !passport_number ||
+            // !phone_number ||
+            // !passport_number ||
             !booking_id
         ) {
             return res
@@ -42,6 +51,7 @@ exports.createPassenger = async (req, res) => {
             phone_number,
             passport_number,
             booking_id,
+            single_room,
         });
 
         res.status(201).json({
@@ -129,11 +139,11 @@ exports.updatePassenger = async (req, res) => {
                 .json({message: "Không tìm thấy hành khách với id được cung cấp"});
         }
 
-        if (name != undefined) passenger.name = name;
-        if (birth_date != undefined) passenger.birth_date = birth_date;
-        if (gender != undefined) passenger.gender = gender;
-        if (phone_number != undefined) passenger.phone_number = phone_number;
-        if (passport_number != undefined)
+        if (name !== undefined) passenger.name = name;
+        if (birth_date !== undefined) passenger.birth_date = birth_date;
+        if (gender !== undefined) passenger.gender = gender;
+        if (phone_number !== undefined) passenger.phone_number = phone_number;
+        if (passport_number !== undefined)
             passenger.passport_number = passport_number;
 
         await passenger.save();
@@ -183,17 +193,16 @@ exports.getPassengersByTravelGuideId = async (req, res) => {
 exports.getPassengersByTravelTourId = async (req, res) => {
     try {
         const {travel_tour_id} = req.params;
-
+        const {assigned} = req.query ? req.query : false;
         if (!travel_tour_id) {
             return res.status(400).json({message: "Thiếu travel_tour_id"});
         }
 
         // Tìm tất cả các booking liên quan đến travel_tour_id
         const bookings = await Booking.findAll({
-            where: {travel_tour_id},
+            where: {travel_tour_id, status: 2},
             attributes: ["id", "number_adult", "number_children", "travel_tour_id"], // Lấy thông tin cần thiết
         });
-
         if (!bookings || bookings.length === 0) {
             return res.status(404).json({message: "Không tìm thấy booking nào!"});
         }
@@ -202,29 +211,53 @@ exports.getPassengersByTravelTourId = async (req, res) => {
         const bookingIds = bookings.map((booking) => booking.id);
 
         // Tìm tất cả hành khách liên quan đến các booking_id
-        const passengers = await Passenger.findAll({
-            where: {
-                booking_id: bookingIds,
-                group: null
-            },
-            include: [
-                {
-                    model: Booking,
-                    as: "booking",
-                    attributes: [
-                        "id",
-                        "number_adult",
-                        "number_children",
-                        "travel_tour_id",
-                        "booking_code",
-                    ],
+        let passengers;
+        console.log(assigned);
+        if (!assigned || assigned === "false") {
+            passengers = await Passenger.findAll({
+                where: {
+                    booking_id: bookingIds
                 },
-            ],
-        });
+                include: [
+                    {
+                        model: Booking,
+                        as: "booking",
+                        attributes: [
+                            "id",
+                            "number_adult",
+                            "number_children",
+                            "travel_tour_id",
+                            "booking_code",
+                        ],
+                    },
+                ],
+            });
+            console.log(passengers);
+        } else {
+            passengers = await Passenger.findAll({
+                where: {
+                    booking_id: bookingIds,
+                    group: null
+                },
+                include: [
+                    {
+                        model: Booking,
+                        as: "booking",
+                        attributes: [
+                            "id",
+                            "number_adult",
+                            "number_children",
+                            "travel_tour_id",
+                            "booking_code",
+                        ],
+                    },
+                ],
+            });
+        }
 
         if (!passengers || passengers.length === 0) {
             return res
-                .status(404)
+                .status(200)
                 .json({message: "Không tìm thấy hành khách nào!"});
         }
 
@@ -267,6 +300,7 @@ exports.getPassengersByTravelTourId = async (req, res) => {
 exports.assignPassengersToTravelGuide = async (req, res) => {
     try {
         const {travel_guide_id} = req.params;
+        const {travel_tour_id} = req.body;
         const {passenger_ids} = req.body;
 
         if (
@@ -286,7 +320,12 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 .status(404)
                 .json({message: "Không tìm thấy hướng dẫn viên!"});
         }
-
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id: travel_guide_id, travel_tour_id: travel_tour_id}
+        })
+        if (!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
         // Kiểm tra và lấy danh sách Passenger
         const passengers = await Passenger.findAll({
             where: {id: passenger_ids},
@@ -315,21 +354,43 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
                 })),
             });
         }
-
+        const anotherGuideTour = await db.GuideTour.findAll({
+            where: {travel_tour_id: travel_tour_id}
+        })
         // Tìm group lớn nhất hiện có của travel_guide_id và tăng lên 1
-        const maxGroup = await Passenger.max("group", {
-            where: {travel_guide_id},
-        });
-        const newGroup = (maxGroup || 0) + 1;
+        if (!guideTour.group) {
+            // Tìm group lớn nhất trong danh sách anotherGuideTour
+            const maxGroup = anotherGuideTour.reduce((max, current) => {
+                return current.group > max ? current.group : max;
+            }, 0);
+            console.log(maxGroup);
+
+            // Gán group mới bằng maxGroup + 1
+            guideTour.group = maxGroup + 1;
+            guideTour.save();
+        }
 
         // Gộp tất cả hành khách vào một nhóm và gán travel_guide_id
         await Promise.all(
             passengers.map((passenger) => {
                 passenger.travel_guide_id = travel_guide_id;
-                passenger.group = newGroup;
+                passenger.group = guideTour.group;
                 return passenger.save();
             })
         );
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id: travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengersNotAssigned = await Passenger.findAll({
+            where: {booking_id: bookingIds, group: null}
+        });
+        if (passengersNotAssigned.length <= 0) {
+            const travelTour = await TravelTour.findByPk(travel_tour_id);
+            travelTour.status = 1;
+            await travelTour.save();
+        }
+
 
         res.status(200).json({
             message: "Phân công hành khách cho hướng dẫn viên thành công!",
@@ -347,14 +408,25 @@ exports.assignPassengersToTravelGuide = async (req, res) => {
 exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
     try {
         const {travel_guide_id} = req.params;
+        const {travel_tour_id} = req.query;
 
         if (!travel_guide_id) {
             return res.status(400).json({message: "Thiếu travel_guide_id"});
         }
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id, travel_tour_id}
+        })
+        if (!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
 
         // Lấy danh sách hành khách theo travel_guide_id
         const passengers = await Passenger.findAll({
-            where: {travel_guide_id},
+            where: {booking_id: bookingIds, group: guideTour.group},
             include: [
                 {
                     model: Booking,
@@ -369,12 +441,6 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
                 },
             ],
         });
-
-        if (!passengers || passengers.length === 0) {
-            return res
-                .status(404)
-                .json({message: "Không tìm thấy hành khách nào!"});
-        }
 
         // Nhóm hành khách theo booking_id và tính tổng số người lớn, trẻ em
         const groupedPassengers = passengers.reduce((acc, passenger) => {
@@ -403,6 +469,7 @@ exports.getPassengersByTravelGuideIdBooking = async (req, res) => {
         res.status(200).json({
             message: "Lấy danh sách hành khách thành công!",
             data: Object.values(groupedPassengers),
+            guideTour: guideTour,
         });
     } catch (error) {
         res.status(500).json({
@@ -548,3 +615,212 @@ exports.removePassengersFromTravelGuide = async (req, res) => {
         });
     }
 };
+
+exports.getPassengerByTravelGuideId2 = async (req, res) => {
+    try {
+        const {travel_guide_id} = req.params;
+        const travel_tour_id = req.query.travel_tour_id;
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id, travel_tour_id}
+        })
+        if (!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        console.log(guideTour.group);
+        if (!guideTour.group) {
+            return res.status(404).json({message: "Hướng dẫn viên chưa được chia nhóm!"});
+        }
+        const travelGuide = await TravelGuide.findOne({
+            where: {id: travel_guide_id}
+        })
+        if (!travelGuide) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengers = await Passenger.findAll({
+            where: {booking_id: bookingIds, group: guideTour.group},
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                },
+            ],
+        });
+        res.status(200).json({
+            message: "Lấy danh sách hành khách thành công!",
+            data: passengers,
+            travelGuide: travelGuide,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy hành khách!",
+            error: error.message,
+        });
+    }
+}
+
+exports.removePassengerGroup = async (req, res) => {
+    try {
+        const {passenger_id} = req.params;
+        const passengers = await Passenger.findByPk(passenger_id)
+        if (!passengers) {
+            return res.status(404).json({message: "Không tìm thấy hành khách!"});
+        }
+        passengers.group = null;
+        passengers.travel_guide_id = null;
+        const booking = await Booking.findByPk(passengers.booking_id);
+            const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
+            travelTour.status = 0;
+            await travelTour.save();
+        await passengers.save();
+        res.status(200).json({message: "Xóa nhóm hành khách thành công!", data: passengers});
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi xóa nhóm hành khách!",
+            error: error.message,
+        });
+    }
+}
+exports.getPassengerServiceAssigned = async (req, res) => {
+    try {
+        const {travel_tour_id} = req.params;
+        const {travel_guide_id} = req.query;
+        const guideTour = await db.GuideTour.findOne({
+            where: {travel_guide_id, travel_tour_id}
+        })
+        if (!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+        const travelTour = await TravelTour.findOne({
+            where: {id: travel_tour_id}
+        })
+        if (!travelTour) {
+            return res.status(404).json({message: "Không tìm thấy tour du lịch!"});
+        }
+        const bookings = await Booking.findAll({
+            where: {travel_tour_id}
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengers = await Passenger.findAll({
+            where: {booking_id: bookingIds, group: guideTour.group},
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                    include: [
+                        {
+                            model: HotelBooking,
+                            include: [
+                                {
+                                    model: Hotel,
+                                    as: "Hotel",
+                                }
+                            ]
+                        },
+                        {
+                            model: RestaurantBooking,
+                            include: [
+                                {
+                                    model: Restaurant,
+                                    as: "Restaurant",
+                                }
+                            ]
+                        },
+                        {
+                            model: VehicleBooking,
+                            include: [
+                                {
+                                    model: Vehicle,
+                                    as: "Vehicle",
+                                }
+                            ]
+                        }
+                    ],
+                },
+            ],
+        })
+        res.status(200).json({
+            message: "Lấy danh sách hành khách thành công!",
+            data: passengers,
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy danh sách hành khách!",
+            error: error.message,
+        });
+    }
+}
+exports.exportExcel = async (req, res) => {
+    try {
+        const { travel_tour_id } = req.params;
+        const { travel_guide_id } = req.query;
+
+        const guideTour = await db.GuideTour.findOne({
+            where: { travel_guide_id, travel_tour_id }
+        })
+        if (!guideTour) {
+            return res.status(404).json({message: "Không tìm thấy hướng dẫn viên!"});
+        }
+
+        const bookings = await Booking.findAll({
+            where: { travel_tour_id }
+        })
+        const bookingIds = bookings.map((booking) => booking.id);
+        const passengers = await Passenger.findAll({
+            where: { booking_id: bookingIds, group: guideTour.group },
+            include: [
+                {
+                    model: Booking,
+                    as: "booking",
+                },
+            ],
+        })
+        if (!passengers) {
+            return res.status(404).json({message: "Không tìm thấy hành khách!"});
+        }   
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Danh sách hành khách');
+
+        worksheet.columns = [
+            { header: 'Họ tên', key: 'name', width: 20 },
+            { header: 'Ngày sinh', key: 'birth_date', width: 20 },
+            { header: 'Giới tính', key: 'gender', width: 10 },
+            { header: 'Số điện thoại', key: 'phone_number', width: 20 },
+            { header: 'Mã đơn hàng', key: 'booking_code', width: 30 },
+            { header: 'Phòng đơn', width: 10 },
+            { header: 'Số Phòng', width: 20 },
+            { header: 'Ghi chú', width: 20 },
+        ];
+
+        passengers.forEach((passenger) => {
+            worksheet.addRow([
+                passenger.name,
+                passenger.birth_date,
+                passenger.gender ? 'Nam' : 'Nữ',
+                passenger.phone_number,
+                passenger.booking.booking_code,
+                passenger.single_room ? 'Có' : 'Không',
+            ]);
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); 
+        res.setHeader('Content-Disposition', 'attachment; filename=Danh_sach_hanh_khach.xlsx');
+
+        return workbook.xlsx.write(res).then(() => {
+            res.status(200).end();
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi xuất file Excel!",
+            error: error.message,
+        });
+    }
+}
+
+
+

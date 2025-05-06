@@ -12,7 +12,7 @@ const {
 router.get("/:userId", authenticateUser, feedbackController.getFeedbackByUser);
 router.post(
   "/create/tour",
-  authenticateUser,
+  // authenticateUser,
   uploadAlbumFeedback.array("feedback_album", 10),
   feedbackController.createFeedbackForTour
 );
@@ -37,14 +37,21 @@ router.delete(
 
 router.get(
   "/tour/:tourId",
-  // authenticateUser,
+  authenticateUser,
   feedbackController.getFeedbackByTourId
 );
 
 router.get(
-  "/travel-guide/:travelGuideId",
-  // authenticateUser,
-  feedbackController.getFeedbackByTravelGuideId
+  "/travel-guide/:userId",
+  authenticateUser,
+  checkRoles(["admin","tour_guide", "staff", "customer"]),
+  feedbackController.getFeedbackByUserId
 );
 
+router.get(
+  "/admin/tour-feedbacks",
+  authenticateUser,
+  checkRoles(["admin"]),
+  feedbackController.getAllTourFeedbacksForAdmin
+);
 module.exports = router;

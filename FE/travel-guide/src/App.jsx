@@ -12,15 +12,17 @@ import TravelGuideTour from "./page/Management/TravelGuideTour.jsx";
 import DepartureSchedulePage from "./page/Management/DepartureSchedulePage.jsx";
 import TravelTourPendingPage from "./page/Management/TravelTourPendingPage.jsx";
 import Profile from "./components/Profile/Profile.jsx";
-import ForgotPassword from "./components/ForgotPassword/ForgotPassword.jsx";
-import VerifyOtp from "./components/ResetPassword/VerifyOTP.jsx";
-import ChangePassword from "./components/ResetPassword/ChangePassword.jsx";
-import SuccessReset from "./components/ResetPassword/SuccessReset.jsx";
 import ForgotPasswordFlow from "./page/ForgotPasswordFlow.jsx";
+import requestPermissionAndSaveToken from "./firebase/requestPermissionAndSaveToken";
+import { useEffect } from "react";
 
 Modal.setAppElement("#root");
 
 function App() {
+  useEffect(() => {
+    requestPermissionAndSaveToken();
+  }, []);
+
   return (
     <BrowserRouter>
       <ToastContainer position="bottom-right" autoClose={3000} />
@@ -28,7 +30,6 @@ function App() {
       <Routes>
         <Route path={"/"} element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
-
 
         <Route path={"/register"} element={<RegisterPage />} />
         <Route path="/auth/callback" element={<GoogleAuthCallback />} />

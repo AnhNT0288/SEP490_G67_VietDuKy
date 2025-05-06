@@ -18,7 +18,7 @@ router.get(
 router.get(
   "/:id",
   authenticateUser,
-  checkRoles([ "admin", "staff", "customer", "tour_guide",]),
+  checkRoles(["admin", "staff", "customer", "tour_guide"]),
   userController.getUserById
 );
 router.post(
@@ -27,6 +27,11 @@ router.post(
   checkRoles(["admin", "staff"]),
   uploadAvatar.single("avatar"),
   userController.addNewUser
+);
+router.put('/fcm-token',
+  authenticateUser,
+  checkRoles(["admin", "staff", "customer", "tour_guide",]),
+  userController.updateFcmToken
 );
 router.put(
   "/update/:id",
@@ -62,8 +67,15 @@ router.post(
 router.get(
   "/role/:role_id",
   authenticateUser,
-    checkRoles(["admin"]),
+  checkRoles(["admin"]),
   userController.getUsersByRoleId
+);
+
+router.get(
+  "/staff-profile/:user_id",
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
+  userController.getStaffProfile
 );
 
 router.put(
@@ -100,5 +112,7 @@ router.delete(
   checkRoles(["admin", "staff"]),
   userController.deleteLocationFromStaff
 );
+
+router.post("/contact-advice", authenticateUser, userController.contactAdvice);
 
 module.exports = router;

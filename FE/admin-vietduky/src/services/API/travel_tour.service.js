@@ -68,7 +68,7 @@ export function deleteTravelTour(id) {
 export function closeTravelTour(id) {
   return restClient({
     url: `travel-tour/close/${id}`,
-    method: "POST",
+    method: "GET",
   })
       .then(response => {
         console.log("✅ Đóng lịch khởi hành thành công:", response.data);
@@ -109,6 +109,45 @@ export async function getTravelToursByStaffAndEndLocation(staffId, endLocationId
         console.error("❌ Lỗi khi lấy danh sách Travel Tours:", error.response?.data || error);
         throw error;
     }
+}
+
+// Lấy danh sách Guide và Passenger theo travel tour ID
+export function getGuidesAndPassengersByTravelTourId(travelTourId) {
+    return restClient({
+        url: `guide-tour/passenger-guide/${travelTourId}`,
+        method: "GET",
+    })
+        .then((res) => res.data.data)
+        .catch((err) => {
+            console.error("Lỗi khi lấy guide/passenger theo tour:", err);
+            throw err;
+        });
+}
+// Lấy chi tiết Travel Tour theo ID
+export function getTravelTourById(id) {
+    return restClient({
+        url: `travel-tour/${id}`,
+        method: "GET",
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Lỗi API lấy chi tiết hành trình:", error);
+            throw error;
+        });
+}
+
+// Cập nhật Travel Tour theo ID
+export function updateTravelTour(id, data) {
+    return restClient({
+        url: `travel-tour/update/${id}`,
+        method: "PUT",
+        data,
+    })
+        .then(response => response.data)
+        .catch(error => {
+            console.error("Lỗi API cập nhật hành trình:", error);
+            throw error;
+        });
 }
 
 

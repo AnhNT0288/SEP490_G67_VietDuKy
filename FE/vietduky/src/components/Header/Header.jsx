@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderMenu from "./HeaderMenu";
 import { FaBars } from "react-icons/fa";
+import { useNotifications } from "@/hooks/useNotifications";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import { Check, Trash } from "lucide-react";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -15,6 +18,12 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const menuRef = useRef(null);
   const hamburgerRef = useRef(null);
+  const notificationRef = useRef(null);
+  const [isShowNotification, setIsShowNotification] = useState(false);
+
+  const { notifications, markNotificationAsRead, markAllAsRead, deleteAllNotifications } = useNotifications({
+    userId: user?.id,
+  });
 
   // Lấy thông tin user khi component mount
   useEffect(() => {
@@ -40,16 +49,14 @@ export default function Header() {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Tắt scroll khi hamburger mở
-  useEffect(() => {
-    document.body.style.overflow = isOpenHamburger ? "hidden" : "auto";
-  }, [isOpenHamburger]);
-
+  const handleClickOutsideNotification = (event) => {
+    if (
+      notificationRef.current &&
+      !notificationRef.current.contains(event.target)
+    ) {
+      setIsShowNotification(false);
+    }
+  };
   const handleSignout = () => {
     StorageService.signout(navigate);
     setUser(null);
@@ -65,6 +72,32 @@ export default function Header() {
       setIsOpenLogin(true);
     }
   };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const handleClickNotification = (notification) => {
+    if (!notification.isRead) {
+      markNotificationAsRead(notification.id, user.id);
+    }
+    navigate(getLinkNotification(notification));
+    setIsShowNotification(false);
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutsideNotification);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutsideNotification);
+    };
+  }, []);
+
+  // Tắt scroll khi hamburger mở
+
+  // Tắt scroll khi hamburger mở
+  useEffect(() => {
+    document.body.style.overflow = isOpenHamburger ? "hidden" : "auto";
+  }, [isOpenHamburger]);
 
   return (
     <header className="bg-red-700 text-white py-4 px-6 flex items-center justify-between relative z-50">
@@ -83,13 +116,19 @@ export default function Header() {
           <a href="/" className="hover:underline text-white">
             Trang Chủ
           </a>
+          <a href="/article/home" className="hover:underline text-white">
+            Bài viết
+          </a>
           <a href="/listTour" className="hover:underline text-white">
             Du lịch trọn gói
           </a>
-          <a href="#" className="hover:underline text-white">
-            Hợp tác với chúng tôi
+          <a
+            href="/about-us?tab=gioi-thieu"
+            className="hover:underline text-white"
+          >
+            Về chúng tôi
           </a>
-          <a href="#" className="hover:underline text-white">
+          <a href="/about-us?tab=ho-tro" className="hover:underline text-white">
             Hỗ Trợ
           </a>
         </nav>
@@ -97,6 +136,61 @@ export default function Header() {
         {/* Avatar + Hamburger */}
         <div className="flex items-center gap-4 md:gap-6 md:flex-row-reverse">
           {/* Avatar */}
+
+          <div className="relative" ref={notificationRef}>
+            <IoMdNotificationsOutline
+              size={24}
+              onClick={() => setIsShowNotification(!isShowNotification)}
+              className="cursor-pointer"
+            />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-white text-red-500 text-[10px] px-1.5 py-[1px] rounded-full font-semibold">
+                {unreadCount}
+              </span>
+            )}
+            {isShowNotification && (
+              <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+                <div className="flex flex-row justify-between items-center">
+                  <p className="text-sm text-gray-700 font-medium px-3 py-1">
+                    {notifications.length} thông báo
+                  </p>
+                  <div className="flex flex-row gap-2">
+                    <button onClick={markAllAsRead}>
+                      <Check size={18} className="text-gray-700" />
+                    </button>
+                    <button onClick={deleteAllNotifications}>
+                      <Trash size={18} className="text-red-700" />
+                    </button>
+                  </div>
+                </div>
+                <div className="overflow-y-auto max-h-[400px]">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    onClick={() => handleClickNotification(notification)}
+                    className={`flex flex-row justify-between items-center border-t bg-gray-100 border-gray-200 p-2 hover:bg-gray-100 cursor-pointer ${
+                      !notification?.isRead && "bg-white"
+                    }`}
+                  >
+                    <div className="flex flex-col">
+                      <p className="text-md font-medium text-black">
+                        {notification.title}
+                      </p>
+                      {notification.body && (
+                        <p className="text-sm text-gray-700 font-medium text-black">
+                          {notification.body}
+                        </p>
+                      )}
+                    </div>
+                    {!notification?.isRead && (
+                      <div className="bg-red-700 w-2 h-2 rounded-full" />
+                    )}
+                  </div>
+                ))}
+              </div>
+              </div>
+            )}
+          </div>
           <div className="relative" ref={menuRef}>
             <img
               onClick={handleAvatarClick}
@@ -155,13 +249,16 @@ export default function Header() {
           <a href="/" className="text-lg font-semibold">
             Trang Chủ
           </a>
+          <a href="/article/home" className="text-lg font-semibold">
+            Bài viết
+          </a>
           <a href="/listTour" className="text-lg font-semibold">
             Du lịch trọn gói
           </a>
-          <a href="#" className="text-lg font-semibold">
+          <a href="/about-us?tab=gioi-thieu" className="text-lg font-semibold">
             Hợp tác với chúng tôi
           </a>
-          <a href="#" className="text-lg font-semibold">
+          <a href="/about-us?tab=ho-tro" className="text-lg font-semibold">
             Hỗ Trợ
           </a>
         </div>
@@ -172,3 +269,14 @@ export default function Header() {
     </header>
   );
 }
+
+const getLinkNotification = (notification) => {
+  switch (notification?.type) {
+    case "booking":
+      return `/booking`;
+    case "booking_detail":
+      return `/bookingHistory`;
+    default:
+      return `#`;
+  }
+};

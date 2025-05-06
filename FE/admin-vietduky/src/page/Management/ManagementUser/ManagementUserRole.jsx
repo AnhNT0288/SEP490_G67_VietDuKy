@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { LuSearch } from "react-icons/lu";
-import Layout from "../../../layouts/LayoutManagement";
 import ModalAddUser from "../../../components/ModalManage/ModalUser/ModalAddUser.jsx";
 import { getAllAccounts } from "../../../services/API/accounts.services";
 import DropdownMenuUser from "../../../components/Dropdown/DropdownMenuUser.jsx";
 import ModalUpdateUser from "../../../components/ModalManage/ModalUpdate/ModalUpdateUser.jsx";
+import {updateUserStatus} from "../../../services/API/user.service.js";
 
 export default function ManagementUserRole() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -13,6 +13,7 @@ export default function ManagementUserRole() {
     const [isAddTourModalOpen, setIsAddTourModalOpen] = useState(false);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [roleFilter, setRoleFilter] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 12;
@@ -30,12 +31,16 @@ export default function ManagementUserRole() {
         fetchUsers();
     }, []);
 
-
     const filteredUsers = Array.isArray(users)
-        ? users.filter((user) =>
-            (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (user.displayName && user.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-        )
+        ? users.filter((user) => {
+            const matchesSearch =
+                (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (user.displayName && user.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            const matchesRole = roleFilter === "" || String(user.role_id) === roleFilter;
+
+            return matchesSearch && matchesRole;
+        })
         : [];
 
     const indexOfLastUser = currentPage * usersPerPage;
@@ -43,12 +48,17 @@ export default function ManagementUserRole() {
     const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
     const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-    const toggleAddTourModal = () => {
-        setIsAddTourModalOpen(!isAddTourModalOpen);
+    const handleLockAccount = async (user) => {
+        try {
+            await updateUserStatus(user.id);
+            await fetchUsers();
+        } catch (error) {
+            console.error("Failed to update user status:", error);
+        }
     };
 
-    const handleLockAccount = (userId) => {
-        console.log(`Locking account for user: ${userId}`);
+    const toggleAddTourModal = () => {
+        setIsAddTourModalOpen(!isAddTourModalOpen);
     };
 
     const handleEditUser = (user) => {
@@ -69,14 +79,29 @@ export default function ManagementUserRole() {
                         <input
                             type="text"
                             placeholder="Tìm kiếm bằng từ khóa"
-                            className="pl-10 pr-4 py-2 border rounded-md w-lg"
+                            className="pl-10 pr-4 py-2 border rounded-md w-lg mr-2"
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
                         />
+                        <select
+                            value={roleFilter}
+                            onChange={(e) => {
+                                setRoleFilter(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="px-3 py-2 border rounded-md"
+                        >
+                            <option value="">Tất cả vai trò</option>
+                            <option value="1">Khách hàng</option>
+                            <option value="2">Nhân viên</option>
+                            <option value="3">Quản trị viên</option>
+                            <option value="4">Hướng dẫn viên</option>
+                        </select>
                     </div>
+
                     <button className="bg-red-700 text-white px-4 py-2 rounded-md" onClick={toggleAddTourModal}>
                         Thêm tài khoản
                     </button>
@@ -106,9 +131,9 @@ export default function ManagementUserRole() {
                                     {user.role_id === 1
                                         ? "Khách hàng"
                                         : user.role_id === 2
-                                            ? "Staff"
+                                            ? "Nhân viên"
                                             : user.role_id === 3
-                                                ? "Admin"
+                                                ? "Quản trị viên"
                                                 : user.role_id === 4
                                                     ? "Hướng dẫn viên"
                                                     : "Unknown"}
@@ -157,7 +182,7 @@ export default function ManagementUserRole() {
                 )}
 
                 {/* Modals */}
-                {isAddTourModalOpen && <ModalAddUser onClose={toggleAddTourModal} />}
+                {isAddTourModalOpen && <ModalAddUser onClose={toggleAddTourModal} onSuccess={fetchUsers}/>}
                 {isUpdateModalOpen && (
                     <ModalUpdateUser
                         onClose={() => setIsUpdateModalOpen(false)}

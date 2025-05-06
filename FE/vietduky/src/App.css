@@ -183,3 +183,37 @@ body {
 .swiper-button-next {
   right: -20px;
 }
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+.chat-html-block img {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.chat-html-block a {
+  color: #ef4444;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.chat-html-block {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}

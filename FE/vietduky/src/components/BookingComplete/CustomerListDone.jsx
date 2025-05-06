@@ -20,7 +20,7 @@ export default function CustomerListDone({ passengerData, bookingData }) {
     PassengerService.getPassengerByBookingId(bookingData?.id)
       .then((response) => {
         if (response?.data) {
-          setPassengerList(response.data);
+          setPassengerList(response.data.data);
         }
       })
       .catch((error) => {
@@ -52,52 +52,10 @@ export default function CustomerListDone({ passengerData, bookingData }) {
     }
 
     // Gán label cho từng type
-    const label = type === "adult" ? "Người lớn" : type === "child" ? "Trẻ em" : "Em bé";
+    const label =
+      type === "adult" ? "Người lớn" : type === "child" ? "Trẻ em" : "Em bé";
 
     return { age, type, label };
-  };
-
-  // Hàm thêm hành khách
-  const addPassenger = () => {
-    PassengerService.createPassenger(newPassenger)
-      .then((response) => {
-        if (response?.data) {
-          // Cập nhật danh sách hành khách
-          setPassengerList((prev) => [...prev, response.data]);
-          // Cập nhật giá booking nếu cần
-          updateBookingPrice();
-          // Reset form sau khi thêm
-          setNewPassenger({
-            name: "",
-            phone_number: "",
-            gender: "true",
-            birth_date: "",
-            passport_number: "",
-            booking_id: bookingData?.id, // Đảm bảo booking_id được cập nhật
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Error adding passenger:", error);
-      });
-  };
-
-  // Hàm cập nhật giá booking
-  const updateBookingPrice = () => {
-    const newPrice = calculateNewPrice(); // Tính toán giá mới
-    BookingService.updateBooking({ id: bookingData.id, price: newPrice }) // Cập nhật giá
-      .then(() => {
-        console.log("Booking price updated successfully.");
-      })
-      .catch((error) => {
-        console.error("Error updating booking price:", error);
-      });
-  };
-
-  // Hàm tính toán giá mới dựa trên số lượng hành khách và giá từ travelTour
-  const calculateNewPrice = () => {
-    const pricePerPassenger = travelTourData.price; // Lấy giá từ travelTour
-    return passengerList.length * pricePerPassenger; // Tính tổng giá
   };
 
   return (
@@ -149,25 +107,27 @@ export default function CustomerListDone({ passengerData, bookingData }) {
             </thead>
             <tbody>
               {passengerList.map((passenger, index) => {
-                const { age, type, label } = calculateAgeAndType(passenger.birth_date); // Tính toán độ tuổi và loại
+                const { age, type, label } = calculateAgeAndType(
+                  passenger.birth_date
+                ); // Tính toán độ tuổi và loại
                 return (
                   <tr key={index}>
                     <td className="p-2 ">{passenger.name}</td>
                     <td className="p-2 ">{passenger.phone_number}</td>
-                    <td className="p-2 ">
-                      {passenger.gender === "true" ? "Nam" : "Nữ"}
-                    </td>
+                    <td className="p-2 ">{passenger.gender ? "Nam" : "Nữ"}</td>
                     <td className="p-2 ">{passenger.birth_date}</td>
-                    <td className="p-2 ">
-                      {label}
-                    </td>
-                    <td className="p-2 ">{passenger.passport_number}</td> {/* Hiển thị số passport */}
-                    {(type === "adult") && (
+                    <td className="p-2 ">{label}</td>
+                    <td className="p-2 ">{passenger.passport_number}</td>{" "}
+                    {/* Hiển thị số passport */}
+                    {type === "adult" && (
                       <td className="p-2  text-center">
-                      <input type="checkbox" />
-                    </td>
-                    )
-                    }
+                        <input
+                          type="checkbox"
+                          checked={passenger.singleRoom}
+                          readOnly
+                        />
+                      </td>
+                    )}
                   </tr>
                 );
               })}

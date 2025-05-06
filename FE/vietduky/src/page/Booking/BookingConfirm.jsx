@@ -6,14 +6,23 @@ import BookingInfo from "../../components/BookingCheckout/BookingInfo";
 import CustomerList from "../../components/BookingCheckout/CustomerList";
 import BookingConfirmation from "../../components/BookingCheckout/BookingConfirmation";
 import { BookingService } from "@/services/API/booking.service";
+import { TravelTourService } from "@/services/API/travel_tour.service";
 
 export default function BookingConfirm() {
   const [bookingData, setBookingData] = useState(null);
+  const [travelTourData, setTravelTourData] = useState([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("bookingResult");
+    const stored = JSON.parse(localStorage.getItem("bookingResult"));
     if (stored) {
-      setBookingData(JSON.parse(stored));
+      setBookingData(stored);
+    }
+
+    const travelTourId = stored.data?.data?.travel_tour_id;
+    if (travelTourId) {
+      TravelTourService.getTravelTour(travelTourId)
+        .then((res) => setTravelTourData(res?.data))
+        .catch((err) => console.error("Lỗi lấy TravelTour:", err));
     }
   }, []);
 
@@ -22,6 +31,8 @@ export default function BookingConfirm() {
   const data = bookingData.data?.data;
   const passengerData = bookingData.data?.passengers;
   // console.log("Dữ liệu xác nhận:", passengerData);
+  console.log("TravelTourData:", travelTourData);
+  
 
   return (
     <LayoutBookingTour title="Xác nhận tour">
@@ -33,7 +44,7 @@ export default function BookingConfirm() {
             CustomerList
           ].map((Component, index) => (
             <div key={index} className="bg-gray-50 rounded-xl">
-              <Component bookingData={data} passengerData={passengerData} />
+              <Component bookingData={data} setBookingData={setBookingData} passengerData={passengerData} travelTourData={travelTourData.data} />
             </div>
           ))}
         </div>

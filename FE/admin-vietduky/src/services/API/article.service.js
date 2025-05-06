@@ -31,3 +31,32 @@ export function createArticle(data) {
         },
     }).then((res) => res.data);
 }
+export function deleteArticle(id) {
+    return restClient({
+        url: `article/delete/${id}`,
+        method: "DELETE",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    }).then((res) => res.data);
+}
+export function updateArticle(id, data) {
+    return restClient({
+        url: `article/update/${id}`,
+        method: "PUT",
+        data,
+        headers: {
+            "Content-Type": "multipart/form-data",
+            ...getAuthHeaders(),
+        },
+    }).then((res) => res.data);
+}
+export function getArticleById(id) {
+    return restClient({
+        url: `article/detail/${id}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    }).then((res) => res.data);
+}

@@ -104,28 +104,69 @@ export const sendRequestTour = async (data) => {
   }
 };
 
-export const getTravelTourDetailForGuide = async (travelTourId) => {
+export const getTravelTourDetailForGuide = async (travelTourId, guideId) => {
   try {
     const response = await restClient({
       url: `guide-tour/travel-tour/${travelTourId}`,
       method: "GET",
+      params: {
+        travel_guide_id: guideId,
+      },
     });
     return response;
   } catch (error) {
     console.error("Lỗi khi lấy chi tiết tour:", error);
+    console.log(guideId);
+    
     throw error;
   }
 };
+
+export const getServiceForGuide = async (travelTourId, guideId) => {
+  try {
+    const response = await restClient({
+      url: `passenger/service-assigned/${travelTourId}`,
+      method: "GET",
+      params: {
+        travel_guide_id: guideId,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Lỗi khi lấy chi tiết tour:", error);
+    console.log(guideId);
+
+    throw error;
+  }
+};
+
 // Lấy danh sách hành khách được gán cho hướng dẫn viên
-export const getPassengersByGuideId = async (guideId) => {
+export const getPassengersByGuideId = async (guideId, travelTourId) => {
   try {
     const response = await restClient({
       url: `passenger/booking/travel-guide/${guideId}`,
       method: "GET",
+      params: {
+        travel_tour_id: travelTourId,
+      },
     });
     return response.data;
   } catch (error) {
     console.error("Lỗi khi lấy danh sách hành khách theo hướng dẫn viên:", error);
+    throw error;
+  }
+};
+// Lấy thống kê tour theo hướng dẫn viên
+export const getGuideTourStatistics = async (guideId, params = {}) => {
+  try {
+    const response = await restClient({
+      url: `guide-tour/statistics/${guideId}`,
+      method: "GET",
+      params: clearParams(params),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy thống kê tour:", error);
     throw error;
   }
 };

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import {
     getAssignedLocationsByStaffId,
     removeLocationFromStaff,
-} from "../../../services/API/staff.service"; // ✅ đảm bảo bạn import đúng
+} from "../../../services/API/staff.service";
+import {toast} from "react-toastify"; // ✅ đảm bảo bạn import đúng
 
 // eslint-disable-next-line react/prop-types
 export default function ModalViewLocationsOfStaff({ staff, onClose }) {
@@ -26,9 +27,9 @@ export default function ModalViewLocationsOfStaff({ staff, onClose }) {
         try {
             await removeLocationFromStaff(staff.id, locationId);
             setLocations((prev) => prev.filter((loc) => loc.id !== locationId));
-            alert("🗑️ Xoá địa điểm thành công!");
+            toast.success("🗑️ Xoá địa điểm thành công!");
         } catch (err) {
-            alert("❌ Xoá địa điểm thất bại!");
+            toast.error("❌ Xoá địa điểm thất bại!");
         }
     };
 

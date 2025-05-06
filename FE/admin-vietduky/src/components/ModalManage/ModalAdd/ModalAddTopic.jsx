@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createTopic } from "../../../services/API/topic.service";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAddTopic({ onClose, onCreateSuccess  }) {
@@ -9,12 +10,12 @@ export default function ModalAddTopic({ onClose, onCreateSuccess  }) {
     const handleCreate = async () => {
         try {
             const res = await createTopic({ name, description });
-            alert("Tạo chủ đề thành công!");
+            toast.success("Tạo chủ đề thành công!");
             if (onCreateSuccess) {
                 onCreateSuccess(res?.data || { name, description });
             }
         } catch (error) {
-            alert("Tạo chủ đề thất bại!");
+            toast.error("Tạo chủ đề thất bại!");
             console.error("Lỗi tạo chủ đề:", error);
         }
     };

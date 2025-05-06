@@ -1,11 +1,11 @@
 import { useRef } from "react";
-import { FileUp } from "lucide-react"; // hoặc icon bạn đang dùng
+import { FileUp } from "lucide-react";
 
 const ImportExcelButton = ({ onFileSelect }) => {
   const inputRef = useRef(null);
 
   const handleClick = () => {
-    inputRef.current?.click(); // Trigger file input
+    inputRef.current?.click();
   };
 
   const handleChange = (e) => {

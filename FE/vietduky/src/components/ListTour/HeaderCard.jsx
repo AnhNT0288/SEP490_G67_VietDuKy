@@ -1,16 +1,33 @@
 import Banner from "@/assets/images/HeaderBanner.jpeg";
 import { LocationService } from "@/services/API/location.service";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DatePicker from "react-datepicker";
 import { FaSearch, FaDotCircle, FaRegCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Icons from "../Icons/Icon";
 
-export default function HeaderCard() {
+export default function HeaderCard({ onSearch }) {
   const [selected, setSelected] = useState("tour");
   const navigate = useNavigate();
   const [locations, setLocations] = useState([]);
   const [selectedStart, setSelectedStart] = useState("");
   const [date, setDate] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const [destination, setDestination] = useState("");
+
+  // Đóng dropdown khi click ra ngoài
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  // Lắng nghe sự kiện click ngoài
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -21,19 +38,24 @@ export default function HeaderCard() {
         console.error("Error fetching locations:", error);
       }
     };
-
     fetchLocations();
   }, []);
+
+  const handleSearch = () => {
+    if (onSearch) {
+      onSearch(destination, selectedStart, date);
+    }
+  };
 
   return (
     <div className="relative">
       {/* Background container */}
       <div
-        className="relative w-full pb-5 lg:pb-20 bg-cover bg-center overflow-hidden"
+        className="w-full pb-5 lg:pb-20 bg-cover bg-center overflow-visible"
         style={{ backgroundImage: `url(${Banner})` }}
       >
         {/* Overlay phủ màu */}
-        <div className="absolute inset-0 bg-black opacity-30"></div>
+        <div className="absolute inset-0 bg-black opacity-50"></div>
 
         {/* Nội dung bên trên lớp phủ */}
         <div className="relative z-10">
@@ -46,76 +68,92 @@ export default function HeaderCard() {
           </div>
 
           {/* Search Bar */}
-          <div className="lg:w-4/5 mx-auto px-4 mt-6">
+          <div className="w-full max-w-6xl flex mx-auto rounded-lg mt-6 p-4">
             <div className="bg-transparent pt-4 p-4 flex flex-col md:flex-row md:items-stretch md:space-x-4 space-y-4 md:space-y-0 w-full">
               {/* Ô nhập điểm du lịch */}
-              <div className="flex items-start flex-1 bg-white border rounded-lg px-4 py-6 h-full">
-                <FaSearch className="text-gray-500 mr-3 mt-1" />
+              <div className="flex items-center flex-1 bg-gray-100 rounded px-3 py-2 h-full">
+                <img src={Icons.LocationThin} className="w-5 h-5 mr-2" />
                 <input
                   type="text"
                   placeholder="Nhập điểm du lịch"
-                  className="w-full h-full outline-none text-gray-700"
+                  className="w-full bg-transparent outline-none text-sm sm:text-lg h-full"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
                 />
               </div>
 
               {/* Ngày khởi hành */}
-              <div className="flex items-start flex-1 bg-white border rounded-lg px-4 py-3 h-full">
-                <FaRegCalendarAlt className="text-gray-500 text-xl mr-4 mt-1" />
-                <div className="flex flex-col w-full">
-                  <span className="text-sm text-gray-500">Ngày khởi hành</span>
-                  {!date ? (
-                    <div
-                      className="text-base text-black cursor-pointer"
-                      onClick={() => {
-                        const input =
-                          document.getElementById("hidden-date-picker");
-                        if (input) input.showPicker?.();
-                      }}
-                    >
-                      Chọn ngày khởi hành
-                      <input
-                        id="hidden-date-picker"
-                        type="date"
-                        className="sr-only"
-                        onChange={(e) => setDate(e.target.value)}
-                      />
-                    </div>
-                  ) : (
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="text-base text-black outline-none"
-                    />
-                  )}
+              <div className="flex items-center flex-1 bg-gray-100 rounded p-2 col-span-1 sm:col-span-2 h-full">
+                <img
+                  src={Icons.CalendarThin}
+                  className="w-5 h-5 text-gray-400 ml-1"
+                />
+                <div className="ml-3 flex flex-col h-full">
+                  <span className="text-gray-400 text-sm">Ngày khởi hành</span>
+                  <span
+                    className="text-black text-sm cursor-pointer"
+                    onClick={() =>
+                      document.getElementById("datePicker").showPicker()
+                    }
+                  >
+                    {date ? date : "Chọn ngày khởi hành"}
+                  </span>
                 </div>
+                <input
+                  type="date"
+                  id="datePicker"
+                  className="absolute opacity-0 w-0 h-0"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                />
               </div>
 
               {/* Điểm khởi hành */}
-              <div className="flex items-start flex-1 bg-white border rounded-lg px-4 py-3 h-full">
-                <FaDotCircle className="text-gray-500 mr-3 mt-1" />
-                <div className="flex flex-col w-full">
-                  <span className="text-sm text-gray-500 ml-1">
-                    Điểm khởi hành
-                  </span>
-                  <select
-                    className="w-full outline-none text-black bg-transparent"
-                    value={selectedStart}
-                    onChange={(e) => setSelectedStart(e.target.value)}
-                  >
-                    <option value="">Chọn điểm khởi hành</option>
-                    {locations.map((location) => (
-                      <option key={location.id} value={location.name_location}>
-                        {location.name_location}
-                      </option>
-                    ))}
-                  </select>
+              <div
+                className="relative flex-1 col-span-1 sm:col-span-2 h-full"
+                ref={dropdownRef}
+              >
+                <div
+                  className="flex items-center bg-gray-100 rounded p-2 cursor-pointer h-full"
+                  onClick={() => setIsOpen(!isOpen)}
+                >
+                  <img
+                    src={Icons.PlanePaper}
+                    className="w-5 h-5 text-gray-400"
+                  />
+                  <div className="ml-3 flex flex-col h-full">
+                    <span className="text-gray-400 text-sm">
+                      Điểm khởi hành
+                    </span>
+                    <span className="text-black text-sm">
+                      {selectedStart ? selectedStart : "Chọn điểm khởi hành"}
+                    </span>
+                  </div>
                 </div>
+                {isOpen && (
+                  <div className="absolute left-0 top-full mt-1 w-full max-h-60 overflow-y-auto border rounded bg-white shadow-md z-10">
+                    {locations.map((location) => (
+                      <div
+                        key={location.id}
+                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                        onClick={() => {
+                          setSelectedStart(location.name_location);
+                          setIsOpen(false);
+                        }}
+                      >
+                        {location.name_location}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Nút TÌM */}
-              <div className="flex flex-1 h-full">
-                <button className="w-full h-full bg-[#A31627] hover:bg-red-800 transition text-white px-8 py-5 rounded-lg text-xl font-semibold">
+              <div className="col-span-1 flex-1 sm:col-span-2 h-full">
+                <button
+                  onClick={handleSearch}
+                  className="w-full bg-[#A80F21] text-white py-4 rounded text-base sm:text-xl font-semibold hover:bg-[#991b1b] transition"
+                >
                   TÌM
                 </button>
               </div>

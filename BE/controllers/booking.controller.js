@@ -8,16 +8,18 @@ const Vehicle = db.Vehicle;
 const VehicleBooking = db.VehicleBooking;
 const TravelTour = db.TravelTour;
 const User = db.User;
-const Voucher = db.Voucher;
 const Passenger = db.Passenger;
 const Tour = db.Tour;
 const nodemailer = require("nodemailer");
 const path = require("path");
 const dotenv = require("dotenv");
+const Payment = db.Payment;
 dotenv.config();
 
 const {Op} = require("sequelize");
 const {generateUniqueBookingTour} = require("../utils/booking");
+const {sendRoleBasedNotification, sendNotificationToUser} = require("../utils/sendNotification");
+const {NOTIFICATION_TYPE} = require("../constants");
 
 //Cấu hình nodemailer
 const transporter = nodemailer.createTransport({
@@ -83,7 +85,7 @@ const sendConfirmationEmail = (userEmail, bookingDetails) => {
     const formattedEndTimeClose = formatTime(end_time_close);
 
     const mailOptions = {
-        from: '"Việt Du Ký" <titi2024hd@gmail.com>',
+        from: '"Việt Du Ký" <vietduky.service@gmail.com>',
         to: userEmail,
         subject: "Xác nhận đặt tour",
         html: `
@@ -234,29 +236,29 @@ exports.getAllBookings = async (req, res) => {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
                 },
-                {
-                    model: RestaurantBooking,
-                    include: [
-                        {
-                            model: Restaurant,
-                            attributes: [
-                                "id",
-                                "name_restaurant",
-                                "address_restaurant",
-                                "phone_number",
-                            ],
-                        },
-                    ],
-                },
-                {
-                    model: HotelBooking,
-                    include: [
-                        {
-                            model: Hotel,
-                            attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
-                        },
-                    ],
-                },
+                // {
+                //     model: RestaurantBooking,
+                //     include: [
+                //         {
+                //             model: Restaurant,
+                //             attributes: [
+                //                 "id",
+                //                 "name_restaurant",
+                //                 "address_restaurant",
+                //                 "phone_number",
+                //             ],
+                //         },
+                //     ],
+                // },
+                // {
+                //     model: HotelBooking,
+                //     include: [
+                //         {
+                //             model: Hotel,
+                //             attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
+                //         },
+                //     ],
+                // },
                 {
                     model: VehicleBooking,
                     include: [
@@ -293,29 +295,29 @@ exports.getBookingById = async (req, res) => {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
                 },
-                {
-                    model: RestaurantBooking,
-                    include: [
-                        {
-                            model: Restaurant,
-                            attributes: [
-                                "id",
-                                "name_restaurant",
-                                "address_restaurant",
-                                "phone_number",
-                            ],
-                        },
-                    ],
-                },
-                {
-                    model: HotelBooking,
-                    include: [
-                        {
-                            model: Hotel,
-                            attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
-                        },
-                    ],
-                },
+                // {
+                //     model: RestaurantBooking,
+                //     include: [
+                //         {
+                //             model: Restaurant,
+                //             attributes: [
+                //                 "id",
+                //                 "name_restaurant",
+                //                 "address_restaurant",
+                //                 "phone_number",
+                //             ],
+                //         },
+                //     ],
+                // },
+                // {
+                //     model: HotelBooking,
+                //     include: [
+                //         {
+                //             model: Hotel,
+                //             attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
+                //         },
+                //     ],
+                // },
                 {
                     model: VehicleBooking,
                     include: [
@@ -363,7 +365,6 @@ exports.createBooking = async (req, res) => {
             email,
             address,
             note,
-            voucher_id,
             passengers,
         } = req.body;
 
@@ -400,22 +401,7 @@ exports.createBooking = async (req, res) => {
                 message: "Tổng chi phí phải lớn hơn 0!",
             });
         }
-        if (voucher_id) {
-            const voucher = await Voucher.findByPk(voucher_id);
-            if (!voucher) {
-                return res.status(400).json({
-                    message: "Mã voucher không tồn tại!",
-                });
-            }
-            if (voucher.status === 0 || voucher.quantity <= 0) {
-                return res.status(400).json({
-                    message: "Mã voucher đã hết hạn!",
-                });
-            }
 
-            voucher.quantity -= 1;
-            await voucher.save();
-        }
         // Kiểm tra định dạng email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -488,10 +474,8 @@ exports.createBooking = async (req, res) => {
             address,
             status: 0,
             note,
-            voucher_id,
-            booking_code
+            booking_code,
         });
-
         // Xử lý danh sách passenger nếu có
         if (passengersArray && passengersArray.length > 0) {
             // Kiểm tra số lượng passenger có khớp với số lượng người đã đăng ký không
@@ -508,6 +492,9 @@ exports.createBooking = async (req, res) => {
             }
             travelTour.current_people +=
                 number_adult + number_children + number_toddler;
+            if (travelTour.current_people >= travelTour.max_people) {
+                travelTour.active = false;
+            }
             await travelTour.save();
 
             // Tạo danh sách passenger
@@ -519,7 +506,7 @@ exports.createBooking = async (req, res) => {
                     phone_number: passenger.phone_number,
                     booking_id: newBooking.id,
                     passport_number: passenger.passport_number,
-                    single_room: passenger.single_room
+                    single_room: passenger.single_room,
                 });
             });
 
@@ -540,7 +527,23 @@ exports.createBooking = async (req, res) => {
             start_time_close: travelTour.start_time_close,
             end_time_close: travelTour.end_time_close,
         });
-
+        await sendRoleBasedNotification(
+            ["admin", "staff", "tour_guide"],
+            {
+                title: "Có đơn hàng mới!",
+                type: NOTIFICATION_TYPE.BOOKING,
+            }
+        );
+        await sendNotificationToUser(
+            parseInt(user_id),
+            user.fcm_token,
+            {
+                title: "Bạn đã đặt tour thành công!",
+                type: NOTIFICATION_TYPE.BOOKING_DETAIL,
+                id: newBooking.id,
+                body: tourDetails.name_tour + ". Ngày khởi hành: " + travelTour.start_day
+            }
+        )
         res.status(201).json({
             message: "Đặt tour thành công!",
             data: newBooking,
@@ -559,18 +562,36 @@ exports.createBooking = async (req, res) => {
 exports.updateBooking = async (req, res) => {
     try {
         const bookingId = req.params.id;
-        const {name, phone, email, address, note, passengers} = req.body;
+        const {
+            name,
+            phone,
+            email,
+            address,
+            total_cost,
+            note,
+            number_adult,
+            number_children,
+            number_toddler,
+            number_newborn,
+            passengers,
+        } = req.body;
 
         const booking = await Booking.findByPk(bookingId);
         if (!booking) {
-            return res.status(200).json({message: "Booking not found!"});
+            return res.status(404).json({message: "Booking not found!"});
         }
         if (name) booking.name = name;
         if (phone) booking.phone = phone;
         if (email) booking.email = email;
         if (address) booking.address = address;
+        if (total_cost) booking.total_cost = total_cost;
+        if (number_adult) booking.number_adult = number_adult;
+        if (number_children) booking.number_children = number_children;
+        if (number_toddler) booking.number_toddler = number_toddler;
+        if (number_newborn) booking.number_newborn = number_newborn;
         if (note) booking.note = note;
         if (passengers && passengers.length > 0) {
+            const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
             const existingPassengers = await Passenger.findAll({
                 where: {booking_id: bookingId},
             });
@@ -578,15 +599,15 @@ exports.updateBooking = async (req, res) => {
                 await Passenger.destroy({
                     where: {booking_id: bookingId},
                 });
+                travelTour.current_people -= existingPassengers.length;
+                await travelTour.save();
             }
             //Kiểm tra số lượng người update có lớn hơn số lượng cũ không?
             //Nếu tính cả case passenger cho phép danh sách rỗng => kéo phần này vào ngoài if
-            const travelTour = await TravelTour.findByPk(booking.travel_tour_id);
-            const people_update = passengers.length - existingPassengers.length;
 
-            const current_people = travelTour.current_people + people_update;
+            const current_people = travelTour.current_people + passengers.length;
             if (current_people > travelTour.max_people) {
-                return res.status(200).json({
+                return res.status(500).json({
                     message: "Số lượng người đã vượt quá số lượng tối đa của chuyến!",
                 });
             }
@@ -661,29 +682,29 @@ exports.getLatestBooking = async (req, res) => {
                     model: TravelTour,
                     attributes: ["id", "tour_id", "start_day", "end_day", "price_tour"],
                 },
-                {
-                    model: RestaurantBooking,
-                    include: [
-                        {
-                            model: Restaurant,
-                            attributes: [
-                                "id",
-                                "name_restaurant",
-                                "address_restaurant",
-                                "phone_number",
-                            ],
-                        },
-                    ],
-                },
-                {
-                    model: HotelBooking,
-                    include: [
-                        {
-                            model: Hotel,
-                            attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
-                        },
-                    ],
-                },
+                // {
+                //     model: RestaurantBooking,
+                //     include: [
+                //         {
+                //             model: Restaurant,
+                //             attributes: [
+                //                 "id",
+                //                 "name_restaurant",
+                //                 "address_restaurant",
+                //                 "phone_number",
+                //             ],
+                //         },
+                //     ],
+                // },
+                // {
+                //     model: HotelBooking,
+                //     include: [
+                //         {
+                //             model: Hotel,
+                //             attributes: ["id", "name_hotel", "address_hotel", "phone_number"],
+                //         },
+                //     ],
+                // },
                 {
                     model: VehicleBooking,
                     include: [
@@ -790,7 +811,7 @@ exports.getBookingByTravelTourId = async (req, res) => {
     try {
         const travelTourId = req.params.id;
         const bookings = await Booking.findAll({
-            where: {travel_tour_id: travelTourId},
+            where: {travel_tour_id: travelTourId, status: 2},
         });
         res.status(200).json({
             message: "Lấy booking thành công!",
@@ -799,6 +820,59 @@ exports.getBookingByTravelTourId = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: "Lỗi khi lấy booking!",
+            error: error.message,
+        });
+    }
+};
+exports.getBookingByBookingCode = async (req, res) => {
+    try {
+        const bookingCode = req.body.booking_code;
+        const booking = await Booking.findOne({
+            where: {booking_code: bookingCode},
+        });
+        if (!booking) {
+            return res.status(200).json({message: "Không tìm thấy booking!"});
+        }
+        res.status(200).json({
+            message: "Lấy booking thành công!",
+            data: booking,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy booking!",
+            error: error.message,
+        });
+    }
+};
+exports.rePayment = async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+        const booking = await Booking.findByPk(bookingId);
+        if (!booking) {
+            return res.status(200).json({message: "Không tìm thấy booking!"});
+        }
+        const payments = await Payment.findAll({
+            where: {booking_id: bookingId},
+        });
+        let amount = booking.total_cost;
+        if (payments.length > 0) {
+            for (let i = 0; i < payments.length; i++) {
+                amount -= payments[i].amount;
+            }
+        }
+        if (amount > 0) {
+            res.status(200).json({
+                message: "Lấy số tiền còn thiếu thành công!",
+                data: amount,
+            });
+        } else {
+            res.status(200).json({
+                message: "Đã thanh toán hết!",
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Lỗi khi lấy số tiền còn thiếu!",
             error: error.message,
         });
     }

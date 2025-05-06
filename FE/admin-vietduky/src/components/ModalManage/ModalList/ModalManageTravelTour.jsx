@@ -3,15 +3,13 @@ import { formatDayDMY } from "../../../utils/dateUtil.jsx";
 import { useEffect, useRef, useState } from "react";
 import { LuSearch } from "react-icons/lu";
 import ModalAddTravelTour from "../ModalAdd/ModalAddTravelTour.jsx";
-import {
-  closeTravelTour,
-  deleteTravelTour,
-  getTravelTourByTourId,
-} from "../../../services/API/travel_tour.service.js";
+import {closeTravelTour, deleteTravelTour, getTravelTourByTourId,} from "../../../services/API/travel_tour.service.js";
 import { FiCalendar, FiList } from "react-icons/fi";
 import CalendarTravelTour from "../ModalCalendar/CalendarTravelTour.jsx";
 import DropdownMenuTravelTour from "../../Dropdown/DropdowMenuTravelTour.jsx";
 import ModalManageGuideForTravelTour from "./ModalManageGuideForTravelTour.jsx";
+import {toast} from "react-toastify";
+import ModalUpdateTravelTour from "../ModalUpdate/ModalUpdateTravelTour.jsx";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
@@ -24,6 +22,8 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
   const [selectedTravelTourId, setSelectedTravelTourId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [isListGuideModalOpen, setIsListGuideModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [editTravelTourId, setEditTravelTourId] = useState(null);
 
   const handleAddTravelTour = () => {
     setIsAddTravelTourModalOpen(true);
@@ -77,9 +77,9 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     try {
       await deleteTravelTour(id);
       setTravelTours((prev) => prev.filter((_, i) => i !== index));
-      alert("Xóa hành trình thành công");
+      toast.success("Xóa hành trình thành công");
     } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.log("Lỗi khi xóa hành trình", error);
     }
   };
@@ -101,11 +101,11 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
 
     try {
       await closeTravelTour(id);
-      alert("✅ Đã đóng lịch khởi hành thành công.");
+      toast.success("Đã đóng lịch khởi hành thành công.");
       const response = await getTravelTourByTourId(tourId);
       setTravelTours(response.data || []);
     } catch (error) {
-      alert("❌ Đóng lịch khởi hành thất bại.", error);
+      toast.error("Đóng lịch khởi hành thất bại.", error);
     }
   };
 
@@ -114,15 +114,21 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
     const start = new Date(tour.start_day);
     const end = new Date(tour.end_day);
 
-    if (today < start) return "upcoming";       // sắp khởi hành
-    if (today >= start && today <= end) return "ongoing"; // đang diễn ra
-    if (today > end) return "completed";        // đã hoàn thành
+    if (today < start) return "upcoming";
+    if (today >= start && today <= end) return "ongoing";
+    if (today > end) return "completed";
 
     return "unknown";
   };
 
   const toggleDropdown = (id) => {
     setOpenDropdown(openDropdown === id ? null : id);
+  };
+
+  const handleEditTravelTour = (id) => {
+    setEditTravelTourId(id);
+    setIsUpdateModalOpen(true);
+    setOpenDropdown(null);
   };
 
   const handleWrapperClick = () => {
@@ -300,7 +306,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                                       {openDropdown === index && (
                                           <div ref={dropdownRef}>
                                             <DropdownMenuTravelTour
-                                                onEdit={() => {}}
+                                                onEdit={() => handleEditTravelTour(travelTour.id)}
                                                 onLock={() => handleCloseTravelTour(travelTour.id)}
                                                 onDelete={() => handleDeleteTravelTour(index)}
                                                 onAssignGuide={() => handleAssignGuide(travelTour)}
@@ -321,6 +327,13 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                               onClose={() => setIsListGuideModalOpen(false)}
                           />
                       )}
+                      {isUpdateModalOpen && (
+                          <ModalUpdateTravelTour
+                              travelTourId={editTravelTourId}
+                              onClose={() => setIsUpdateModalOpen(false)}
+                              onUpdateSuccess={handleAddTravelTourSuccess}
+                          />
+                      )}
                     </div>
                 )
             ) : (
@@ -330,6 +343,7 @@ export default function ModalManageTravelTour({ tourId, onClose, tours = [] }) {
                     tours={tours}
                 />
             )}
+
           </div>
         </div>
       </div>

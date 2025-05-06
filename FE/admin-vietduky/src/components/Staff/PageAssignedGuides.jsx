@@ -29,7 +29,7 @@ export default function PageAssignedGuides() {
                     phonenumber: staff.phonenumber || "—"
                 });
             } catch (error) {
-                console.error("❌ Không thể tải dữ liệu:", error);
+                console.error("Không thể tải dữ liệu:", error);
             }
         };
 
@@ -108,7 +108,6 @@ export default function PageAssignedGuides() {
                     <th className="p-2">Ngày sinh</th>
                     <th className="p-2">Số điện thoại</th>
                     <th className="p-2">Trạng thái</th>
-                    <th className="p-2 text-right">Thao tác</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -128,9 +127,6 @@ export default function PageAssignedGuides() {
                             <td className="p-3">{formatDate(guide.birth_date)}</td>
                             <td className="p-3">{guide.number_phone || "—"}</td>
                             <td className="p-3">Trạng thái</td>
-                            <td className="p-3 text-right">
-                                <MdOutlineDeleteForever className="text-red-500 text-lg cursor-pointer hover:text-red-900" />
-                            </td>
                         </tr>
                     ))
                 )}

@@ -12,8 +12,20 @@ const ContactForm = ({
   travelTourData,
   roomCost,
   setRoomCost,
+  assistance,
+  setAssistance,
 }) => {
   const [passengerData, setPassengerData] = useState([]);
+
+  useEffect(() => {
+    if (assistance) {
+      setPassengerData([]);
+      setFormData((prev) => ({
+        ...prev,
+        passengers: [],
+      }));
+    }
+  }, [assistance]);
 
   useEffect(() => {
     const adults = passengerData.filter((p) => p.type === "adult").length;
@@ -23,7 +35,7 @@ const ContactForm = ({
 
     setFormData((prev) => ({
       ...prev,
-      travel_tour_id: travelTourData[0]?.id || "",
+      travel_tour_id: travelTourData?.[0]?.id || "",
       number_adult: adults + passengers.adult,
       number_children: children + passengers.children,
       number_toddler: toddlers + passengers.toddler,
@@ -32,10 +44,9 @@ const ContactForm = ({
     }));
   }, [passengers, passengerData, travelTourData]);
 
-  // console.log("Dữ liệu booking", formData);
+  console.log("Dữ liệu booking", formData);
   // console.log("Hành khách đã chọn:", passengerData);
   // console.log("Giá phòng đơn", roomCost);
-  
 
   const handlePassengerDataChange = (data) => {
     // console.log("Received new passengerData:", data);
@@ -66,15 +77,44 @@ const ContactForm = ({
   };
 
   const handlePassengerChange = (type, increment) => {
-    setPassengers((prev) => ({
-      ...prev,
-      [type]: Math.max(0, prev[type] + increment),
-    }));
+    setPassengers((prev) => {
+      const remainingSlots = travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people;
+      
+      // Tính tổng hành khách (không bao gồm infant)
+      const totalCurrentWithoutInfant = Object.entries(prev)
+        .filter(([key]) => key !== "infant")
+        .reduce((sum, [, val]) => sum + val, 0);
+  
+      // Kiểm tra nếu đang muốn tăng vượt quá slot còn lại
+      if (increment > 0 && totalCurrentWithoutInfant >= remainingSlots && type !== "infant") {
+        alert(`Chuyến đi này chỉ còn ${remainingSlots} hành khách!`);
+        return prev;
+      }
+  
+      const newValue = prev[type] + increment;
+  
+      // Nếu là người lớn (adult) thì min = 1
+      if (type === "adult" && newValue < 1) return prev;
+  
+      // Các loại khác không được nhỏ hơn 0
+      if (newValue < 0) return prev;
+  
+      return {
+        ...prev,
+        [type]: newValue,
+      };
+    });
   };
   
+  const handleAssistanceChange = (e) => {
+    setAssistance(e.target.checked);
+  };
+
   console.log("Passenger data:", passengerData);
-  
+
   // console.log("Hành khách", passengers);
+  // console.log("Travel tour data", travelTourData?.[0]?.max_people);
+  
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -132,9 +172,7 @@ const ContactForm = ({
           />
         </div>
         <div>
-          <label className="block font-bold">
-            Địa chỉ
-          </label>
+          <label className="block font-bold">Địa chỉ</label>
           <input
             type="text"
             name="address"
@@ -150,7 +188,7 @@ const ContactForm = ({
 
       <div className="grid grid-cols-2 gap-4">
         {[
-          { label: "Người lớn", type: "adult", desc: "Từ 12 trở lên", min: 0 },
+          { label: "Người lớn", type: "adult", desc: "Từ 12 trở lên", min: 1 },
           { label: "Trẻ em", type: "children", desc: "Từ 5 - 11 tuổi", min: 0 },
           {
             label: "Trẻ nhỏ",
@@ -177,14 +215,38 @@ const ContactForm = ({
         ))}
       </div>
 
-      <PassengerInfoForm
-        passengers={passengers}
-        setPassengers={setPassengers}
-        roomCost={roomCost}
-        setRoomCost={setRoomCost}
-        onPassengerDataChange={handlePassengerDataChange}
-        setFormData={setFormData}
-      />
+      <div className="space-y-6 mt-4">
+        <h2 className="text-xl font-bold text-neutral-900">
+          Thông tin hành khách
+        </h2>
+        <div className="p-4 bg-[#ffe8eb] rounded-lg flex items-center gap-2.5">
+          <input
+            type="checkbox"
+            name="assistance"
+            checked={assistance}
+            onChange={handleAssistanceChange}
+            className="w-6 h-6 border border-[#5d5d5d] rounded-md"
+          />
+          <span className="text-sm font-semibold text-zinc-900/90">
+            Tôi cần được nhân viên tư vấn VietDuKy trợ giúp nhập thông tin đăng
+            ký dịch vụ
+          </span>
+        </div>
+        {!assistance && (
+          <PassengerInfoForm
+            passengers={passengers}
+            setPassengers={setPassengers}
+            roomCost={roomCost}
+            setRoomCost={setRoomCost}
+            onPassengerDataChange={handlePassengerDataChange}
+            setFormData={setFormData}
+            assistance={assistance}
+            setAssistance={setAssistance}
+            currentSlot={travelTourData?.[0]?.max_people - travelTourData?.[0]?.current_people}
+          />
+        )}
+      </div>
+
       <div className="border-b border-[#b1b1b1]" />
       <div className="space-y-2">
         <h3 className="text-xl font-bold">Ghi chú</h3>

@@ -8,6 +8,7 @@ import ModalUpdateTopic from "../../components/ModalManage/ModalUpdate/ModalUpda
 import ModalAddTourToTopic from "../../components/ModalManage/ModalAdd/ModalAddTourToTopic.jsx";
 import {getToursByTopic} from "../../services/API/tour.service.js";
 import ModalViewToursOfTopic from "../../components/ModalManage/ModalList/ModalManageTourbyTopic.jsx";
+import {toast} from "react-toastify";
 
 export default function ManagementTour() {
     const [isAddTourModalOpen, setIsAddTourModalOpen] = useState(false);
@@ -52,7 +53,7 @@ export default function ManagementTour() {
                 )
             );
         } catch (error) {
-            alert("Cập nhật trạng thái thất bại.");
+            toast.error("Cập nhật trạng thái thất bại.");
             console.error(error);
         }
     };
@@ -61,9 +62,9 @@ export default function ManagementTour() {
         try {
             await deleteTopic(id);
             setTopics((prev) => prev.filter((t) => t.id !== id));
-            alert("Xóa chủ đề thành công!");
+            toast.success("Xóa chủ đề thành công!");
         } catch (error) {
-            alert("Xóa thất bại!");
+            toast.error("Xóa thất bại!");
             console.error(error);
         }
     };

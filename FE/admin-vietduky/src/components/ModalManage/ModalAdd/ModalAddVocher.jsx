@@ -2,6 +2,7 @@ import { useState } from "react";
 import TextEditor from "../../../lib/TextEditor.jsx";
 import { createVoucher } from "../../../services/API/vocher.service.js";
 import DatePicker from "react-datepicker";
+import {toast} from "react-toastify";
 
 export default function ModalAddVocher({ onClose }) {
     const [voucherData, setVoucherData] = useState({
@@ -36,10 +37,10 @@ export default function ModalAddVocher({ onClose }) {
             });
 
             const res = await createVoucher(formData);
-            alert("Tạo voucher thành công!");
+            toast.success("Tạo voucher thành công!");
             onClose?.();
         } catch (err) {
-            alert("Tạo voucher thất bại!");
+            toast.error("Tạo voucher thất bại!");
             console.error("Lỗi:", err.response?.data || err.message);
         }
     };

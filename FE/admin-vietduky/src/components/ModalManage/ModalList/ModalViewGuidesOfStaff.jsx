@@ -4,6 +4,7 @@ import {
     unassignGuideFromStaff
 } from "../../../services/API/staff.service.js";
 import {MdOutlineDeleteForever} from "react-icons/md";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalViewGuidesOfStaff({ staff, onClose }) {
@@ -47,11 +48,11 @@ export default function ModalViewGuidesOfStaff({ staff, onClose }) {
             // eslint-disable-next-line react/prop-types
             await unassignGuideFromStaff(staff.id, [guideId]);
             setGuides((prev) => prev.filter((g) => g.id !== guideId));
-            alert("🗑️ Đã xoá hướng dẫn viên khỏi nhân viên!");
+            toast.success("🗑️ Đã xoá hướng dẫn viên khỏi nhân viên!");
         } catch (err) {
             const errorMessage =
                 err?.response?.data?.message || "Xảy ra lỗi khi xoá hướng dẫn viên!";
-            alert(errorMessage);
+            toast.error(errorMessage);
             console.error("Lỗi khi xoá hướng dẫn viên:", err?.response?.data || err);
         }
     };

@@ -10,7 +10,7 @@ import { formatYMD } from "@/utils/dateUtil";
 
 dayjs.locale("vi");
 
-const Calendar = ({ id, initialSelectedDate }) => {
+const Calendar = ({ id, initialSelectedDate, discountList = [] }) => {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [viewMode, setViewMode] = useState("calendar");
@@ -53,8 +53,7 @@ const Calendar = ({ id, initialSelectedDate }) => {
         const formattedTourDates = tour.reduce((acc, tour) => {
           if (tour.start_day) {
             const dateStr = dayjs(tour.start_day).format("YYYY-MM-DD");
-            acc[dateStr] =
-              (tour.price_tour / 1000).toLocaleString("vi-VN") + "k";
+            acc[dateStr] = tour.price_tour;
           }
           return acc;
         }, {});
@@ -78,14 +77,14 @@ const Calendar = ({ id, initialSelectedDate }) => {
         setTourEndDates(formattedTourEndDates);
         setTourDates(formattedTourDates);
 
-          if (initialSelectedDate) {
-            setSelectedDate(formatYMD(initialSelectedDate));
-          } else {
-            const firstTourDate = Object.keys(formattedTourDates)[0];
-            if (firstTourDate) {
-              setSelectedDate(firstTourDate);
-            }
+        if (initialSelectedDate) {
+          setSelectedDate(formatYMD(initialSelectedDate));
+        } else {
+          const firstTourDate = Object.keys(formattedTourDates)[0];
+          if (firstTourDate) {
+            setSelectedDate(firstTourDate);
           }
+        }
       } catch (error) {
         console.error("Error fetching travel tour data:", error);
       }
@@ -93,6 +92,21 @@ const Calendar = ({ id, initialSelectedDate }) => {
 
     fetchTourDates();
   }, [id]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const selectedMonth = dayjs(selectedDate);
+      if (!currentDate.isSame(selectedMonth, "month")) {
+        setCurrentDate(selectedMonth.startOf("month"));
+      }
+    }
+  }, [selectedDate]);
+
+  const formatShortPrice = (price) => {
+    if (!price || isNaN(price)) return "";
+
+    return (price / 1000).toLocaleString() + "k";
+  };
 
   const startOfMonth = currentDate.startOf("month");
   const startDay = startOfMonth.day();
@@ -148,7 +162,27 @@ const Calendar = ({ id, initialSelectedDate }) => {
       return;
     }
 
-    navigate("/booking/" + id, { state: { selectedTours, id } });
+    // ✨ Tìm discount ứng với selectedDate
+    const discount = discountList.find(
+      (d) =>
+        dayjs(d.travelTour?.start_day).format("YYYY-MM-DD") === selectedDate
+    );
+
+    // ✨ Điều hướng, kèm discountInfo nếu có
+    navigate("/booking/" + id, {
+      state: {
+        selectedTours,
+        id,
+        discountInfo: discount
+          ? {
+              discountId: discount.id,
+              discountValue: discount.programDiscount?.discount_value,
+              percentDiscount: discount.programDiscount?.percent_discount,
+              priceDiscount: discount.price_discount,
+            }
+          : null,
+      },
+    });
   };
 
   // console.log("travel Tour", travelTourData);
@@ -223,7 +257,19 @@ const Calendar = ({ id, initialSelectedDate }) => {
               <div className="grid grid-cols-7 gap-1 mt-2">
                 {days.map((date, i) => {
                   const dateStr = date.format("YYYY-MM-DD");
+                  const discount = discountList.find(
+                    (d) =>
+                      dayjs(d.travelTour?.start_day).format("YYYY-MM-DD") ===
+                      dateStr
+                  );
+
                   const isTourDate = tourDates[dateStr];
+                  const matchedTour = travelTourData.find(
+                    (tour) =>
+                      dayjs(tour.start_day).format("YYYY-MM-DD") === dateStr
+                  );
+                  const isTourDisabled =
+                    matchedTour && matchedTour.active === false;
                   const isSelected = selectedDate === dateStr;
                   const isCurrentMonth = date.month() === currentDate.month();
                   const isPastDate = date.isBefore(dayjs(), "day");
@@ -233,16 +279,27 @@ const Calendar = ({ id, initialSelectedDate }) => {
                       className={`h-16 w-16 flex flex-col items-center justify-center rounded-md transition duration-300 
                         ${
                           isTourDate
-                            ? isPastDate
+                            ? isPastDate || isTourDisabled
                               ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                              : "border border-[#A80F21] text-red-600 cursor-pointer hover:bg-[#A80F21] hover:text-white"
+                              : `${
+                                  discount
+                                    ? "border-green-500 text-green-500 hover:bg-green-500 border-green-500"
+                                    : "border-[#A80F21] hover:bg-[#A80F21] text-red-600"
+                                } border   cursor-pointer  hover:text-white`
                             : "cursor-default"
                         }
-                        ${isSelected ? "bg-[#A80F21] text-white" : "bg-white"}
+                        ${
+                          isSelected
+                            ? `${
+                                discount ? "bg-green-500" : "bg-[#A80F21]"
+                              } text-white`
+                            : "bg-white"
+                        }
                         ${!isCurrentMonth ? "text-gray-400" : "text-black"}`}
                       onClick={() =>
                         !isPastDate &&
                         isTourDate &&
+                        !isTourDisabled &&
                         toggleDateSelection(dateStr)
                       }
                       onMouseEnter={() => isTourDate && setHoveredDate(dateStr)}
@@ -251,11 +308,17 @@ const Calendar = ({ id, initialSelectedDate }) => {
                       <span className="text-sm font-normal">{date.date()}</span>
                       {isTourDate && (
                         <span className="text-xs font-normal mt-1">
-                          {tourDates[dateStr]}
+                          {discount
+                            ? formatShortPrice(discount.price_discount)
+                            : formatShortPrice(tourDates[dateStr])}
                         </span>
                       )}
                       {hoveredDate === dateStr && isTourDate && (
-                        <div className="absolute bg-red-500 text-sm text-white border border-gray-300 p-2 rounded shadow-lg mt-36">
+                        <div
+                          className={`${
+                            discount ? "bg-green-500" : "bg-red-500"
+                          } absolute  text-sm text-white border border-gray-300 p-2 rounded shadow-lg mt-36`}
+                        >
                           <p>Ngày đi: {date.format("DD/MM/YYYY")}</p>
                           <p>
                             Ngày về:{" "}
@@ -263,11 +326,15 @@ const Calendar = ({ id, initialSelectedDate }) => {
                               date.add(1, "day").format("DD/MM/YYYY")}
                           </p>
                           <p>
-                            Giá:{" "}
-                            {(
-                              parseFloat(tourDates[dateStr]) * 1000000
-                            ).toLocaleString("vi-VN")}{" "}
-                            VNĐ
+                            {isTourDisabled
+                              ? "Tour đã đủ người"
+                              : discount
+                              ? `Giá: ${discount.price_discount.toLocaleString(
+                                  "vi-VN"
+                                )} VNĐ`
+                              : `Giá: ${tourDates[dateStr].toLocaleString(
+                                  "vi-VN"
+                                )} VNĐ`}
                           </p>
                         </div>
                       )}

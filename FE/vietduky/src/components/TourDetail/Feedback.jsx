@@ -5,10 +5,14 @@ import { AiOutlineLike } from "react-icons/ai";
 import { toast } from "react-toastify";
 
 export default function Feedback({ id }) {
+  const userId = useMemo(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    return storedUser?.id || null;
+  }, []);
   const [selectedFilter, setSelectedFilter] = useState("Tất cả");
   const [feedbacks, setFeedbacks] = useState([]);
   const [visibleCount, setVisibleCount] = useState(10);
-  const filters = ["Tất cả", "Chỉ có hình ảnh", "4.0+", "3.0+", "2.0+", "1.0+"];
+  const filters = ["Tất cả", "Chỉ có hình ảnh", "4.0", "3.0", "2.0", "1.0"];
   const [likePosts, setLikePosts] = useState([]);
   const [likeCounts, setLikeCounts] = useState({});
 
@@ -24,7 +28,11 @@ export default function Feedback({ id }) {
               const likeResponse = await LikeService.totalLikeFeedback(
                 fb.feedback_id
               );
-              return { ...fb, totalLikes: likeResponse.data.count }; // Cập nhật số lượt thích
+              return {
+                ...fb,
+                totalLikes: likeResponse.data.count,
+                likes: likeResponse.data.userIds || [],
+              }; // Cập nhật số lượt thích
             })
           );
           setFeedbacks(updatedFeedbacks);
@@ -39,33 +47,60 @@ export default function Feedback({ id }) {
     fetchFeedbacks();
   }, [id]);
 
+  // const filteredFeedbacks = useMemo(() => {
+  //   switch (selectedFilter) {
+  //     case "Chỉ có hình ảnh":
+  //       return feedbacks.filter(
+  //         (fb) =>
+  //           fb.feedback_album.length > 0 &&
+  //           (!fb.description_feedback || fb.description_feedback.trim() === "")
+  //       );
+  //     case "4.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 4);
+  //     case "3.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 3);
+  //     case "2.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 2);
+  //     case "1.0+":
+  //       return feedbacks.filter((fb) => fb.rating === 1);
+  //     default:
+  //       return feedbacks;
+  //   }
+  // }, [feedbacks, selectedFilter]);
+
   const filteredFeedbacks = useMemo(() => {
-    switch (selectedFilter) {
-      case "Chỉ có hình ảnh":
-        return feedbacks.filter(
-          (fb) =>
-            Array.isArray(fb.feedback_album) && fb.feedback_album.length > 0
-        );
-      case "4.0+":
-        return feedbacks.filter((fb) => fb.rating >= 4);
-      case "3.0+":
-        return feedbacks.filter((fb) => fb.rating >= 3);
-      case "2.0+":
-        return feedbacks.filter((fb) => fb.rating >= 2);
-      case "1.0+":
-        return feedbacks.filter((fb) => fb.rating >= 1);
-      default:
-        return feedbacks;
+    if (selectedFilter === "Tất cả") {
+      return feedbacks;
     }
+
+    if (selectedFilter === "Chỉ có hình ảnh") {
+      return feedbacks.filter(
+        (fb) =>
+          fb.feedback_album.length > 0 &&
+          (!fb.description_feedback || fb.description_feedback.trim() === "")
+      );
+    }
+
+    // Nếu filter là rating (1.0, 2.0, v.v)
+    const ratingFilter = parseFloat(selectedFilter);
+    if (!isNaN(ratingFilter)) {
+      return feedbacks.filter((fb) => fb.rating === ratingFilter);
+    }
+
+    return feedbacks;
   }, [feedbacks, selectedFilter]);
 
   const visibleFeedbacks = filteredFeedbacks.slice(0, visibleCount);
 
-  const totalRating = filteredFeedbacks.reduce((sum, fb) => sum + fb.rating, 0);
+  // const totalRating = filteredFeedbacks.reduce((sum, fb) => sum + fb.rating, 0);
+  // const averageRating =
+  //   filteredFeedbacks.length > 0
+  //     ? (totalRating / filteredFeedbacks.length).toFixed(1)
+  //     : 0;
+
+  const totalRating = feedbacks.reduce((sum, fb) => sum + fb.rating, 0);
   const averageRating =
-    filteredFeedbacks.length > 0
-      ? (totalRating / filteredFeedbacks.length).toFixed(1)
-      : 0;
+    feedbacks.length > 0 ? (totalRating / feedbacks.length).toFixed(1) : 0;
 
   const handleShowMore = () => {
     setVisibleCount((prev) => prev + 10);
@@ -142,7 +177,13 @@ export default function Feedback({ id }) {
       setFeedbacks((prevFeedbacks) =>
         prevFeedbacks.map((fb) =>
           fb.feedback_id === feedbackId
-            ? { ...fb, totalLikes } // Cập nhật số lượt like
+            ? {
+                ...fb,
+                totalLikes,
+                likes: fb.likes?.includes(userId)
+                  ? fb.likes.filter((uid) => uid !== userId)
+                  : [...(fb.likes || []), userId],
+              }
             : fb
         )
       );
@@ -160,7 +201,7 @@ export default function Feedback({ id }) {
           {"★".repeat(Math.round(averageRating)).padEnd(5, "☆")}
         </span>
         <span className="text-gray-600 text-sm">
-          Dựa trên {filteredFeedbacks.length} đánh giá
+          Dựa trên {feedbacks.length} đánh giá
         </span>
         <a
           href="/article/post-experience"
@@ -193,83 +234,100 @@ export default function Feedback({ id }) {
       {/* Nội dung đánh giá */}
       <div className="mt-6 space-y-6">
         {visibleFeedbacks.length > 0 ? (
-          visibleFeedbacks.map((fb) => (
-            <div
-              key={fb.feedback_id}
-              style={{
-                boxShadow: "inset 0 2px 8px rgba(99, 102, 241, 0.2)",
-              }}
-              className="flex gap-3 p-4 rounded-lg inset-shadow-sm inset-shadow-indigo-500/50"
-            >
-              <img
-                src={
-                  fb.user?.avatar || "https://i.pravatar.cc/40?u=" + fb.user?.id
-                }
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div className="flex-1">
-                <p className="font-bold">{fb.user?.displayName}</p>
-                <p className="text-gray-500 text-sm">
-                  {getRelativeDateText(fb.feedback_date)}
-                </p>
+          visibleFeedbacks.map((fb) => {
+            console.log(fb.totalLikes);
 
-                <div className="flex items-center mb-2">
-                  <div className="text-yellow-400 text-lg">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <span key={i}>{i <= fb.rating ? "★" : "☆"}</span>
-                    ))}
-                  </div>
-                  <span
-                    className={`ml-2 text-sm font-medium 
-                    }`}
-                  >
-                    {getRecommendationText(fb.rating)}
-                  </span>
-                </div>
+            return (
+              <div
+                key={fb.feedback_id}
+                style={{
+                  boxShadow: "inset 0 2px 8px rgba(99, 102, 241, 0.2)",
+                }}
+                className="flex gap-3 p-4 rounded-lg inset-shadow-sm inset-shadow-indigo-500/50"
+              >
+                <img
+                  src={
+                    fb.user?.avatar ||
+                    "https://i.pravatar.cc/40?u=" + fb.user?.id
+                  }
+                  alt="User Avatar"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <p className="font-bold">{fb.user?.displayName}</p>
+                  <p className="text-gray-500 text-sm">
+                    {getRelativeDateText(fb.feedback_date)}
+                  </p>
 
-                <p className="text-gray-700 text-sm">
-                  {fb.description_feedback}
-                </p>
-
-                {/* Ảnh đính kèm nếu có */}
-                {fb.feedback_album && Array.isArray(fb.feedback_album) && (
-                  <div className="mt-3 flex gap-2 flex-wrap">
-                    {fb.feedback_album.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`Feedback ${idx}`}
-                        className="w-20 h-20 object-cover rounded-md"
-                      />
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-3 text-gray-600 text-sm">
-                  <div className="flex items-center gap-2 cursor-pointer">
+                  <div className="flex items-center mb-2">
+                    <div className="text-yellow-400 text-lg">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <span key={i}>{i <= fb.rating ? "★" : "☆"}</span>
+                      ))}
+                    </div>
                     <span
-                      onClick={() => handleToggleLike(fb.feedback_id)}
-                      className={`text-lg ${
-                        likePosts.includes(fb.feedback_id)
-                          ? "text-blue-600"
-                          : "text-gray-400"
-                      }`}
+                      className={`ml-2 text-sm font-medium 
+                    }`}
                     >
-                      <AiOutlineLike />
-                    </span>
-                    <span>
-                      {likePosts.includes(fb.feedback_id)
-                        ? `Bạn và ${
-                            fb.totalLikes - 1
-                          } người thấy điều này hữu ích`
-                        : `${fb.totalLikes} người thấy điều này hữu ích`}
+                      {getRecommendationText(fb.rating)}
                     </span>
                   </div>
-                </div>s
+
+                  <p className="text-gray-700 text-sm">
+                    {fb.description_feedback}
+                  </p>
+
+                  {/* Ảnh đính kèm nếu có */}
+                  {fb.feedback_album &&
+                    (() => {
+                      let album = [];
+                      try {
+                        album = JSON.parse(fb.feedback_album); // Parse từ chuỗi thành array
+                      } catch (error) {
+                        album = []; // Nếu lỗi (không phải JSON) thì để rỗng
+                      }
+
+                      return Array.isArray(album) && album.length > 0 ? (
+                        <div className="mt-3 flex gap-2 flex-wrap">
+                          {album.map((img, idx) => (
+                            <img
+                              key={idx}
+                              src={img}
+                              alt={`Feedback Image ${idx}`}
+                              className="w-20 h-20 object-cover rounded-md"
+                            />
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
+
+                  <div className="mt-3 text-gray-600 text-sm">
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <span
+                        onClick={() => handleToggleLike(fb.feedback_id)}
+                        className={`text-lg ${
+                          likePosts.includes(fb.feedback_id)
+                            ? "text-blue-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        <AiOutlineLike />
+                      </span>
+                      <span>
+                        {fb.likes?.includes(userId)
+                          ? fb.totalLikes > 1
+                            ? `Bạn và ${
+                                fb.totalLikes - 1
+                              } người khác thấy điều này hữu ích`
+                            : `Bạn thấy điều này hữu ích`
+                          : `${fb.totalLikes} người thấy điều này hữu ích`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p className="text-gray-500 text-center">Chưa có đánh giá.</p>
         )}

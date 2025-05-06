@@ -45,13 +45,20 @@ export default function DropdownMenuUser({ user, onLockAccount, onUpdatePermissi
                     </button>
                     <button
                     onClick={() => {
-                        onLockAccount(user.id);
+                        onLockAccount(user);
                         setOpenDropdown(null);
                     }}
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 w-full text-left text-red-600"
-                >
-                    <MdLock className="mr-2" />
-                    Khóa tài khoản
+                    className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
+                        user.status ? "text-red-600" : "text-green-600"
+                    }`}
+                    >
+                        <div  className="flex items-center">
+                            <MdLock className="mr-2" />
+                            <span>
+                                {user.status ? "Khóa tài khoản" : "Mở tài khoản"}
+                                </span>
+                        </div>
+
                 </button>
                 </div>
             )}

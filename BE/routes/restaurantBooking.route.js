@@ -8,12 +8,12 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.get(
-  "/:booking_id",
+  "/booking/:booking_id",
   restaurantBookingController.getRestaurantBookingsByBookingId
 );
 router.post(
   "/create",
-  authenticateUser,
+  // authenticateUser,
   restaurantBookingController.addRestaurantToBooking
 );
 router.delete(
@@ -21,5 +21,18 @@ router.delete(
   authenticateUser,
   restaurantBookingController.cancelRestaurantBooking
 );
+router.get(
+  "/:id",
+  restaurantBookingController.getRestaurantBookingById
+);
+router.get(
+  "/restaurant/:id",
+  restaurantBookingController.getRestaurantBookingByRestaurantId
+);
+router.get(
+  "/travel-tour/:travel_tour_id",
+  restaurantBookingController.getRestaurantBookingByTravelTour
+);
+
 
 module.exports = router;

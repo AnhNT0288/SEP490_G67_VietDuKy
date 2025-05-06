@@ -1,7 +1,7 @@
-// ModalAssignPassenger.jsx
 import React, { useEffect, useState } from "react";
 import {assignPassengersToGuide, getPassengersByTravelTourId} from "../../../services/API/passenger.service.js";
 import {SlArrowDown, SlArrowUp} from "react-icons/sl";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalAssignPassenger({ tourId, guide, onClose }) {
@@ -75,18 +75,18 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
     const handleAssign = async () => {
         const passengerIds = selectedStats.map((p) => p.original_id);
         if (!passengerIds.length) {
-            alert("Vui lòng chọn ít nhất một hành khách.");
+            toast.error("Vui lòng chọn ít nhất một hành khách.");
             return;
         }
 
         try {
-            const res = await assignPassengersToGuide(guide.id, passengerIds);
+            const res = await assignPassengersToGuide(guide.id, tourId, passengerIds);
 
             if (res.message?.includes("Một số hành khách")) {
                 const conflictedNames = res.data?.map((p) => p.name).join(", ");
-                alert(`❌ Một số hành khách đã được phân công hướng dẫn viên khác:\n${conflictedNames}`);
+                toast.error(`Một số hành khách đã được phân công hướng dẫn viên khác:\n${conflictedNames}`);
             } else {
-                alert("✅ Phân công thành công!");
+                toast.success("Phân công thành công!");
                 onClose();
             }
         } catch (err) {
@@ -94,7 +94,7 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
                 err?.response?.data?.message ||
                 err?.message ||
                 "Đã xảy ra lỗi khi phân công.";
-            alert(`❌ ${messageFromServer}`);
+            toast.error(`${messageFromServer}`);
         }
     };
 
@@ -116,6 +116,7 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
         "Trẻ nhỏ": 0,
         "Em bé": 0,
     };
+
     const countByGender = {
         "Nam": 0,
         "Nữ": 0,
@@ -125,6 +126,15 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
         if (countByAge[p.age_group] !== undefined) countByAge[p.age_group]++;
         if (countByGender[p.gender] !== undefined) countByGender[p.gender]++;
     });
+
+    const filteredPassengersByBooking = passengersByBooking
+        .map((group) => ({
+            ...group,
+            passengers: group.passengers.filter((p) =>
+                p.name.toLowerCase().includes(search.toLowerCase())
+            ),
+        }))
+        .filter((group) => group.passengers.length > 0);
 
     return (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
@@ -170,56 +180,75 @@ export default function ModalAssignPassenger({ tourId, guide, onClose }) {
                         </tr>
                         </thead>
                         <tbody>
-                        {passengersByBooking.map((group) => (
-                            <React.Fragment key={group.booking_id}>
-                                <tr
-                                    className=" cursor-pointer border-t  transition w-full"
-                                    onClick={() => toggleExpand(group.booking_id)}
-                                >
-                                    <td className="p-2 font-medium text-gray-700 flex items-center gap-2 w-25" colSpan={6}>
-                                        <input
-                                            type="checkbox"
-                                            className="accent-red-600"
-                                            checked={group.passengers.every((p) => selectedPassengers[p.id])}
-                                            onChange={(e) => {
-                                                e.stopPropagation();
-                                                toggleGroupSelection(group);
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                        <span>{group.label}</span>
-                                        <span className="ml-auto text-sm text-gray-400">
-                                            {expandedBookings.includes(group.booking_id) ? <SlArrowDown /> : <SlArrowUp />}
-                                        </span>
-                                    </td>
-                                </tr>
+                        {filteredPassengersByBooking.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="text-center text-gray-500 py-4">
+                                    Không có khách hàng
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredPassengersByBooking.map((group) => (
+                                <React.Fragment key={group.booking_id}>
+                                    <tr
+                                        className="cursor-pointer border-t transition w-full"
+                                        onClick={() => toggleExpand(group.booking_id)}
+                                    >
+                                        <td
+                                            className="p-2 font-medium text-gray-700 flex items-center gap-2 w-25"
+                                            colSpan={6}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="accent-red-600"
+                                                checked={group.passengers.every((p) => selectedPassengers[p.id])}
+                                                onChange={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleGroupSelection(group);
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                            <span>{group.label}</span>
+                                            <span className="ml-auto text-sm text-gray-400">
+                                                {expandedBookings.includes(group.booking_id) ? (
+                                                    <SlArrowUp />
+                                                         ) : (
+                                                    <SlArrowDown />
+                                                        )}
+                                            </span>
+                                        </td>
+                                    </tr>
 
-                                {expandedBookings.includes(group.booking_id) &&
-                                    group.passengers.map((p) => (
-                                        <tr key={p.id} className="border-t hover:bg-gray-50">
-                                            <td className="p-2 flex items-center gap-2">
-                                                <input
-                                                    type="checkbox"
-                                                    className="accent-red-600"
-                                                    checked={!!selectedPassengers[p.id]}
-                                                    onChange={() => togglePassenger(p.id)}
-                                                />
-                                                {p.name}
-                                            </td>
-                                            <td className="p-2 text-center">{p.birth_date}</td>
-                                            <td className="p-2 text-center">{p.gender}</td>
-                                            <td className="p-2 text-center">{p.age_group}</td>
-                                            <td className="p-2 text-center">{p.phone}</td>
-                                            <td className="p-2 text-center">
-                                                <input type="checkbox"
-                                                       className="accent-red-700"
-                                                       checked={p.single_room} />
-                                            </td>
-                                        </tr>
-                                    ))}
-                            </React.Fragment>
-                        ))}
+                                    {expandedBookings.includes(group.booking_id) &&
+                                        group.passengers.map((p) => (
+                                            <tr key={p.id} className="border-t hover:bg-gray-50">
+                                                <td className="p-2 flex items-center gap-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="accent-red-600"
+                                                        checked={!!selectedPassengers[p.id]}
+                                                        onChange={() => togglePassenger(p.id)}
+                                                    />
+                                                    {p.name}
+                                                </td>
+                                                <td className="p-2 text-center">{p.birth_date}</td>
+                                                <td className="p-2 text-center">{p.gender}</td>
+                                                <td className="p-2 text-center">{p.age_group}</td>
+                                                <td className="p-2 text-center">{p.phone}</td>
+                                                <td className="p-2 text-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="accent-red-700"
+                                                        checked={p.single_room}
+                                                        readOnly
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </React.Fragment>
+                            ))
+                        )}
                         </tbody>
+
                     </table>
                 </div>
 

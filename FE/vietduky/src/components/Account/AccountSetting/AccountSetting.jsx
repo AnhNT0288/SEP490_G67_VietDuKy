@@ -52,7 +52,7 @@ const settingsData = {
   ],
   sms: [
     {
-      group: `${(<img src={Icons.Zalo} className="mr-1" />)} Zalo`,
+      group: `Zalo`,
       options: [
         {
           label: "Khuyến mãi Việt Du Ký",

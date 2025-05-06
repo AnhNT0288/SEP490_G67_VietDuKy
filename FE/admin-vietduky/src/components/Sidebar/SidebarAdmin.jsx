@@ -11,7 +11,7 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
   const location = useLocation();
 
   const menuItems = [
-    { id: 1, name: "Thống kê", icon: Icons.Sidebar, path: "/#" },
+    { id: 1, name: "Thống kê", icon: Icons.Sidebar, path: "/dashboard" },
     {
       id: 2,
       name: "Quản lý Tour",
@@ -21,6 +21,12 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
         { id: 202, name: "Chuyến du lịch", path: "/managementTour" },
         { id: 203, name: "Chủ đề", path: "/managementTheme" },
       ],
+    },
+    {
+      id: 10,
+      name: "Quản lý yêu cầu",
+      icon: Icons.PromotionIcon,
+      path: "/managementRequestAssignTour",
     },
     {
       id: 3,
@@ -38,24 +44,28 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       id: 5,
       name: "Quản lý phương tiện",
       icon: Icons.VehicleIcon,
-      subItems: [
-        { id: 501, name: "Loại phương tiện" },
-        { id: 502, name: "Phương tiện" },
-      ],
+      path: "/managementVehicle"
     },
-    {
-      id: 6,
-      name: "Quản lý khuyến mãi",
-      icon: Icons.PromotionIcon,
-      subItems: [
-        {
-          id: 601,
-          name: "Chương trình triết khấu",
-          path: "/managementSaleProgram",
-        },
-        { id: 602, name: "Mã giảm giá", path: "/managementDiscount" },
-      ],
-    },
+    // {
+    //   id: 6,
+    //   name: "Quản lý khuyến mãi",
+    //   icon: Icons.PromotionIcon,
+    //   subItems: [
+    //     {
+    //       id: 601,
+    //       name: "Chương trình triết khấu",
+    //       path: "/managementSaleProgram"
+    //     },
+    //     { id: 602,
+    //       name: "Mã giảm giá",
+    //       path: "/managementDiscount"
+    //     },
+    //     { id: 603,
+    //       name: "Ưu đãi phút chót",
+    //       path: "/managementLastMinuteDeals"
+    //     },
+    //   ],
+    // },
     {
       id: 7,
       name: "Quản lý dịch vụ",
@@ -113,7 +123,7 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
 
   return (
     <aside
-      className={`fixed md:relative h-full bg-[#9A1B21] text-white p-4 transition-all duration-300 ${
+      className={`min-h-screen bg-[#9A1B21] text-white p-4 transition-all duration-300 ${
         isCollapsed ? "w-20" : "w-64"
       } ${isMobileOpen ? "block" : "hidden"} md:block`}
     >
@@ -123,13 +133,25 @@ export default function SidebarAdmin({ isCollapsed, setBreadcrumb }) {
       >
         Menu
       </button>
-      <a href="/" className="flex justify-center">
+      <a href="/" className="flex mt-4 mb-6">
         <img
-          src="/Image/Logo.png"
+          src={Icons.Logo}
           alt="Viet Du Ky"
-          width={isCollapsed ? 50 : 175}
-          height={isCollapsed ? 50 : 125}
-          className="transition-all duration-300"
+          width={isCollapsed ? 50 : 50}
+          height={isCollapsed ? 25 : 25}
+          className={`transition-all duration-300 ${
+            isCollapsed ? "opacity-100" : "opacity-100"
+          }`}
+        />
+        <img
+          src={Icons.VietDuKy}
+          alt="Viet Du Ky"
+          width={isCollapsed ? 0 : 100}
+          height={isCollapsed ? 0 : 25}
+          className={`transition-all duration-300 ${
+            isCollapsed ? "opacity-0" : "opacity-100"
+          }`}
+          style={{ marginLeft: isCollapsed ? 0 : "10px" }}
         />
       </a>
 

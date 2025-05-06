@@ -11,10 +11,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
-      payment_card_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
       first_name: {
         type: Sequelize.STRING,
         allowNull: true,

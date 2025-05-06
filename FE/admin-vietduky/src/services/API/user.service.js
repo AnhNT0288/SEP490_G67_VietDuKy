@@ -22,3 +22,30 @@ export function getUserById(id) {
             throw err;
         });
 }
+export function updateUserStatus(id) {
+    return restClient({
+        url: `user/status/${id}`,
+        method: "PUT",
+    });
+}
+
+export function getStaffProfile(id) {
+    return restClient({
+        url: `user/staff-profile/${id}`,
+        method: "GET",
+        headers: {
+            ...getAuthHeaders(),
+        },
+    });
+}
+
+export function updateStaffProfile(id, data) {
+    return restClient({
+        url: `user/staff-profile/${id}`,
+        method: "PUT",
+        headers: {
+            ...getAuthHeaders(),
+        },
+        data,
+    });
+}

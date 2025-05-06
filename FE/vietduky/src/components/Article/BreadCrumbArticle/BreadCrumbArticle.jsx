@@ -23,14 +23,14 @@ const BreadCrumbArticle = () => {
   const navItems = [
     { label: "TRANG CHỦ", path: "/article/home" },
     { label: "BÀI VIẾT CHIA SẺ", path: "/article/post-experience" },
-    ...directory.map(item => ({
+    ...directory.map((item) => ({
       label: item.name_directory,
-      path: `/article/${item.alias}`
+      path: `/article/${item.alias}`,
     })),
   ];
 
   return (
-    <div className="container mx-auto px-4 py-6 mt-4">
+    <div className="container mx-auto px-4 pt-6 mt-4">
       <nav className="border-b-4 border-neutral-900">
         <ul className="flex flex-wrap items-center space-x-4 text-sm font-bold uppercase py-2 px-4">
           {navItems.map((item, index) => (
@@ -39,7 +39,9 @@ const BreadCrumbArticle = () => {
                 to={item.path}
                 className={({ isActive }) =>
                   `hover:text-red-500 transition-colors ${
-                    location.pathname.startsWith(item.path) ? "text-red-600" : "text-zinc-900"
+                    location.pathname.startsWith(item.path)
+                      ? "text-red-600"
+                      : "text-zinc-900"
                   }`
                 }
               >

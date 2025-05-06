@@ -4,11 +4,11 @@ import { toast } from "react-toastify";
 import "react-quill/dist/quill.snow.css";
 import TextEditor from "@/lib/TextEditor";
 
-export default function ModalAddSharePost({ isOpen, onClose }) {
+export default function ModalAddSharePost({ isOpen, onClose, onAddSuccess }) {
   const [form, setForm] = useState({
     user_id: JSON.parse(localStorage.getItem("user"))?.id || "",
     title_post: "",
-    slug: "",
+    name_post: "",
     description_post: "",
     post_date: new Date().toISOString(),
   });
@@ -33,30 +33,37 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
       const formData = new FormData();
       formData.append("user_id", form.user_id);
       formData.append("title_post", form.title_post);
-      formData.append("slug", form.slug);
+      formData.append("name_post", form.name_post);
       formData.append("description_post", form.description_post);
       formData.append("post_date", form.post_date);
-
-      // Append each selected file to formData
+  
       selectedFiles.forEach((file) => {
         formData.append("postEx_album", file);
       });
-
-      await PostExperienceService.createPostExperience(formData);
+  
+      const response = await PostExperienceService.createPostExperience(formData);
+      const newPost = response.data.data; // 🔥 lấy bài viết mới được tạo
+  
       toast.success("Bài viết đã được thêm, vui lòng chờ duyệt!");
+  
+      if (onAddSuccess) {
+        onAddSuccess(newPost); // 🔥 gọi callback để cập nhật bên ngoài
+      }
     } catch (error) {
       toast.error("Lỗi khi thêm bài viết!");
       console.error("Lỗi khi đăng bài viết:", error);
     } finally {
-      resetForm(); // Reset form data when done
+      resetForm();
+      onClose();
     }
   };
+  
 
   const resetForm = () => {
     setForm({
       user_id: JSON.parse(localStorage.getItem("user"))?.id || "",
       title_post: "",
-      slug: "",
+      name_post: "",
       description_post: "",
       post_date: new Date().toISOString(),
     });
@@ -95,8 +102,8 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
               <label className="text-sm font-medium">* Tên bài viết</label>
               <input
                 type="text"
-                name="title_post"
-                value={form.title_post}
+                name="name_post"
+                value={form.name_post}
                 onChange={handleChange}
                 className="w-full mt-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
                 placeholder="Nhập tên bài viết"
@@ -104,14 +111,14 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
             </div>
 
             <div>
-              <label className="text-sm font-medium">* Đường dẫn</label>
+              <label className="text-sm font-medium">* Tiêu đề bài viết</label>
               <input
                 type="text"
-                name="slug"
-                value={form.slug}
+                name="title_post"
+                value={form.title_post}
                 onChange={handleChange}
                 className="w-full mt-1 border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-600"
-                placeholder="Đường dẫn"
+                placeholder="Nhập tiêu đề bài viết"
               />
             </div>
 
@@ -156,7 +163,7 @@ export default function ModalAddSharePost({ isOpen, onClose }) {
           {/* Soạn thảo nội dung */}
           <div className="flex flex-col h-full col-span-3">
             <label className="text-sm font-medium mb-2">Bài viết</label>
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden max-h-[600px]">
               <TextEditor
                 value={form.description_post}
                 onChange={(value) => setForm((prev) => ({ ...prev, description_post: value }))}

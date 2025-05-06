@@ -8,7 +8,6 @@ export function getLocations(page = 1, limit = 100) {
       params: { page, limit },
     })
     .then(response => {
-    //   console.log("Dữ liệu API trả về:", response.data); 
       return response.data;
     })
     .catch(error => {

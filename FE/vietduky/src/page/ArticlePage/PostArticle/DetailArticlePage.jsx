@@ -11,7 +11,7 @@ const DetailArticlePage = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await PostExperienceService.getPostExperienceById(id); // Adjust this function as needed
+        const response = await PostExperienceService.getPostExperienceById(id);
         setArticleData(response.data.data);
       } catch (error) {
         console.error("Error fetching article:", error);

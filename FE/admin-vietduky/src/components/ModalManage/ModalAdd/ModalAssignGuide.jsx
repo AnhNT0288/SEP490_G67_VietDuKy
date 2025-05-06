@@ -1,56 +1,43 @@
 import { useState, useEffect } from "react";
-import { assignGroupGuideToTour, getGuidesByTravelTourId, getTravelGuideByLocation } from "../../../services/API/guide_tour.service.js"; // Đảm bảo đã import đúng hàm này
+import {
+    assignGroupGuideToTour,
+    getAvailableGuidesByTravelTourId,
+} from "../../../services/API/guide_tour.service.js";
+import {toast} from "react-toastify"; // Đảm bảo đã import đúng hàm này
 
-export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, onAssignSuccess }) {
+// eslint-disable-next-line react/prop-types
+export default function ModalAssignGuide({ locationId, staffId, travel_tour_id, onClose, onAssignSuccess }) {
     const [guides, setGuides] = useState([]);
     const [selectedGuides, setSelectedGuides] = useState([]);
-    const [assignedGuides, setAssignedGuides] = useState([]); // Lưu danh sách hướng dẫn viên đã phân công
+    const [assignedGuides, setAssignedGuides] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectAll, setSelectAll] = useState(false);
     const generateGroupName = () => {
         const groupNumber = selectedGuides.length;
-        const charIndex = selectedGuides.length % 26; // Tăng dần chữ cái theo số lượng hướng dẫn viên đã chọn
+        const charIndex = selectedGuides.length % 26;
         const sequentialChar = String.fromCharCode(65 + charIndex);
         return `Nhóm tour ${travel_tour_id}-${groupNumber}-${sequentialChar}`;
     };
 
-    // console.log("GName", generateGroupName());
-    
-
-    // Fetch danh sách hướng dẫn viên khi có locationId
-    useEffect(() => {
-        const fetchGuides = async () => {
-            try {
-                const response = await getTravelGuideByLocation(locationId); // Gọi API lấy danh sách hướng dẫn viên
-                setGuides(response.data || []);
-            } catch (error) {
-                console.error("Lỗi khi lấy hướng dẫn viên:", error);
-            }
-        };
-
-        if (locationId) {
-            fetchGuides();
-        }
-    }, [locationId]);
-
     useEffect(() => {
         const fetchAssignedGuides = async () => {
             try {
-                const response = await getGuidesByTravelTourId(travel_tour_id); // API lấy danh sách hướng dẫn viên đã phân công cho tour này
-                const data = await response;
-                console.log("Assigned Guides Data:", response); // Kiểm tra dữ liệu đã lấy
-                
-                setAssignedGuides(data.map((guide) => guide.id)); // Lưu danh sách hướng dẫn viên đã phân công
+                const availableGuides = await getAvailableGuidesByTravelTourId(travel_tour_id, staffId);
+                console.log("Available Guides:", availableGuides);
+
+                setGuides(availableGuides);
+                setAssignedGuides(availableGuides.map((guide) => guide.id));
             } catch (error) {
                 console.error("Lỗi khi lấy hướng dẫn viên đã phân công:", error);
             }
         };
 
-        if (travel_tour_id) {
-            console.log("Travel Tour ID trong ModalAssignGuide:", travel_tour_id); // Kiểm tra xem travel_tour_id có hợp lệ không
+        if (travel_tour_id && staffId) {
+            console.log("Travel Tour ID trong ModalAssignGuide:", travel_tour_id);
             fetchAssignedGuides();
         }
-    }, [travel_tour_id]);
+    }, [travel_tour_id, staffId]);
+
 
     const handleGuideSelection = (guideId) => {
         setSelectedGuides((prevSelected) =>
@@ -81,41 +68,46 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
     // console.log("Selected Guides:", selectedGuides);
     // console.log("Formatted Selected Guides:", formatSelectedGuides());
     console.log("Assigned Guides:", assignedGuides);
-    
+
 
     const handleAssign = async () => {
         if (!travel_tour_id) {
-            alert("Lỗi: Travel Tour ID không hợp lệ.");
+            toast.error("Lỗi: Travel Tour ID không hợp lệ.");
             return;
         }
 
         if (selectedGuides.length === 0) {
-            alert("Vui lòng chọn ít nhất một hướng dẫn viên để phân công.");
+            toast.error("Vui lòng chọn ít nhất một hướng dẫn viên để phân công.");
             return;
         }
-    
+
+        if (!staffId) {
+            toast.error("Không tìm thấy Staff ID.");
+            return;
+        }
+
         try {
             const data = {
                 travel_tour_id,
+                staff_id: staffId, // ✅ thêm staff_id
                 group_name: generateGroupName(),
-                guides: formatSelectedGuides(), // Gửi toàn bộ danh sách đã chọn trong một lần
+                guides: formatSelectedGuides(),
             };
             console.log("Dữ liệu gửi đến API phân công:", data);
-    
+
             const response = await assignGroupGuideToTour(data);
             console.log("Phản hồi từ API phân công:", response);
-    
+
             if (response.message === "Hướng dẫn viên đã được gán cho tour này!") {
-                alert("Một số hướng dẫn viên đã được gán trước đó.");
+                toast.error("Một số hướng dẫn viên đã được gán trước đó.");
             } else {
-                alert("Phân công hướng dẫn viên thành công!");
+                toast.success("Phân công hướng dẫn viên thành công!");
                 onAssignSuccess?.();
             }
-    
+
         } catch (error) {
             console.error("Lỗi phân công:", error);
-            // alert("Đã xảy ra lỗi khi phân công hướng dẫn viên. Vui lòng thử lại.");
-            alert(error.response?.data?.message || "Đã xảy ra lỗi khi phân công hướng dẫn viên. Vui lòng thử lại.");
+            toast.error(error.response?.data?.message || "Đã xảy ra lỗi khi phân công hướng dẫn viên. Vui lòng thử lại.");
         }
     };
     
@@ -164,7 +156,7 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
                                     <th className="p-2 text-center">Giới tính</th>
                                     <th className="p-2 text-center">Số điện thoại</th>
                                     <th className="p-2 text-left">Địa điểm phụ trách</th>
-                                    <th className="p-2 text-left">Trạng thái phân công</th>
+                                    <th className="p-2 text-left">Trạng thái</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -184,9 +176,9 @@ export default function ModalAssignGuide({ locationId, travel_tour_id, onClose, 
                                         <td className="p-2 text-left">{guide.TravelGuideLocations[0]?.location.name_location || "Chưa có"}</td>
                                         <td className="p-2 text-left">
                                             {assignedGuides.includes(guide.id) ? (
-                                                <span className="text-green-500">Đã phân công</span>
+                                                <span className="text-green-500">Trống lịch</span>
                                             ) : (
-                                                <span className="text-red-500">Chưa phân công</span>
+                                                <span className="text-red-500">Vướng lịch</span>
                                             )}
                                         </td>
                                     </tr>

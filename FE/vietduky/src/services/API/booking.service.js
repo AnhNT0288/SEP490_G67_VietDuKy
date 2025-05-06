@@ -32,9 +32,9 @@ export const BookingService = {
         });
       },
       
-    updateBooking: (data, id) => {
+    updateBooking: (id, data) => {
         return restClient({
-            url: `booking/${id}`,
+            url: `booking/update/${id}`,
             method: "PUT",
             data,
             headers: {
@@ -58,6 +58,13 @@ export const BookingService = {
             headers: {
                 Authorization: `Bearer ${StorageService.getToken()}`,
             },
+        });
+    },
+    searchBooking: (data) => {
+        return restClient({
+            url: 'booking/code',
+            method: "POST",
+            data,
         });
     }
 

@@ -11,37 +11,37 @@ const {
 router.post(
   "/create",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.createPassenger
 );
 
 router.get(
   "/:booking_id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.getPassengerByBookingId
 );
 
 router.delete(
   "/:id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.deletePassenger
 );
 
 router.put(
   "/:id",
   authenticateUser,
-  checkRoles(["admin", "staff"]),
+  checkRoles(["admin", "staff", "customer"]),
   passengerController.updatePassenger
 );
 
-router.get(
-  "/travel-guide/:travel_guide_id",
-  // authenticateUser,
-  // checkRoles(["admin", "staff"]),
-  passengerController.getPassengersByTravelGuideId
-);
+// router.get(
+//   "/travel-guide/:travel_guide_id",
+//   // authenticateUser,
+//   // checkRoles(["admin", "staff"]),
+//   passengerController.getPassengersByTravelGuideId
+// );
 
 router.get(
   "/travel-tour/:travel_tour_id",
@@ -81,5 +81,28 @@ router.post(
   // checkRoles(["admin", "staff"]),
   passengerController.removePassengersFromTravelGuide
 );
-
+router.get(
+  "/travel-guide/:travel_guide_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.getPassengerByTravelGuideId2
+);
+router.delete(
+  "/remove-passenger-group/:passenger_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.removePassengerGroup
+);
+router.get(
+  "/service-assigned/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.getPassengerServiceAssigned
+);
+router.get(
+  "/export-excel/:travel_tour_id",
+  // authenticateUser,
+  // checkRoles(["admin", "staff"]),
+  passengerController.exportExcel
+);
 module.exports = router;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createLocation } from "../../../services/API/location.service.js";
+import {toast} from "react-toastify";
 
 export default function ModalAddLocation({ onClose, onSuccess }) {
   const [locationName, setLocationName] = useState("");
@@ -28,11 +29,11 @@ export default function ModalAddLocation({ onClose, onSuccess }) {
       }
 
       const response = await createLocation(formData);
-      alert("Thêm vị trí thành công");
+      toast.success("Thêm vị trí thành công");
       onSuccess(response);
       onClose();
     } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       console.error("Lỗi khi thêm vị trí:", error);
     } finally {
       setLoading(false);

@@ -3,6 +3,9 @@ const Feedback = db.Feedback;
 const Tour = db.Tour;
 const User = db.User;
 const TravelGuide = db.TravelGuide;
+const { Op } = require("sequelize");
+const { sendRoleBasedNotification } = require("../utils/sendNotification");
+const { NOTIFICATION_TYPE } = require("../constants");
 
 // Lấy tất cả Feedback theo user_id
 exports.getFeedbackByUser = async (req, res) => {
@@ -73,7 +76,7 @@ exports.createFeedbackForTour = async (req, res) => {
 
     // Kiểm tra xem người dùng đã đặt tour này chưa
     const booking = await db.Booking.findOne({
-      where: { user_id, travel_tour_id: tour_id },
+      where: { user_id },
     });
 
     if (!booking) {
@@ -81,9 +84,11 @@ exports.createFeedbackForTour = async (req, res) => {
         .status(403)
         .json({ message: "Bạn chưa đặt tour này, không thể feedback!" });
     }
+
     // Kiểm tra nếu không có rating, mặc định cho rating = 5
     const feedbackRating = rating || 5;
 
+    // Tạo feedback mới
     const newFeedback = await Feedback.create({
       user_id,
       tour_id,
@@ -91,6 +96,29 @@ exports.createFeedbackForTour = async (req, res) => {
       rating: feedbackRating,
       feedback_date,
       feedback_album,
+    });
+
+    // Lấy tất cả feedback của tour để tính trung bình cộng rating
+    const tourFeedbacks = await Feedback.findAll({
+      where: { tour_id },
+    });
+
+    const totalRating = tourFeedbacks.reduce(
+      (sum, feedback) => sum + (feedback.rating || 0),
+      0
+    );
+    const averageRating =
+      tourFeedbacks.length > 0
+        ? (totalRating / tourFeedbacks.length).toFixed(1)
+        : 0;
+
+    // Cập nhật trường rating_tour của tour
+    tour.rating_tour = averageRating;
+    await tour.save();
+
+    await sendRoleBasedNotification(['admin', 'staff', 'user'], {
+      title: "Có feedback mới!",
+      type: NOTIFICATION_TYPE.TOUR,
     });
 
     res.status(201).json({
@@ -142,12 +170,10 @@ exports.createFeedbackForTravelGuide = async (req, res) => {
     });
 
     if (!booking) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Bạn chưa đặt tour có liên quan đến hướng dẫn viên này, không thể feedback!",
-        });
+      return res.status(403).json({
+        message:
+          "Bạn chưa đặt tour có liên quan đến hướng dẫn viên này, không thể feedback!",
+      });
     }
 
     // Kiểm tra nếu không có rating, mặc định cho rating = 5
@@ -190,13 +216,13 @@ exports.updateFeedback = async (req, res) => {
     }
 
     // Cập nhật các trường thông tin trong feedback
-    if (description_feedback != undefined)
+    if (description_feedback !== undefined)
       feedback.description_feedback =
         description_feedback || feedback.description_feedback;
-    if (rating != undefined) feedback.rating = rating || feedback.rating;
-    if (feedback_date != undefined)
+    if (rating !== undefined) feedback.rating = rating || feedback.rating;
+    if (feedback_date !== undefined)
       feedback.feedback_date = feedback_date || feedback.feedback_date;
-    if (feedback_album != undefined)
+    if (feedback_album !== undefined)
       feedback.feedback_album = feedback_album || feedback.feedback_album;
     await feedback.save();
 
@@ -278,44 +304,231 @@ exports.getFeedbackByTourId = async (req, res) => {
   }
 };
 
-// Lấy tất cả Feedback theo travel_guide_id
-exports.getFeedbackByTravelGuideId = async (req, res) => {
+// Lấy tất cả Feedback theo user_id
+exports.getFeedbackByUserId = async (req, res) => {
   try {
-    const travelGuideId = req.params.travelGuideId;
+    const { userId } = req.params;
+    const { rating, timeFilter, page = 1 } = req.query;
+    const limit = 8;
+    const offset = (page - 1) * limit;
 
-    // Tìm Travel Guide dựa trên travel_guide_id
-    const travelGuide = await TravelGuide.findByPk(travelGuideId);
+    // Tìm User dựa trên user_id
+    const user = await User.findByPk(userId);
 
-    if (!travelGuide) {
-      return res.status(404).json({ message: "Hướng dẫn viên không tồn tại!" });
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại!" });
     }
 
-    // Lấy tất cả feedback của travel guide dựa trên travel_guide_id
-    const feedbacks = await Feedback.findAll({
-      where: { travel_guide_id: travelGuideId },
+    // Điều kiện lọc
+    const whereConditions = {
+      user_id: userId,
+    };
+
+    // Lọc theo số sao
+    if (rating) {
+      whereConditions.rating = rating;
+    }
+
+    // Lọc theo thời gian
+    const now = new Date();
+    switch (timeFilter) {
+      case "today":
+        whereConditions.feedback_date = {
+          [Op.eq]: now.toISOString().split("T")[0],
+        };
+        break;
+      case "this_week":
+        const startOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 1)
+        ); // Bắt đầu tuần
+        const endOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 7)
+        ); // Kết thúc tuần
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfWeek.toISOString().split("T")[0],
+            endOfWeek.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "this_month":
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfMonth.toISOString().split("T")[0],
+            endOfMonth.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "last_3_months":
+        const threeMonthsAgo = new Date(
+          now.getFullYear(),
+          now.getMonth() - 3,
+          now.getDate()
+        );
+        whereConditions.feedback_date = {
+          [Op.gte]: threeMonthsAgo.toISOString().split("T")[0],
+        };
+        break;
+      case "this_year":
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfYear.toISOString().split("T")[0],
+            endOfYear.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      default:
+        // Không áp dụng filter thời gian
+        break;
+    }
+
+    // Lấy danh sách feedback
+    const feedbacks = await Feedback.findAndCountAll({
+      where: whereConditions,
       include: [
-        { model: User, as: "user" },
         {
           model: Tour,
           as: "tour",
-          attributes: ["name_tour"],
+          attributes: ["id", "name_tour"],
+        },
+        {
+          model: TravelGuide,
+          as: "travelGuide",
+          attributes: ["id", "first_name", "last_name"],
         },
       ],
+      limit,
+      offset,
+      order: [["feedback_date", "DESC"]],
     });
 
-    if (feedbacks.length === 0) {
-      return res.status(404).json({
-        message: "Không tìm thấy feedback nào cho hướng dẫn viên này",
-      });
-    }
-
     res.status(200).json({
-      message: "Lấy feedback thành công",
-      data: feedbacks,
+      message: "Lấy danh sách feedback thành công",
+      data: feedbacks.rows,
+      pagination: {
+        totalItems: feedbacks.count,
+        currentPage: parseInt(page, 10),
+        totalPages: Math.ceil(feedbacks.count / limit),
+      },
     });
   } catch (error) {
     res.status(500).json({
-      message: "Lỗi khi lấy feedback",
+      message: "Lỗi khi lấy danh sách feedback",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy tất cả Feedback cho admin
+exports.getAllTourFeedbacksForAdmin = async (req, res) => {
+  try {
+    const { rating, timeFilter, page = 1 } = req.query;
+    const limit = 8;
+    const offset = (page - 1) * limit;
+
+    // Điều kiện lọc
+    const whereConditions = {
+      tour_id: { [Op.ne]: null },
+    };
+
+    // Lọc theo số sao
+    if (rating) {
+      whereConditions.rating = rating;
+    }
+
+    // Lọc theo thời gian
+    const now = new Date();
+    switch (timeFilter) {
+      case "today":
+        whereConditions.feedback_date = {
+          [Op.eq]: now.toISOString().split("T")[0],
+        };
+        break;
+      case "this_week":
+        const startOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 1)
+        ); // Bắt đầu tuần
+        const endOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 7)
+        ); // Kết thúc tuần
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfWeek.toISOString().split("T")[0],
+            endOfWeek.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "this_month":
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfMonth.toISOString().split("T")[0],
+            endOfMonth.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      case "last_3_months":
+        const threeMonthsAgo = new Date(
+          now.getFullYear(),
+          now.getMonth() - 3,
+          now.getDate()
+        );
+        whereConditions.feedback_date = {
+          [Op.gte]: threeMonthsAgo.toISOString().split("T")[0],
+        };
+        break;
+      case "this_year":
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31);
+        whereConditions.feedback_date = {
+          [Op.between]: [
+            startOfYear.toISOString().split("T")[0],
+            endOfYear.toISOString().split("T")[0],
+          ],
+        };
+        break;
+      default:
+        // Không áp dụng filter thời gian
+        break;
+    }
+
+    // Lấy danh sách feedback
+    const feedbacks = await Feedback.findAndCountAll({
+      where: whereConditions,
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "displayName", "email"],
+        },
+        {
+          model: Tour,
+          as: "tour",
+          attributes: ["id", "name_tour"],
+        },
+      ],
+      limit,
+      offset,
+      order: [["feedback_date", "DESC"]],
+    });
+
+    res.status(200).json({
+      message: "Lấy danh sách feedback thành công",
+      data: feedbacks.rows,
+      pagination: {
+        totalItems: feedbacks.count,
+        currentPage: parseInt(page, 10),
+        totalPages: Math.ceil(feedbacks.count / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi lấy danh sách feedback",
       error: error.message,
     });
   }

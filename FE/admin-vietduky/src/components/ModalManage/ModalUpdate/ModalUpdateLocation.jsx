@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { updateLocation } from "../../../services/API/location.service.js";
+import {toast} from "react-toastify";
 
+// eslint-disable-next-line react/prop-types
 export default function ModalUpdateLocation({ onClose, onSuccess, initialData }) {
     const [locationName, setLocationName] = useState("");
     const [imageFile, setImageFile] = useState(null);
@@ -26,11 +28,11 @@ export default function ModalUpdateLocation({ onClose, onSuccess, initialData })
             const response = await updateLocation(initialData.id, formData);
 
             onSuccess(response);
-            alert("Cập nhật vị trí thành công");
+            toast.success("Cập nhật vị trí thành công");
 
             onClose();
         } catch (error) {
-            alert("Có lỗi xảy ra, vui lòng thử lại!");
+            toast.error("Có lỗi xảy ra, vui lòng thử lại!");
             console.error("Lỗi khi cập nhật vị trí:", error);
         } finally {
             setLoading(false);

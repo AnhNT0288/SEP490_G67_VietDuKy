@@ -9,7 +9,7 @@ const {
 } = require("../middleware/authMiddleware");
 
 router.get("/", travelTourController.getAllTravelTours);
-router.get("/guide", travelTourController.getListTravelTourForGuide);
+router.get("/guide/:user_id", travelTourController.getListTravelTourForGuide);
 // router.get("/:id", authenticateUser, travelTourController.getTravelTourById);
 router.get("/:id", travelTourController.getTravelTourById);
 router.post(
@@ -32,12 +32,19 @@ router.delete(
 );
 router.get("/tour/:id", travelTourController.getTravelTourByTourId);
 
+router.get(
+  "/close/:id",
+  authenticateUser,
+  checkRoles(["admin", "staff"]),
+  travelTourController.closeTravelTour
+);
 router.post(
   "/close/:id",
   authenticateUser,
   checkRoles(["admin", "staff"]),
   travelTourController.closeTourWhenFull
 );
+
 
 //Lấy danh sách travelTour đã đủ số lượng người
 router.get(

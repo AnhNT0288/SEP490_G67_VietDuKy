@@ -6,6 +6,7 @@ import { formatTime } from "@/utils/dateUtil";
 import React, { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ContactModal from "./ContactModal";
 
 const TourBooking = ({
   formData,
@@ -13,11 +14,14 @@ const TourBooking = ({
   tourId,
   travelTour,
   roomCost,
+  assistance,
+  discountInfo,
 }) => {
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
   const [tours, setTours] = useState("");
   const [travelTourData, setTravelTourData] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const validatePhoneNumber = (phone) => /^0\d{9,10}$/.test(phone);
   const isDateInRange = (dateStr) => {
@@ -28,12 +32,21 @@ const TourBooking = ({
 
   const getPassengerErrors = (passenger) => {
     const errors = {};
-    if (!passenger.name?.trim()) errors.name = "Họ tên không được để trống";
-    if (!validatePhoneNumber(passenger.phone_number))
-      errors.phone = "Số điện thoại không hợp lệ";
-    if (!passenger.gender) errors.gender = "Chưa chọn giới tính";
-    if (!isDateInRange(passenger.birth_date))
+    if (!passenger.name?.trim()) {
+      errors.name = "Họ tên không được để trống";
+    }
+    if (passenger.type === "adult") {
+      if (!validatePhoneNumber(passenger.phone_number)) {
+        errors.phone =
+          "Số điện thoại không hợp lệ (chỉ kiểm tra với người lớn)";
+      }
+    }
+    if (!passenger.gender) {
+      errors.gender = "Chưa chọn giới tính";
+    }
+    if (!isDateInRange(passenger.birth_date)) {
       errors.birthdate = "Ngày sinh không hợp lệ";
+    }
     return errors;
   };
 
@@ -89,8 +102,20 @@ const TourBooking = ({
       return;
     }
 
+    const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("Số điện thoại không hợp lệ!");
+      return;
+    }
+
     if (!formData.email) {
       toast.error("Vui lòng nhập email!");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Email không hợp lệ!");
       return;
     }
 
@@ -108,8 +133,8 @@ const TourBooking = ({
       toast.error("Danh sách hành khách không hợp lệ!");
       return;
     }
-  
-    if (!isAllPassengerValid(formData.passengers)) {
+
+    if (!assistance && !isAllPassengerValid(formData.passengers)) {
       toast.error("Vui lòng kiểm tra lại thông tin hành khách!");
       return;
     }
@@ -130,11 +155,13 @@ const TourBooking = ({
     }
   };
 
+  const adultPrice =
+    discountInfo?.priceDiscount || travelTourData?.price_tour || 0;
   const totalPrice =
-    formData?.number_adult * travelTourData?.price_tour +
-      formData?.number_children * travelTourData?.children_price +
-      formData?.number_toddler * travelTourData?.toddler_price +
-      roomCost || 0;
+    formData?.number_adult * adultPrice +
+    formData?.number_children * (travelTourData?.children_price || 0) +
+    formData?.number_toddler * (travelTourData?.toddler_price || 0) +
+    (roomCost || 0);
 
   // console.log("Tổng tiền:", totalPrice);
 
@@ -210,7 +237,7 @@ const TourBooking = ({
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
                 <span>{formatTime(travelTourData?.start_time_depart)}</span>
-                <span>{formatTime(travelTourData?.start_time_close)}</span>
+                <span>{formatTime(travelTourData?.end_time_depart)}</span>
               </div>
               <div className="relative mb-2">
                 <div className="absolute -top-0.8 transforms -translate-y-1/3 w-2 h-2 bg-[#B1B1B1]" />
@@ -231,7 +258,7 @@ const TourBooking = ({
                 Ngày về - {travelTourData?.end_day}
               </div>
               <div className="flex justify-between text-sm font-semibold mb-2">
-                <span>{formatTime(travelTourData?.end_time_depart)}</span>
+                <span>{formatTime(travelTourData?.start_time_close)}</span>
                 <span>{formatTime(travelTourData?.end_time_close)}</span>
               </div>
               <div className="relative mb-2">
@@ -271,10 +298,14 @@ const TourBooking = ({
                   <span>Người lớn</span>
                   <span>
                     {formData.number_adult} x{" "}
-                    {travelTourData?.price_tour?.toLocaleString("vi-VN", {
+                    {(
+                      discountInfo?.priceDiscount ||
+                      travelTourData?.price_tour ||
+                      0
+                    ).toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
-                    }) || "0 ₫"}
+                    })}
                   </span>
                 </div>
               )}
@@ -387,9 +418,17 @@ const TourBooking = ({
         <button className="px-4 py-2 bg-red-800 text-white rounded-lg hover:bg-red-600 transition font-bold">
           Gọi miễn phí qua internet
         </button>
-        <button className="px-4 py-2 bg-white border border-red-800 text-red-800 rounded-lg hover:bg-red-100 transition font-bold">
+        <button
+          onClick={() => setModalOpen(true)}
+          className="px-4 py-2 bg-white border border-red-800 text-red-800 rounded-lg hover:bg-red-100 transition font-bold"
+        >
           Liên hệ tư vấn
         </button>
+        <ContactModal
+          travelTour={travelTourData}
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
       </div>
     </div>
   );

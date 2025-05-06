@@ -16,13 +16,11 @@ import ImportExcelButton from "./ImportExcelButton";
 import UpdateCustomerInfoModal from "./UpdateCustomerInfoModal";
 const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
   const [search, setSearch] = useState("");
-  const [openAddCustomerInfoModal, setOpenAddCustomerInfoModal] =
-    useState(false);
+  const [openAddCustomerInfoModal, setOpenAddCustomerInfoModal] = useState(false);
   const [bookingDetail, setBookingDetail] = useState(null);
   const [openDeleteCustomerModal, setOpenDeleteCustomerModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
-  const [openUpdateCustomerInfoModal, setOpenUpdateCustomerInfoModal] =
-    useState(false);
+  const [openUpdateCustomerInfoModal, setOpenUpdateCustomerInfoModal] = useState(false);
   const [customerToUpdate, setCustomerToUpdate] = useState(null);
   const [updateInfoCustomer, setUpdateInfoCustomer] = useState({
     name: "",
@@ -82,7 +80,7 @@ const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
               ? "adult"
               : item.age_type === "Trẻ em"
               ? "child"
-              : "infant",
+              : "Fix",
         }));
         setBookingDetail((prev) => ({
           ...prev,
@@ -130,6 +128,9 @@ const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
   }, [booking]);
 
   if (!open) return null;
+
+  console.log("Booking detail", booking);
+  
 
   return (
     <div className="fixed inset-0 z-30 bg-black/40 flex items-center justify-center">

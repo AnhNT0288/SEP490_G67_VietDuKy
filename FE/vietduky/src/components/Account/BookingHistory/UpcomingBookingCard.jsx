@@ -1,18 +1,20 @@
 import Icons from "@/components/Icons/Icon";
 import { formatDayDMY } from "@/utils/dateUtil";
-import { CalendarDays, User } from "lucide-react";
-import { BsPencil, BsArrowRepeat } from "react-icons/bs";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 
 export default function UpcomingBookingCard({ booking }) {
   const navigate = useNavigate();
+  const handleRebook = () => {
+    navigate(`/bookingReConfirm?booking_code=${booking.booking_code}`);
+  };
+
   return (
     <>
       <div className="flex gap-6 items-center mb-4 border-b">
         <p className="text-sm mb-2">
           Mã đơn hàng:{" "}
-          <span className="text-red-800 font-semibold">
+          <span className="text-red-800 font-semibold cursor-pointer" onClick={handleRebook}>
             {booking.booking_code || "Không có mã đơn hàng"}
           </span>
         </p>
@@ -42,14 +44,19 @@ export default function UpcomingBookingCard({ booking }) {
         </p>
       </div>
       <div className="flex flex-col gap-2">
-        <h3 onClick={() => navigate(`/detail-booking-tour/${booking?.TravelTour?.Tour?.id}`)} className="text-[#A80F21] font-semibold text-xl mb-2 cursor-pointer hover:text-red-600">
+        <h3
+          onClick={() =>
+            navigate(`/detail-booking-tour/${booking?.TravelTour?.Tour?.id}`)
+          }
+          className="text-[#A80F21] font-semibold text-xl mb-2 cursor-pointer hover:text-red-600"
+        >
           {booking?.TravelTour?.Tour?.name_tour || "Tên tour không có"}
         </h3>
         <div className="flex gap-4">
           {/* Ảnh tour */}
           <div className="w-32 h-24 overflow-hidden rounded">
             <img
-              src={booking.travel_tour.image} // Đảm bảo trường image tồn tại trong travel_tour
+              src={booking.travel_tour?.Tour?.album?.[0]} // Đảm bảo trường image tồn tại trong travel_tour
               alt="Tour"
               className="w-full h-full object-cover"
             />
@@ -66,7 +73,7 @@ export default function UpcomingBookingCard({ booking }) {
               </div>
               <div className="flex items-center gap-1 text-zinc-900 text-sm">
                 <img src={Icons.UserBold} className="w-5 h-5" />
-                <span>{`${booking.number_adult} người lớn, ${booking.number_children} trẻ em`}</span>
+                <span>{`${booking.number_adult} người lớn, ${booking.number_toddler} trẻ em, ${booking.number_children} trẻ nhỏ, ${booking.number_newborn} em bé`}</span>
               </div>
             </div>
             <p className="text-lg text-red-800 font-semibold mt-2">

@@ -7,6 +7,7 @@ const User = db.User;
 const TravelGuide = db.TravelGuide;
 const GuideTour = db.GuideTour;
 const { Op, Sequelize } = require("sequelize");
+const TravelGuideLocation = db.TravelGuideLocation;
 
 //Lấy tất cả dữ liệu trong bảng travel tour
 exports.getAllTravelTours = async (req, res) => {
@@ -324,12 +325,15 @@ exports.updateTravelTour = async (req, res) => {
       end_day,
       price_tour,
       max_people,
+      current_people,
       start_time_depart,
       end_time_depart,
       start_time_close,
       end_time_close,
       children_price,
       toddler_price,
+      status,
+      active,
     } = req.body;
 
     // Validate thời gian khởi hành và kết thúc
@@ -379,6 +383,7 @@ exports.updateTravelTour = async (req, res) => {
     if (end_day !== undefined) travelTour.end_day = end_day;
     if (price_tour !== undefined) travelTour.price_tour = price_tour;
     if (max_people !== undefined) travelTour.max_people = max_people;
+    if (current_people !== undefined) travelTour.current_people = current_people;
     if (start_time_depart !== undefined)
       travelTour.start_time_depart = start_time_depart;
     if (end_time_depart !== undefined)
@@ -390,6 +395,8 @@ exports.updateTravelTour = async (req, res) => {
     if (children_price !== undefined)
       travelTour.children_price = children_price;
     if (toddler_price !== undefined) travelTour.toddler_price = toddler_price;
+    if (status !== undefined) travelTour.status = status;
+    if (active !== undefined) travelTour.active = active;
     await travelTour.save();
     res.json({
       message: "Cập nhật tour du lịch thành công!",
@@ -436,6 +443,7 @@ exports.closeTourWhenFull = async (req, res) => {
 
 exports.getListTravelTourForGuide = async (req, res) => {
   try {
+    const { user_id } = req.params;
     const {
       page = 1,
       limit = 10,
@@ -446,7 +454,7 @@ exports.getListTravelTourForGuide = async (req, res) => {
     } = req.query;
 
     // Tạo điều kiện where cho Tour
-    const tourWhereCondition = {};
+    let tourWhereCondition = {};
     if (start_location_id) {
       tourWhereCondition.start_location = start_location_id;
     }
@@ -459,15 +467,45 @@ exports.getListTravelTourForGuide = async (req, res) => {
       };
     }
 
+    const travelGuide = await TravelGuide.findOne({
+      where: {
+        user_id,
+      },
+    });
+    const travelGuideLocation = await TravelGuideLocation.findAll({
+      where: {
+        travel_guide_id: travelGuide.id,
+      },
+    });
+    const existingGuideTour = await GuideTour.findAll({
+      where: {
+        travel_guide_id: travelGuide.id,
+      },
+    });
+    const locationIds = travelGuideLocation.map((loc) => loc.location_id);
+    const existingTourIds = existingGuideTour.map(gt => gt.travel_tour_id);
+
     // Tạo điều kiện where cho TravelTour
     const travelTourWhereCondition = {
       status: 0,
       active: 1,
+      id: {
+        [Op.notIn]: existingTourIds
+      }
+    };
+
+    // Thêm điều kiện end_location vào tourWhereCondition
+    tourWhereCondition.end_location = {
+      [Op.in]: locationIds
     };
 
     if (start_day) {
       travelTourWhereCondition.start_day = {
         [Op.gte]: new Date(start_day),
+      };
+    } else {
+      travelTourWhereCondition.start_day = {
+        [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
       };
     }
 
@@ -745,9 +783,9 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
 
     // Lấy danh sách TravelTour có end_location trong bảng Tour trùng với location mà Staff phụ trách
     const travelTours = await TravelTour.findAll({
-      where: {
-        active: true, // Chỉ lấy các tour chưa đóng
-      },
+      // where: {
+      //   active: true, // Chỉ lấy các tour chưa đóng
+      // },
       include: [
         {
           model: Booking,
@@ -758,7 +796,7 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
           model: Tour,
           as: "Tour",
           where: {
-            end_location: { [Sequelize.Op.in]: locationIds }, // end_location từ bảng Tour
+            end_location: { [Sequelize.Op.in]: locationIds },
           },
           include: [
             {
@@ -786,8 +824,10 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
     const formattedTravelTours = travelTours.map((travelTour) => ({
       id: travelTour.id,
       name: travelTour.Tour?.name_tour || null,
+      status: travelTour.status,
       start_day: travelTour.start_day,
       end_day: travelTour.end_day,
+      price_tour: travelTour.price_tour,
       max_people: travelTour.max_people,
       current_people: travelTour.current_people,
       start_location: travelTour.Tour?.startLocation || null,
@@ -812,6 +852,30 @@ exports.getTravelToursByStaffEndLocationWithBooking = async (req, res) => {
     console.error("Lỗi khi lấy danh sách TravelTour:", error);
     res.status(500).json({
       message: "Lỗi khi lấy danh sách TravelTour!",
+      error: error.message,
+    });
+  }
+};
+exports.closeTravelTour = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const travelTour = await TravelTour.findByPk(id);
+    if (!travelTour) {
+      return res.status(404).json({ message: "Không tìm thấy tour du lịch!" });
+    }
+    if (travelTour.active === false) {
+      return res.status(400).json({ message: "Tour du lịch đã đóng!" });
+    }
+
+    travelTour.active = false;
+    await travelTour.save();
+
+    res.status(200).json({
+      message: "Đóng tour du lịch thành công!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi khi đóng tour du lịch!",
       error: error.message,
     });
   }

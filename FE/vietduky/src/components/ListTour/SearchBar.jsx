@@ -1,7 +1,12 @@
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
-export default function SearchBar({ tours, travelTours, filteredTours }) {
+export default function SearchBar({
+  tours,
+  travelTours,
+  filteredTours,
+  isFiltering,
+}) {
   const [sortOption, setSortOption] = useState("Ngày khởi hành gần nhất");
 
   return (
@@ -12,8 +17,7 @@ export default function SearchBar({ tours, travelTours, filteredTours }) {
           <div className="text-lg font-medium text-gray-800">
             Chúng tôi tìm thấy{" "}
             <span className="font-bold text-red-600">
-              {" "}
-              {filteredTours.length}
+              {isFiltering ? filteredTours.length : tours.length}
             </span>{" "}
             chương trình tour cho quý khách
           </div>

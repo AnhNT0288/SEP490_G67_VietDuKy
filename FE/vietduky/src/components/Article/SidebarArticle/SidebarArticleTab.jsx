@@ -1,41 +1,20 @@
+import { formatDate } from "@/utils/dateUtil";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const mockPopularPosts = [
-  {
-    title: "Du lịch Vũng Tàu: Cẩm nang từ A đến Z (Update thôn...",
-    date: "12/03/2025",
-    thumbnail: "/images/vungtau.jpg",
-  },
-  {
-    title: "Du lịch đảo Nam Du: Cẩm nang từ A đến Z (Update th...",
-    date: "29/11/2024",
-    thumbnail: "/images/namdu.jpg",
-  },
-  {
-    title: "Du lịch Đà Lạt - Cẩm nang từ A đến Z (Update thông...",
-    date: "29/11/2024",
-    thumbnail: "/images/dalat.jpg",
-  },
-  {
-    title: "Du lịch Phú Quốc: Cẩm nang từ A đến Z (update th...",
-    date: "29/11/2024",
-    thumbnail: "/images/phuquoc.jpg",
-  },
-  {
-    title: "Du lịch Phan Thiết: Cẩm nang từ A đến Z (update th...",
-    date: "29/11/2024",
-    thumbnail: "/images/phanthiet.jpg",
-  },
-];
-
-const mockLatestPosts = [
-  // Tùy bạn cập nhật thêm nếu có danh sách "Bài mới"
-  ...mockPopularPosts.reverse(),
-];
-
-const SidebarArticleTab = () => {
+const SidebarArticleTab = ({ popularPosts, latestPosts }) => {
   const [activeTab, setActiveTab] = useState("popular");
-  const posts = activeTab === "popular" ? mockPopularPosts : mockLatestPosts;
+  const posts = activeTab === "popular" ? popularPosts : latestPosts;
+
+  const navigate = useNavigate();
+
+  const handleNavigate = (post) => {
+    if (post.type === "article") {
+      navigate(`/article/${post.directoryAlias}/${post.id}`);
+    } else if (post.type === "post-experience") {
+      navigate(`/article/post-experience/${post.id}`);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -66,9 +45,13 @@ const SidebarArticleTab = () => {
       {/* Post list */}
       <div className="space-y-4">
         {posts.map((post, index) => (
-          <div key={index} className="flex gap-3 items-start">
+          <div
+            key={index}
+            onClick={() => handleNavigate(post)}
+            className="flex gap-3 items-start cursor-pointer"
+          >
             <img
-              src={post.thumbnail}
+              src={JSON.parse(post.album)}
               alt={post.title}
               className="w-14 h-14 object-cover rounded"
             />
@@ -76,7 +59,9 @@ const SidebarArticleTab = () => {
               <h4 className="text-sm font-medium leading-5 line-clamp-2">
                 {post.title}
               </h4>
-              <p className="text-xs text-gray-500 mt-1">{post.date}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {formatDate(post.date)}
+              </p>
             </div>
           </div>
         ))}

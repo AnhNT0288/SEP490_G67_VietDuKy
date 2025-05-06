@@ -2,12 +2,11 @@ import AppleAuth from "../AuthProviders/AppleAuth";
 import FacebookAuth from "../AuthProviders/FacebookAuth";
 import GoogleAuth from "../AuthProviders/GoogleAuth";
 import PhoneAuth from "../AuthProviders/PhoneAuth";
-import { X, Plane } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect } from "react";
-import { FaFacebook, FaApple } from "react-icons/fa";
 import Icons from "../Icons/Icon";
 
-export default function ModalLogin({ onClose }) {
+export default function ModalLogin({ onClose, onLoginSuccess }) {
   useEffect(() => {
     const handleEsc = (event) => {
       if (event.key === "Escape") {
@@ -27,8 +26,7 @@ export default function ModalLogin({ onClose }) {
         className="bg-white p-8 pt-14 rounded-lg shadow-lg max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* <Plane className="absolute top-2 left-2 text-red-500" size={24} /> */}
-        <img src={Icons.PlaneFly} className="absolute left-0 top-1"/>
+        <img src={Icons.PlaneFly} className="absolute left-0 top-1" />
 
         {/* Nút đóng modal */}
         <button
@@ -48,10 +46,10 @@ export default function ModalLogin({ onClose }) {
 
         {/* Các nút đăng nhập */}
         <div className="mt-4 space-y-3">
-          <GoogleAuth onClose={onClose} />
-          <PhoneAuth onClose={onClose} />
-          <FacebookAuth onClose={onClose} />
-          <AppleAuth onClose={onClose} />
+          <GoogleAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
+          <PhoneAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
+          <FacebookAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
+          <AppleAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
         </div>
       </div>
     </div>

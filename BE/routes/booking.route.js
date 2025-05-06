@@ -10,6 +10,15 @@ const {
 
 router.get("/", BookingController.getAllBookings);
 
+// router.get(
+//     "/payment-remind",
+//     BookingController.paymentBookingRemind
+// );
+
+router.get(
+    "/re-payment/:id",
+    BookingController.rePayment
+);
 router.get(
     "/search",
     BookingController.searchBooking
@@ -18,6 +27,10 @@ router.get(
     "/:id",
     // authenticateUser,
     BookingController.getBookingById
+);
+router.post(
+    "/code",
+    BookingController.getBookingByBookingCode
 );
 // router.post(
 //   "/create",
@@ -54,5 +67,4 @@ router.get(
     "/travel-tour/:id",
     BookingController.getBookingByTravelTourId
 );
-
 module.exports = router;
