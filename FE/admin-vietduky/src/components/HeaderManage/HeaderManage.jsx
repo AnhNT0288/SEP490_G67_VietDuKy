@@ -93,7 +93,7 @@ export default function HeaderManage({ toggleSidebar, breadcrumb = [] }) {
             </span>
           )}
           {isShowNotification && (
-            <div className="absolute right-0 mt-2 w-[300px] max-h-[400px] overflow-y-auto bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
+            <div className="absolute right-0 mt-2 w-[300px] bg-white shadow-lg rounded-lg p-2 border border-gray-200 z-50">
               <div className="flex flex-row justify-between items-center">
                   <p className="text-sm text-gray-700 font-medium px-3 py-1">
                     {notifications.length} thông báo

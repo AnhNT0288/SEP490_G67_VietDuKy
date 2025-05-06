@@ -947,10 +947,10 @@ exports.cancelTravelTour = async (req, res) => {
     if (!travelTour) {
       return res.status(404).json({ message: "Không tìm thấy tour du lịch!" });
     }
-    if (travelTour.status !== 1 || travelTour.status !== 0) {
-      return res
-        .status(400)
-        .json({ message: "Tour du lịch không đang diễn ra!" });
+
+    if (travelTour.status !== 1 && travelTour.status !== 0) {
+      return res.status(400).json({ message: "Tour du lịch không đang diễn ra!" });
+
     }
     const tour = await Tour.findByPk(travelTour.tour_id);
     const bookings = await Booking.findAll({

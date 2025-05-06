@@ -213,6 +213,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                         <th className="p-2">Điểm đến</th>
                         <th className="p-2">Ngày khởi hành</th>
                         <th className="p-2">Ngày về</th>
+                        <th className="p-2 text-center">Đã đặt</th>
                         <th className="p-2 text-left">Trạng thái</th>
                         <th className="p-2 text-right">Thao tác</th>
                     </tr>
@@ -225,6 +226,9 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                             <td className="p-2">{tour.end_location?.name_location}</td>
                             <td className="p-2">{format(new Date(tour.start_day), "dd/MM/yyyy")}</td>
                             <td className="p-2">{format(new Date(tour.end_day), "dd/MM/yyyy")}</td>
+                            <td className="p-2 text-center">
+                                {tour.current_people}/{tour.max_people}
+                            </td>
                             <td
                                 className={`p-2 font-medium ${
                                     tour.status === 1 ? "text-green-600" : "text-red-600"
@@ -242,6 +246,7 @@ export default function IsBookingTravelToursManagement({ staffId }) {
                                     onAssignService={(t) => handleOpenAssignServiceModal(t)}
                                     onMarkAssigned={handleMarkAssigned}
                                     onImportPassengers={(t) => handleImportPassenger(t)}
+                                    onCanceled={fetchTravelTours}
                                 />
                             </td>
                         </tr>

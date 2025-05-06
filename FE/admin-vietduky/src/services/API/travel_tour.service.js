@@ -150,5 +150,19 @@ export function updateTravelTour(id, data) {
         });
 }
 
+export function cancelTravelTour(id) {
+    return restClient({
+        url: `travel-tour/cancel/${id}`,
+        method: "GET",
+    })
+        .then((response) => {
+            console.log("✅ Huỷ tour thành công:", response.data);
+            return response.data;
+        })
+        .catch((error) => {
+            console.error("❌ Lỗi khi huỷ tour:", error.response?.data || error);
+            throw error;
+        });
+}
 
 
