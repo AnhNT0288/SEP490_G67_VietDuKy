@@ -6,6 +6,7 @@ import ModalBookingDetail from "./ModalBookingDetail.jsx";
 
 const ModalListBooking = ({ bookingList, open, onClose }) => {
     const [booking, setBooking] = useState(null);
+    const [searchBookingCode, setSearchBookingCode] = useState("");
     if (!open) return null;
 
     const safeFormatDate = (dateStr) => {
@@ -29,6 +30,15 @@ const ModalListBooking = ({ bookingList, open, onClose }) => {
                 </div>
 
                 <div className="flex flex-col h-full">
+                <div className="mb-4 w-1/3">
+  <input
+    type="text"
+    placeholder="Tìm kiếm theo mã đặt Tour..."
+    value={searchBookingCode}
+    onChange={(e) => setSearchBookingCode(e.target.value)}
+    className="w-full border border-gray-300 px-3 py-2 rounded-md"
+  />
+</div>
                     <div className="h-4/5 overflow-y-auto">
                         <table className="w-full text-sm">
                             <thead className="text-center border-b">
@@ -46,8 +56,13 @@ const ModalListBooking = ({ bookingList, open, onClose }) => {
                             </tr>
                             </thead>
                             <tbody>
-                            {bookingList?.map((booking) => (
-                                <tr key={booking.id} className="even:bg-gray-100 text-center">
+{bookingList
+  ?.filter((booking) =>
+    booking.booking_code
+      ?.toLowerCase()
+      .includes(searchBookingCode.toLowerCase())
+  )
+  .map((booking) => (                                <tr key={booking.id} className="even:bg-gray-100 text-center">
                                     <td className="p-2 text-left">{booking?.booking_code}</td>
                                     <td className="p-2">{booking?.name}</td>
                                     <td className="p-2">{booking?.phone}</td>

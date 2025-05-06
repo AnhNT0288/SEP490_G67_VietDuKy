@@ -1042,6 +1042,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
         const totalBooking = await Booking.findAll({
             where: {
                 travel_tour_id: travel_tour_id,
+                status: 2,
             },
         });
 
@@ -1487,7 +1488,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
             birth_date: guideTour.travelGuide.birth_date,
         }));
         const totalBookings = await Booking.findAll({
-            where: {travel_tour_id: travel_tour_id}
+            where: {travel_tour_id: travel_tour_id, status: 2}
         })
         const bookingIds = totalBookings.map((booking) => booking.id);
         const passengersNotAssigned = await Passenger.findAll({
