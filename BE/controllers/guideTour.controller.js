@@ -324,7 +324,7 @@ exports.approveGuideTour = async (req, res) => {
             include: [
                 {
                     model: User,
-                    as: "User",
+                    as: "user",
                 },
             ],
         });
@@ -460,7 +460,7 @@ exports.approveGuideTour = async (req, res) => {
         });
         await sendNotificationToUser(
             parseInt(travelGuide.user_id),
-            travelGuide.User.fcm_token,
+            travelGuide.user.fcm_token,
             {
                 title: "Yêu cầu đi tour đã được duyệt!",
                 type: NOTIFICATION_TYPE.GUIDE_TOUR_APPROVED,

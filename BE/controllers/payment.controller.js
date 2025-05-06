@@ -136,7 +136,7 @@ exports.getPaymentByBookingId = async (req, res) => {
     const { id } = req.params;
     console.log("REQ BODY:", req.body);
 
-    const payment = await Payment.findOne({
+    const payment = await Payment.findAll({
         where: {
             booking_id: id,
         },
