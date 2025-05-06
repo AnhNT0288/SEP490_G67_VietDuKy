@@ -14,6 +14,7 @@ import ConfirmDeleteCustomer from "./ConfirmDeleteCustomer";
 import { handleExcelUpload } from "../../utils/handleExcel";
 import ImportExcelButton from "./ImportExcelButton";
 import UpdateCustomerInfoModal from "./UpdateCustomerInfoModal";
+import {toast} from "react-toastify";
 const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
   const [search, setSearch] = useState("");
   const [openAddCustomerInfoModal, setOpenAddCustomerInfoModal] = useState(false);
@@ -104,9 +105,9 @@ const BookingDetailsModal = ({ booking, open, onClose, onSubmit }) => {
     if (response.status === 200) {
       onSubmit();
       handleClose();
-      alert("Cập nhật thành công");
+      toast.success("Cập nhật thành công");
     } else {
-      alert("Cập nhật thất bại");
+      toast.error("Cập nhật thất bại");
     }
   };
 

@@ -1,5 +1,6 @@
 import restClient from "../restClient";
 import { clearParams } from "../../utils";
+import {StorageService} from "@/services/storage/StorageService.js";
 // Lấy danh sách tour theo user id
 export const getToursByUserId = async (userId) => {
   try {
@@ -17,11 +18,15 @@ export const getToursByUserId = async (userId) => {
 // Lấy danh sách travel tour có thể nhận
 export const getTravelTourCanAccept = async (params) => {
   try {
+    const user = StorageService.getUser();
+    if (!user?.id) throw new Error("Không tìm thấy user trong localStorage");
+
     const response = await restClient({
-      url: `travel-tour/guide`,
+      url: `travel-tour/guide/${user.id}`,
       method: "GET",
       params: clearParams(params),
     });
+
     return response.data;
   } catch (error) {
     console.error("Lỗi khi lấy tour:", error);

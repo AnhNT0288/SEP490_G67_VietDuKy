@@ -93,22 +93,22 @@ export default function Dashboard() {
         feedbackPage * feedbacksPerPage
     );
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 bg-gray-100 min-h-screen">
             {/* Header Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 shadow rounded">
+                <div className="bg-white p-4 shadow rounded-2xl">
                     <div className="text-sm font-medium text-gray-600">Doanh số hôm nay</div>
                     <div className="mt-2 text-2xl font-bold">{today_revenue?.toLocaleString()} VND</div>
                 </div>
-                <div className="bg-white p-4 shadow rounded">
+                <div className="bg-white p-4 shadow rounded-2xl">
                     <div className="text-sm font-medium text-gray-600">Tổng doanh số tháng</div>
                     <div className="mt-2 text-2xl font-bold">{monthly_revenue?.toLocaleString()} VND</div>
                 </div>
-                <div className="bg-white p-4 shadow rounded">
+                <div className="bg-white p-4 shadow rounded-2xl">
                     <div className="text-sm font-medium text-gray-600">Tổng số dịch vụ</div>
                     <div className="mt-2 text-2xl font-bold">{total_bookings}</div>
                 </div>
-                <div className="bg-white p-4 shadow rounded">
+                <div className="bg-white p-4 shadow rounded-2xl">
                     <div className="text-sm font-medium text-gray-600">Tổng số khách hàng</div>
                     <div className="mt-2 text-2xl font-bold">{total_customers}</div>
                 </div>
@@ -116,7 +116,7 @@ export default function Dashboard() {
 
             {/* Revenue Chart + Top Tours */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 shadow rounded col-span-2">
+                <div className="bg-white p-4 shadow rounded-2xl col-span-2">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-lg font-semibold">Báo cáo doanh thu</h2>
                         <button className="px-3 py-1 border rounded text-sm">Xuất Excel</button>
@@ -127,13 +127,13 @@ export default function Dashboard() {
                 </div>
 
                 {/* top 4 tour duoc quan tam */}
-                <div className="bg-white p-4 shadow rounded">
+                <div className="bg-white p-4 shadow rounded-2xl">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-lg font-semibold">Top 4 Tour được yêu thích</h2>
                         <select
                             value={timeRange}
                             onChange={(e) => setTimeRange(e.target.value)}
-                            className="border text-sm px-2 py-1 rounded text-gray-600"
+                            className="border text-sm px-2 py-1 rounded-2xl text-gray-600"
                         >
                             {timeOptions.map((opt) => (
                                 <option key={opt.value} value={opt.value}>
@@ -154,7 +154,17 @@ export default function Dashboard() {
                                 <div className="flex-1 min-w-0">
                                     <div className="font-medium text-sm truncate">{tour.name_tour}</div>
                                     <div className="flex items-center gap-2 text-sm text-gray-600 mt-1 flex-wrap">
-                                        <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded">10.0</span>
+                                        <span
+                                            className={`text-xs text-white px-2 py-0.5 rounded-2xl ${
+                                            tour.rating_tour >= 4.5
+                                                ? 'bg-green-600'
+                                                : tour.rating_tour >= 3
+                                                ? 'bg-yellow-500' 
+                                                    : 'bg-red-600'
+                                                        }`}
+                                        >
+                                            {tour.rating_tour?.toFixed(1)}
+                                        </span>
                                         <span className="text-green-600 font-medium">Tuyệt vời</span>
                                         <span className="text-gray-500">| {tour.feedback_count} đánh giá</span>
                                         <span className="text-gray-500">| {tour.travel_tour_count} chuyến đi</span>
@@ -164,7 +174,7 @@ export default function Dashboard() {
                         ))}
                     </div>
 
-                    <div className="text-sm text-gray-500 mt-4 cursor-pointer">
+                    <div className="text-sm text-gray-800 mt-4 cursor-pointer">
                         Xem tất cả Tour
                     </div>
                 </div>
@@ -172,10 +182,10 @@ export default function Dashboard() {
 
             {/* Guides and Customer Reviews */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white p-4 shadow rounded col-span-2">
+                <div className="bg-white p-4 shadow rounded-2xl col-span-2">
                     <div className="flex justify-between items-center mb-1">
                         <h2 className="text-lg font-semibold">Danh sách Hướng dẫn viên</h2>
-                        <div className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">Xem tất cả</div>
+                        <div className="text-sm text-gray-800 cursor-pointer hover:text-gray-700">Xem tất cả</div>
                     </div>
 
                     <div className="flex flex-wrap gap-4 items-center justify-between mt-2 mb-3">
@@ -183,7 +193,7 @@ export default function Dashboard() {
                             <select
                                 value={ratingFilter}
                                 onChange={(e) => setRatingFilter(e.target.value)}
-                                className="border text-sm px-2 py-1 rounded text-gray-600"
+                                className="border text-sm px-2 py-1 rounded-2xl text-gray-600"
                             >
                                 <option value="">Tất cả đánh giá</option>
                                 <option value="5">5 sao</option>
@@ -196,7 +206,7 @@ export default function Dashboard() {
                             <select
                                 value={areaFilter}
                                 onChange={(e) => setAreaFilter(e.target.value)}
-                                className="border text-sm px-2 py-1 rounded text-gray-600"
+                                className="border text-sm px-2 py-1 rounded-2xl text-gray-600"
                             >
                                 <option value="">Khu vực</option>
                                 {locations.map((loc) => (
@@ -263,13 +273,13 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                <div className="bg-white p-4 shadow rounded">
+                <div className="bg-white p-4 shadow rounded-2xl">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-lg font-semibold">Tour ít được quan tâm</h2>
                         <select
                             value={timeRangeLow}
                             onChange={(e) => setTimeRangeLow(e.target.value)}
-                            className="border text-sm px-2 py-1 rounded text-gray-600"
+                            className="border text-sm px-2 py-1 -2xl text-gray-600"
                         >
                             {timeOptions.map((opt) => (
                                 <option key={opt.value} value={opt.value}>
@@ -290,7 +300,17 @@ export default function Dashboard() {
                                 <div className="flex-1 min-w-0">
                                     <div className="font-medium text-sm truncate">{tour.name_tour}</div>
                                     <div className="flex items-center gap-2 text-sm text-gray-600 mt-1 flex-wrap">
-                                        <span className="text-xs bg-red-600 text-white px-2 py-0.5 rounded">6.5</span>
+                                        <span
+                                            className={`text-xs text-white px-2 py-0.5 rounded-2xl ${
+                                            (tour.rating_tour ?? 0) >= 4.5
+                                            ? 'bg-green-600'
+                                            : (tour.rating_tour ?? 0) >= 3
+                                            ? 'bg-yellow-500'
+                                            : 'bg-red-600'
+                                            }`}
+                                        >
+                                            {(tour.rating_tour ?? 0).toFixed(1)}
+                                        </span>
                                         <span className="text-red-600 font-medium">Chưa tốt</span>
                                         <span className="text-gray-500">| {tour.feedback_count} đánh giá</span>
                                         <span className="text-gray-500">| {tour.travel_tour_count} chuyến đi</span>
@@ -300,14 +320,14 @@ export default function Dashboard() {
                         ))}
                     </div>
 
-                    <div className="text-sm text-gray-500 mt-4 cursor-pointer">
+                    <div className="text-sm text-gray-800 mt-4 cursor-pointer">
                         Xem tất cả Tour
                     </div>
                 </div>
             </div>
 
             {/* Customer Reviews */}
-            <div className="bg-white p-4 shadow rounded">
+            <div className="bg-white p-4 shadow rounded-2xl">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
                     <h2 className="text-lg font-semibold">Đánh giá của Khách hàng</h2>
                 </div>

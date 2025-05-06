@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAvailableRestaurantsByTravelTourId } from "../../../../services/API/restaurant.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalSelectRestaurant({ tourId, onClose, onConfirm }) {
@@ -48,12 +49,12 @@ export default function ModalSelectRestaurant({ tourId, onClose, onConfirm }) {
 
     const handleConfirm = () => {
         if (selectedData.length === 0) {
-            alert("Vui lòng chọn ít nhất một nhà hàng!");
+            toast.error("Vui lòng chọn ít nhất một nhà hàng!");
             return;
         }
         const incomplete = selectedData.some(item => !item.date);
         if (incomplete) {
-            alert("Vui lòng chọn ngày ăn cho tất cả nhà hàng!");
+            toast.error("Vui lòng chọn ngày ăn cho tất cả nhà hàng!");
             return;
         }
         onConfirm(selectedData);

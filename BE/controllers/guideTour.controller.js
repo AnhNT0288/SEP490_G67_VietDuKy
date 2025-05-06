@@ -251,6 +251,7 @@ exports.addGuideToTour = async (req, res) => {
 
         // Kiểm tra tour du lịch tồn tại
         const travelTour = await TravelTour.findByPk(travel_tour_id);
+        const tour = await Tour.findByPk(travelTour.tour_id);
         if (!travelTour) {
             return res
                 .status(200)
@@ -289,7 +290,7 @@ exports.addGuideToTour = async (req, res) => {
                 title: "Có yêu cầu đi tour mới!",
                 type: NOTIFICATION_TYPE.GUIDE_TOUR_REQUEST,
                 id: newGuideTour.id,
-                body: travelGuide.first_name + " " + travelGuide.last_name + " đã gửi yêu cầu tham gia tour " + travelTour.Tour.name_tour
+                body: travelGuide.first_name + " " + travelGuide.last_name + " đã gửi yêu cầu tham gia tour " + tour.name_tour
             }
         );
 

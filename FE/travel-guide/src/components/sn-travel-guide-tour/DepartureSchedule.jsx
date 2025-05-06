@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Loader } from "lucide-react";
-import { getTravelTourCanAccept } from "../../services/API/guide-tour.service";
+import { getTravelTourCanAccept } from "@/services/API/guide-tour.service.js";
 import { LuSearch } from "react-icons/lu";
 import SearchDebounceInput from "../common/SearchDebouceInput";
-import { getLocations } from "../../services/API/location.service";
+import { getLocations } from "@/services/API/location.service.js";
 import Pagination from "../common/Pagination";
 import { formatDate } from "../../utils/dateUtil";
 import ConfirmSendRequest from "./ConfirmSendRequest";
@@ -33,7 +33,7 @@ const DepartureSchedule = () => {
           name_tour: search,
           start_location_id: startLocation,
           end_location_id: endLocation,
-          start_day: startDate, // ✅ đảm bảo truyền đúng field
+          start_day: startDate,
         });
 
         const { items = [], totalPages = 0 } = response?.data || {};
@@ -49,7 +49,7 @@ const DepartureSchedule = () => {
     };
 
     fetchTours();
-  }, [search, startLocation, endLocation, startDate, pagination]); // ✅ có startDate
+  }, [search, startLocation, endLocation, startDate, pagination]);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -123,7 +123,7 @@ const DepartureSchedule = () => {
               <th className="p-2">Điểm khởi hành</th>
               <th className="p-2">Điểm kết thúc</th>
               <th className="p-2">Ngày khởi hành</th>
-              <th className="p-2">Giá Tour</th>
+              <th className="p-2">Ngày về</th>
               <th className="text-end p-2" style={{ width: "1%", whiteSpace: "nowrap" }}>Thao tác</th>
             </tr>
             </thead>

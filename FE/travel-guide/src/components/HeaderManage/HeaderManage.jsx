@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { FiSidebar, FiMoon, FiUser } from "react-icons/fi";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { StorageService } from "../../services/storage/StorageService";
+import { useLocation, useNavigate } from "react-router-dom";
+import { StorageService } from "@/services/storage/StorageService.js";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Check, Trash } from "lucide-react";
 // import { getLinkNotification } from "../../utils";

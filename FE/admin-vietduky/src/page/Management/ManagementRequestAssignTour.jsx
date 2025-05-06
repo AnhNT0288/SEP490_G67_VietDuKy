@@ -3,9 +3,8 @@ import {
     approveGuideAssignRequest,
     getPendingAssignRequests,
     rejectGuideAssignRequest
-} from "../../services/API/guide_tour.service";
+} from "@/services/API/guide_tour.service.js";
 import { formatDate } from "../../utils/dateUtil";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import DropdownRequest from "../../components/Dropdown/DropdownRequest.jsx";
 
 export default function ManagementRequestAssignTour() {
@@ -49,14 +48,13 @@ export default function ManagementRequestAssignTour() {
     }, []);
 
     const filteredRequests = requests.filter((item) => {
-        const tourName = item.travelTour?.Tour?.name_tour || "";
-        const guideName = item.travelGuide
-            ? `${item.travelGuide.first_name} ${item.travelGuide.last_name}`
-            : "";
-        return (
-            tourName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-            guideName.toLowerCase().includes(searchKeyword.toLowerCase())
+        const tourName = removeVietnameseTones((item?.travelTour?.Tour?.name_tour || "").toLowerCase());
+        const guideName = removeVietnameseTones(
+            `${item?.travelGuide?.first_name || ""} ${item?.travelGuide?.last_name || ""}`.toLowerCase()
         );
+        const keyword = removeVietnameseTones(searchKeyword.toLowerCase());
+
+        return tourName.includes(keyword) || guideName.includes(keyword);
     });
 
     const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
@@ -83,6 +81,14 @@ export default function ManagementRequestAssignTour() {
             setDropdownOpenId(null);
         }
     };
+
+    function removeVietnameseTones(str) {
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D");
+    }
     return (
         <div title="Yêu cầu phân công HDV">
             <div className="bg-white p-4 rounded-md flex flex-wrap gap-4 items-center justify-between">
@@ -90,7 +96,7 @@ export default function ManagementRequestAssignTour() {
                     <input
                         type="text"
                         placeholder="Tìm kiếm tour hoặc HDV"
-                        className="pl-4 pr-4 py-2 border rounded-md w-full"
+                        className="pl-4 pr-4 py-2 border rounded-md w-1/3"
                         value={searchKeyword}
                         onChange={(e) => {
                             setSearchKeyword(e.target.value);

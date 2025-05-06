@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllVehicles } from "../../../../services/API/vehicle.service.js";
+import {toast} from "react-toastify";
 
 // eslint-disable-next-line react/prop-types
 export default function ModalSelectVehicle({ tourId, onClose, onConfirm }) {
@@ -29,7 +30,7 @@ export default function ModalSelectVehicle({ tourId, onClose, onConfirm }) {
 
     const handleConfirm = () => {
         if (selectedVehicleIds.length === 0) {
-            alert("Vui lòng chọn ít nhất một xe!");
+            toast.error("Vui lòng chọn ít nhất một xe!");
             return;
         }
         onConfirm(selectedVehicleIds);
