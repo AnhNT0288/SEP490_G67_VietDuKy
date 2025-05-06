@@ -68,7 +68,10 @@ const HistoryBookingCard = ({ booking }) => {
                 "Không có mã tour"}
             </p>
           </div>
-          <div className="flex items-start gap-3 text-gray-600 text-lg">
+          <div
+            className="flex items-start gap-3 text-gray-600 text-lg"
+            onClick={() => navigate(`/tour/${booking?.TravelTour?.Tour?.id}`)}
+          >
             <button title="Đặt lại" className="hover:text-red-600">
               <AiOutlineLoading3Quarters />
             </button>

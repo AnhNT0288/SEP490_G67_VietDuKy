@@ -47,9 +47,9 @@ export default function ModalLogin({ onClose, onLoginSuccess }) {
         {/* Các nút đăng nhập */}
         <div className="mt-4 space-y-3">
           <GoogleAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
-          <PhoneAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
+          {/* <PhoneAuth onClose={onClose} onLoginSuccess={onLoginSuccess} /> */}
           <FacebookAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
-          <AppleAuth onClose={onClose} onLoginSuccess={onLoginSuccess} />
+          {/* <AppleAuth onClose={onClose} onLoginSuccess={onLoginSuccess} /> */}
         </div>
       </div>
     </div>

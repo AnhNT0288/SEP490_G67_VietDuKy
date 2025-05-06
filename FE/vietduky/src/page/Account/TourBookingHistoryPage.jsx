@@ -9,6 +9,7 @@ import Icons from "@/components/Icons/Icon";
 import LayoutAccountService from "@/layouts/LayoutAccountService";
 import { LocationService } from "@/services/API/location.service";
 import HistoryBookingCard from "@/components/Account/BookingHistory/HistoryBookingCard";
+import LocationSelector from "@/components/Account/BookingHistory/LocationSelector";
 
 export default function TourBookingHistoryPage() {
   const [activeTab, setActiveTab] = useState("upcoming");
@@ -44,6 +45,9 @@ export default function TourBookingHistoryPage() {
     fetchHistoryBooking();
   }, [user.id]);
 
+  console.log("historyBooking", historyBooking);
+  
+
   const locationOptions = locations.map((location) => (
     <option key={location.id} value={location.name_location}>
       {location.name_location}
@@ -57,7 +61,8 @@ export default function TourBookingHistoryPage() {
 
   // Sắp xếp upcomingBookings theo ngày đi gần nhất
   const sortedUpcomingBookings = upcomingBookings
-    .sort((a, b) => new Date(a.TravelTour.start_day) - new Date(b.TravelTour.start_day))
+    .slice() // tạo bản sao để tránh thay đổi mảng gốc
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .filter((booking) => {
       // Lọc theo trạng thái
       if (selectedStatus) {
@@ -160,21 +165,18 @@ export default function TourBookingHistoryPage() {
                       placeholder="Tìm kiếm bằng từ khóa"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="hover:outline-none focus:outline-none px-3"
+                      className="hover:outline-none focus:outline-none px-3 w-full"
                     />
                   </div>
 
                   {/* Dropdown cho vị trí */}
-                  <div className="mb-4">
-                    <select
+                  {/* <div className="mb-4">
+                    <LocationSelector
+                      locations={locations}
                       value={selectedLocation}
-                      onChange={(e) => setSelectedLocation(e.target.value)}
-                      className="border border-gray-300 rounded-lg p-2"
-                    >
-                      <option value="">Địa điểm</option>
-                      {locationOptions}
-                    </select>
-                  </div>
+                      onChange={setSelectedLocation}
+                    />
+                  </div> */}
 
                   {/* Date Picker cho ngày */}
                   <div className="bg-white mb-4 border border-gray-300 rounded-lg p-2 flex items-center">

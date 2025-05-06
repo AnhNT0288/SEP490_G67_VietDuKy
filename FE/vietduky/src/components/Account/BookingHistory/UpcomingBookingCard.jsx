@@ -2,11 +2,17 @@ import Icons from "@/components/Icons/Icon";
 import { formatDayDMY } from "@/utils/dateUtil";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import { PiDotsThreeBold } from "react-icons/pi";
+import BookingDetailModal from "./ModalDetailBooking";
+import { useState } from "react";
 
 export default function UpcomingBookingCard({ booking }) {
+  const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
   const handleRebook = () => {
-    navigate(`/bookingReConfirm?booking_code=${booking.booking_code}`);
+    if (booking.status === 0 || booking.status === 1) {
+      navigate(`/bookingReConfirm?booking_code=${booking.booking_code}`);
+    }
   };
 
   return (
@@ -14,7 +20,14 @@ export default function UpcomingBookingCard({ booking }) {
       <div className="flex gap-6 items-center mb-4 border-b">
         <p className="text-sm mb-2">
           Mã đơn hàng:{" "}
-          <span className="text-red-800 font-semibold cursor-pointer" onClick={handleRebook}>
+          <span
+            className={`font-semibold ${
+              booking.status === 0 || booking.status === 1
+                ? "text-red-800 cursor-pointer hover:underline"
+                : "text-red-800 cursor-not-allowed"
+            }`}
+            onClick={handleRebook}
+          >
             {booking.booking_code || "Không có mã đơn hàng"}
           </span>
         </p>
@@ -86,10 +99,22 @@ export default function UpcomingBookingCard({ booking }) {
 
           {/* Hành động */}
           <div className="flex items-start gap-3 text-gray-600 text-lg">
-            <button title="Làm mới" className="hover:text-red-600">
+            {/* <button title="Làm mới" className="hover:text-red-600">
               <AiOutlineLoading3Quarters />
+            </button> */}
+            <button
+              title="Thông tin chi tiết"
+              className="hover:text-red-600"
+              onClick={() => setOpenModal(true)}
+            >
+              <PiDotsThreeBold />
             </button>
           </div>
+          <BookingDetailModal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            booking={booking}
+          />
         </div>
       </div>
     </>
