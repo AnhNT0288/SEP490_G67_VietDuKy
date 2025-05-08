@@ -9,7 +9,9 @@ const authenticateUser = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Unauthorized: Bạn cần đăng nhập để sử dụng" });
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: Bạn cần đăng nhập để sử dụng" });
     }
 
     const token = authHeader.split(" ")[1];
@@ -20,6 +22,11 @@ const authenticateUser = async (req, res, next) => {
       include: { model: Role, as: "role", attributes: ["role_name"] },
     });
 
+    // Kiểm tra trạng thái tài khoản
+    if (user.status === false) {
+      return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa!" });
+    }
+
     if (!user) {
       return res.status(404).json({ message: "Người dùng không tồn tại" });
     }
@@ -27,7 +34,10 @@ const authenticateUser = async (req, res, next) => {
     req.user = user; // Gán user vào request để sử dụng trong các API khác
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Unauthorized: Bạn cần đăng nhập để sử dụng", error: error.message });
+    return res.status(401).json({
+      message: "Unauthorized: Bạn cần đăng nhập để sử dụng",
+      error: error.message,
+    });
   }
 };
 
@@ -38,7 +48,9 @@ const authenticateUser = async (req, res, next) => {
 const checkRoles = (allowedRoles) => {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.role.role_name)) {
-      return res.status(403).json({ message: "Forbidden: Không có quyền truy cập" });
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Không có quyền truy cập" });
     }
     next();
   };
