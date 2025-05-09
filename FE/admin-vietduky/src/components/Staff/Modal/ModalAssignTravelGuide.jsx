@@ -52,7 +52,7 @@ export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
         }
 
         try {
-            const data = await autoAssignPassengersToGuides(tourId, Number(numberPassenger));
+            const data = await autoAssignPassengersToGuides(tourId, Number(numberPassenger), staffId);
             console.log("Response auto assign:", data);
 
             toast.success("Phân công tự động thành công!");
@@ -66,7 +66,7 @@ export default function ModalAssignTravelGuide({staffId, tour, onClose }) {
                 .finally(() => setLoading(false));
         } catch (error) {
             console.error("Lỗi phân công tự động:", error);
-            toast.error("Có lỗi xảy ra!");
+            toast.error(error?.response?.data?.message || "Có lỗi xảy ra!");
         }
     };
 
