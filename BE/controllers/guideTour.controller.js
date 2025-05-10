@@ -992,7 +992,7 @@ exports.getTravelTourDetailForGuide = async (req, res) => {
 // Gán hành khách cho hướng dẫn viên tự động
 exports.assignPassengerToGuideAuto = async (req, res) => {
     try {
-        const {number_passenger, travel_tour_id} = req.body;
+        const {number_passenger, travel_tour_id, staff_id} = req.body;
 
         // Hàm tính tuổi từ ngày sinh
         const calculateAge = (birth_date) => {
@@ -1061,6 +1061,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
         if (needGuides > existingGuideTours.length) {
             needMoreGuides = needGuides - existingGuideTours.length;
         }
+        
 
         // Nếu cần thêm hướng dẫn viên
         if (needMoreGuides > 0) {
@@ -1083,6 +1084,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                     location_id: tour.end_location, // Lấy theo location kết thúc của tour
                 },
             });
+            console.log(travelGuideLocations.length);
 
             // Lấy danh sách travelGuide theo location
             const availableTravelGuides = await TravelGuide.findAll({
@@ -1097,6 +1099,9 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                             id: {
                                 [Op.notIn]: existingGuideTours.map(gt => gt.travel_guide_id)
                             }
+                        },
+                        {
+                            staff_id: staff_id
                         }
                     ]
                 },
@@ -1107,6 +1112,7 @@ exports.assignPassengerToGuideAuto = async (req, res) => {
                     },
                 ]
             });
+            console.log(availableTravelGuides.length);
 
             // Kiểm tra số lượng travelGuide có sẵn
             if (availableTravelGuides.length < needMoreGuides) {

@@ -1,7 +1,7 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
-const {User} = require("../models");
+const { User } = require("../models");
 
 const isDev = process.env.NODE_ENV !== "production";
 const googleCallbackURL = isDev
@@ -16,16 +16,27 @@ passport.use(new GoogleStrategy(
     {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: googleCallbackURL
+        callbackURL: googleCallbackURL,
     },
     async (accessToken, refreshToken, profile, done) => {
         try {
-            let email = profile.emails?.[0]?.value || null;
-            let avatar = profile.photos?.[0]?.value || null;
+            const email = profile.emails?.[0]?.value || null;
+            const avatar = profile.photos?.[0]?.value || null;
 
-            let user = await User.findOne({where: {email}});
+            let user = await User.findOne({ where: { email } });
 
-            if (!user) {
+            // ✅ Nếu đã có user thì check status
+            if (user) {
+                if (user.status === false) {
+                    return done(null, false, { message: "Tài khoản của bạn đã bị khóa!" });
+                }
+
+                // Cập nhật lại Google ID nếu chưa có
+                user.googleId = profile.id || '';
+                user.displayName = profile.displayName || '';
+                await user.save();
+            } else {
+                // ✅ Tạo user mới (mặc định status là true)
                 user = await User.create({
                     googleId: profile.id || '',
                     email,
@@ -34,19 +45,16 @@ passport.use(new GoogleStrategy(
                     password: null,
                     role_id: 1,
                 });
-            } else {
-                user.googleId = profile.id || '';
-                user.displayName = profile.displayName || '';
-                await user.save();
             }
 
             return done(null, user);
         } catch (error) {
-            console.error("Google Strategy Error: ", error);
+            console.error("Google Strategy Error:", error);
             return done(error, null);
         }
     }
 ));
+
 
 passport.use(new FacebookStrategy(
     {
@@ -61,7 +69,7 @@ passport.use(new FacebookStrategy(
             const displayName = `${profile.name.givenName || ""} ${profile.name.middleName || ""} ${profile.name.familyName || ""}`.trim();
             const avatar = profile.photos?.[0]?.value || null;
 
-            let user = await User.findOne({where: {email}});
+            let user = await User.findOne({ where: { email } });
 
             if (!user) {
                 user = await User.create({
@@ -88,7 +96,7 @@ passport.use(new FacebookStrategy(
 
 
 passport.serializeUser((user, done) => {
-    done(null, {id: user.id, token: user.token});
+    done(null, { id: user.id, token: user.token });
 });
 
 passport.deserializeUser(async (userData, done) => {

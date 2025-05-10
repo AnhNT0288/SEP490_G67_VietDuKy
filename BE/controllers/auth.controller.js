@@ -172,7 +172,7 @@ const googleAuth = async (accessToken, refreshToken, profile, done) => {
 const googleLogin = async (req, res) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ message: "Xác thực thất bại" });
+      return res.redirect(`${process.env.CLIENT_URL}/?error=account_locked`);
     }
 
     const user = await User.findOne({
@@ -180,13 +180,8 @@ const googleLogin = async (req, res) => {
       include: { model: Role, as: "role", attributes: ["id", "role_name"] },
     });
 
-    if (!user) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    }
-
-    // Kiểm tra trạng thái tài khoản
-    if (user.status === false) {
-      return res.status(403).json({ message: "Tài khoản của bạn đã bị khóa!" });
+    if (!user || user.status === false) {
+      return res.redirect(`${process.env.CLIENT_URL}/?error=account_locked`);
     }
 
     let customer = await Customer.findOne({ where: { user_id: user.id } });

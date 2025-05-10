@@ -49,13 +49,14 @@ export async function assignPassengersToGuide(guideId, travelTourId, passengerId
 
 
 // Gán tự động hành khách cho hướng dẫn viên
-export function autoAssignPassengersToGuides(travelTourId, numberPassenger) {
+export function autoAssignPassengersToGuides(travelTourId, numberPassenger, staffId) {
     return restClient({
         url: "guide-tour/assign-passenger-auto",
         method: "POST",
         data: {
             travel_tour_id: travelTourId,
             number_passenger: numberPassenger,
+            staff_id: staffId,
         },
     })
         .then((res) => res.data)

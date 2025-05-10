@@ -2,7 +2,7 @@ import {FcGoogle} from "react-icons/fc";
 
 export default function GoogleAuth() {
     const handleGoogleLogin = () => {
-        window.location.href = "https://vietduky.com.vn/api/api/auth/google";
+        window.location.href = "http://localhost:3000/api/auth/google";
     };
 
     return (

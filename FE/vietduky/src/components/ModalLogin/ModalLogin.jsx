@@ -3,10 +3,12 @@ import FacebookAuth from "../AuthProviders/FacebookAuth";
 import GoogleAuth from "../AuthProviders/GoogleAuth";
 import PhoneAuth from "../AuthProviders/PhoneAuth";
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Icons from "../Icons/Icon";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export default function ModalLogin({ onClose, onLoginSuccess }) {
+export default function ModalLogin({ onClose, onLoginSuccess, errorMessage  }) {
+
   useEffect(() => {
     const handleEsc = (event) => {
       if (event.key === "Escape") {
@@ -43,6 +45,11 @@ export default function ModalLogin({ onClose, onLoginSuccess }) {
           </h2>
           <p className="text-sm text-gray-500">Chọn phương thức đăng nhập</p>
         </div>
+
+        {/* Thông báo lỗi */}
+        {errorMessage && (
+          <p className="text-red-600 text-sm text-center mb-2">{errorMessage}</p>
+        )}
 
         {/* Các nút đăng nhập */}
         <div className="mt-4 space-y-3">

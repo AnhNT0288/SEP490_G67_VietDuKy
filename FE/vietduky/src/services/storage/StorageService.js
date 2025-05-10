@@ -25,9 +25,11 @@ export const StorageService = {
     }
   },
 
-  signout: () => {
+  signout: (navigate) => { // Receive navigate as a parameter
     StorageService.removeToken();
     StorageService.removeRefreshToken();
     StorageService.removeUser();
+    // Reload the page after clearing local storage
+    navigate(0); // This triggers a reload
   },
 };

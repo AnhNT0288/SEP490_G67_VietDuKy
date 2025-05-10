@@ -8,6 +8,13 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+
+    if (error === "account_locked") {
+      navigate("/?error=account_locked");
+      return;
+    }
+
     const accessToken = params.get("accessToken");
     const refreshToken = params.get("refreshToken");
     const user = {

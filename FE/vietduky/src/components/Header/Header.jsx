@@ -2,7 +2,7 @@ import Icons from "../Icons/Icon";
 import ModalLogin from "../ModalLogin/ModalLogin";
 import { StorageService } from "@/services/storage/StorageService";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import HeaderMenu from "./HeaderMenu";
 import { FaBars } from "react-icons/fa";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -20,8 +20,30 @@ export default function Header() {
   const hamburgerRef = useRef(null);
   const notificationRef = useRef(null);
   const [isShowNotification, setIsShowNotification] = useState(false);
+  const location = useLocation(); // thêm
+  const [errorMessage, setErrorMessage] = useState(null); // thêm
 
-  const { notifications, markNotificationAsRead, markAllAsRead, deleteAllNotifications } = useNotifications({
+  // Đọc query lỗi từ URL và hiển thị ModalLogin nếu cần
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const error = params.get("error");
+
+    if (error === "account_locked") {
+      setErrorMessage("Tài khoản đã bị khóa vui lòng sử dụng tài khoản khác.");
+      setIsOpenLogin(true);
+
+      // Xoá param lỗi khỏi URL sau khi xử lý
+      const cleanURL = location.pathname;
+      window.history.replaceState({}, document.title, cleanURL);
+    }
+  }, [location]);
+
+  const {
+    notifications,
+    markNotificationAsRead,
+    markAllAsRead,
+    deleteAllNotifications,
+  } = useNotifications({
     userId: user?.id,
   });
 
@@ -58,7 +80,7 @@ export default function Header() {
     }
   };
   const handleSignout = () => {
-    StorageService.signout(navigate);
+    StorageService.signout(navigate); // Pass navigate to signout
     setUser(null);
     setAvatar(Icons.User);
     setIsOpenMenu(false);
@@ -164,30 +186,30 @@ export default function Header() {
                   </div>
                 </div>
                 <div className="overflow-y-auto max-h-[400px]">
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    onClick={() => handleClickNotification(notification)}
-                    className={`flex flex-row justify-between items-center border-t bg-gray-100 border-gray-200 p-2 hover:bg-gray-100 cursor-pointer ${
-                      !notification?.isRead && "bg-white"
-                    }`}
-                  >
-                    <div className="flex flex-col">
-                      <p className="text-md font-medium text-black">
-                        {notification.title}
-                      </p>
-                      {notification.body && (
-                        <p className="text-sm text-gray-700 font-medium text-black">
-                          {notification.body}
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      onClick={() => handleClickNotification(notification)}
+                      className={`flex flex-row justify-between items-center border-t bg-gray-100 border-gray-200 p-2 hover:bg-gray-100 cursor-pointer ${
+                        !notification?.isRead && "bg-white"
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <p className="text-md font-medium text-black">
+                          {notification.title}
                         </p>
+                        {notification.body && (
+                          <p className="text-sm text-gray-700 font-medium text-black">
+                            {notification.body}
+                          </p>
+                        )}
+                      </div>
+                      {!notification?.isRead && (
+                        <div className="bg-red-700 w-2 h-2 rounded-full" />
                       )}
                     </div>
-                    {!notification?.isRead && (
-                      <div className="bg-red-700 w-2 h-2 rounded-full" />
-                    )}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -265,7 +287,15 @@ export default function Header() {
       </div>
 
       {/* Modal đăng nhập */}
-      {isOpenLogin && <ModalLogin onClose={() => setIsOpenLogin(false)} />}
+      {isOpenLogin && (
+        <ModalLogin
+          onClose={() => {
+            setIsOpenLogin(false);
+            setErrorMessage(null);
+          }}
+          errorMessage={errorMessage}
+        />
+      )}
     </header>
   );
 }
