@@ -1,4 +1,4 @@
-# 🇻🇳 Viet Du Ky Tour Booking System
+# Viet Du Ky Tour Booking System
 
 ![Viet Du Ky Logo] 
 
@@ -21,10 +21,10 @@ Dự án được xây dựng dựa trên kiến trúc hiện đại để đả
 
 | Thành phần | Công nghệ | Phiên bản (Gợi ý) | Mô tả |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | [Ví dụ: React.js/Next.js] | [v18/v14] | Xây dựng giao diện người dùng tương tác, hỗ trợ Responsive Design. |
-| **Backend** | [Ví dụ: Spring Boot/ASP.NET Core] | [v3.x/v7.x] | Xử lý logic nghiệp vụ và cung cấp API RESTful. |
-| **Database** | [Ví dụ: PostgreSQL/SQL Server] | [v14+] | Lưu trữ dữ liệu về Tour, Người dùng, Booking, v.v. |
-| **Styling** | [Ví dụ: Tailwind CSS/Bootstrap] | [v3.x/v5.x] | Thiết kế hiện đại và nhất quán. |
+| **Frontend** | React.js | [v18/v14] | Xây dựng giao diện người dùng tương tác, hỗ trợ Responsive Design. |
+| **Backend** | Node.js | [v3.x/v7.x] | Xử lý logic nghiệp vụ và cung cấp API RESTful. |
+| **Database** | MySQL | [v14+] | Lưu trữ dữ liệu về Tour, Người dùng, Booking, v.v. |
+| **Styling** | Tailwind CSS | [v3.x/v5.x] | Thiết kế hiện đại và nhất quán. |
 
 ---
 
